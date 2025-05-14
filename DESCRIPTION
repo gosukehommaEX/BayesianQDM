@@ -1,0 +1,19 @@
+Package: BayesianQDM
+Type: Package
+Title: Bayesian Quantitative Decision-making Framework for binary and continuous endpoints
+Version: 0.1.0
+Authors@R: c(
+    person(given = "Gosuke",
+           family = "Homma",
+           role = c("aut", "cre"),
+           email = "my.name.is.gosuke@gmail.com")
+    person(given  = "Yusuke",
+           family = "Yamaguchi",
+           role   = c("aut")))
+Description: Provides methods to calculate posterior probabilities and posterior predictive probabilities,
+    and Go, NoGo and Gray probabilities for quantitative decision-making framework under bayesian paradigm.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
