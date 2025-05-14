@@ -1,6 +1,6 @@
 #' Calculate the Go, NoGo and Gray probabilities for a clinical trial when outcome is binary
-#' under the Bayesian framework using two metrics: 
-#' (i)  posterior probability for the treatment effect to be greater than a threshold, and 
+#' under the Bayesian framework using two metrics:
+#' (i)  posterior probability for the treatment effect to be greater than a threshold, and
 #' (ii) posterior predictive probability of phase III study success.
 #'
 #' The function can obtain:
@@ -17,8 +17,8 @@
 #' @param theta.MAV A numeric pre-specified threshold value for calculating NoGo probability when \code{prob='posterior'}.
 #' @param theta.NULL A numeric pre-specified threshold value for calculating Go/NoGo probabilities when \code{prob='predictive'}.
 #' @param gamma1 A numeric value of a minimum probability to declare success.
-#' @param gamma2 A numeric value of a futility threshold. 
-#' @param pi1 A numeric value or a vector representing true response probability(s) for group 1. 
+#' @param gamma2 A numeric value of a futility threshold.
+#' @param pi1 A numeric value or a vector representing true response probability(s) for group 1.
 #' @param pi2 A numeric value or a vector representing true response probability(s) for group 2.
 #' @param n1 A number of patients in group 1 for a proof-of-concept (PoC) trial.
 #' @param n2 A number of patients in group 2 for the PoC trial.
@@ -41,16 +41,16 @@
 #'
 #' @examples
 #' BayesDecisionProbBinary(
-#'   prob = 'posterior', design = 'controlled', theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL, gamma1 = 0.5, gamma2 = 0.2, 
+#'   prob = 'posterior', design = 'controlled', theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL, gamma1 = 0.5, gamma2 = 0.2,
 #'   pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4), n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL,
 #'   m1 = NULL, m2 = NULL, ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 #' )
 #' BayesDecisionProbBinary(
-#'   prob = 'predictive', design = 'controlled', theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0, gamma1 = 0.9, gamma2 = 0.3, 
+#'   prob = 'predictive', design = 'controlled', theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0, gamma1 = 0.9, gamma2 = 0.3,
 #'   pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4), n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL,
 #'   m1 = 30, m2 = 30, ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 #' )
-#' 
+#'
 #' @importFrom stats dbinom
 #' @export
 BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL, gamma1, gamma2,
@@ -78,9 +78,9 @@ BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL
   # Set trial design
   external = ifelse(design == 'external', TRUE, FALSE)
   # Set values of theta0
-  if(prob == 'posterior') { 
+  if(prob == 'posterior') {
     theta0 = c(theta.TV, theta.MAV)
-  } else { 
+  } else {
     theta0 = c(theta.NULL, theta.NULL)
   }
   # Calculate bayesian posterior probability or bayesian posterior predictive probability
@@ -91,8 +91,8 @@ BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL
     gPost = sapply(Y1, function(y1) {
       sapply(Y2, function(y2) {
         BayesPostPredBinary(
-          prob, external, theta0[i], 
-          n1, n2, y1, y2, a1, a2, b1, b2, 
+          prob, external, theta0[i],
+          n1, n2, y1, y2, a1, a2, b1, b2,
           m1, m2, ne1, ne2, ye1, ye2, ae1, ae2
         )
       })
@@ -115,5 +115,5 @@ BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL
   results = data.frame(
     pi1, pi2, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]
   )
-  return(format(results, scientific = F))
+  return(results)
 }
