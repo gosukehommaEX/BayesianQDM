@@ -1,51 +1,80 @@
-
 # BayesianQDM
 
 ## Overview
 
-
-`BayesianQDM` is an R package that provides methods to calculate posterior probabilities and posterior predictive probabilities,
-    and Go, NoGo and Gray probabilities for quantitative decision-making framework under bayesian paradigm.
+`BayesianQDM` is an R package that provides methods to calculate posterior probabilities and posterior predictive probabilities, and Go, NoGo and Gray probabilities for quantitative decision-making framework under bayesian paradigm.
 
 For technical details about the methodology, please refer to Kang et al.(20XX).
 
-
 ## Installation
-
 
 You can install the development version of BayesianQDM from GitHub with:
 
-
-```r
+``` r
 # install.packages("devtools")
 devtools::install_github("gosukehommaEX/BayesianQDM")
 ```
 
-
 ## Usage
 
-
-```r
+``` r
+# Load packages
 library(BayesianQDM)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 
-
-# Calculate bayesian posterior probability for binary endpoints
-BayesPostPredBinary(
-  prob = 'posterior', external = TRUE, theta0 = 0.15,
-  n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  m1 = NULL, m2 = NULL, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
-)
-
-# Calculate Go, NoGo and Gray probabilities using posterior predictive probability for controlled trial with binary endpoints 
-BayesDecisionProbBinary(
+# Calculate bayesian decision probabilities
+results = BayesDecisionProbBinary(
   prob = 'predictive', design = 'controlled', theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0, gamma1 = 0.9, gamma2 = 0.3,
-  pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4), n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL,
+  pi1 = seq(0, 1, l = 101), pi2 = rep(0.2, 101), n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL,
   m1 = 30, m2 = 30, ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 )
+
+# Display a figure showing bayesian decision making
+figure = results %>% 
+  as_tibble() %>% 
+  mutate(theta = pi1 - pi2) %>% 
+  pivot_longer(
+    cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Prob'
+  ) %>% 
+  mutate(
+    Decision = factor(Decision, levels = c('Go', 'Gray', 'NoGo'))
+  ) %>% 
+  ggplot(aes(x = theta, y = Prob, group = Decision)) +
+  geom_line(aes(color = Decision, linetype = Decision), linewidth = 2) +
+  theme_bw() +
+  scale_color_manual(
+    values = c('Go' = '#658D1B', 'Gray' = '#939597', 'NoGo' = '#D91E49'),
+    labels =  c('Go', 'Gray', 'NoGo')
+  ) +
+  scale_x_continuous(
+    #expand=c(0, 0),
+    limits = c(0 - 0.2, 1 - 0.2),
+    breaks = seq(0 - 0.2, 1 - 0.2, l = 6)
+  ) +
+  scale_y_continuous(
+    #expand=c(0, 0),
+    limits = c(0, 1),
+    breaks = seq(0, 1, l = 11)
+  ) +
+  labs(
+    title = 'Probability of making Go/Gray/NoGo decision',
+    x = expression(theta),
+    y = 'Probability'
+  ) +
+  theme(
+    text = element_text(size = 30),
+    legend.background = element_rect(fill = 'white', color = 'black'),
+    legend.key.width = unit(4, 'cm'),
+    legend.text = element_text(size = 30),
+    legend.title = element_blank(), 
+    legend.position = 'bottom'
+  )
 ```
 
+<img src="man/figures/README-figure.png" width="100%"/>
 
 ## References
-
 
 Kang et al.(20XX)). Title
