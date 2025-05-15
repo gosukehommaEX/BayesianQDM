@@ -65,7 +65,7 @@ BayesPostPredBinary = function(prob, external, theta0,
   s11 = y1 + a1 + external * c(ye1 * ae1, 0)[1]
   s12 = y2 + a2 + external * c(ye2 * ae2, 0)[1]
   s21 = n1 - y1 + b1 + external * c((ne1 - ye1) * ae1, 0)[1]
-  s22 = n2 - y2 + b1 + external * c((ne2 - ye2) * ae2, 0)[1]
+  s22 = n2 - y2 + b2 + external * c((ne2 - ye2) * ae2, 0)[1]
   if(prob == 'posterior') {
     # A posterior probability
     g = cubature::adaptIntegrate(function(theta) ddiff2beta(theta, s11, s12, s21, s22), theta0, 1)[['integral']]
