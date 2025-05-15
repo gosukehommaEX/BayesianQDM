@@ -81,14 +81,14 @@ BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL
   if(prob == 'posterior') {
     theta0 = c(theta.TV, theta.MAV)
   } else {
-    theta0 = c(theta.NULL, theta.NULL)
+    theta0 = theta.NULL
   }
   # Calculate bayesian posterior probability or bayesian posterior predictive probability
   Y1 = 0:n1
   if(design == 'uncontrolled') { Y2 = z } else { Y2 = 0:n2 }
-  # Go/NoGo probabilities
-  GoNogoProb = sapply(seq(2), function(i) {
-    gPost = sapply(Y1, function(y1) {
+  # Posterior/Posterior predictive probabilities
+  gPost = lapply(seq(length(theta0)), function(i) {
+    sapply(Y1, function(y1) {
       sapply(Y2, function(y2) {
         BayesPostPredBinary(
           prob, external, theta0[i],
@@ -97,20 +97,23 @@ BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL
         )
       })
     })
-    I = if(i == 1) {
-      matrix((gPost >= gamma1), nrow = length(Y2))
-    } else if(i == 2) {
-      matrix((gPost <= gamma2), nrow = length(Y2))
-    }
-    GoProb = diag(crossprod(
-      outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)),
-      outer(row(I)[I] - 1, pi2, FUN = function(X, Y) dbinom(X, n2, Y))
-    ))
-    return(GoProb)
   })
-  GoNogoProb = matrix(GoNogoProb, ncol = 2)
+  # Go/NoGo probabilities
+  GoNogoProb = matrix(
+    sapply(seq(2), function(j) {
+      I = matrix((c(1, -1)[j] * gPost[[ifelse(prob == 'posterior', j, 1)]] >= c(gamma1, -gamma2)[j]), nrow = length(Y2))
+      diag(crossprod(
+        outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)),
+        outer(row(I)[I] - 1, pi2, FUN = function(X, Y) dbinom(X, n2, Y))
+      ))
+    }),
+    ncol = 2
+  )
   # Gray probability
   GrayProb = 1 - rowSums(GoNogoProb)
+  if(sum(GrayProb < 0) > 0) {
+    stop('Because negative gray probability(s) is obtained, re-consider appropriate threshold')
+  }
   # Results
   results = data.frame(
     pi1, pi2, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]

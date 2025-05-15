@@ -6,10 +6,10 @@
 #'   \item Bayesian posterior probability
 #'   \item Bayesian posterior predictive probability
 #' }
-#' Prior distribution of proportion of responders (pi_{j}) for each treatment group (j=1,2) is 
+#' Prior distribution of proportion of responders (pi_{j}) for each treatment group (j=1,2) is
 #' following beta distribution.
 #' For posterior probability, posterior distribution of pi_{j} is following beta distribution.
-#' For posterior predictive probability, predictive distribution of future trial data is 
+#' For posterior predictive probability, predictive distribution of future trial data is
 #' following beta-binomial distribution.
 #' The function can account for external (historical) data.
 #'
@@ -33,26 +33,26 @@
 #' @param ae1 A scale parameter (power parameter) for group 1.
 #' @param ae2 A scale parameter (power parameter) for group 2.
 #'
-#' @return The \code{BayesPostPredBinary} gives the numeric value of the 
+#' @return The \code{BayesPostPredBinary} gives the numeric value of the
 #' bayesian posterior probability or bayesian posterior predictive probability.
 #'
 #' @examples
 #' BayesPostPredBinary(
-#'   prob = 'posterior', external = TRUE, theta0 = 0.15, 
-#'   n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, 
+#'   prob = 'posterior', external = TRUE, theta0 = 0.15,
+#'   n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
 #'   m1 = NULL, m2 = NULL, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
 #' )
 #' BayesPostPredBinary(
-#'   prob = 'predictive', external = TRUE, theta0 = 0.5, 
-#'   n1 = 12, n2 = 15, y1 = 7, y2 = 7, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, 
+#'   prob = 'predictive', external = TRUE, theta0 = 0.5,
+#'   n1 = 12, n2 = 15, y1 = 7, y2 = 7, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
 #'   m1 = 12, m2 = 12, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
 #' )
-#' 
+#'
 #' @importFrom cubature adaptIntegrate
 #' @importFrom VGAM dbetabinom.ab
 #' @export
 BayesPostPredBinary = function(prob, external, theta0,
-                               n1, n2, y1, y2, a1, a2, b1, b2, 
+                               n1, n2, y1, y2, a1, a2, b1, b2,
                                m1, m2, ne1, ne2, ye1, ye2, ae1, ae2) {
   # Check parameter sets
   if((prob == 'predictive') & (sum(sapply(list(m1, m2), is.null)) > 0)) {
@@ -66,22 +66,16 @@ BayesPostPredBinary = function(prob, external, theta0,
   s12 = y2 + a2 + external * c(ye2 * ae2, 0)[1]
   s21 = n1 - y1 + b1 + external * c((ne1 - ye1) * ae1, 0)[1]
   s22 = n2 - y2 + b1 + external * c((ne2 - ye2) * ae2, 0)[1]
-  # A posterior probability
   if(prob == 'posterior') {
-    g = cubature::adaptIntegrate(
-      function(theta) ddiff2beta(theta, s11, s12, s21, s22),
-      lowerLimit = theta0,
-      upperLimit = 1
-    )[['integral']]
-    # A posterior predictive probability
+    # A posterior probability
+    g = cubature::adaptIntegrate(function(theta) ddiff2beta(theta, s11, s12, s21, s22), theta0, 1)[['integral']]
   } else if(prob == 'predictive') {
+    # Probability mass functions of beta-binomial distribution
+    dbetabinom1 = VGAM::dbetabinom.ab(0:m1, m1, s11, s21)
+    dbetabinom2 = VGAM::dbetabinom.ab(0:m2, m2, s12, s22)
+    # A posterior predictive probability
     I = (outer(m2 * 0:m1, m1 * 0:m2, '-') / (m1 * m2) > theta0)
-    g = as.numeric(
-      crossprod(
-        VGAM::dbetabinom.ab(row(I)[I] - 1, m1, s11, s21),
-        VGAM::dbetabinom.ab(col(I)[I] - 1, m2, s12, s22)
-      )
-    )
+    g = as.numeric(crossprod(dbetabinom1[row(I)[I]], dbetabinom2[col(I)[I]]))
   }
   return(g)
 }
