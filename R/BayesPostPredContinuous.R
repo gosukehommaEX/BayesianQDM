@@ -68,7 +68,7 @@ BayesPostPredContinuous = function(msim, design, prob, prior, theta0, n1, n2, m1
   # Indicator function that prior distribution is an N-Inv-Chisq
   I.NIC = rep(as.logical(prior == 'N-Inv-Chisq'), 2)
   # Indicator function that the type of probability is a posterior
-  I.POS = rep(as.logical(prob == 'posterior'), 2)
+  I.POS = as.logical(prob == 'posterior')
   # Renaming parameters
   nk = c(n1, n2); mu0k = c(mu01, mu02); kappa0k = c(kappa01, kappa02); nu0k = c(nu01, nu02);
   sigma0k = c(sigma01, sigma02); bar.yk = c(bar.y1, bar.y2); sk = c(s1, s2)
