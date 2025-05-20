@@ -47,7 +47,7 @@
 #' )
 #'
 #' @importFrom fGarch dstd pstd
-#' @importFrom cubature adaptIntegrate
+#' @importFrom stats integrate
 #' @export
 BayesPostPredContinuous = function(design, prob, prior, theta0, n1, n2, m1, m2,
                                    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
@@ -84,21 +84,19 @@ BayesPostPredContinuous = function(design, prob, prior, theta0, n1, n2, m1, m2,
   sd.tk = sqrt(var.nk / kappa.nk) * ifelse(I.POS, 1, sqrt((1 + kappa.nk) / mk))
   # The probability of exceeding \theta_{0}
   g = sapply(theta0, function(i) {
-    cubature::adaptIntegrate(
-      function(x, Theta0) {
+    integrate(
+      function(x) {
         t1 = fGarch::dstd(x, mean = mu.nk[1], sd = sd.tk[1], nu = nu.nk[1])
         if(design == 'controlled') {
-          t2 = fGarch::pstd(x - Theta0, mean = mu.nk[2], sd = sd.tk[2], nu = nu.nk[2])
+          t2 = fGarch::pstd(x - i, mean = mu.nk[2], sd = sd.tk[2], nu = nu.nk[2])
         } else if(design == 'uncontrolled') {
-          t2 = fGarch::pstd(x - Theta0, mean = mu02, sd = sqrt(r) * sd.tk[1], nu = nu.nk[1])
+          t2 = fGarch::pstd(x - i, mean = mu02, sd = sqrt(r) * sd.tk[1], nu = nu.nk[1])
         }
         return(t1 * t2)
       },
-      lowerLimit = -Inf,
-      upperLimit = Inf,
-      Theta0 = i,
-      tol = 1e-4
-    )[['integral']]
+      -Inf,
+      Inf
+    )[['value']]
   })
   return(g)
 }
