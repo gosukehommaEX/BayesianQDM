@@ -1,5 +1,9 @@
 # BayesianQDM
 
+<!-- badges: start -->
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/BayesianQDM)](http://cran.r-project.org/package=BayesianQDM)
+<!-- badges: end -->
+
 ## Overview
 
 `BayesianQDM` is an R package that provides methods to calculate posterior probabilities and posterior predictive probabilities, and Go, NoGo and Gray probabilities for quantitative decision-making framework under bayesian paradigm.
