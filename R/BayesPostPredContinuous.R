@@ -62,41 +62,100 @@ BayesPostPredContinuous = function(design, prob, prior, theta0, n1, n2, m1, m2,
   if((prior == 'N-Inv-Chisq') & (sum(sapply(list(kappa01, nu01, sigma01), is.null)) > 0)) {
     stop('If you use the N-Inv-Chisq prior, kappa01, nu01 and sigma01 should be non-null')
   }
-  # Indicator function that prior distribution is an N-Inv-Chisq
-  I.NIC = rep(as.logical(prior == 'N-Inv-Chisq'), 2)
-  # Indicator function that the type of probability is a posterior
-  I.POS = rep(as.logical(prob == 'posterior'), 2)
-  # Renaming parameters
-  nk = c(n1, n2); mk = c(m1, m2); mu0k = c(mu01, mu02); kappa0k = c(kappa01, kappa02); nu0k = c(nu01, nu02);
-  sigma0k = c(sigma01, sigma02); bar.yk = c(bar.y1, bar.y2); sk = c(s1, s2)
-  # Sample size
-  kappa.nk = nk + ifelse(I.NIC, kappa0k, 0)
-  # Degree of freedom
-  nu.nk = nk - 1 + ifelse(I.NIC, nu0k + 1, 0)
-  # Mean of a posterior distribution
-  mu.nk = bar.yk * ifelse(I.NIC, nk / kappa.nk, 1) + ifelse(I.NIC, kappa0k * mu0k / kappa.nk, 0)
-  # Variance of a posterior distribution
-  var.nk = '+'(
-    sk ^ 2 * ifelse(I.NIC, (nk - 1) / nu.nk, 1),
-    ifelse(I.NIC, (nu0k * sigma0k ^ 2 + nk * kappa0k / kappa.nk * (mu0k - bar.yk) ^ 2) / nu.nk, 0)
-  )
-  # The standard deviations of t-distributions
-  sd.tk = sqrt(var.nk / kappa.nk) * ifelse(I.POS, 1, sqrt((1 + kappa.nk) / mk))
+  # Define parameters for calculating posterior/posterior predictive probabilities
+  if(prior == 'N-Inv-Chisq') {
+    # Sample size
+    kappa.n1 = kappa01 + n1
+    kappa.n2 = kappa02 + n2
+    # Degree of freedom
+    nu.n1 = nu01 + n1
+    if(design == 'controlled') {
+      nu.n2 = nu02 + n2
+    } else if(design == 'uncontrolled') {
+      nu.n2 = nu.n1
+    }
+    # Means of t-distributions
+    mu.t1 = (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
+    if(design == 'controlled') {
+      mu.t2 = (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
+    } else if(design == 'uncontrolled') {
+      mu.t2 = mu02
+    }
+    # Variance of a posterior distribution
+    var.n1 = (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 + n1 * kappa01 / (kappa01 + n1) * (mu01 - bar.y1) ^ 2) / nu.n1
+    if(design == 'controlled') {
+      var.n2 = (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 + n2 * kappa02 / (kappa02 + n2) * (mu02 - bar.y2) ^ 2) / nu.n2
+    } else if(design == 'uncontrolled') {
+      var.n2 = NULL
+    }
+    # Standard deviations of t-distributions
+    if(prob == 'posterior') {
+      sd.t1 = sqrt(var.n1 / kappa.n1)
+      if(design == 'controlled') {
+        sd.t2 = sqrt(var.n2 / kappa.n2)
+      } else if(design == 'uncontrolled') {
+        sd.t2 = sqrt(r) * sd.t1
+      }
+    } else if(prob == 'predictive') {
+      sd.t1 = sqrt((1 + kappa.n1) * var.n1 / (kappa.n1 * m1))
+      if(design == 'controlled') {
+        sd.t2 = sqrt((1 + kappa.n2) * var.n2 / (kappa.n2 * m2))
+      } else if(design == 'uncontrolled') {
+        sd.t2 = sqrt(r) * sd.t1
+      }
+    }
+  } else if(prior == 'vague') {
+    # Degree of freedom
+    nu.n1 = n1 - 1
+    if(design == 'controlled') {
+      nu.n2 = n2 - 1
+    } else if(design == 'uncontrolled') {
+      nu.n2 = nu.n1
+    }
+    # Means of t-distributions
+    mu.t1 = bar.y1
+    if(design == 'controlled') {
+      mu.t2 = bar.y2
+    } else if(design == 'uncontrolled') {
+      mu.t2 = mu02
+    }
+    # Standard deviations of t-distributions
+    if(prob == 'posterior') {
+      sd.t1 = sqrt(s1 ^ 2 / n1)
+      if(design == 'controlled') {
+        sd.t2 = sqrt(s2 ^ 2 / n2)
+      } else if(design == 'uncontrolled') {
+        sd.t2 = sqrt(r) * sd.t1
+      }
+    } else if(prob == 'predictive') {
+      sd.t1 = sqrt((1 + n1) * s1 ^ 2 / (n1 * m1))
+      if(design == 'controlled') {
+        sd.t2 = sqrt((1 + n2) * s2 ^ 2 / (n2 * m2))
+      } else if(design == 'uncontrolled') {
+        sd.t2 = sqrt(r) * sd.t1
+      }
+    }
+  }
   # The probability of exceeding \theta_{0}
-  g = sapply(theta0, function(i) {
-    integrate(
-      function(x) {
-        t1 = fGarch::dstd(x, mean = mu.nk[1], sd = sd.tk[1], nu = nu.nk[1])
-        if(design == 'controlled') {
-          t2 = fGarch::pstd(x - i, mean = mu.nk[2], sd = sd.tk[2], nu = nu.nk[2])
-        } else if(design == 'uncontrolled') {
-          t2 = fGarch::pstd(x - i, mean = mu02, sd = sqrt(r) * sd.tk[1], nu = nu.nk[1])
-        }
-        return(t1 * t2)
-      },
-      -Inf,
-      Inf
-    )[['value']]
-  })
-  return(g)
+  g = Vectorize(
+    function(mu.t1, s.t1, mu.t2, s.t2, Theta0) {
+      integrate(
+        function(x, mu.t1, s.t1, mu.t2, s.t2, Theta0) {
+          '*'(
+            fGarch::dstd(x,          mean = mu.t1, sd = s.t1, nu = nu.n1),
+            fGarch::pstd(x - Theta0, mean = mu.t2, sd = s.t2, nu = nu.n2)
+          )
+        },
+        -Inf, Inf, mu.t1 = mu.t1, s.t1 = s.t1, mu.t2 = mu.t2, s.t2 = s.t2, Theta0 = Theta0
+      )[['value']]
+    }
+  )
+  # Result
+  result = data.frame(matrix(sapply(theta0, function(i) g(mu.t1, sd.t1, mu.t2, sd.t2, i)), ncol = length(theta0)))
+  if(length(theta0) == 2) {
+    names(result) = paste0(ifelse(prob == 'posterior', 'g.post.', 'g.pred.'), c('MAV', 'TV'))
+  } else if(length(theta0) == 1) {
+    names(result) = paste0(ifelse(prob == 'posterior', 'g.post.', 'g.pred.'), 'NULL')
+  }
+  return(result)
 }
