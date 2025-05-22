@@ -73,17 +73,15 @@ BayesDecisionProbContinuous = function(nsim, design, prob, prior, theta0, gamma1
     s2 = NULL
   }
   # Probability of success
-  prob.success = sapply(seq(nsim), function(i) {
-    BayesPostPredContinuous(
-      design, prob, prior, theta0, n1, n2, m1, m2,
-      kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
-      bar.y1[i], bar.y2[i], s1[i], s2[i], r
-    )
-  })
+  prob.success = BayesPostPredContinuous(
+    design, prob, prior, theta0, n1, n2, m1, m2,
+    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
+    bar.y1, bar.y2, s1, s2, r
+  )
   if(prob == 'posterior') {
     # Go, NoGo and Gray probabilities
-    Go = sum(prob.success[1, ] >= gamma1) / nsim
-    NoGo = sum(prob.success[2, ] <= gamma2) / nsim
+    Go = sum(prob.success[, 1] >= gamma1) / nsim
+    NoGo = sum(prob.success[, 2] <= gamma2) / nsim
     Gray = 1 - Go - NoGo
   } else if(prob == 'predictive') {
     # Go, NoGo and Gray probabilities
@@ -95,6 +93,10 @@ BayesDecisionProbContinuous = function(nsim, design, prob, prior, theta0, gamma1
     stop('Because negative gray probability(s) is obtained, re-consider appropriate threshold')
   }
   # Return output
-  results = data.frame(mu1, mu2, Go, NoGo, Gray)
+  if(is.null(mu2)) {
+    results = data.frame(mu1, Go, NoGo, Gray)
+  } else {
+    results = data.frame(mu1, mu2, Go, NoGo, Gray)
+  }
   return(results)
 }
