@@ -40,17 +40,28 @@
 #'  true means for both groups, and the Go, NoGo and Gray probabilities.
 #'
 #' @examples
-#' BayesDecisionProbContinuous(
-#'   nsim = 1000, design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', theta0 = c(2, 0), gamma1 = 0.8, gamma2 = 0.3,
-#'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-#'   mu1 = 4, mu2 = 0, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
-#' )
+#' dplyr::tibble(mu.t = c(1, 2, 4)) %>%
+#'   group_by_all() %>%
+#'   mutate(
+#'     BayesDecisionProbContinuous(
+#'       nsim = 1000, design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', theta0 = c(2, 0), gamma1 = 0.8, gamma2 = 0.3,
+#'       n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+#'       mu1 = mu.t, mu2 = 0, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
+#'     )
+#'   )
 #'
 #' @importFrom stats rnorm
 #' @export
 BayesDecisionProbContinuous = function(nsim, design, prob, prior, theta0, gamma1, gamma2,
                                        n1, n2, m1, m2, kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
                                        mu1, mu2, sigma1, sigma2, r, seed) {
+  # Check parameter sets
+  if((prob == 'posterior') & length(theta0) != 2) {
+    stop('If you calculate posterior probability, two values of theta0 should be set')
+  }
+  if((prob == 'predictive') & length(theta0) != 1) {
+    stop('If you calculate posterior predictive probability, a single value of theta0 should be set')
+  }
   # Set seed number
   set.seed(seed)
   # Random numbers of outcomes for group 1 in PoC study
@@ -72,31 +83,32 @@ BayesDecisionProbContinuous = function(nsim, design, prob, prior, theta0, gamma1
     # Sample standard deviation for group 2
     s2 = NULL
   }
-  # Probability of success
-  prob.success = BayesPostPredContinuous(
-    design, prob, prior, theta0, n1, n2, m1, m2,
-    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
-    bar.y1, bar.y2, s1, s2, r
-  )
-  if(prob == 'posterior') {
-    # Go, NoGo and Gray probabilities
-    Go = sum(prob.success[, 1] >= gamma1) / nsim
-    NoGo = sum(prob.success[, 2] <= gamma2) / nsim
-    Gray = 1 - Go - NoGo
-  } else if(prob == 'predictive') {
-    # Go, NoGo and Gray probabilities
-    Go = sum(prob.success >= gamma1) / nsim
-    NoGo = sum(prob.success <= gamma2) / nsim
-    Gray = 1 - Go - NoGo
-  }
-  if(sum(Gray < 0) > 0) {
+  # Go, NoGo and Gray probabilities
+  list.Go.and.NoGo.probs = lapply(seq(theta0), function(i) {
+    prob.success = BayesPostPredContinuous(
+      design, prob, prior, theta0[i], n1, n2, m1, m2,
+      kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
+      bar.y1, bar.y2, s1, s2, r
+    )
+    if(prob == 'posterior') {
+      Go   = ifelse(i == 1, 1, NA) * sum(prob.success >= gamma1) / nsim
+      NoGo = ifelse(i == 1, NA, 1) * sum(prob.success <= gamma2) / nsim
+    } else {
+      Go = sum(prob.success >= gamma1) / nsim
+      NoGo = sum(prob.success <= gamma2) / nsim
+    }
+    return(c(Go, NoGo))
+  })
+  Go.and.NoGo.probs = do.call(pmax, c(list(na.rm = TRUE), list.Go.and.NoGo.probs))
+  Gray.prob = 1 - sum(Go.and.NoGo.probs)
+  if(Gray.prob < 0) {
     stop('Because negative gray probability(s) is obtained, re-consider appropriate threshold')
   }
   # Return output
   if(is.null(mu2)) {
-    results = data.frame(mu1, Go, NoGo, Gray)
+    results = data.frame(mu1, Go = Go.and.NoGo.probs[1], NoGo = Go.and.NoGo.probs[2], Gray = Gray.prob)
   } else {
-    results = data.frame(mu1, mu2, Go, NoGo, Gray)
+    results = data.frame(mu1, mu2, Go = Go.and.NoGo.probs[1], NoGo = Go.and.NoGo.probs[2], Gray = Gray.prob)
   }
   return(results)
 }
