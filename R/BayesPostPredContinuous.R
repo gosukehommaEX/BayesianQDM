@@ -12,7 +12,7 @@
 #' @param design A type of trial design (i.e., \code{design='controlled'} or \code{prob='uncontrolled'}).
 #' @param prob A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).
 #' @param prior A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).
-#' @param theta0 Numeric pre-specified threshold value(s) (user can set multiple values).
+#' @param theta0 Numeric pre-specified threshold value.
 #' @param n1 A number of patients in group 1 for a proof-of-concept (PoC) trial.
 #' @param n2 A number of patients in group 2 for the PoC trial.
 #' @param m1 A number of patients in group 1 for the future trial data.
@@ -35,11 +35,13 @@
 #' bayesian posterior probability or bayesian posterior predictive probability.
 #'
 #' @examples
-#' BayesPostPredContinuous(
-#'   design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', theta0 = c(2, 0), n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
-#'   kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-#'   bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
-#' )
+#' sapply(c(2, 0), function(theta0) {
+#'   BayesPostPredContinuous(
+#'     design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+#'     kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+#'     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
+#'   )
+#' })
 #' BayesPostPredContinuous(
 #'   design = 'uncontrolled', prob = 'predictive', prior = 'vague', theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
 #'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
@@ -68,11 +70,11 @@ BayesPostPredContinuous = function(design, prob, prior, theta0, n1, n2, m1, m2,
     kappa.n1 = kappa01 + n1
     kappa.n2 = kappa02 + n2
     # Degree of freedom
-    nu.n1 = nu01 + n1
+    nu.t1 = nu01 + n1
     if(design == 'controlled') {
-      nu.n2 = nu02 + n2
+      nu.t2 = nu02 + n2
     } else if(design == 'uncontrolled') {
-      nu.n2 = nu.n1
+      nu.t2 = nu.t1
     }
     # Means of t-distributions
     mu.t1 = (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
@@ -82,9 +84,9 @@ BayesPostPredContinuous = function(design, prob, prior, theta0, n1, n2, m1, m2,
       mu.t2 = mu02
     }
     # Variance of a posterior distribution
-    var.n1 = (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 + n1 * kappa01 / (kappa01 + n1) * (mu01 - bar.y1) ^ 2) / nu.n1
+    var.n1 = (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 + n1 * kappa01 / (kappa01 + n1) * (mu01 - bar.y1) ^ 2) / nu.t1
     if(design == 'controlled') {
-      var.n2 = (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 + n2 * kappa02 / (kappa02 + n2) * (mu02 - bar.y2) ^ 2) / nu.n2
+      var.n2 = (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 + n2 * kappa02 / (kappa02 + n2) * (mu02 - bar.y2) ^ 2) / nu.t2
     } else if(design == 'uncontrolled') {
       var.n2 = NULL
     }
@@ -106,11 +108,11 @@ BayesPostPredContinuous = function(design, prob, prior, theta0, n1, n2, m1, m2,
     }
   } else if(prior == 'vague') {
     # Degree of freedom
-    nu.n1 = n1 - 1
+    nu.t1 = n1 - 1
     if(design == 'controlled') {
-      nu.n2 = n2 - 1
+      nu.t2 = n2 - 1
     } else if(design == 'uncontrolled') {
-      nu.n2 = nu.n1
+      nu.t2 = nu.t1
     }
     # Means of t-distributions
     mu.t1 = bar.y1
@@ -138,24 +140,18 @@ BayesPostPredContinuous = function(design, prob, prior, theta0, n1, n2, m1, m2,
   }
   # The probability of exceeding \theta_{0}
   g = Vectorize(
-    function(mu.t1, s.t1, mu.t2, s.t2, Theta0) {
+    function(mu.t1, mu.t2, sd.t1, sd.t2) {
       integrate(
-        function(x, mu.t1, s.t1, mu.t2, s.t2, Theta0) {
+        function(x, mu.t1, sd.t1, mu.t2, sd.t2) {
           '*'(
-            fGarch::dstd(x,          mean = mu.t1, sd = s.t1, nu = nu.n1),
-            fGarch::pstd(x - Theta0, mean = mu.t2, sd = s.t2, nu = nu.n2)
+            fGarch::dstd(x,          mean = mu.t1, sd = sd.t1, nu = nu.t1),
+            fGarch::pstd(x - theta0, mean = mu.t2, sd = sd.t2, nu = nu.t2)
           )
         },
-        -Inf, Inf, mu.t1 = mu.t1, s.t1 = s.t1, mu.t2 = mu.t2, s.t2 = s.t2, Theta0 = Theta0
+        -Inf, Inf, mu.t1 = mu.t1, sd.t1 = sd.t1, mu.t2 = mu.t2, sd.t2 = sd.t2
       )[['value']]
     }
   )
   # Result
-  result = data.frame(matrix(sapply(theta0, function(i) g(mu.t1, sd.t1, mu.t2, sd.t2, i)), ncol = length(theta0)))
-  if(length(theta0) == 2) {
-    names(result) = paste0(ifelse(prob == 'posterior', 'g.post.', 'g.pred.'), c('MAV', 'TV'))
-  } else if(length(theta0) == 1) {
-    names(result) = paste0(ifelse(prob == 'posterior', 'g.post.', 'g.pred.'), 'NULL')
-  }
-  return(result)
+  return(g(mu.t1, mu.t2, sd.t1, sd.t2))
 }
