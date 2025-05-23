@@ -14,6 +14,7 @@
 #' @param design A type of trial design (i.e., \code{design='controlled'} or \code{prob='uncontrolled'}).
 #' @param prob A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).
 #' @param prior A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).
+#' @param approx An option to select Welch-Satterthwaite approximation (i.e., \code{approx=TRUE} or \code{approx=FALSE}).
 #' @param theta0 Numeric pre-specified threshold value(s) (user can set multiple values).
 #' @param gamma1 A numeric value of a minimum probability to declare success.
 #' @param gamma2 A numeric value of a futility threshold.
@@ -40,11 +41,12 @@
 #'  true means for both groups, and the Go, NoGo and Gray probabilities.
 #'
 #' @examples
-#' dplyr::tibble(mu.t = c(1, 2, 4)) %>%
+#' library(dplyr)
+#' tibble(mu.t = c(1, 2, 4)) %>%
 #'   group_by_all() %>%
 #'   mutate(
 #'     BayesDecisionProbContinuous(
-#'       nsim = 1000, design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', theta0 = c(2, 0), gamma1 = 0.8, gamma2 = 0.3,
+#'       nsim = 1000, design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', approx = FALSE, theta0 = c(2, 0), gamma1 = 0.8, gamma2 = 0.3,
 #'       n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
 #'       mu1 = mu.t, mu2 = 0, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
 #'     )
@@ -52,7 +54,7 @@
 #'
 #' @importFrom stats rnorm
 #' @export
-BayesDecisionProbContinuous = function(nsim, design, prob, prior, theta0, gamma1, gamma2,
+BayesDecisionProbContinuous = function(nsim, design, prob, prior, approx, theta0, gamma1, gamma2,
                                        n1, n2, m1, m2, kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
                                        mu1, mu2, sigma1, sigma2, r, seed) {
   # Check parameter sets
@@ -86,7 +88,7 @@ BayesDecisionProbContinuous = function(nsim, design, prob, prior, theta0, gamma1
   # Go, NoGo and Gray probabilities
   list.Go.and.NoGo.probs = lapply(seq(theta0), function(i) {
     prob.success = BayesPostPredContinuous(
-      design, prob, prior, theta0[i], n1, n2, m1, m2,
+      design, prob, prior, approx, theta0[i], n1, n2, m1, m2,
       kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
       bar.y1, bar.y2, s1, s2, r
     )
