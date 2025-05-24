@@ -69,9 +69,6 @@ BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL
   if((design == 'uncontrolled') & (is.null(z))) {
     stop('If you consider uncontrolled design, z should be non-null')
   }
-  if((design == 'uncontrolled') & (is.null(z))) {
-    stop('If you consider uncontrolled design, z should be non-null')
-  }
   if((design == 'external') & (sum(sapply(list(ne1, ne2, ye1, ye2, ae1, ae2), is.null)) > 0)) {
     stop('If you use the external data, ne1, ne2, ye1, ye2, ae1 and ae2 should be non-null')
   }

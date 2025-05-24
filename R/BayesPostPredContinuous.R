@@ -9,8 +9,8 @@
 #' Prior distribution of mean and variance of outcomes for each treatment group (k=1,2) is (1) Normal-Inverse-X^2 or (2) Vague.
 #' Posterior distribution or posterior predictive distribution of outcome for each treatment group is following t-distribution.
 #'
-#' @param design A type of trial design (i.e., \code{design='controlled'} or \code{prob='uncontrolled'}).
 #' @param prob A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).
+#' @param design A type of trial design (i.e., \code{design='controlled'} or \code{prob='uncontrolled'}).
 #' @param prior A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).
 #' @param approx An option to select Welch-Satterthwaite approximation (i.e., \code{approx=TRUE} or \code{approx=FALSE}).
 #' @param theta0 Numeric pre-specified threshold value.
@@ -38,25 +38,25 @@
 #' @examples
 #' sapply(c(2, 0), function(theta0) {
 #'   BayesPostPredContinuous(
-#'     design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', approx = FALSE, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
 #'     kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
 #'     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
 #'   )
 #' })
 #' sapply(c(2, 0), function(theta0) {
 #'   BayesPostPredContinuous(
-#'     design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', approx = TRUE, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = TRUE, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
 #'     kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
 #'     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
 #'   )
 #' })
 #' BayesPostPredContinuous(
-#'   design = 'uncontrolled', prob = 'predictive', prior = 'vague', approx = FALSE, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
+#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = FALSE, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
 #'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
 #'   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 #' )
 #' BayesPostPredContinuous(
-#'   design = 'uncontrolled', prob = 'predictive', prior = 'vague', approx = TRUE, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
+#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = TRUE, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
 #'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
 #'   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 #' )
@@ -64,7 +64,7 @@
 #' @importFrom fGarch dstd pstd
 #' @importFrom stats integrate
 #' @export
-BayesPostPredContinuous = function(design, prob, prior, approx, theta0, n1, n2, m1, m2,
+BayesPostPredContinuous = function(prob, design, prior, approx, theta0, n1, n2, m1, m2,
                                    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
                                    bar.y1, bar.y2, s1, s2, r) {
   # Check parameter sets
@@ -164,7 +164,7 @@ BayesPostPredContinuous = function(design, prob, prior, approx, theta0, n1, n2, 
               fGarch::pstd(x - theta0, mean = mu.t2, sd = sd.t2, nu = nu.t2)
             )
           },
-          -Inf, Inf, mu.t1 = mu.t1, sd.t1 = sd.t1, mu.t2 = mu.t2, sd.t2 = sd.t2
+          -Inf, Inf, mu.t1 = mu.t1, mu.t2 = mu.t2, sd.t1 = sd.t1, sd.t2 = sd.t2
         )[['value']]
       }
     )

@@ -1,45 +1,64 @@
 # library(dplyr)
 # library(tidyr)
+# library(purrr)
 # library(ggplot2)
-# scenario = tibble(
-#   mu1 = seq(2.5, 5, by = 0.1),
-#   mu2 = 0
-# )
-# # Result using convolution (i.e., using integrate)
-# result.convolution = scenario %>%
+# library(ggh4x)
+# library(scales)
+# library(patchwork)
+# results = tibble(
+#   Approach = c('Convolution', 'WS.approx'),
+#   approx = c(FALSE, TRUE)
+# ) %>%
 #   group_by_all() %>%
 #   reframe(
-#     Approach = 'Convolution',
-#     BayesDecisionProbContinuous(
-#       nsim = 10000, design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', approx = FALSE, theta0 = c(2, 0), gamma1 = 0.8, gamma2 = 0.3,
-#       n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-#       mu1 = mu1, mu2 = mu2, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
-#     )
-#   )
-# # Result using Welch-Satterthwaite approximation
-# result.WSapprox = scenario %>%
+#     design = rep(c('controlled', 'uncontrolled'), each = 4),
+#     prob = rep(rep(c('posterior', 'predictive'), each = 2), 2),
+#     prior = rep(c('N-Inv-Chisq', 'vague'), 4)
+#   ) %>%
 #   group_by_all() %>%
-#   reframe(
-#     Approach = 'WS.approx',
-#     BayesDecisionProbContinuous(
-#       nsim = 10000, design = 'controlled', prob = 'posterior', prior = 'N-Inv-Chisq', approx = TRUE, theta0 = c(2, 0), gamma1 = 0.8, gamma2 = 0.3,
-#       n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-#       mu1 = mu1, mu2 = mu2, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
+#   mutate(
+#     muk = list(
+#       tibble(
+#         mu1 = seq(0, 8, by = 0.2),
+#         mu2 = 0
+#       )
 #     )
+#   ) %>%
+#   reframe(
+#     GoNoGoGray = map(list(1), ~ {
+#       muk[[1]] %>%
+#         group_by_all() %>%
+#         reframe(
+#           BayesDecisionProbContinuous(
+#             nsim = 1000, prob = prob, design = design, prior = prior, approx = approx, theta.TV = 2, theta.MAV = 0, theta.NULL = 0.5, gamma1 = 0.8, gamma2 = 0.3,
+#             n1 = 12, n2 = 12, m1 = 120, m2 = 120, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+#             mu1 = mu1, mu2 = mu2, sigma1 = 1, sigma2 = 1, r = 12, seed = 1
+#           )
+#         )
+#     })
+#   ) %>%
+#   unnest(GoNoGoGray) %>%
+#   mutate(
+#     theta = mu1 - mu2
 #   )
 # # Display figure for comparing results by two different approaches
-# result.convolution %>%
-#   bind_rows(result.WSapprox) %>%
+# results %>%
 #   pivot_longer(
 #     cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Prob'
 #   ) %>%
 #   mutate(
-#     theta = mu1 - mu2,
 #     Approach = factor(Approach, levels = c('Convolution', 'WS.approx')),
+#     design = factor(design, levels = c('controlled', 'uncontrolled')),
+#     prob = factor(prob, levels = c('posterior', 'predictive')),
+#     prior = factor(prior, levels = c('N-Inv-Chisq', 'vague')),
 #     Decision = factor(Decision, levels = c('Go', 'Gray', 'NoGo'))
 #   ) %>%
 #   ggplot(aes(x = theta, y = Prob)) +
-#   geom_line(aes(colour = Decision, linetype = Approach), linewidth = 1.5) +
+#   facet_nested(
+#     design ~ prob + prior,
+#     nest_line = element_line(colour = 'black')
+#   ) +
+#   geom_line(aes(colour = Decision, linetype = Approach), linewidth = 1) +
 #   theme_bw() +
 #   scale_color_manual(
 #     values = c('Go' = '#658D1B', 'Gray' = '#939597', 'NoGo' = '#D91E49'),
@@ -47,8 +66,8 @@
 #   ) +
 #   scale_x_continuous(
 #     #expand=c(0, 0),
-#     limits = c(2.5, 5),
-#     breaks = seq(2.5, 5, l = 6)
+#     limits = c(0, 8),
+#     breaks = seq(0, 8, l = 9)
 #   ) +
 #   scale_y_continuous(
 #     #expand=c(0, 0),
