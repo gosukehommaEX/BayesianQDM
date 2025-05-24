@@ -22,11 +22,11 @@ pWSdifft = function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
   # Calculate adjusted scale parameter
   adj.scale = sqrt(sd.t1 ^ 2 + sd.t2 ^ 2)
   # Calculate effective degrees of freedom using Welch-Satterthwaite formula
-  nu_star <- (sd.t1 ^ 2 + sd.t2 ^ 2) ^ 2 / ((sd.t1 ^ 4 / nu.t1) + (sd.t2 ^ 4 / nu.t2))
+  nu.star = (sd.t1 ^ 2 + sd.t2 ^ 2) ^ 2 / ((sd.t1 ^ 4 / nu.t1) + (sd.t2 ^ 4 / nu.t2))
   # Location parameter for the difference
   location.param = mu.t1 - mu.t2
   # Standardize the quantile
   standardized.q = (q - location.param) / adj.scale
   # Return CDF of t-distribution with effective degrees of freedom
-  return(pt(standardized.q, df = nu_star, lower.tail = FALSE))
+  return(pt(standardized.q, df = nu.star, lower.tail = FALSE))
 }

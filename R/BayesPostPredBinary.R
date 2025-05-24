@@ -48,7 +48,7 @@
 #'   m1 = 12, m2 = 12, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
 #' )
 #'
-#' @importFrom stats integrate
+#' @importFrom cubature adaptIntegrate
 #' @importFrom VGAM dbetabinom.ab
 #' @export
 BayesPostPredBinary = function(prob, external, theta0,
@@ -68,7 +68,7 @@ BayesPostPredBinary = function(prob, external, theta0,
   s22 = n2 - y2 + b2 + external * c((ne2 - ye2) * ae2, 0)[1]
   if(prob == 'posterior') {
     # A posterior probability
-    g = integrate(function(theta) ddiff2beta(theta, s11, s12, s21, s22), theta0, 1)[['value']]
+    g = cubature::adaptIntegrate(function(theta) ddiff2beta(theta, s11, s12, s21, s22), theta0, 1)[['integral']]
   } else if(prob == 'predictive') {
     # Probability mass functions of beta-binomial distribution
     dbetabinom1 = VGAM::dbetabinom.ab(0:m1, m1, s11, s21)

@@ -62,7 +62,7 @@
 #' )
 #'
 #' @importFrom fGarch dstd pstd
-#' @importFrom stats integrate
+#' @importFrom cubature adaptIntegrate
 #' @export
 BayesPostPredContinuous = function(prob, design, prior, approx, theta0, n1, n2, m1, m2,
                                    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
@@ -157,15 +157,15 @@ BayesPostPredContinuous = function(prob, design, prior, approx, theta0, n1, n2, 
   } else {
     g = Vectorize(
       function(mu.t1, mu.t2, sd.t1, sd.t2) {
-        integrate(
-          function(x, mu.t1, sd.t1, mu.t2, sd.t2) {
+        cubature::adaptIntegrate(
+          function(x, mu.t1, mu.t2, sd.t1, sd.t2) {
             '*'(
               fGarch::dstd(x,          mean = mu.t1, sd = sd.t1, nu = nu.t1),
               fGarch::pstd(x - theta0, mean = mu.t2, sd = sd.t2, nu = nu.t2)
             )
           },
           -Inf, Inf, mu.t1 = mu.t1, mu.t2 = mu.t2, sd.t1 = sd.t1, sd.t2 = sd.t2
-        )[['value']]
+        )[['integral']]
       }
     )
     result = g(mu.t1, mu.t2, sd.t1, sd.t2)
