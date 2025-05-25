@@ -61,8 +61,6 @@
 #'   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 #' )
 #'
-#' @importFrom fGarch dstd pstd
-#' @importFrom cubature adaptIntegrate
 #' @export
 BayesPostPredContinuous = function(prob, design, prior, approx, theta0, n1, n2, m1, m2,
                                    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
