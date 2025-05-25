@@ -155,20 +155,7 @@ BayesPostPredContinuous = function(prob, design, prior, approx, theta0, n1, n2, 
   if(approx == TRUE) {
     result = pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   } else {
-    g = Vectorize(
-      function(mu.t1, mu.t2, sd.t1, sd.t2) {
-        cubature::adaptIntegrate(
-          function(x, mu.t1, mu.t2, sd.t1, sd.t2) {
-            '*'(
-              fGarch::dstd(x,          mean = mu.t1, sd = sd.t1, nu = nu.t1),
-              fGarch::pstd(x - theta0, mean = mu.t2, sd = sd.t2, nu = nu.t2)
-            )
-          },
-          -Inf, Inf, mu.t1 = mu.t1, mu.t2 = mu.t2, sd.t1 = sd.t1, sd.t2 = sd.t2
-        )[['integral']]
-      }
-    )
-    result = g(mu.t1, mu.t2, sd.t1, sd.t2)
+    result = pNumIntdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   }
   # Result
   return(result)
