@@ -85,13 +85,13 @@ The function can account for external (historical) data.
 }
 \examples{
 BayesPostPredBinary(
-  prob = 'posterior', external = TRUE, theta0 = 0.15, 
-  n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, 
+  prob = 'posterior', external = TRUE, theta0 = 0.15,
+  n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   m1 = NULL, m2 = NULL, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
 )
 BayesPostPredBinary(
-  prob = 'predictive', external = TRUE, theta0 = 0.5, 
-  n1 = 12, n2 = 15, y1 = 7, y2 = 7, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, 
+  prob = 'predictive', external = TRUE, theta0 = 0.5,
+  n1 = 12, n2 = 15, y1 = 7, y2 = 7, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   m1 = 12, m2 = 12, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
 )
 
