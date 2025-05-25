@@ -172,10 +172,10 @@ figure = results %>%
     y = 'Probability'
   ) +
   theme(
-    text = element_text(size = 10),
+    text = element_text(size = 40),
     legend.background = element_rect(fill = 'white', color = 'black'),
     legend.key.width = unit(2, 'cm'),
-    legend.text = element_text(size = 10),
+    legend.text = element_text(size = 40),
     legend.title = element_blank(),
     legend.position = 'bottom'
   )
