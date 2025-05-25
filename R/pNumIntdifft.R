@@ -21,6 +21,10 @@
 pNumIntdifft = function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
   # Set the number of results
   n = max(length(mu.t1), length(mu.t2), length(sd.t1), length(sd.t2))
+  mu.t1 = rep(mu.t1, length.out = n)
+  mu.t2 = rep(mu.t2, length.out = n)
+  sd.t1 = rep(sd.t1, length.out = n)
+  sd.t2 = rep(sd.t2, length.out = n)
   # Calculate Pr(t1 - t2 >= q)
   results = sapply(seq(n), function(i) {
     ## Set a range of integral
