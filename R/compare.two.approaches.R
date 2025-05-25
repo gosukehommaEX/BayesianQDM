@@ -30,7 +30,7 @@
 #         group_by_all() %>%
 #         reframe(
 #           BayesDecisionProbContinuous(
-#             nsim = 1000, prob = prob, design = design, prior = prior, approx = approx,
+#             nsim = 10000, prob = prob, design = design, prior = prior, approx = approx,
 #             theta.TV = 2, theta.MAV = 0, theta.NULL = 0.5, gamma1 = 0.8, gamma2 = 0.3,
 #             n1 = 12, n2 = 12, m1 = 120, m2 = 120, kappa01 = 5, kappa02 = 5,
 #             nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
@@ -43,7 +43,7 @@
 #   mutate(
 #     theta = mu1 - mu2
 #   )
-# # Display figure for comparing results by two different approaches
+# Display figure for comparing results by two different approaches
 # results %>%
 #   pivot_longer(
 #     cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Prob'
@@ -57,7 +57,7 @@
 #   ) %>%
 #   ggplot(aes(x = theta, y = Prob)) +
 #   facet_nested(
-#     design ~ prob + prior,
+#     prob ~ design + prior,
 #     nest_line = element_line(colour = 'black')
 #   ) +
 #   geom_line(aes(colour = Decision, linetype = Approach), linewidth = 1) +
