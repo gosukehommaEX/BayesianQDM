@@ -114,9 +114,10 @@ tibble(mu.t = c(1, 2, 4)) \%>\%
   group_by_all() \%>\%
   mutate(
     BayesDecisionProbContinuous(
-      nsim = 1000, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE, theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, gamma1 = 0.8, gamma2 = 0.3,
-      n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-      mu1 = mu.t, mu2 = 0, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
+      nsim = 1000, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE,
+      theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, gamma1 = 0.8, gamma2 = 0.3, n1 = 12, n2 = 12,
+      m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
+      sigma01 = sqrt(5), sigma02 = sqrt(5), mu1 = mu.t, mu2 = 0, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
     )
   )
 

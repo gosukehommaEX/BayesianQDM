@@ -76,9 +76,9 @@ The function can obtain:
 \item Bayesian posterior probability
 \item Bayesian posterior predictive probability
 }
-Prior distribution of proportion of responders (pi_{j}) for each treatment group (j=1,2) is
+Prior distribution of proportion of responders (pij) for each treatment group (j=1,2) is
 following beta distribution.
-For posterior probability, posterior distribution of pi_{j} is following beta distribution.
+For posterior probability, posterior distribution of pij is following beta distribution.
 For posterior predictive probability, predictive distribution of future trial data is
 following beta-binomial distribution.
 The function can account for external (historical) data.
