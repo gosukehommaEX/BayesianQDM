@@ -38,31 +38,31 @@
 #' @examples
 #' sapply(c(2, 0), function(theta0) {
 #'   BayesPostPredContinuous(
-#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE, theta0 = theta0,
-#'     n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
-#'     mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5), bar.y1 = 2, bar.y2 = 0,
-#'     s1 = 1, s2 = 1, r = NULL
+#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE,
+#'     theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
+#'     nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+#'     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
 #'   )
 #' })
 #' sapply(c(2, 0), function(theta0) {
 #'   BayesPostPredContinuous(
-#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = TRUE, theta0 = theta0,
-#'     n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
-#'     mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5), bar.y1 = 2, bar.y2 = 0,
-#'     s1 = 1, s2 = 1, r = NULL
+#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = TRUE,
+#'     theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
+#'     nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+#'     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
 #'   )
 #' })
 #' BayesPostPredContinuous(
-#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = FALSE, theta0 = 0.5,
-#'   n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL, bar.y1 = 2, bar.y2 = NULL,
-#'   s1 = 1, s2 = NULL, r = 12
+#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = FALSE,
+#'   theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
+#'   nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
+#'   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 #' )
 #' BayesPostPredContinuous(
-#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = TRUE, theta0 = 0.5,
-#'   n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL, bar.y1 = 2, bar.y2 = NULL,
-#'   s1 = 1, s2 = NULL, r = 12
+#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = TRUE,
+#'   theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
+#'   nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
+#'   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 #' )
 #'
 #' @export
