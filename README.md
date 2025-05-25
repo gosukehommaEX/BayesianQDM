@@ -85,6 +85,7 @@ figure = results %>%
 
 ``` r
 # Load packages
+library(BayesianQDM)
 library(dplyr)
 library(tidyr)
 library(purrr)
