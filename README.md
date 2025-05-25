@@ -183,6 +183,103 @@ figure = results %>%
 ```
 <img src="man/figures/README-figure-continuous.png" width="100%"/>
 
+### Compare numerical integration (i.e., convolution) with the Welch-Satterthwaite approximation for continuous endpoint
+
+``` r
+# Load packages
+library(BayesianQDM)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(ggplot2)
+library(ggh4x)
+library(scales)
+library(patchwork)
+
+# Calculate bayesian decision probabilities
+results = tibble(
+  design = rep(c('controlled', 'uncontrolled'), each = 4),
+  prob = rep(rep(c('posterior', 'predictive'), each = 2), 2),
+  prior = rep(c('N-Inv-Chisq', 'vague'), 4)
+) %>%
+  group_by_all() %>%
+  reframe(theta0 = c(0, 1, 2)) %>% 
+  group_by_all() %>% 
+  mutate(
+    param = list(
+      tibble(bar.y1 = seq(0, 8, by = 0.1)) %>% 
+        group_by_all() %>% 
+        reframe(
+          theta = seq(0, 8, by = 0.1),
+          bar.y2 = bar.y1 - theta
+        ) %>% 
+        group_by_all() %>% 
+        reframe(
+          s1 = seq(1, 3, by = 1)
+        ) %>% 
+        group_by_all() %>% 
+        reframe(
+          s2 = seq(1, 3, by = 1)
+        )
+    )
+  ) %>%
+  reframe(
+    probs = map(list(1), ~ {
+      param[[1]] %>%
+        mutate(
+          Convolution = BayesPostPredContinuous(
+            prob = prob, design = design, prior = prior, approx = FALSE,
+            theta0 = theta0, n1 = 12, n2 = 12, m1 = 120, m2 = 120, kappa01 = 5, kappa02 = 5,
+            nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+            bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2, r = 12
+          ),
+          WS.approx = BayesPostPredContinuous(
+            prob = prob, design = design, prior = prior, approx = TRUE,
+            theta0 = theta0, n1 = 12, n2 = 12, m1 = 120, m2 = 120, kappa01 = 5, kappa02 = 5,
+            nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+            bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2, r = 12
+          )
+        )
+    })
+  ) %>%
+  unnest(probs) %>%
+  mutate(
+    delta = Convolution - WS.approx
+  )
+
+# Display a figure showing bayesian decision making
+figure = results %>%
+  mutate(
+    design = factor(design, levels = c('controlled', 'uncontrolled')),
+    prob = factor(prob, levels = c('posterior', 'predictive')),
+    prior = factor(prior, levels = c('N-Inv-Chisq', 'vague')),
+    theta0 = paste0('theta[0]==', theta0),
+    s1 = paste0('s[1]==', s1),
+    s2 = paste0('s[2]==', s2)
+  ) %>%
+  ggplot(aes(bar.y1, bar.y2, fill = delta)) + 
+  facet_nested(
+    s1 + prob ~ s2 + design + prior,
+    nest_line = element_line(colour = 'black'),
+    labeller = label_parsed
+  ) +
+  theme_bw() +
+  labs(x = expression(bar(x)[1]), y = expression(bar(x)[2])) +
+  geom_tile(aes(fill = delta)) + 
+  labs(
+    title = 'Comparison of convolustion with WS',
+    fill = expression(delta)
+  ) +
+  theme(
+    text = element_text(size = 20),
+    legend.key.width = unit(2, 'cm'),
+    legend.text = element_text(size = 20),
+    legend.title = element_blank(),
+    legend.position = 'bottom'
+  )
+```
+<img src="man/figures/README-figure-compare-convo-and-WS.png" width="100%"/>
+
 ## References
 
 Kang et al.(20XX)). Title
