@@ -43,49 +43,49 @@
 #   mutate(
 #     theta = mu1 - mu2
 #   )
-# Display figure for comparing results by two different approaches
-# results %>%
-#   pivot_longer(
-#     cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Prob'
-#   ) %>%
-#   mutate(
-#     Approach = factor(Approach, levels = c('Convolution', 'WS.approx')),
-#     design = factor(design, levels = c('controlled', 'uncontrolled')),
-#     prob = factor(prob, levels = c('posterior', 'predictive')),
-#     prior = factor(prior, levels = c('N-Inv-Chisq', 'vague')),
-#     Decision = factor(Decision, levels = c('Go', 'Gray', 'NoGo'))
-#   ) %>%
-#   ggplot(aes(x = theta, y = Prob)) +
-#   facet_nested(
-#     prob ~ design + prior,
-#     nest_line = element_line(colour = 'black')
-#   ) +
-#   geom_line(aes(colour = Decision, linetype = Approach), linewidth = 1) +
-#   theme_bw() +
-#   scale_color_manual(
-#     values = c('Go' = '#658D1B', 'Gray' = '#939597', 'NoGo' = '#D91E49'),
-#     labels =  c('Go', 'Gray', 'NoGo')
-#   ) +
-#   scale_x_continuous(
-#     #expand=c(0, 0),
-#     limits = c(0, 8),
-#     breaks = seq(0, 8, l = 9)
-#   ) +
-#   scale_y_continuous(
-#     #expand=c(0, 0),
-#     limits = c(0, 1),
-#     breaks = seq(0, 1, l = 11)
-#   ) +
-#   labs(
-#     title = 'Probability of making Go/Gray/NoGo decision',
-#     x = expression(theta),
-#     y = 'Probability'
-#   ) +
-#   theme(
-#     text = element_text(size = 40),
-#     legend.background = element_rect(fill = 'white', color = 'black'),
-#     legend.key.width = unit(2, 'cm'),
-#     legend.text = element_text(size = 40),
-#     legend.title = element_blank(),
-#     legend.position = 'bottom'
-#   )
+# # Display figure for comparing results by two different approaches
+# # results %>%
+# #   pivot_longer(
+# #     cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Prob'
+# #   ) %>%
+# #   mutate(
+# #     Approach = factor(Approach, levels = c('Convolution', 'WS.approx')),
+# #     design = factor(design, levels = c('controlled', 'uncontrolled')),
+# #     prob = factor(prob, levels = c('posterior', 'predictive')),
+# #     prior = factor(prior, levels = c('N-Inv-Chisq', 'vague')),
+# #     Decision = factor(Decision, levels = c('Go', 'Gray', 'NoGo'))
+# #   ) %>%
+# #   ggplot(aes(x = theta, y = Prob)) +
+# #   facet_nested(
+# #     prob ~ design + prior,
+# #     nest_line = element_line(colour = 'black')
+# #   ) +
+# #   geom_line(aes(colour = Decision, linetype = Approach), linewidth = 1) +
+# #   theme_bw() +
+# #   scale_color_manual(
+# #     values = c('Go' = '#658D1B', 'Gray' = '#939597', 'NoGo' = '#D91E49'),
+# #     labels =  c('Go', 'Gray', 'NoGo')
+# #   ) +
+# #   scale_x_continuous(
+# #     #expand=c(0, 0),
+# #     limits = c(0, 8),
+# #     breaks = seq(0, 8, l = 9)
+# #   ) +
+# #   scale_y_continuous(
+# #     #expand=c(0, 0),
+# #     limits = c(0, 1),
+# #     breaks = seq(0, 1, l = 11)
+# #   ) +
+# #   labs(
+# #     title = 'Probability of making Go/Gray/NoGo decision',
+# #     x = expression(theta),
+# #     y = 'Probability'
+# #   ) +
+# #   theme(
+# #     text = element_text(size = 40),
+# #     legend.background = element_rect(fill = 'white', color = 'black'),
+# #     legend.key.width = unit(2, 'cm'),
+# #     legend.text = element_text(size = 40),
+# #     legend.title = element_blank(),
+# #     legend.position = 'bottom'
+# #   )
