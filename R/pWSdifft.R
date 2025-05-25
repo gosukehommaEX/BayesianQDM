@@ -1,7 +1,7 @@
 #' Cumulative distribution function (CDF) of the Welch-Satterthwaite approximated difference of two t-distributed outcomes.
 #'
 #' This function calculates CDF(s) of difference between two variables following t-distribution
-#' using Welch-Satterthwaite approximation.
+#' using an Welch-Satterthwaite approximation.
 #'
 #' @param q Quantile value.
 #' @param mu.t1 Location parameter of t-distribution for group 1.
