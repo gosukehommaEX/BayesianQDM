@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' ddiff2beta(0.2, 0.5, 0.5, 0.5, 0.5)
-#' 
+#'
 #' @importFrom tolerance F1
 #' @export
 ddiff2beta = function(pi, alpha1, alpha2, beta1, beta2) {
@@ -22,7 +22,7 @@ ddiff2beta = function(pi, alpha1, alpha2, beta1, beta2) {
   if((pi >= -1) & (pi < 0)) {
     density = '*'(
       k * beta(alpha1, beta2) * (-pi) ^ (beta1 + beta2 - 1) * (1 + pi) ^ (alpha1 + beta2 - 1),
-      tolerance::F1(beta2, 1 - alpha2, gamma, alpha1 + beta2, 1 - pi ^ 2, 1 + pi)
+      AppellsF1(beta2, 1 - alpha2, gamma, alpha1 + beta2, 1 - pi ^ 2, 1 + pi)
     )
   } else if((pi >= 0) & (pi < 1)) {
     if ((pi == 0) & (alpha1 + alpha2 > 1) & (beta1 + beta2 > 1)) {
@@ -30,7 +30,7 @@ ddiff2beta = function(pi, alpha1, alpha2, beta1, beta2) {
     } else {
       density = '*'(
         k * beta(alpha2, beta1) * pi ^ (beta1 + beta2 - 1) * (1 - pi) ^ (alpha2 + beta1 - 1),
-        tolerance::F1(beta1, gamma, 1 - alpha1, alpha2 + beta1, 1 - pi, 1 - pi ^ 2)
+        AppellsF1(beta1, gamma, 1 - alpha1, alpha2 + beta1, 1 - pi, 1 - pi ^ 2)
       )
     }
   } else {
