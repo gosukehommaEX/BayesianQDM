@@ -49,7 +49,6 @@
 #' )
 #'
 #' @importFrom stats integrate
-#' @importFrom VGAM dbetabinom.ab
 #' @export
 BayesPostPredBinary = function(prob, external, theta0,
                                n1, n2, y1, y2, a1, a2, b1, b2,
@@ -71,8 +70,8 @@ BayesPostPredBinary = function(prob, external, theta0,
     g = integrate(Vectorize(function(theta) ddiff2beta(theta, s11, s12, s21, s22)), theta0, 1)[['value']]
   } else if(prob == 'predictive') {
     # Probability mass functions of beta-binomial distribution
-    dbetabinom1 = VGAM::dbetabinom.ab(0:m1, m1, s11, s21)
-    dbetabinom2 = VGAM::dbetabinom.ab(0:m2, m2, s12, s22)
+    dbetabinom1 = choose(m1, 0:m1) * beta(0:m1 + s11, m1 - (0:m1) + s21) / beta(s11, s21)
+    dbetabinom2 = choose(m2, 0:m2) * beta(0:m2 + s12, m2 - (0:m2) + s22) / beta(s12, s22)
     # A posterior predictive probability
     I = (outer(m2 * 0:m1, m1 * 0:m2, '-') / (m1 * m2) > theta0)
     g = as.numeric(crossprod(dbetabinom1[row(I)[I]], dbetabinom2[col(I)[I]]))
