@@ -28,40 +28,62 @@ devtools::install_github("gosukehommaEX/BayesianQDM")
 library(BayesianQDM)
 library(dplyr)
 library(tidyr)
+library(purrr)
 library(ggplot2)
+library(ggh4x)
+library(scales)
+library(patchwork)
 
 # Calculate bayesian decision probabilities
-results = BayesDecisionProbBinary(
-  prob = 'predictive', design = 'controlled', theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0, gamma1 = 0.9, gamma2 = 0.3,
-  pi1 = seq(0, 1, l = 101), pi2 = rep(0.2, 101), n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL,
-  m1 = 30, m2 = 30, ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
-)
+results = tibble(
+  design = rep(c('controlled', 'uncontrolled', 'external'), each = 2),
+  prob = rep(c('posterior', 'predictive'), 3),
+  theta.TV = c(0.5, NA, 0.5, NA, 0.5, NA),
+  theta.MAV = c(0.15, NA, 0.15, NA, 0.15, NA),
+  theta.NULL = c(NA, 0.5, NA, 0.5, NA, 0.5),
+  gamma1 = c(0.8, 0.8, 0.8, 0.8, 0.6, 0.6),
+  gamma2 = c(0.3, 0.3, 0.3, 0.3, 0.3, 0.3)
+) %>%
+  group_by_all() %>%
+  reframe(
+    GoNoGoGray = map(list(1), ~ {
+      BayesDecisionProbBinary(
+        prob = prob, design = design, theta.TV = theta.TV, theta.MAV = theta.MAV, theta.NULL = theta.NULL, gamma1 = gamma1, gamma2 = gamma2,
+        pi1 = seq(0, 1, l = 101), pi2 = rep(0.2, 101), n1 = 12, n2 = 15, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = 0.5,
+        m1 = 12, m2 = 12, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
+      )
+    })
+  ) %>%
+  unnest(GoNoGoGray) %>%
+  mutate(
+    Gray = if_else(Gray < 0, 0, Gray)
+  ) %>% 
+  mutate(theta = pi1 - pi2)
 
 # Display a figure showing bayesian decision making
-figure = results %>% 
-  as_tibble() %>% 
-  mutate(theta = pi1 - pi2) %>% 
+figure = results %>%
   pivot_longer(
     cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Prob'
-  ) %>% 
+  ) %>%
   mutate(
+    design = factor(design, levels = c('controlled', 'uncontrolled', 'external')),
+    prob = factor(prob, levels = c('posterior', 'predictive')),
     Decision = factor(Decision, levels = c('Go', 'Gray', 'NoGo'))
-  ) %>% 
-  ggplot(aes(x = theta, y = Prob, group = Decision)) +
-  geom_line(aes(color = Decision, linetype = Decision), linewidth = 2) +
+  ) %>%
+  ggplot(aes(x = theta, y = Prob)) +
+  facet_grid(
+    prob ~ design
+  ) +
+  geom_line(aes(colour = Decision, linetype = Decision), linewidth = 1) +
   theme_bw() +
   scale_color_manual(
     values = c('Go' = '#658D1B', 'Gray' = '#939597', 'NoGo' = '#D91E49'),
     labels =  c('Go', 'Gray', 'NoGo')
   ) +
   scale_x_continuous(
-    #expand=c(0, 0),
-    limits = c(0 - 0.2, 1 - 0.2),
     breaks = seq(0 - 0.2, 1 - 0.2, l = 6)
   ) +
   scale_y_continuous(
-    #expand=c(0, 0),
-    limits = c(0, 1),
     breaks = seq(0, 1, l = 11)
   ) +
   labs(
@@ -70,10 +92,10 @@ figure = results %>%
     y = 'Probability'
   ) +
   theme(
-    text = element_text(size = 30),
+    text = element_text(size = 40),
     legend.background = element_rect(fill = 'white', color = 'black'),
     legend.key.width = unit(4, 'cm'),
-    legend.text = element_text(size = 30),
+    legend.text = element_text(size = 40),
     legend.title = element_blank(), 
     legend.position = 'bottom'
   )
