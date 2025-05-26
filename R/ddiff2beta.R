@@ -14,7 +14,6 @@
 #' @examples
 #' ddiff2beta(0.2, 0.5, 0.5, 0.5, 0.5)
 #'
-#' @importFrom tolerance F1
 #' @export
 ddiff2beta = function(pi, alpha1, alpha2, beta1, beta2) {
   k = 1 / (beta(alpha1, beta1) * beta(alpha2, beta2))
