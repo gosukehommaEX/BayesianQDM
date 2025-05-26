@@ -101,10 +101,14 @@ BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL
   GoNogoProb = matrix(
     sapply(seq(2), function(j) {
       I = matrix((c(1, -1)[j] * gPost[[ifelse(prob == 'posterior', j, 1)]] >= c(gamma1, -gamma2)[j]), nrow = length(Y2))
-      diag(crossprod(
-        outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)),
-        outer(row(I)[I] - 1, pi2, FUN = function(X, Y) dbinom(X, n2, Y))
-      ))
+      if(design == 'uncontrolled') {
+        colSums(outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)))
+      } else {
+        diag(crossprod(
+          outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)),
+          outer(row(I)[I] - 1, pi2, FUN = function(X, Y) dbinom(X, n2, Y))
+        ))
+      }
     }),
     ncol = 2
   )
