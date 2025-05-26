@@ -111,7 +111,7 @@ BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL
   # Gray probability
   GrayProb = 1 - rowSums(GoNogoProb)
   if(sum(GrayProb < 0) > 0) {
-    stop('Because negative gray probability(s) is obtained, re-consider appropriate threshold')
+    print('Because negative gray probability(s) is obtained, re-consider appropriate threshold')
   }
   # Results
   results = data.frame(
