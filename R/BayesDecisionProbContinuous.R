@@ -14,7 +14,7 @@
 #' @param prob A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).
 #' @param design A type of trial design (i.e., \code{design='controlled'} or \code{prob='uncontrolled'}).
 #' @param prior A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).
-#' @param approx An option to select Welch-Satterthwaite approximation (i.e., \code{approx=TRUE} or \code{approx=FALSE}).
+#' @param CalcMethod An option to select a calculation method (\code{CalcMethod=NI} (numerical integration method), \code{CalcMethod=MC} (Monte Carlo method), or \code{CalcMethod=WS} (WS approximation)).
 #' @param theta.TV A numeric pre-specified threshold value for calculating Go probability when \code{prob='posterior'}.
 #' @param theta.MAV A numeric pre-specified threshold value for calculating NoGo probability when \code{prob='posterior'}.
 #' @param theta.NULL A numeric pre-specified threshold value for calculating Go/NoGo probabilities when \code{prob='predictive'}.
@@ -44,7 +44,7 @@
 #'
 #' @examples
 #' BayesDecisionProbContinuous(
-#'   nsim = 1000, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE,
+#'   nsim = 1000, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
 #'   theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, gamma1 = 0.8, gamma2 = 0.3, n1 = 12, n2 = 12,
 #'   m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
 #'   sigma01 = sqrt(5), sigma02 = sqrt(5), mu1 = 4, mu2 = 0, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
@@ -52,7 +52,7 @@
 #'
 #' @importFrom stats rnorm
 #' @export
-BayesDecisionProbContinuous = function(nsim, prob, design, prior, approx, theta.TV, theta.MAV, theta.NULL, gamma1, gamma2,
+BayesDecisionProbContinuous = function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL, gamma1, gamma2,
                                        n1, n2, m1, m2, kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
                                        mu1, mu2, sigma1, sigma2, r, seed) {
   # Check parameter sets
@@ -98,7 +98,7 @@ BayesDecisionProbContinuous = function(nsim, prob, design, prior, approx, theta.
   # Go, NoGo and Gray probabilities
   list.Go.and.NoGo.probs = lapply(seq(theta0), function(i) {
     prob.success = BayesPostPredContinuous(
-      prob, design, prior, approx, theta0[i], n1, n2, m1, m2,
+      prob, design, prior, CalcMethod, theta0[i], n1, n2, m1, m2,
       kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
       bar.y1, bar.y2, s1, s2, r
     )

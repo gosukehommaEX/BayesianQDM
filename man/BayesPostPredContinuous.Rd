@@ -9,7 +9,7 @@ BayesPostPredContinuous(
   prob,
   design,
   prior,
-  approx,
+  CalcMethod,
   theta0,
   n1,
   n2,
@@ -37,7 +37,7 @@ BayesPostPredContinuous(
 
 \item{prior}{A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).}
 
-\item{approx}{An option to select Welch-Satterthwaite approximation (i.e., \code{approx=TRUE} or \code{approx=FALSE}).}
+\item{CalcMethod}{An option to select a calculation method (\code{CalcMethod=NI} (numerical integration method), \code{CalcMethod=MC} (Monte Carlo method), or \code{CalcMethod=WS} (WS approximation)).}
 
 \item{theta0}{Numeric pre-specified threshold value.}
 
@@ -91,7 +91,7 @@ Posterior distribution or posterior predictive distribution of outcome for each 
 \examples{
 sapply(c(2, 0), function(theta0) {
   BayesPostPredContinuous(
-    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE,
+    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
     theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
     nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
@@ -99,20 +99,34 @@ sapply(c(2, 0), function(theta0) {
 })
 sapply(c(2, 0), function(theta0) {
   BayesPostPredContinuous(
-    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = TRUE,
+    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MC',
+    theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
+    nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+    bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
+  )
+})
+sapply(c(2, 0), function(theta0) {
+  BayesPostPredContinuous(
+    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
     theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
     nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
   )
 })
 BayesPostPredContinuous(
-  prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = FALSE,
+  prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'NI',
   theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
   nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 )
 BayesPostPredContinuous(
-  prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = TRUE,
+  prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MC',
+  theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
+  nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
+  bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
+)
+BayesPostPredContinuous(
+  prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'WS',
   theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
   nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
