@@ -12,7 +12,7 @@
 #' @param prob A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).
 #' @param design A type of trial design (i.e., \code{design='controlled'} or \code{prob='uncontrolled'}).
 #' @param prior A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).
-#' @param approx An option to select Welch-Satterthwaite approximation (i.e., \code{approx=TRUE} or \code{approx=FALSE}).
+#' @param CalcMethod An option to select a calculation method (\code{CalcMethod=NI} (numerical integration method), \code{CalcMethod=MC} (Monte Carlo method), or \code{CalcMethod=WS} (WS approximation)).
 #' @param theta0 Numeric pre-specified threshold value.
 #' @param n1 A number of patients in group 1 for a proof-of-concept (PoC) trial.
 #' @param n2 A number of patients in group 2 for the PoC trial.
@@ -38,7 +38,7 @@
 #' @examples
 #' sapply(c(2, 0), function(theta0) {
 #'   BayesPostPredContinuous(
-#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE,
+#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
 #'     theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
 #'     nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
 #'     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
@@ -46,27 +46,41 @@
 #' })
 #' sapply(c(2, 0), function(theta0) {
 #'   BayesPostPredContinuous(
-#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = TRUE,
+#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MC',
+#'     theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
+#'     nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+#'     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
+#'   )
+#' })
+#' sapply(c(2, 0), function(theta0) {
+#'   BayesPostPredContinuous(
+#'     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
 #'     theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
 #'     nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
 #'     bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
 #'   )
 #' })
 #' BayesPostPredContinuous(
-#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = FALSE,
+#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'NI',
 #'   theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
 #'   nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
 #'   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 #' )
 #' BayesPostPredContinuous(
-#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', approx = TRUE,
+#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MC',
+#'   theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
+#'   nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
+#'   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
+#' )
+#' BayesPostPredContinuous(
+#'   prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'WS',
 #'   theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
 #'   nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
 #'   bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 #' )
 #'
 #' @export
-BayesPostPredContinuous = function(prob, design, prior, approx, theta0, n1, n2, m1, m2,
+BayesPostPredContinuous = function(prob, design, prior, CalcMethod, theta0, n1, n2, m1, m2,
                                    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
                                    bar.y1, bar.y2, s1, s2, r) {
   # Check parameter sets
@@ -154,10 +168,12 @@ BayesPostPredContinuous = function(prob, design, prior, approx, theta0, n1, n2, 
     }
   }
   # The probability of exceeding \theta_{0}
-  if(approx == TRUE) {
+  if(CalcMethod == 'NI') {
+    result = pNIdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+  } else if(CalcMethod == 'MC') {
+    result = pMCdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+  } else if(CalcMethod == 'WS') {
     result = pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
-  } else {
-    result = pNumIntdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   }
   # Result
   return(result)
