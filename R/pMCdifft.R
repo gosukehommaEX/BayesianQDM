@@ -16,7 +16,7 @@
 #' @examples
 #' pMCdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
 #'
-#' @importFrom stats pt
+#' @importFrom stats rt
 #' @export
 pMCdifft = function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
   # t-distributed random numbers for group 1

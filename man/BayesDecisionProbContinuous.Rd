@@ -12,7 +12,7 @@ BayesDecisionProbContinuous(
   prob,
   design,
   prior,
-  approx,
+  CalcMethod,
   theta.TV,
   theta.MAV,
   theta.NULL,
@@ -47,7 +47,7 @@ BayesDecisionProbContinuous(
 
 \item{prior}{A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).}
 
-\item{approx}{An option to select Welch-Satterthwaite approximation (i.e., \code{approx=TRUE} or \code{approx=FALSE}).}
+\item{CalcMethod}{An option to select a calculation method (\code{CalcMethod=NI} (numerical integration method), \code{CalcMethod=MC} (Monte Carlo method), or \code{CalcMethod=WS} (WS approximation)).}
 
 \item{theta.TV}{A numeric pre-specified threshold value for calculating Go probability when \code{prob='posterior'}.}
 
@@ -110,7 +110,7 @@ The function can be used for controlled design and uncontrolled design.
 }
 \examples{
 BayesDecisionProbContinuous(
-  nsim = 1000, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', approx = FALSE,
+  nsim = 1000, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
   theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, gamma1 = 0.8, gamma2 = 0.3, n1 = 12, n2 = 12,
   m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
   sigma01 = sqrt(5), sigma02 = sqrt(5), mu1 = 4, mu2 = 0, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
