@@ -28,9 +28,9 @@ pMCdifft = function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
   # Calculate Pr(t1 - t2 >= q)
   results = sapply(seq(n), function(i) {
     # t-distributed random numbers for group 1
-    rand.t1 = rt(1e+6, df = nu.t1) * sqrt(sd.t1 ^ 2) + mu.t1
+    rand.t1 = rt(1e+6, df = nu.t1) * sqrt(sd.t1[i] ^ 2) + mu.t1[i]
     # t-distributed random numbers for group 1
-    rand.t2 = rt(1e+6, df = nu.t2) * sqrt(sd.t2 ^ 2) + mu.t2
+    rand.t2 = rt(1e+6, df = nu.t2) * sqrt(sd.t2[i] ^ 2) + mu.t2[i]
     # CDF
     sum(rand.t1 - rand.t2 > q) / 1e+6
   })
