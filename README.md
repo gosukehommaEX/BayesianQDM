@@ -90,7 +90,7 @@ figure = results %>%
   ) +
   theme(
     text = element_text(size = 40),
-    panel.spacing = unit(1, 'lines'),
+    panel.spacing = unit(1.5, 'lines'),
     legend.background = element_rect(fill = 'white', color = 'black'),
     legend.key.width = unit(4, 'cm'),
     legend.text = element_text(size = 40),
