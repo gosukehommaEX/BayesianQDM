@@ -30,9 +30,6 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 library(ggplot2)
-library(ggh4x)
-library(scales)
-library(patchwork)
 
 # Calculate bayesian decision probabilities
 results = tibble(
@@ -113,13 +110,10 @@ library(tidyr)
 library(purrr)
 library(ggplot2)
 library(ggh4x)
-library(scales)
-library(patchwork)
 
 # Calculate bayesian decision probabilities
 results = tibble(
-  Approach = c('Convolution', 'WS.approx'),
-  approx = c(FALSE, TRUE)
+  CalcMethod = c('NI', 'MC', 'WS')
 ) %>%
   group_by_all() %>%
   reframe(
@@ -142,8 +136,8 @@ results = tibble(
         group_by_all() %>%
         reframe(
           BayesDecisionProbContinuous(
-            nsim = 10000, prob = prob, design = design, prior = prior, approx = approx,
-            theta.TV = 2, theta.MAV = 0, theta.NULL = 0.5, gamma1 = 0.8, gamma2 = 0.3,
+            nsim = 10000, prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
+            theta.TV = 2, theta.MAV = 0, theta.NULL = 0.5, nMC = 10000, gamma1 = 0.8, gamma2 = 0.3,
             n1 = 12, n2 = 12, m1 = 120, m2 = 120, kappa01 = 5, kappa02 = 5,
             nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
             mu1 = mu1, mu2 = mu2, sigma1 = 1, sigma2 = 1, r = 12, seed = 1
@@ -162,7 +156,7 @@ figure = results %>%
     cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Prob'
   ) %>%
   mutate(
-    Approach = factor(Approach, levels = c('Convolution', 'WS.approx')),
+    CalcMethod = factor(CalcMethod, levels = c('NI', 'MC', 'WS')),
     design = factor(design, levels = c('controlled', 'uncontrolled')),
     prob = factor(prob, levels = c('posterior', 'predictive')),
     prior = factor(prior, levels = c('N-Inv-Chisq', 'vague')),
@@ -173,7 +167,7 @@ figure = results %>%
     prob ~ design + prior,
     nest_line = element_line(colour = 'black')
   ) +
-  geom_line(aes(colour = Decision, linetype = Approach), linewidth = 1) +
+  geom_line(aes(colour = Decision, linetype = CalcMethod), linewidth = 1) +
   theme_bw() +
   scale_color_manual(
     values = c('Go' = '#658D1B', 'Gray' = '#939597', 'NoGo' = '#D91E49'),
