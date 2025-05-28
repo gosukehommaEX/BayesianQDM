@@ -3,6 +3,7 @@
 #' This function calculates CDF(s) of difference between two variables following t-distribution
 #' using a Monte Carlo simulation (1,000,000 iterations).
 #'
+#' @param nMC A number of iterations for Monte Carlo simulation.
 #' @param q Quantile value.
 #' @param mu.t1 Location parameter of t-distribution for group 1.
 #' @param mu.t2 Location parameter of t-distribution for group 2.
@@ -14,11 +15,11 @@
 #' @return Cumulative probability(s)
 #'
 #' @examples
-#' pMCdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
+#' pMCdifft(nMC = 1e+4, q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
 #'
 #' @importFrom stats rt
 #' @export
-pMCdifft = function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
+pMCdifft = function(nMC, q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
   # Set the number of results
   n = max(length(mu.t1), length(mu.t2), length(sd.t1), length(sd.t2))
   mu.t1 = rep(mu.t1, length.out = n)
@@ -28,11 +29,11 @@ pMCdifft = function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
   # Calculate Pr(t1 - t2 >= q)
   results = sapply(seq(n), function(i) {
     # t-distributed random numbers for group 1
-    rand.t1 = rt(1e+6, df = nu.t1) * sqrt(sd.t1[i] ^ 2) + mu.t1[i]
+    rand.t1 = rt(nMC, df = nu.t1) * sqrt(sd.t1[i] ^ 2) + mu.t1[i]
     # t-distributed random numbers for group 1
-    rand.t2 = rt(1e+6, df = nu.t2) * sqrt(sd.t2[i] ^ 2) + mu.t2[i]
+    rand.t2 = rt(nMC, df = nu.t2) * sqrt(sd.t2[i] ^ 2) + mu.t2[i]
     # CDF
-    sum(rand.t1 - rand.t2 > q) / 1e+6
+    sum(rand.t1 - rand.t2 > q) / nMC
   })
   return(results)
 }

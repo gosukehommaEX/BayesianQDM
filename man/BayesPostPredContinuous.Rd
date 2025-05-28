@@ -11,6 +11,7 @@ BayesPostPredContinuous(
   prior,
   CalcMethod,
   theta0,
+  nMC,
   n1,
   n2,
   m1,
@@ -40,6 +41,8 @@ BayesPostPredContinuous(
 \item{CalcMethod}{An option to select a calculation method (\code{CalcMethod=NI} (numerical integration method), \code{CalcMethod=MC} (Monte Carlo method), or \code{CalcMethod=WS} (WS approximation)).}
 
 \item{theta0}{Numeric pre-specified threshold value.}
+
+\item{nMC}{A number of iterations for Monte Carlo simulation (a numeric value is set only if \code{CalcMethod=MC}).}
 
 \item{n1}{A number of patients in group 1 for a proof-of-concept (PoC) trial.}
 
@@ -92,44 +95,44 @@ Posterior distribution or posterior predictive distribution of outcome for each 
 sapply(c(2, 0), function(theta0) {
   BayesPostPredContinuous(
     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-    theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
-    nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-    bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
+    nMC = NULL, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
+    sigma01 = sqrt(5), sigma02 = sqrt(5), bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
   )
 })
 sapply(c(2, 0), function(theta0) {
   BayesPostPredContinuous(
     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MC',
-    theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
-    nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-    bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
+    nMC = 1e+6, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
+    sigma01 = sqrt(5), sigma02 = sqrt(5), bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
   )
 })
 sapply(c(2, 0), function(theta0) {
   BayesPostPredContinuous(
     prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
-    theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5,
-    nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-    bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
+    nMC = NULL, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
+    sigma01 = sqrt(5), sigma02 = sqrt(5), bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
   )
 })
 BayesPostPredContinuous(
   prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'NI',
-  theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
-  nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
-  bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
+  nMC = NULL, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0,
+  sigma01 = NULL, sigma02 = NULL, bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 )
 BayesPostPredContinuous(
   prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MC',
-  theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
-  nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
-  bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
+  nMC = 1e+6, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0,
+  sigma01 = NULL, sigma02 = NULL, bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 )
 BayesPostPredContinuous(
   prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'WS',
-  theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120, kappa01 = NULL, kappa02 = NULL,
-  nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0, sigma01 = NULL, sigma02 = NULL,
-  bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
+  nMC = NULL, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0,
+  sigma01 = NULL, sigma02 = NULL, bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
 )
 
 }

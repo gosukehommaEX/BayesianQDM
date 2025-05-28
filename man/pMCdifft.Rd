@@ -4,9 +4,11 @@
 \alias{pMCdifft}
 \title{Cumulative distribution function (CDF) of the difference of two t-distributed outcomes by Monte Carlo simulation.}
 \usage{
-pMCdifft(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+pMCdifft(nMC, q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
 }
 \arguments{
+\item{nMC}{A number of iterations for Monte Carlo simulation.}
+
 \item{q}{Quantile value.}
 
 \item{mu.t1}{Location parameter of t-distribution for group 1.}
@@ -29,6 +31,6 @@ This function calculates CDF(s) of difference between two variables following t-
 using a Monte Carlo simulation (1,000,000 iterations).
 }
 \examples{
-pMCdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
+pMCdifft(nMC = 1e+4, q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
 
 }

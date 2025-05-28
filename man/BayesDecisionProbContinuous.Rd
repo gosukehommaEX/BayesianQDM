@@ -16,6 +16,7 @@ BayesDecisionProbContinuous(
   theta.TV,
   theta.MAV,
   theta.NULL,
+  nMC,
   gamma1,
   gamma2,
   n1,
@@ -39,7 +40,7 @@ BayesDecisionProbContinuous(
 )
 }
 \arguments{
-\item{nsim}{A numeric value of the number of iterations.}
+\item{nsim}{A numeric value of the number of iterations for calculating posterior/posterior predictive probability.}
 
 \item{prob}{A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).}
 
@@ -54,6 +55,8 @@ BayesDecisionProbContinuous(
 \item{theta.MAV}{A numeric pre-specified threshold value for calculating NoGo probability when \code{prob='posterior'}.}
 
 \item{theta.NULL}{A numeric pre-specified threshold value for calculating Go/NoGo probabilities when \code{prob='predictive'}.}
+
+\item{nMC}{A number of iterations for Monte Carlo simulation (a numeric value is set only if \code{CalcMethod=MC}).}
 
 \item{gamma1}{A numeric value of a minimum probability to declare success.}
 
@@ -111,9 +114,10 @@ The function can be used for controlled design and uncontrolled design.
 \examples{
 BayesDecisionProbContinuous(
   nsim = 1000, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-  theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, gamma1 = 0.8, gamma2 = 0.3, n1 = 12, n2 = 12,
-  m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
-  sigma01 = sqrt(5), sigma02 = sqrt(5), mu1 = 4, mu2 = 0, sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
+  theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
+  n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+  mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5), mu1 = 4, mu2 = 0,
+  sigma1 = 1, sigma2 = 1, r = NULL, seed = 1
 )
 
 }
