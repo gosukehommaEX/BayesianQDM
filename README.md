@@ -1,4 +1,4 @@
-# BayesianQDM
+# BayesianQDM <img src="man/figures/badge-BayesianQDM.png" align="right" height="139" /></a>
 
 <!-- badges: start -->
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/BayesianQDM)](http://cran.r-project.org/package=BayesianQDM)
