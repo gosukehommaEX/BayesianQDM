@@ -6,8 +6,8 @@
 for a clinical trial when outcome is binary.}
 \usage{
 BayesPostPredBinary(
-  prob,
-  external,
+  prob = "posterior",
+  design = "controlled",
   theta0,
   n1,
   n2,
@@ -30,7 +30,7 @@ BayesPostPredBinary(
 \arguments{
 \item{prob}{A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).}
 
-\item{external}{When external data is used, \code{external=TRUE}.}
+\item{design}{A type of design (i.e., \code{design='controlled'}, \code{design='uncontrolled'} or \code{design='external'}).}
 
 \item{theta0}{A numeric pre-specified threshold value.}
 
@@ -85,12 +85,12 @@ The function can account for external (historical) data.
 }
 \examples{
 BayesPostPredBinary(
-  prob = 'posterior', external = TRUE, theta0 = 0.15,
+  prob = 'posterior', design = 'external', theta0 = 0.15,
   n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   m1 = NULL, m2 = NULL, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
 )
 BayesPostPredBinary(
-  prob = 'predictive', external = TRUE, theta0 = 0.5,
+  prob = 'predictive', design = 'external', theta0 = 0.5,
   n1 = 12, n2 = 15, y1 = 7, y2 = 7, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   m1 = 12, m2 = 12, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
 )

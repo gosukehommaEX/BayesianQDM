@@ -6,12 +6,12 @@
 for a clinical trial when outcome is continuous.}
 \usage{
 BayesPostPredContinuous(
-  prob,
-  design,
-  prior,
-  CalcMethod,
+  prob = "posterior",
+  design = "controlled",
+  prior = "vague",
+  CalcMethod = "NI",
   theta0,
-  nMC,
+  nMC = 10000,
   n1,
   n2,
   m1,

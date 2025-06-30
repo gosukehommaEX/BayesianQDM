@@ -16,7 +16,7 @@
 #'
 #' @importFrom stats integrate
 #' @export
-AppellsF1 = function(a, b1, b2, c, x, y) {
+AppellsF1 <- function(a, b1, b2, c, x, y) {
   '*'(
     gamma(c) / (gamma(a) * gamma(c - a)),
     integrate(

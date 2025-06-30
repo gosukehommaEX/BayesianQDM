@@ -18,24 +18,24 @@
 #'
 #' @importFrom stats dt pt integrate
 #' @export
-pNIdifft = function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
+pNIdifft <- function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
   # Set the number of results
-  n = max(length(mu.t1), length(mu.t2), length(sd.t1), length(sd.t2))
-  mu.t1 = rep(mu.t1, length.out = n)
-  mu.t2 = rep(mu.t2, length.out = n)
-  sd.t1 = rep(sd.t1, length.out = n)
-  sd.t2 = rep(sd.t2, length.out = n)
+  n <- max(length(mu.t1), length(mu.t2), length(sd.t1), length(sd.t2))
+  mu.t1 <- rep(mu.t1, length.out = n)
+  mu.t2 <- rep(mu.t2, length.out = n)
+  sd.t1 <- rep(sd.t1, length.out = n)
+  sd.t2 <- rep(sd.t2, length.out = n)
   # Calculate Pr(t1 - t2 >= q)
-  results = sapply(seq(n), function(i) {
+  results <- sapply(seq(n), function(i) {
     ## Set a range of integral
     # Based on the center of distribution for group 1
-    center1 = mu.t1[i]
-    spread1 = sd.t1[i] * sqrt((nu.t1 + 1) / (nu.t1 - 2))
+    center1 <- mu.t1[i]
+    spread1 <- sd.t1[i] * sqrt((nu.t1 + 1) / (nu.t1 - 2))
     # Run numerical integration
     integrate(
       function(x) {
-        f1 = dt((x - mu.t1[i]) / sd.t1[i], df = nu.t1) / sd.t1[i]
-        F2 = pt(((x - q) - mu.t2[i]) / sd.t2[i], df = nu.t2)
+        f1 <- dt((x - mu.t1[i]) / sd.t1[i], df = nu.t1) / sd.t1[i]
+        F2 <- pt(((x - q) - mu.t2[i]) / sd.t2[i], df = nu.t2)
         return(f1 * F2)
       },
       # Adjust the range of integral dynamically

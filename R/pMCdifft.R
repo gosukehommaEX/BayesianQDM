@@ -19,19 +19,19 @@
 #'
 #' @importFrom stats rt
 #' @export
-pMCdifft = function(nMC, q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
+pMCdifft <- function(nMC, q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
   # Set the number of results
   n = max(length(mu.t1), length(mu.t2), length(sd.t1), length(sd.t2))
-  mu.t1 = rep(mu.t1, length.out = n)
-  mu.t2 = rep(mu.t2, length.out = n)
-  sd.t1 = rep(sd.t1, length.out = n)
-  sd.t2 = rep(sd.t2, length.out = n)
+  mu.t1 <- rep(mu.t1, length.out = n)
+  mu.t2 <- rep(mu.t2, length.out = n)
+  sd.t1 <- rep(sd.t1, length.out = n)
+  sd.t2 <- rep(sd.t2, length.out = n)
   # Calculate Pr(t1 - t2 >= q)
-  results = sapply(seq(n), function(i) {
+  results <- sapply(seq(n), function(i) {
     # t-distributed random numbers for group 1
-    rand.t1 = rt(nMC, df = nu.t1) * sqrt(sd.t1[i] ^ 2) + mu.t1[i]
+    rand.t1 <- rt(nMC, df = nu.t1) * sqrt(sd.t1[i] ^ 2) + mu.t1[i]
     # t-distributed random numbers for group 1
-    rand.t2 = rt(nMC, df = nu.t2) * sqrt(sd.t2[i] ^ 2) + mu.t2[i]
+    rand.t2 <- rt(nMC, df = nu.t2) * sqrt(sd.t2[i] ^ 2) + mu.t2[i]
     # CDF
     sum(rand.t1 - rand.t2 > q) / nMC
   })
