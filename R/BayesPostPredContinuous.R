@@ -81,7 +81,7 @@
 #' )
 #'
 #' @export
-BayesPostPredContinuous = function(prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+BayesPostPredContinuous <- function(prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
                                    theta0, nMC = 1e+4, n1, n2, m1, m2,
                                    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
                                    bar.y1, bar.y2, s1, s2, r) {
@@ -98,85 +98,85 @@ BayesPostPredContinuous = function(prob = 'posterior', design = 'controlled', pr
   # Define parameters for calculating posterior/posterior predictive probabilities
   if(prior == 'N-Inv-Chisq') {
     # Sample size
-    kappa.n1 = kappa01 + n1
-    kappa.n2 = kappa02 + n2
+    kappa.n1 <- kappa01 + n1
+    kappa.n2 <- kappa02 + n2
     # Degree of freedom
-    nu.t1 = nu01 + n1
+    nu.t1 <- nu01 + n1
     if(design == 'controlled') {
-      nu.t2 = nu02 + n2
+      nu.t2 <- nu02 + n2
     } else if(design == 'uncontrolled') {
-      nu.t2 = nu.t1
+      nu.t2 <- nu.t1
     }
     # Means of t-distributions
-    mu.t1 = (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
+    mu.t1 <- (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
     if(design == 'controlled') {
-      mu.t2 = (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
+      mu.t2 <- (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
     } else if(design == 'uncontrolled') {
-      mu.t2 = mu02
+      mu.t2 <- mu02
     }
     # Variance of a posterior distribution
-    var.n1 = (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 + n1 * kappa01 / (kappa01 + n1) * (mu01 - bar.y1) ^ 2) / nu.t1
+    var.n1 <- (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 + n1 * kappa01 / (kappa01 + n1) * (mu01 - bar.y1) ^ 2) / nu.t1
     if(design == 'controlled') {
-      var.n2 = (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 + n2 * kappa02 / (kappa02 + n2) * (mu02 - bar.y2) ^ 2) / nu.t2
+      var.n2 <- (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 + n2 * kappa02 / (kappa02 + n2) * (mu02 - bar.y2) ^ 2) / nu.t2
     } else if(design == 'uncontrolled') {
-      var.n2 = NULL
+      var.n2 <- NULL
     }
     # Standard deviations of t-distributions
     if(prob == 'posterior') {
-      sd.t1 = sqrt(var.n1 / kappa.n1)
+      sd.t1 <- sqrt(var.n1 / kappa.n1)
       if(design == 'controlled') {
-        sd.t2 = sqrt(var.n2 / kappa.n2)
+        sd.t2 <- sqrt(var.n2 / kappa.n2)
       } else if(design == 'uncontrolled') {
-        sd.t2 = sqrt(r) * sd.t1
+        sd.t2 <- sqrt(r) * sd.t1
       }
     } else if(prob == 'predictive') {
-      sd.t1 = sqrt((1 + kappa.n1) * var.n1 / (kappa.n1 * m1))
+      sd.t1 <- sqrt((1 + kappa.n1) * var.n1 / (kappa.n1 * m1))
       if(design == 'controlled') {
-        sd.t2 = sqrt((1 + kappa.n2) * var.n2 / (kappa.n2 * m2))
+        sd.t2 <- sqrt((1 + kappa.n2) * var.n2 / (kappa.n2 * m2))
       } else if(design == 'uncontrolled') {
-        sd.t2 = sqrt(r) * sd.t1
+        sd.t2 <- sqrt(r) * sd.t1
       }
     }
   } else if(prior == 'vague') {
     # Degree of freedom
-    nu.t1 = n1 - 1
+    nu.t1 <- n1 - 1
     if(design == 'controlled') {
-      nu.t2 = n2 - 1
+      nu.t2 <- n2 - 1
     } else if(design == 'uncontrolled') {
-      nu.t2 = nu.t1
+      nu.t2 <- nu.t1
     }
     # Means of t-distributions
-    mu.t1 = bar.y1
+    mu.t1 <- bar.y1
     if(design == 'controlled') {
-      mu.t2 = bar.y2
+      mu.t2 <- bar.y2
     } else if(design == 'uncontrolled') {
-      mu.t2 = mu02
+      mu.t2 <- mu02
     }
     # Standard deviations of t-distributions
     if(prob == 'posterior') {
-      sd.t1 = sqrt(s1 ^ 2 / n1)
+      sd.t1 <- sqrt(s1 ^ 2 / n1)
       if(design == 'controlled') {
-        sd.t2 = sqrt(s2 ^ 2 / n2)
+        sd.t2 <- sqrt(s2 ^ 2 / n2)
       } else if(design == 'uncontrolled') {
-        sd.t2 = sqrt(r) * sd.t1
+        sd.t2 <- sqrt(r) * sd.t1
       }
     } else if(prob == 'predictive') {
-      sd.t1 = sqrt((1 + n1) * s1 ^ 2 / (n1 * m1))
+      sd.t1 <- sqrt((1 + n1) * s1 ^ 2 / (n1 * m1))
       if(design == 'controlled') {
-        sd.t2 = sqrt((1 + n2) * s2 ^ 2 / (n2 * m2))
+        sd.t2 <- sqrt((1 + n2) * s2 ^ 2 / (n2 * m2))
       } else if(design == 'uncontrolled') {
-        sd.t2 = sqrt(r) * sd.t1
+        sd.t2 <- sqrt(r) * sd.t1
       }
     }
   }
   # The probability of exceeding \theta_{0}
   if(CalcMethod == 'NI') {
-    result = pNIdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+    results <- pNIdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   } else if(CalcMethod == 'MC') {
-    result = pMCdifft(nMC, theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+    results <- pMCdifft(nMC, theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   } else if(CalcMethod == 'WS') {
-    result = pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+    results <- pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   }
   # Result
-  return(result)
+  return(results)
 }

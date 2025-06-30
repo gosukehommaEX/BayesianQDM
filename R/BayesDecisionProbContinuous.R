@@ -54,7 +54,7 @@
 #'
 #' @importFrom stats rnorm
 #' @export
-BayesDecisionProbContinuous = function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL, nMC,
+BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL, nMC,
                                        gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02, mu01, mu02,
                                        sigma01, sigma02, mu1, mu2, sigma1, sigma2, r, seed) {
   # Check parameter sets
@@ -73,56 +73,56 @@ BayesDecisionProbContinuous = function(nsim, prob, design, prior, CalcMethod, th
   # Set seed number
   set.seed(seed)
   # Random numbers of outcomes for group 1 in PoC study
-  y1 = matrix(rnorm(nsim * n1, mu1, sigma1), nrow = nsim)
+  y1 <- matrix(rnorm(nsim * n1, mu1, sigma1), nrow = nsim)
   # Sample mean for group 1
-  bar.y1 = rowSums(y1) / n1
+  bar.y1 <- rowSums(y1) / n1
   # Sample standard deviation for group 1
-  s1 = sqrt(rowSums((y1 - bar.y1) ^ 2) / (n1 - 1))
+  s1 <- sqrt(rowSums((y1 - bar.y1) ^ 2) / (n1 - 1))
   if(design == 'controlled') {
     # Random numbers of outcomes for group 2 in PoC study
-    y2 = matrix(rnorm(nsim * n2, mu2, sigma2), nrow = nsim)
+    y2 <- matrix(rnorm(nsim * n2, mu2, sigma2), nrow = nsim)
     # Sample mean for group 2
-    bar.y2 = rowSums(y2) / n2
+    bar.y2 <- rowSums(y2) / n2
     # Sample standard deviation for group 2
-    s2 = sqrt(rowSums((y2 - bar.y2) ^ 2) / (n2 - 1))
+    s2 <- sqrt(rowSums((y2 - bar.y2) ^ 2) / (n2 - 1))
   } else if(design == 'uncontrolled') {
     # Sample mean for group 2
-    bar.y2 = NULL
+    bar.y2 <- NULL
     # Sample standard deviation for group 2
-    s2 = NULL
+    s2 <- NULL
   }
   # Set values of theta0
   if(prob == 'posterior') {
-    theta0 = c(theta.TV, theta.MAV)
+    theta0 <- c(theta.TV, theta.MAV)
   } else {
-    theta0 = theta.NULL
+    theta0 <- theta.NULL
   }
   # Go, NoGo and Gray probabilities
-  list.Go.and.NoGo.probs = lapply(seq(theta0), function(i) {
-    prob.success = BayesPostPredContinuous(
+  list.Go.and.NoGo.probs <- lapply(seq(theta0), function(i) {
+    prob.success <- BayesPostPredContinuous(
       prob, design, prior, CalcMethod, theta0[i], nMC, n1, n2, m1, m2,
       kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
       bar.y1, bar.y2, s1, s2, r
     )
     if(prob == 'posterior') {
-      Go   = ifelse(i == 1, 1, NA) * sum(prob.success >= gamma1) / nsim
-      NoGo = ifelse(i == 1, NA, 1) * sum(prob.success <= gamma2) / nsim
+      Go   <- ifelse(i == 1, 1, NA) * sum(prob.success >= gamma1) / nsim
+      NoGo <- ifelse(i == 1, NA, 1) * sum(prob.success <= gamma2) / nsim
     } else {
-      Go = sum(prob.success >= gamma1) / nsim
-      NoGo = sum(prob.success <= gamma2) / nsim
+      Go <- sum(prob.success >= gamma1) / nsim
+      NoGo <- sum(prob.success <= gamma2) / nsim
     }
     return(c(Go, NoGo))
   })
-  Go.and.NoGo.probs = do.call(pmax, c(list(na.rm = TRUE), list.Go.and.NoGo.probs))
-  Gray.prob = 1 - sum(Go.and.NoGo.probs)
+  Go.and.NoGo.probs <- do.call(pmax, c(list(na.rm = TRUE), list.Go.and.NoGo.probs))
+  Gray.prob <- 1 - sum(Go.and.NoGo.probs)
   if(Gray.prob < 0) {
     print('Because negative gray probability(s) is obtained, re-consider appropriate threshold')
   }
   # Return output
   if(is.null(mu2)) {
-    results = data.frame(mu1, Go = Go.and.NoGo.probs[1], NoGo = Go.and.NoGo.probs[2], Gray = Gray.prob)
+    results <- data.frame(mu1, Go = Go.and.NoGo.probs[1], NoGo = Go.and.NoGo.probs[2], Gray = Gray.prob)
   } else {
-    results = data.frame(mu1, mu2, Go = Go.and.NoGo.probs[1], NoGo = Go.and.NoGo.probs[2], Gray = Gray.prob)
+    results <- data.frame(mu1, mu2, Go = Go.and.NoGo.probs[1], NoGo = Go.and.NoGo.probs[2], Gray = Gray.prob)
   }
   return(results)
 }
