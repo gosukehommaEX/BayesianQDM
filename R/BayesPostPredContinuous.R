@@ -81,7 +81,8 @@
 #' )
 #'
 #' @export
-BayesPostPredContinuous = function(prob, design, prior, CalcMethod, theta0, nMC, n1, n2, m1, m2,
+BayesPostPredContinuous = function(prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+                                   theta0, nMC = 1e+4, n1, n2, m1, m2,
                                    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
                                    bar.y1, bar.y2, s1, s2, r) {
   # Check parameter sets

@@ -50,7 +50,7 @@
 #'
 #' @importFrom stats integrate
 #' @export
-BayesPostPredBinary = function(prob, external, theta0,
+BayesPostPredBinary = function(prob = 'posterior', external = FALSE, theta0,
                                n1, n2, y1, y2, a1, a2, b1, b2,
                                m1, m2, ne1, ne2, ye1, ye2, ae1, ae2) {
   # Check parameter sets

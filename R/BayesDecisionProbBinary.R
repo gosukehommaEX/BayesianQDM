@@ -55,7 +55,7 @@
 #'
 #' @importFrom stats dbinom
 #' @export
-BayesDecisionProbBinary = function(prob, design, theta.TV, theta.MAV, theta.NULL, gamma1, gamma2,
+BayesDecisionProbBinary = function(prob = 'posterior', design = 'controlled', theta.TV, theta.MAV, theta.NULL, gamma1, gamma2,
                                    pi1, pi2, n1, n2, a1, a2, b1, b2, z,
                                    m1, m2, ne1, ne2, ye1, ye2, ae1, ae2) {
   # Check parameter sets
