@@ -1,0 +1,325 @@
+---
+title: "Bayesian Decision Making for Binary Endpoints"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Bayesian Decision Making for Binary Endpoints}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup}
+library(BayesianQDM)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+## Introduction
+
+The BayesianQDM package provides comprehensive methods for Bayesian quantitative decision-making in clinical trials with binary endpoints. This vignette demonstrates how to use the package for calculating posterior probabilities, posterior predictive probabilities, and Go/NoGo/Gray decision probabilities.
+
+## Basic Concepts
+
+### Decision Framework
+
+The Bayesian decision-making framework categorizes trial outcomes into three zones:
+
+- **Go**: Evidence suggests the treatment is effective (proceed to next phase)
+- **NoGo**: Evidence suggests the treatment is not effective (stop development)
+- **Gray**: Evidence is inconclusive (may need additional data)
+
+### Probability Types
+
+Two types of probabilities can be calculated:
+
+1. **Posterior Probability**: $P(\theta > \theta_0 | data)$ where $\theta$ is the treatment effect
+2. **Posterior Predictive Probability**: Probability of future trial success
+
+## Posterior and Posterior Predictive Probabilities
+
+### Basic Usage
+
+Let's start with calculating posterior probabilities for a controlled design:
+
+```{r posterior_basic}
+# Calculate posterior probability
+posterior_prob <- BayesPostPredBinary(
+  prob = 'posterior', 
+  design = 'controlled', 
+  theta0 = 0.15,
+  n1 = 12, n2 = 15, y1 = 7, y2 = 9, 
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5
+)
+
+cat("Posterior probability that treatment effect > 0.15:", round(posterior_prob, 4))
+```
+
+Now let's calculate posterior predictive probability:
+
+```{r predictive_basic}
+# Calculate posterior predictive probability
+predictive_prob <- BayesPostPredBinary(
+  prob = 'predictive', 
+  design = 'controlled', 
+  theta0 = 0.1,
+  n1 = 12, n2 = 15, y1 = 7, y2 = 7, 
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = 30, m2 = 30
+)
+
+cat("Posterior predictive probability that future trial effect > 0.1:", round(predictive_prob, 4))
+```
+
+### External Control Design
+
+The package supports incorporating external (historical) control data using power priors:
+
+```{r external_design}
+# Posterior probability with external control data
+external_prob <- BayesPostPredBinary(
+  prob = 'posterior', 
+  design = 'external', 
+  theta0 = 0.15,
+  n1 = 12, n2 = 15, y1 = 7, y2 = 9, 
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, 
+  ae1 = 0.5, ae2 = 0.5
+)
+
+cat("Posterior probability with external control:", round(external_prob, 4))
+```
+
+## Go/NoGo/Gray Decision Probabilities
+
+### Controlled Design with Posterior Probability
+
+```{r decision_posterior}
+# Calculate Go/NoGo/Gray probabilities using posterior probability
+decision_posterior <- BayesDecisionProbBinary(
+  prob = 'posterior', 
+  design = 'controlled', 
+  theta.TV = 0.3,    # Go threshold
+  theta.MAV = 0.1,   # NoGo threshold
+  gamma1 = 0.8,      # Minimum probability for Go
+  gamma2 = 0.2,      # Maximum probability for NoGo
+  pi1 = c(0.2, 0.4, 0.6, 0.8), 
+  pi2 = rep(0.2, 4), 
+  n1 = 12, n2 = 12,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5
+)
+
+print(decision_posterior)
+```
+
+### Controlled Design with Posterior Predictive Probability
+
+```{r decision_predictive}
+# Calculate Go/NoGo/Gray probabilities using posterior predictive probability
+decision_predictive <- BayesDecisionProbBinary(
+  prob = 'predictive', 
+  design = 'controlled', 
+  theta.NULL = 0.15,  # Threshold for future trial
+  gamma1 = 0.9,       # Minimum probability for Go
+  gamma2 = 0.3,       # Maximum probability for NoGo
+  pi1 = c(0.2, 0.4, 0.6, 0.8), 
+  pi2 = rep(0.2, 4), 
+  n1 = 12, n2 = 12,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = 30, m2 = 30
+)
+
+print(decision_predictive)
+```
+
+### Visualization of Decision Probabilities
+
+```{r visualization, fig.width=10, fig.height=6}
+# Create comprehensive decision probability data
+results <- tibble(
+  design = rep(c('controlled', 'controlled'), each = 2),
+  prob = rep(c('posterior', 'predictive'), 2),
+  theta.TV = c(0.3, NA, 0.3, NA),
+  theta.MAV = c(0.1, NA, 0.1, NA),
+  theta.NULL = c(NA, 0.15, NA, 0.15),
+  gamma1 = c(0.8, 0.9, 0.8, 0.9),
+  gamma2 = c(0.2, 0.3, 0.2, 0.3)
+) %>%
+  group_by_all() %>%
+  reframe(
+    GoNoGoGray = map(list(1), ~ {
+      BayesDecisionProbBinary(
+        prob = prob, design = design, 
+        theta.TV = theta.TV, theta.MAV = theta.MAV, theta.NULL = theta.NULL, 
+        gamma1 = gamma1, gamma2 = gamma2,
+        pi1 = seq(0.1, 0.9, by = 0.05), pi2 = rep(0.2, length(seq(0.1, 0.9, by = 0.05))), 
+        n1 = 12, n2 = 15, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+        m1 = if(prob == 'predictive') 30 else NULL, 
+        m2 = if(prob == 'predictive') 30 else NULL
+      )
+    })
+  ) %>%
+  unnest(GoNoGoGray) %>%
+  mutate(
+    Gray = pmax(Gray, 0),  # Ensure non-negative Gray probabilities
+    theta = pi1 - pi2
+  )
+
+# Create visualization
+figure <- results %>%
+  pivot_longer(
+    cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Prob'
+  ) %>%
+  mutate(
+    prob = factor(prob, levels = c('posterior', 'predictive')),
+    Decision = factor(Decision, levels = c('Go', 'Gray', 'NoGo'))
+  ) %>%
+  ggplot(aes(x = theta, y = Prob)) +
+  facet_wrap(~ prob, labeller = labeller(prob = c(
+    'posterior' = 'Posterior Probability',
+    'predictive' = 'Posterior Predictive Probability'
+  ))) +
+  geom_line(aes(colour = Decision, linetype = Decision), linewidth = 1.2) +
+  theme_bw() +
+  scale_color_manual(
+    values = c('Go' = '#2E8B57', 'Gray' = '#808080', 'NoGo' = '#DC143C'),
+    labels = c('Go', 'Gray', 'NoGo')
+  ) +
+  scale_linetype_manual(
+    values = c('Go' = 'solid', 'Gray' = 'dashed', 'NoGo' = 'dotted'),
+    labels = c('Go', 'Gray', 'NoGo')
+  ) +
+  scale_x_continuous(
+    name = expression(paste("Treatment Effect (", pi[1] - pi[2], ")")),
+    breaks = seq(-0.1, 0.7, by = 0.2)
+  ) +
+  scale_y_continuous(
+    name = "Probability",
+    breaks = seq(0, 1, by = 0.2),
+    limits = c(0, 1)
+  ) +
+  labs(
+    title = "Go/Gray/NoGo Decision Probabilities for Binary Endpoints",
+    subtitle = "Comparison of posterior vs. posterior predictive approaches"
+  ) +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    strip.text = element_text(size = 11, face = "bold"),
+    axis.title = element_text(size = 11),
+    plot.title = element_text(size = 13, face = "bold"),
+    plot.subtitle = element_text(size = 11)
+  )
+
+print(figure)
+```
+
+## Advanced Examples
+
+### Uncontrolled Design
+
+For single-arm trials where there's no concurrent control group:
+
+```{r uncontrolled}
+# Uncontrolled design example
+uncontrolled_result <- BayesDecisionProbBinary(
+  prob = 'posterior', 
+  design = 'uncontrolled', 
+  theta.TV = 0.3, 
+  theta.MAV = 0.1,
+  gamma1 = 0.8, 
+  gamma2 = 0.2,
+  pi1 = c(0.3, 0.5, 0.7), 
+  pi2 = rep(0.2, 3),  # Historical control rate
+  n1 = 20, 
+  n2 = NULL,  # No concurrent control
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = 3  # Fixed number of historical control responders
+)
+
+print(uncontrolled_result)
+```
+
+### External Control with Power Prior
+
+Incorporating historical data with different power prior weights:
+
+```{r external_comparison}
+# Compare different power prior weights
+power_weights <- c(0.25, 0.5, 0.75, 1.0)
+external_results <- map_dfr(power_weights, ~ {
+  result <- BayesDecisionProbBinary(
+    prob = 'posterior', 
+    design = 'external', 
+    theta.TV = 0.25, 
+    theta.MAV = 0.05,
+    gamma1 = 0.8, 
+    gamma2 = 0.2,
+    pi1 = c(0.3, 0.5), 
+    pi2 = rep(0.2, 2), 
+    n1 = 15, n2 = 15,
+    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+    ne1 = 20, ne2 = 20, ye1 = 8, ye2 = 4, 
+    ae1 = .x, ae2 = .x
+  )
+  result$power_weight <- .x
+  result
+})
+
+print(external_results)
+```
+
+## Interpretation Guidelines
+
+### Go Decision
+- High posterior/predictive probability that treatment effect exceeds efficacy threshold
+- Proceed to next phase of development
+- Typical threshold: P(θ > θ_TV | data) ≥ 0.8
+
+### NoGo Decision  
+- Low posterior/predictive probability that treatment effect exceeds minimal acceptable value
+- Stop development or major protocol modification needed
+- Typical threshold: P(θ > θ_MAV | data) ≤ 0.2
+
+### Gray Zone
+- Inconclusive evidence
+- Consider additional patients, protocol modifications, or biomarker analysis
+- May warrant conditional advancement with risk mitigation
+
+## Parameter Selection Guidelines
+
+### Prior Selection
+- **Vague priors** (a = b = 0.5): Minimal prior influence, data-driven
+- **Jeffreys priors** (a = b = 0.5): Non-informative
+- **Informative priors**: Incorporate historical knowledge
+
+### Threshold Selection
+- **θ_TV (Target Value)**: Clinically meaningful effect size
+- **θ_MAV (Minimal Acceptable Value)**: Smallest worthwhile effect
+- **γ1**: Confidence level for Go decision (typically 0.8-0.9)
+- **γ2**: Maximum acceptable probability for NoGo (typically 0.2-0.3)
+
+### Sample Size Considerations
+- Larger sample sizes provide more precise estimates
+- Balance statistical power with resource constraints
+- Consider interim analyses for adaptive designs
+
+## Summary
+
+The BayesianQDM package provides flexible tools for:
+
+1. **Posterior probability calculations** for treatment effects
+2. **Posterior predictive probability** for future trial success  
+3. **Go/NoGo/Gray decision frameworks** with customizable thresholds
+4. **Multiple design types** including controlled, uncontrolled, and external control
+5. **Power prior integration** for historical data incorporation
+
+This Bayesian approach enables evidence-based decision making that accounts for uncertainty and incorporates prior knowledge, making it particularly valuable for early-phase clinical trial decision making.

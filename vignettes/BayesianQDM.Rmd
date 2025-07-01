@@ -1,0 +1,461 @@
+---
+title: "Introduction to BayesianQDM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to BayesianQDM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup}
+library(BayesianQDM)
+```
+
+## Overview
+
+The `BayesianQDM` package provides comprehensive methods for Bayesian quantitative decision-making in clinical trials. It supports both binary and continuous endpoints with various study designs including controlled, uncontrolled, and external control designs.
+
+## Key Features
+
+### Endpoint Types
+- **Binary endpoints**: Response/non-response, success/failure outcomes
+- **Continuous endpoints**: Biomarker changes, symptom scores, quality of life measures
+
+### Study Designs
+- **Controlled design**: Standard randomized controlled trials
+- **Uncontrolled design**: Single-arm studies with historical controls
+- **External control design**: Incorporating historical or external data using power priors
+
+### Decision Framework
+The package implements a three-zone decision framework:
+- **Go**: Sufficient evidence to proceed to next phase
+- **NoGo**: Insufficient evidence, stop development  
+- **Gray**: Inconclusive evidence, may need additional data
+
+### Probability Types
+- **Posterior probability**: P(θ > threshold | current data)
+- **Posterior predictive probability**: Probability of future trial success
+
+## Quick Start Example
+
+### Binary Endpoint
+
+```{r binary_example}
+# Calculate Go/NoGo/Gray probabilities for binary endpoint
+binary_result <- BayesDecisionProbBinary(
+  prob = 'posterior',
+  design = 'controlled',
+  theta.TV = 0.3,      # Go threshold
+  theta.MAV = 0.1,     # NoGo threshold
+  gamma1 = 0.8,        # Minimum probability for Go
+  gamma2 = 0.2,        # Maximum probability for NoGo
+  pi1 = c(0.3, 0.5),   # True response rates for treatment
+  pi2 = c(0.2, 0.2),   # True response rates for control
+  n1 = 20, n2 = 20,    # Sample sizes
+  a1 = 0.5, a2 = 0.5,  # Prior parameters
+  b1 = 0.5, b2 = 0.5
+)
+
+print(binary_result)
+```
+
+### Continuous Endpoint
+
+```{r continuous_example}
+# Calculate Go/NoGo/Gray probabilities for continuous endpoint
+continuous_result <- BayesDecisionProbContinuous(
+  nsim = 100,          # Number of simulations
+  prob = 'posterior',
+  design = 'controlled',
+  prior = 'vague',
+  CalcMethod = 'NI',   # Numerical integration
+  theta.TV = 1.5,      # Go threshold
+  theta.MAV = 0.5,     # NoGo threshold
+  gamma1 = 0.8,        # Minimum probability for Go
+  gamma2 = 0.3,        # Maximum probability for NoGo
+  n1 = 15, n2 = 15,    # Sample sizes
+  mu1 = 3.0, mu2 = 1.5, # True means
+  sigma1 = 1.2, sigma2 = 1.1, # True standard deviations
+  seed = 123
+)
+
+print(continuous_result)
+```
+
+## Main Functions
+
+### Core Decision Making Functions
+
+#### `BayesDecisionProbBinary()`
+Calculates Go/NoGo/Gray probabilities for binary endpoints across different true response rates.
+
+**Key Parameters:**
+- `prob`: 'posterior' or 'predictive'
+- `design`: 'controlled', 'uncontrolled', or 'external'
+- `theta.TV`, `theta.MAV`: Decision thresholds
+- `gamma1`, `gamma2`: Probability thresholds for decisions
+- `pi1`, `pi2`: True response probabilities
+
+#### `BayesDecisionProbContinuous()`
+Calculates Go/NoGo/Gray probabilities for continuous endpoints through simulation.
+
+**Key Parameters:**
+- `CalcMethod`: 'NI', 'MC', 'WS', or 'INLA'
+- `prior`: 'N-Inv-Chisq' or 'vague'
+- `nsim`: Number of simulation iterations
+- `mu1`, `mu2`: True means
+- `sigma1`, `sigma2`: True standard deviations
+
+### Probability Calculation Functions
+
+#### `BayesPostPredBinary()` and `BayesPostPredContinuous()`
+Calculate posterior or posterior predictive probabilities for observed data.
+
+### Low-Level Distribution Functions
+
+#### For Continuous Endpoints:
+- `pNIdifft()`: Exact numerical integration
+- `pWSdifft()`: Welch-Satterthwaite approximation
+- `pMCdifft()`: Monte Carlo simulation
+- `pINLAdifft()`: INLA-based calculation
+
+#### For Binary Endpoints:
+- `pBetadiff()`: Difference of beta distributions
+- `pBetaBinomdiff()`: Difference of beta-binomial distributions
+- `AppellsF1()`: Appell's hypergeometric function
+
+## Calculation Methods for Continuous Endpoints
+
+### Method Comparison
+
+```{r method_comparison}
+# Compare different calculation methods
+sample_data <- list(
+  mu.t1 = 3.5, mu.t2 = 1.8,
+  sd.t1 = 1.3, sd.t2 = 1.1,
+  nu.t1 = 14, nu.t2 = 16
+)
+
+threshold <- 1.5
+
+# Numerical Integration (most accurate)
+prob_ni <- pNIdifft(
+  q = threshold,
+  mu.t1 = sample_data$mu.t1, mu.t2 = sample_data$mu.t2,
+  sd.t1 = sample_data$sd.t1, sd.t2 = sample_data$sd.t2,
+  nu.t1 = sample_data$nu.t1, nu.t2 = sample_data$nu.t2
+)
+
+# Welch-Satterthwaite (fast approximation)
+prob_ws <- pWSdifft(
+  q = threshold,
+  mu.t1 = sample_data$mu.t1, mu.t2 = sample_data$mu.t2,
+  sd.t1 = sample_data$sd.t1, sd.t2 = sample_data$sd.t2,
+  nu.t1 = sample_data$nu.t1, nu.t2 = sample_data$nu.t2
+)
+
+cat("P(Treatment - Control > 1.5):\n")
+cat("NI method:", round(prob_ni, 4), "\n")
+cat("WS method:", round(prob_ws, 4), "\n")
+cat("Difference:", round(abs(prob_ni - prob_ws), 4), "\n")
+```
+
+### When to Use Each Method
+
+| Method | Accuracy | Speed | Use Case |
+|--------|----------|-------|----------|
+| NI | Highest | Moderate | Final analyses, regulatory submissions |
+| WS | High | Fast | Sensitivity analyses, simulations |
+| MC | High | Slow | Complex scenarios, uncertainty quantification |
+| INLA | High | Fast | External data incorporation |
+
+## Study Design Examples
+
+### Controlled Design
+
+Standard two-arm randomized trial:
+
+```{r controlled_design}
+# Posterior probability calculation for controlled design
+controlled_prob <- BayesPostPredContinuous(
+  prob = 'posterior',
+  design = 'controlled',
+  prior = 'vague',
+  CalcMethod = 'NI',
+  theta0 = 1.0,
+  n1 = 25, n2 = 25,
+  bar.y1 = 4.2, bar.y2 = 2.8,
+  s1 = 1.5, s2 = 1.3
+)
+
+cat("Controlled design - P(θ > 1.0):", round(controlled_prob, 3))
+```
+
+### Uncontrolled Design
+
+Single-arm study with historical control:
+
+```{r uncontrolled_design}
+# Uncontrolled design example
+uncontrolled_prob <- BayesPostPredContinuous(
+  prob = 'predictive',
+  design = 'uncontrolled',
+  prior = 'vague',
+  CalcMethod = 'WS',
+  theta0 = 1.5,
+  n1 = 30,
+  m1 = 100, m2 = 100,
+  mu02 = 2.0,  # Historical control mean
+  bar.y1 = 4.1,
+  s1 = 1.4,
+  r = 25  # Historical control precision
+)
+
+cat("Uncontrolled design - P(future θ > 1.5):", round(uncontrolled_prob, 3))
+```
+
+### External Control Design
+
+Incorporating historical data with power priors:
+
+```{r external_design}
+# Binary endpoint with external control
+external_prob <- BayesPostPredBinary(
+  prob = 'posterior',
+  design = 'external',
+  theta0 = 0.2,
+  n1 = 20, n2 = 20, y1 = 12, y2 = 8,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  ne1 = 30, ne2 = 30, ye1 = 15, ye2 = 6,
+  ae1 = 0.5, ae2 = 0.5  # Power prior weights
+)
+
+cat("External control design - P(θ > 0.2):", round(external_prob, 3))
+```
+
+## Prior Distributions
+
+### For Binary Endpoints
+
+Beta priors for response probabilities:
+- **Vague**: Beta(0.5, 0.5) - Jeffreys prior
+- **Uniform**: Beta(1, 1) - Uniform prior
+- **Informative**: Beta(a, b) with a, b > 1
+
+### For Continuous Endpoints
+
+Two options available:
+
+1. **Vague Priors**
+   - Non-informative approach
+   - Let data drive conclusions
+   - Good when little prior knowledge exists
+
+2. **Normal-Inverse-Chi-squared Priors**
+   - Conjugate family for normal data
+   - Allows incorporation of prior knowledge
+   - Parameters: κ (precision), ν (degrees of freedom), μ (prior mean), σ (prior scale)
+
+```{r prior_example}
+# Example: Normal-Inverse-Chi-squared prior
+conjugate_prob <- BayesPostPredContinuous(
+  prob = 'posterior',
+  design = 'controlled',
+  prior = 'N-Inv-Chisq',
+  CalcMethod = 'NI',
+  theta0 = 1.0,
+  n1 = 15, n2 = 15,
+  kappa01 = 5, kappa02 = 5,   # Prior precision
+  nu01 = 8, nu02 = 8,         # Prior degrees of freedom
+  mu01 = 3, mu02 = 2,         # Prior means
+  sigma01 = 1.5, sigma02 = 1.5, # Prior scales
+  bar.y1 = 3.8, bar.y2 = 2.1,
+  s1 = 1.3, s2 = 1.2
+)
+
+cat("With informative prior - P(θ > 1.0):", round(conjugate_prob, 3))
+```
+
+## Power Prior for External Data
+
+Power priors allow borrowing information from external sources while controlling the degree of borrowing:
+
+$\pi(\theta | \text{current data}) \propto L(\theta | \text{current data}) \times [L(\theta | \text{external data})]^{\alpha}$
+
+where α ∈ [0,1] controls borrowing strength:
+- α = 0: No borrowing (ignore external data)
+- α = 1: Full borrowing (treat as current data)
+- 0 < α < 1: Partial borrowing
+
+```{r power_prior_example}
+# Compare different power prior weights
+alpha_values <- c(0, 0.25, 0.5, 0.75, 1.0)
+
+power_comparison <- sapply(alpha_values, function(alpha) {
+  BayesPostPredBinary(
+    prob = 'posterior',
+    design = 'external',
+    theta0 = 0.15,
+    n1 = 15, n2 = 15, y1 = 8, y2 = 6,
+    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+    ne1 = 20, ne2 = 20, ye1 = 10, ye2 = 4,
+    ae1 = alpha, ae2 = alpha
+  )
+})
+
+names(power_comparison) <- paste("α =", alpha_values)
+print(round(power_comparison, 3))
+```
+
+## Decision Criteria Guidelines
+
+### Threshold Selection
+
+| Parameter | Typical Range | Description |
+|-----------|---------------|-------------|
+| θ_TV | 1.5-2.0 × MCID | Target value for Go decision |
+| θ_MAV | 0.5-1.0 × MCID | Minimal acceptable value for NoGo |
+| γ1 | 0.8-0.9 | Confidence level for Go |
+| γ2 | 0.2-0.3 | Maximum probability for NoGo |
+
+*MCID = Minimal Clinically Important Difference
+
+### Sample Size Considerations
+
+```{r sample_size_exploration}
+# Explore impact of sample size on decision probabilities
+sample_sizes <- c(10, 20, 30, 50)
+
+ss_comparison <- sapply(sample_sizes, function(n) {
+  result <- BayesDecisionProbContinuous(
+    nsim = 50,  # Small nsim for speed
+    prob = 'posterior',
+    design = 'controlled',
+    prior = 'vague',
+    CalcMethod = 'WS',
+    theta.TV = 1.5, theta.MAV = 0.5,
+    gamma1 = 0.8, gamma2 = 0.3,
+    n1 = n, n2 = n,
+    mu1 = 3.0, mu2 = 1.2,  # True effect = 1.8
+    sigma1 = 1.5, sigma2 = 1.5,
+    seed = 123
+  )
+  c(Go = result$Go, NoGo = result$NoGo, Gray = result$Gray)
+})
+
+colnames(ss_comparison) <- paste("n =", sample_sizes)
+print(round(ss_comparison, 3))
+```
+
+## Common Use Cases
+
+### Phase II Proof-of-Concept Studies
+- **Objective**: Determine if treatment shows sufficient efficacy signal
+- **Typical thresholds**: θ_TV = 1.5 × MCID, γ1 = 0.8
+- **Emphasis**: Balance Go/NoGo decisions to avoid false positives and negatives
+
+### Dose-Finding Studies
+- **Objective**: Select optimal dose for Phase III
+- **Multiple comparisons**: Compare several doses to control
+- **Consideration**: Adjust decision criteria for multiplicity
+
+### Biomarker-Driven Trials
+- **Objective**: Evaluate treatment effect in biomarker-defined populations
+- **Challenge**: Smaller sample sizes, higher uncertainty
+- **Approach**: May use informative priors or external data
+
+## Package Integration
+
+### With Other R Packages
+
+The package integrates well with:
+- **tidyverse** for data manipulation and visualization
+- **ggplot2** for creating decision probability plots
+- **INLA** for external data incorporation (when available)
+
+### Simulation Studies
+
+```{r simulation_framework}
+# Framework for simulation studies
+simulate_trial <- function(n_per_arm, true_effect, threshold) {
+  # Generate trial data
+  y1 <- rnorm(n_per_arm, mean = 2 + true_effect, sd = 1.5)
+  y2 <- rnorm(n_per_arm, mean = 2, sd = 1.5)
+  
+  # Calculate posterior probability
+  prob <- BayesPostPredContinuous(
+    prob = 'posterior',
+    design = 'controlled',
+    prior = 'vague',
+    CalcMethod = 'WS',
+    theta0 = threshold,
+    n1 = n_per_arm, n2 = n_per_arm,
+    bar.y1 = mean(y1), bar.y2 = mean(y2),
+    s1 = sd(y1), s2 = sd(y2)
+  )
+  
+  return(prob)
+}
+
+# Example simulation
+set.seed(456)
+sim_result <- simulate_trial(n_per_arm = 20, true_effect = 1.5, threshold = 1.0)
+cat("Simulation result - P(θ > 1.0):", round(sim_result, 3))
+```
+
+## Best Practices
+
+### Data Quality
+- Ensure data completeness and quality before analysis
+- Consider missing data patterns and their impact
+- Validate distributional assumptions
+
+### Prior Specification
+- Document rationale for prior choices
+- Conduct sensitivity analyses across different priors
+- Consider regulatory guidance on prior use
+
+### Decision Criteria
+- Align thresholds with clinical meaningfulness
+- Consider regulatory and commercial requirements
+- Plan for gray zone scenarios
+
+### Reporting
+- Report all key inputs (priors, thresholds, sample sizes)
+- Present operating characteristics
+- Include sensitivity analyses
+
+## Getting Help
+
+For more detailed examples, see the specific vignettes:
+- `vignette("binary-endpoints", package = "BayesianQDM")`
+- `vignette("continuous-endpoints", package = "BayesianQDM")`
+
+For function documentation:
+```{r help_examples, eval=FALSE}
+?BayesDecisionProbBinary
+?BayesDecisionProbContinuous
+?BayesPostPredBinary
+?BayesPostPredContinuous
+```
+
+## Summary
+
+The BayesianQDM package provides a comprehensive framework for Bayesian decision-making in clinical trials, offering:
+
+- **Flexible endpoint support** (binary and continuous)
+- **Multiple study designs** (controlled, uncontrolled, external control)
+- **Various calculation methods** optimized for different needs
+- **Robust decision frameworks** with customizable criteria
+- **Integration capabilities** with modern R workflows
+
+This framework enables evidence-based, quantitative decision-making that appropriately accounts for uncertainty while incorporating prior knowledge and external data when appropriate.
