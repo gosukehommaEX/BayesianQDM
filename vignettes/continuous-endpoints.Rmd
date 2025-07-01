@@ -12,7 +12,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 5
+  fig.height = 5,
+  fig.alt = "Visualization of statistical methods and decision probabilities for continuous endpoints"
 )
 ```
 
@@ -197,7 +198,7 @@ print(uncontrolled_result)
 
 ### Method Comparison Visualization
 
-```{r method_comparison, fig.width=10, fig.height=6}
+```{r method_comparison, fig.width=10, fig.height=6, fig.alt="Comparison of numerical integration vs Welch-Satterthwaite methods showing posterior probabilities across different effect sizes and thresholds"}
 # Compare NI and WS methods across different effect sizes
 effect_sizes <- seq(0, 4, by = 0.2)
 theta_values <- seq(0, 3, by = 0.5)
@@ -305,7 +306,7 @@ print(oc_summary)
 
 ### Visualization of Operating Characteristics
 
-```{r oc_visualization, fig.width=10, fig.height=6}
+```{r oc_visualization, fig.width=10, fig.height=6, fig.alt="Operating characteristics showing Go, Gray, and NoGo decision probabilities across different true treatment effects and sample sizes"}
 # Create operating characteristics plot
 oc_plot <- oc_summary %>%
   pivot_longer(cols = c(go_prob, nogo_prob, gray_prob), 

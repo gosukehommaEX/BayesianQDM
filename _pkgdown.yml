@@ -1,5 +1,4 @@
-
-url: https://gosukehommaex.github.io/BayesianQDM/
+url: https://gosukehommaEX.github.io/BayesianQDM/
 template:
   bootstrap: 5
 
@@ -67,4 +66,3 @@ home:
   title: BayesianQDM
   description: >
     Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints
-

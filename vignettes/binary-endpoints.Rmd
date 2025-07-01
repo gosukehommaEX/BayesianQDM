@@ -12,7 +12,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 5
+  fig.height = 5,
+  fig.alt = "Visualization of Go/NoGo/Gray decision probabilities for binary endpoints"
 )
 ```
 
@@ -153,7 +154,7 @@ print(decision_predictive)
 
 ### Visualization of Decision Probabilities
 
-```{r visualization, fig.width=10, fig.height=6}
+```{r visualization, fig.width=10, fig.height=6, fig.alt="Comparison of posterior vs posterior predictive decision probabilities showing Go, Gray, and NoGo zones across different treatment effect values"}
 # Create comprehensive decision probability data
 # Split into separate scenarios to avoid vectorization issues
 posterior_results <- BayesDecisionProbBinary(
@@ -238,103 +239,4 @@ print(figure)
 For single-arm trials where there's no concurrent control group:
 
 ```{r uncontrolled}
-# Uncontrolled design example
-uncontrolled_result <- BayesDecisionProbBinary(
-  prob = 'posterior', 
-  design = 'uncontrolled', 
-  theta.TV = 0.3, 
-  theta.MAV = 0.1,
-  theta.NULL = NULL, # Not needed for posterior probability
-  gamma1 = 0.8, 
-  gamma2 = 0.2,
-  pi1 = c(0.3, 0.5, 0.7), 
-  pi2 = rep(0.2, 3),  # Historical control rate
-  n1 = 20, 
-  n2 = 20,    # Provide n2 even for uncontrolled design
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  z = 3,      # Fixed number of historical control responders
-  m1 = NULL, m2 = NULL, # Not needed for posterior probability
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL # No external data
-)
-
-print(uncontrolled_result)
-```
-
-### External Control with Power Prior
-
-Incorporating historical data with different power prior weights:
-
-```{r external_comparison}
-# Compare different power prior weights
-power_weights <- c(0.25, 0.5, 0.75, 1.0)
-external_results <- purrr::map_dfr(power_weights, ~ {
-  result <- BayesDecisionProbBinary(
-    prob = 'posterior', 
-    design = 'external', 
-    theta.TV = 0.25, 
-    theta.MAV = 0.05,
-    theta.NULL = NULL, # Not needed for posterior probability
-    gamma1 = 0.8, 
-    gamma2 = 0.2,
-    pi1 = c(0.3, 0.5), 
-    pi2 = rep(0.2, 2), 
-    n1 = 15, n2 = 15,
-    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-    z = NULL,           # Not needed for external design
-    m1 = NULL, m2 = NULL, # Not needed for posterior probability
-    ne1 = 20, ne2 = 20, ye1 = 8, ye2 = 4, 
-    ae1 = .x, ae2 = .x
-  )
-  result$power_weight <- .x
-  result
-})
-
-print(external_results)
-```
-
-## Interpretation Guidelines
-
-### Go Decision
-- High posterior/predictive probability that treatment effect exceeds efficacy threshold
-- Proceed to next phase of development
-- Typical threshold: P(θ > θ_TV | data) ≥ 0.8
-
-### NoGo Decision  
-- Low posterior/predictive probability that treatment effect exceeds minimal acceptable value
-- Stop development or major protocol modification needed
-- Typical threshold: P(θ > θ_MAV | data) ≤ 0.2
-
-### Gray Zone
-- Inconclusive evidence
-- Consider additional patients, protocol modifications, or biomarker analysis
-- May warrant conditional advancement with risk mitigation
-
-## Parameter Selection Guidelines
-
-### Prior Selection
-- **Vague priors** (a = b = 0.5): Minimal prior influence, data-driven
-- **Jeffreys priors** (a = b = 0.5): Non-informative
-- **Informative priors**: Incorporate historical knowledge
-
-### Threshold Selection
-- **θ_TV (Target Value)**: Clinically meaningful effect size
-- **θ_MAV (Minimal Acceptable Value)**: Smallest worthwhile effect
-- **γ1**: Confidence level for Go decision (typically 0.8-0.9)
-- **γ2**: Maximum acceptable probability for NoGo (typically 0.2-0.3)
-
-### Sample Size Considerations
-- Larger sample sizes provide more precise estimates
-- Balance statistical power with resource constraints
-- Consider interim analyses for adaptive designs
-
-## Summary
-
-The BayesianQDM package for binary endpoints provides:
-
-1. **Posterior probability calculations** for treatment effects
-2. **Posterior predictive probability** for future trial success  
-3. **Go/NoGo/Gray decision frameworks** with customizable thresholds
-4. **Multiple design types** including controlled, uncontrolled, and external control
-5. **Power prior integration** for historical data incorporation
-
-This Bayesian approach enables evidence-based decision making that accounts for uncertainty and incorporates prior knowledge, making it particularly valuable for early-phase clinical trial decision making.
+# Uncont
