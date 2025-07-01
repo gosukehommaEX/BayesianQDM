@@ -93,14 +93,16 @@
 #'   sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6
 #' )
 #'
-#' \dontrun{
+#' \donttest{
 #' # Example 4: INLA method with external control data (requires INLA package)
-#' BayesPostPredContinuous(
-#'   prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'INLA',
-#'   theta0 = 1.5, nINLAsample = 5000, n1 = 12, n2 = 12,
-#'   bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-#'   ne2 = 20, alpha02 = 0.5
-#' )
+#' if (requireNamespace("INLA", quietly = TRUE)) {
+#'   BayesPostPredContinuous(
+#'     prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'INLA',
+#'     theta0 = 1.5, nINLAsample = 5000, n1 = 12, n2 = 12,
+#'     bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
+#'     ne2 = 20, alpha02 = 0.5
+#'   )
+#' }
 #' }
 #'
 #' @export
@@ -219,6 +221,10 @@ BayesPostPredContinuous <- function(prob = 'posterior', design = 'controlled', p
   } else if(CalcMethod == 'WS') {
     results <- pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   } else if((design == 'external') && (CalcMethod == 'INLA')) {
+    # Check if INLA is available before calling
+    if (!requireNamespace("INLA", quietly = TRUE)) {
+      stop("INLA package is required for external design with INLA method. Please install INLA or use a different calculation method.")
+    }
     results <- pINLAdifft(nINLAsample, theta0, bar.y1, bar.y2, s1, s2, n1, n2, ne1, ne2, alpha01, alpha02)
   }
 

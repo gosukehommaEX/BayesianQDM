@@ -83,11 +83,17 @@ result_continuous <- BayesDecisionProbContinuous(
   design = 'controlled', 
   prior = 'vague', 
   CalcMethod = 'WS',  # Fast method for vignette
-  theta.TV = 1.5, theta.MAV = 0.5,
+  theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,  # All required thresholds
+  nMC = NULL, nINLAsample = NULL,  # Not needed for WS method
   gamma1 = 0.8, gamma2 = 0.3,
   n1 = 15, n2 = 15,
+  m1 = NULL, m2 = NULL,  # Not needed for posterior probability
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,  # Not needed for vague prior
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,  # Not needed for vague prior
   mu1 = 3.0, mu2 = 1.2,
   sigma1 = 1.5, sigma2 = 1.5,
+  r = NULL,  # Not needed for controlled design
+  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,  # No external data
   seed = 123
 )
 

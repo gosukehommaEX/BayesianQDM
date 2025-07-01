@@ -158,14 +158,16 @@ BayesPostPredContinuous(
   sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6
 )
 
-\dontrun{
+\donttest{
 # Example 4: INLA method with external control data (requires INLA package)
-BayesPostPredContinuous(
-  prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'INLA',
-  theta0 = 1.5, nINLAsample = 5000, n1 = 12, n2 = 12,
-  bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-  ne2 = 20, alpha02 = 0.5
-)
+if (requireNamespace("INLA", quietly = TRUE)) {
+  BayesPostPredContinuous(
+    prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'INLA',
+    theta0 = 1.5, nINLAsample = 5000, n1 = 12, n2 = 12,
+    bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
+    ne2 = 20, alpha02 = 0.5
+  )
+}
 }
 
 }
