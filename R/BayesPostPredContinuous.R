@@ -10,11 +10,12 @@
 #' Posterior distribution or posterior predictive distribution of outcome for each treatment group is following t-distribution.
 #'
 #' @param prob A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).
-#' @param design A type of trial design (i.e., \code{design='controlled'} or \code{prob='uncontrolled'}).
+#' @param design A type of trial design (i.e., \code{design='controlled'}, \code{prob='uncontrolled'} or \code{prob='external'}).
 #' @param prior A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).
-#' @param CalcMethod An option to select a calculation method (\code{CalcMethod=NI} (numerical integration method), \code{CalcMethod=MC} (Monte Carlo method), or \code{CalcMethod=WS} (WS approximation)).
+#' @param CalcMethod An option to select a calculation method (\code{CalcMethod='NI'} (numerical integration method), \code{CalcMethod='MC'} (Monte Carlo method), \code{CalcMethod='WS'} (WS approximation)) or \code{CalcMethod='INLA'} (INLA)).
 #' @param theta0 Numeric pre-specified threshold value.
-#' @param nMC A number of iterations for Monte Carlo simulation (a numeric value is set only if \code{CalcMethod=MC}).
+#' @param nMC A number of iterations for Monte Carlo simulation (a numeric value is set only if \code{CalcMethod='MC'}).
+#' @param nINLAsample A number of iterations for INLA sampling (a numeric value is set only if \code{CalcMethod='INLA'}).
 #' @param n1 A number of patients in group 1 for a proof-of-concept (PoC) trial.
 #' @param n2 A number of patients in group 2 for the PoC trial.
 #' @param m1 A number of patients in group 1 for the future trial data.
@@ -32,6 +33,10 @@
 #' @param s1 A sample standard deviation of group 1.
 #' @param s2 A sample standard deviation of group 2.
 #' @param r A parameter value associated with the distribution of mean for group 2 When \code{prob='uncontrolled'}.
+#' @param ne1 Sample size for group 1 in external trial (can be NULL if no external treatment data).
+#' @param ne2 Sample size for group 2 in external trial (can be NULL if no external control data).
+#' @param alpha01 Scale parameter of the power prior for group 1 (can be NULL if no external treatment data).
+#' @param alpha02 Scale parameter of the power prior for group 2 (can be NULL if no external control data).
 #'
 #' @return The \code{BayesPostPredContinuous} gives the numeric value(s) of the
 #' bayesian posterior probability or bayesian posterior predictive probability.
@@ -82,21 +87,24 @@
 #'
 #' @export
 BayesPostPredContinuous = function(prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-                                   theta0, nMC = 1e+4, n1, n2, m1, m2,
+                                   theta0, nMC = NULL, nINLAsample = NULL, n1, n2, m1, m2,
                                    kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
-                                   bar.y1, bar.y2, s1, s2, r) {
+                                   bar.y1, bar.y2, s1, s2, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL) {
   # Check parameter sets
   if((design == 'uncontrolled') & (is.null(r))) {
     stop('If you consider uncontrolled design, r should be non-null')
   }
-  if((prob == 'predictive') & (sum(sapply(list(m1, m2), is.null)) > 0)) {
+  if((design == 'external') & ((CalcMethod != 'INLA') | ((is.null(ne1) | is.null(alpha01)) & (is.null(ne2) | is.null(alpha02))))) {
+    stop('At least one complete pair (ne1 & alpha01) or (ne2 & alpha02) must be provided for external data analysis')
+  }
+  if(!is.null(prob) && prob == 'predictive' && sum(sapply(list(m1, m2), is.null)) > 0) {
     stop('If you calculate posterior predictive probability, m1 and m2 should be non-null')
   }
-  if((prior == 'N-Inv-Chisq') & (sum(sapply(list(kappa01, nu01, sigma01), is.null)) > 0)) {
+  if(!is.null(prior) && prior == 'N-Inv-Chisq' && sum(sapply(list(kappa01, nu01, sigma01), is.null)) > 0) {
     stop('If you use the N-Inv-Chisq prior, kappa01, nu01 and sigma01 should be non-null')
   }
   # Define parameters for calculating posterior/posterior predictive probabilities
-  if(prior == 'N-Inv-Chisq') {
+  if(!is.null(prior) && prior == 'N-Inv-Chisq') {
     # Sample size
     kappa.n1 = kappa01 + n1
     kappa.n2 = kappa02 + n2
@@ -137,7 +145,7 @@ BayesPostPredContinuous = function(prob = 'posterior', design = 'controlled', pr
         sd.t2 = sqrt(r) * sd.t1
       }
     }
-  } else if(prior == 'vague') {
+  } else if(!is.null(prior) && prior == 'vague') {
     # Degree of freedom
     nu.t1 = n1 - 1
     if(design == 'controlled') {
@@ -176,6 +184,8 @@ BayesPostPredContinuous = function(prob = 'posterior', design = 'controlled', pr
     result = pMCdifft(nMC, theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   } else if(CalcMethod == 'WS') {
     result = pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+  } else if((design == 'external') && (CalcMethod == 'INLA')) {
+    result = pINLAdifft(nINLAsample, theta0, bar.y1, bar.y2, s1, s2, n1, n2, ne1, ne2, alpha01, alpha02)
   }
   # Result
   return(result)
