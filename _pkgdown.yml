@@ -1,0 +1,70 @@
+
+url: https://gosukehommaex.github.io/BayesianQDM/
+template:
+  bootstrap: 5
+
+reference:
+- title: Decision Making Functions
+  desc: Main functions for Go/NoGo/Gray decision making
+  contents:
+  - BayesDecisionProbBinary
+  - BayesDecisionProbContinuous
+
+- title: Probability Calculation Functions
+  desc: Functions for posterior and posterior predictive probabilities
+  contents:
+  - BayesPostPredBinary
+  - BayesPostPredContinuous
+
+- title: Distribution Functions for Continuous Endpoints
+  desc: Functions for calculating differences of t-distributions
+  contents:
+  - pNIdifft
+  - pWSdifft
+  - pMCdifft
+  - pINLAdifft
+
+- title: Distribution Functions for Binary Endpoints
+  desc: Functions for calculating differences of beta distributions
+  contents:
+  - pBetadiff
+  - pBetaBinomdiff
+
+- title: Utility Functions
+  desc: Supporting mathematical functions
+  contents:
+  - AppellsF1
+
+articles:
+- title: Getting Started
+  navbar: ~
+  contents:
+  - BayesianQDM
+
+- title: Endpoint-Specific Guides
+  navbar: Guides
+  contents:
+  - binary-endpoints
+  - continuous-endpoints
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, tutorials, news]
+    right: [search, github]
+  components:
+    articles:
+      text: Articles
+      menu:
+      - text: Introduction to BayesianQDM
+        href: articles/BayesianQDM.html
+      - text: -------
+      - text: Binary Endpoints
+        href: articles/binary-endpoints.html
+      - text: Continuous Endpoints
+        href: articles/continuous-endpoints.html
+
+home:
+  title: BayesianQDM
+  description: >
+    Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints
+

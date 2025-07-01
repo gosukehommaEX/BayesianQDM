@@ -34,5 +34,5 @@ Suggests:
     tidyr,
     purrr
 VignetteBuilder: knitr
-URL: https://github.com/gosukehommaEX/BayesianQDM
-BugReports: https://github.com/gosukehommaEX/BayesianQDM/issues
+URL: https://gosukehommaex.github.io/BayesianQDM/, https://github.com/gosukehommaex/BayesianQDM
+BugReports: https://github.com/gosukehommaex/BayesianQDM/issues

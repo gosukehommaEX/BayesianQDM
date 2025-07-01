@@ -54,11 +54,13 @@ library(BayesianQDM)
 # Calculate Go/NoGo/Gray probabilities for binary endpoint
 result_binary <- BayesDecisionProbBinary(
   prob = 'posterior', design = 'controlled', 
-  theta.TV = 0.3, theta.MAV = 0.1, 
+  theta.TV = 0.3, theta.MAV = 0.1, theta.NULL = NULL,
   gamma1 = 0.8, gamma2 = 0.2,
   pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4), 
   n1 = 20, n2 = 20,
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 )
 
 print(result_binary)
@@ -71,10 +73,16 @@ print(result_binary)
 result_continuous <- BayesDecisionProbContinuous(
   nsim = 1000, prob = 'posterior', design = 'controlled', 
   prior = 'vague', CalcMethod = 'NI',
-  theta.TV = 1.5, theta.MAV = 0.5, 
+  theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
+  nMC = NULL, nINLAsample = NULL,
   gamma1 = 0.8, gamma2 = 0.3,
-  n1 = 15, n2 = 15, mu1 = 3.0, mu2 = 1.2,
-  sigma1 = 1.5, sigma2 = 1.5, seed = 123
+  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  mu1 = 3.0, mu2 = 1.2,
+  sigma1 = 1.5, sigma2 = 1.5,
+  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  seed = 123
 )
 
 print(result_continuous)
@@ -176,6 +184,7 @@ external_result <- BayesPostPredBinary(
   prob = 'posterior', design = 'external', theta0 = 0.15,
   n1 = 20, n2 = 20, y1 = 12, y2 = 8,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL,
   ne1 = 30, ne2 = 30, ye1 = 15, ye2 = 6,  
   ae1 = 0.5, ae2 = 0.5  # Power prior weights
 )
@@ -191,9 +200,12 @@ library(ggplot2)
 # Create decision probability plot
 results <- BayesDecisionProbBinary(
   prob = 'posterior', design = 'controlled',
-  theta.TV = 0.3, theta.MAV = 0.1, gamma1 = 0.8, gamma2 = 0.2,
+  theta.TV = 0.3, theta.MAV = 0.1, theta.NULL = NULL,
+  gamma1 = 0.8, gamma2 = 0.2,
   pi1 = seq(0.1, 0.9, by = 0.05), pi2 = rep(0.2, length(seq(0.1, 0.9, by = 0.05))),
-  n1 = 20, n2 = 20, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5
+  n1 = 20, n2 = 20, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 ) %>%
   mutate(theta = pi1 - pi2)
 
@@ -235,10 +247,24 @@ comparison <- sapply(alpha_values, function(alpha) {
     prob = 'posterior', design = 'external', theta0 = 0.2,
     n1 = 15, n2 = 15, y1 = 8, y2 = 6,
     a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+    m1 = NULL, m2 = NULL,
     ne1 = 20, ne2 = 20, ye1 = 10, ye2 = 4,
     ae1 = alpha, ae2 = alpha
   )
 })
+```
+
+### Operating Characteristics
+Evaluate decision framework performance:
+``` r
+# Simulate trials across different scenarios
+scenarios <- expand.grid(
+  true_effect = c(0, 0.5, 1.0, 1.5, 2.0),
+  sample_size = c(15, 25, 35)
+)
+
+# Calculate Go probabilities for each scenario
+# (implementation details in vignettes)
 ```
 
 ## Performance Considerations
@@ -251,6 +277,7 @@ comparison <- sapply(alpha_values, function(alpha) {
 For large simulation studies, consider:
 - Using WS method for screening
 - NI method for final analyses
+- Parallel processing for Monte Carlo approaches
 
 ## Common Use Cases
 
@@ -289,7 +316,6 @@ The package integrates seamlessly with:
 - **tidyverse**: Data manipulation and visualization workflows
 - **ggplot2**: Creating publication-quality decision probability plots
 - **knitr/rmarkdown**: Reproducible reporting and documentation
-- **parallel**: High-performance computing for large simulations
 
 ## Citation
 
@@ -316,5 +342,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - **Questions**: Use GitHub Discussions for methodology questions
 
 ---
-
-**Note**: This package is designed for research and educational purposes. For regulatory submissions, please ensure compliance with applicable guidelines and consider consulting with biostatisticians experienced in Bayesian methods.
