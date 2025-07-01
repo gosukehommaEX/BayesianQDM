@@ -39,8 +39,8 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-# pkgdown site
-docs/
+# pkgdown site - REMOVED this line to allow docs folder
+# docs/
 
 # translation temp files
 po/*~
