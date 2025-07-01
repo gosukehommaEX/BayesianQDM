@@ -5,6 +5,8 @@
 [![R-CMD-check](https://github.com/gosukehommaEX/BayesianQDM/workflows/R-CMD-check/badge.svg)](https://github.com/gosukehommaEX/BayesianQDM/actions)
 [![Codecov test coverage](https://codecov.io/gh/gosukehommaEX/BayesianQDM/branch/main/graph/badge.svg)](https://codecov.io/gh/gosukehommaEX/BayesianQDM?branch=main)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![R-CMD-check](https://github.com/gosukehommaEX/BayesianQDM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gosukehommaEX/BayesianQDM/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/gosukehommaEX/BayesianQDM/graph/badge.svg)](https://app.codecov.io/gh/gosukehommaEX/BayesianQDM)
 <!-- badges: end -->
 
 ## Overview
@@ -80,6 +82,41 @@ result_continuous <- BayesDecisionProbContinuous(
 print(result_continuous)
 ```
 
+## Documentation
+
+### 📚 Comprehensive Vignettes
+
+The package includes detailed vignettes with practical examples:
+
+- **[Introduction to BayesianQDM](https://gosukehommaEX.github.io/BayesianQDM/articles/BayesianQDM.html)**: Overview and quick start guide
+- **[Binary Endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/binary-endpoints.html)**: Detailed examples for binary outcome analysis  
+- **[Continuous Endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/continuous-endpoints.html)**: Comprehensive guide for continuous outcome analysis
+
+### 📖 Function Documentation
+
+- **[Full Reference](https://gosukehommaEX.github.io/BayesianQDM/reference/index.html)**: Complete function documentation with examples
+
+### 🌐 Package Website
+
+Visit our [pkgdown website](https://gosukehommaEX.github.io/BayesianQDM/) for:
+- Interactive documentation
+- Downloadable examples
+- Method comparisons
+- Best practice guides
+
+### Local Access
+
+Access vignettes locally after installation:
+``` r
+# View available vignettes
+vignette(package = "BayesianQDM")
+
+# Open specific vignettes
+vignette("BayesianQDM")
+vignette("binary-endpoints", package = "BayesianQDM")  
+vignette("continuous-endpoints", package = "BayesianQDM")
+```
+
 ## Core Functions
 
 ### Decision Making Functions
@@ -151,7 +188,7 @@ external_result <- BayesPostPredBinary(
 ``` r
 library(dplyr)
 library(tidyr) 
-library(ggplot2
+library(ggplot2)
 
 # Create decision probability plot
 results <- BayesDecisionProbBinary(
@@ -172,30 +209,6 @@ results %>%
   theme_bw() +
   labs(title = 'Go/Gray/NoGo Decision Probabilities',
        x = 'Treatment Effect (π₁ - π₂)', y = 'Probability')
-```
-
-## Documentation
-
-The package includes comprehensive documentation:
-
-### Vignettes
-- **Introduction to BayesianQDM**: Overview and quick start guide
-- **Binary Endpoints**: Detailed examples for binary outcome analysis  
-- **Continuous Endpoints**: Comprehensive guide for continuous outcome analysis
-
-Access vignettes with:
-``` r
-vignette("BayesianQDM")
-vignette("binary-endpoints", package = "BayesianQDM")  
-vignette("continuous-endpoints", package = "BayesianQDM")
-```
-
-### Function Help
-``` r
-?BayesDecisionProbBinary
-?BayesDecisionProbContinuous
-?BayesPostPredBinary
-?BayesPostPredContinuous
 ```
 
 ## Prior Distributions
