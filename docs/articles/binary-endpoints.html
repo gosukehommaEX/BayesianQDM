@@ -338,8 +338,243 @@ using power priors:</p>
 </h3>
 <p>For single-arm trials where there’s no concurrent control group:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Uncont</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Uncontrolled design example</span></span>
+<span><span class="va">uncontrolled_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesDecisionProbBinary.html">BayesDecisionProbBinary</a></span><span class="op">(</span></span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
+<span>  design <span class="op">=</span> <span class="st">'uncontrolled'</span>, </span>
+<span>  theta.TV <span class="op">=</span> <span class="fl">0.3</span>, </span>
+<span>  theta.MAV <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  theta.NULL <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># Not needed for posterior probability</span></span>
+<span>  gamma1 <span class="op">=</span> <span class="fl">0.8</span>, </span>
+<span>  gamma2 <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span><span class="op">)</span>, </span>
+<span>  pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">3</span><span class="op">)</span>,  <span class="co"># Historical control rate</span></span>
+<span>  n1 <span class="op">=</span> <span class="fl">20</span>, </span>
+<span>  n2 <span class="op">=</span> <span class="fl">20</span>,    <span class="co"># Provide n2 even for uncontrolled design</span></span>
+<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  z <span class="op">=</span> <span class="fl">3</span>,      <span class="co"># Fixed number of historical control responders</span></span>
+<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># Not needed for posterior probability</span></span>
+<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span> <span class="co"># No external data</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">uncontrolled_result</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   pi1 pi2          Go      Gray         NoGo</span></span>
+<span><span class="co">#&gt; 1 0.3 0.2 0.005138162 0.8877750 1.070868e-01</span></span>
+<span><span class="co">#&gt; 2 0.5 0.2 0.251722336 0.7469893 1.288414e-03</span></span>
+<span><span class="co">#&gt; 3 0.7 0.2 0.886668537 0.1133309 5.426947e-07</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="external-control-with-power-prior">External Control with Power Prior<a class="anchor" aria-label="anchor" href="#external-control-with-power-prior"></a>
+</h3>
+<p>Incorporating historical data with different power prior weights:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Compare different power prior weights</span></span>
+<span><span class="va">power_weights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">1.0</span><span class="op">)</span></span>
+<span><span class="va">external_results</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_dfr</a></span><span class="op">(</span><span class="va">power_weights</span>, <span class="op">~</span> <span class="op">{</span></span>
+<span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesDecisionProbBinary.html">BayesDecisionProbBinary</a></span><span class="op">(</span></span>
+<span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
+<span>    design <span class="op">=</span> <span class="st">'external'</span>, </span>
+<span>    theta.TV <span class="op">=</span> <span class="fl">0.25</span>, </span>
+<span>    theta.MAV <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>    theta.NULL <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># Not needed for posterior probability</span></span>
+<span>    gamma1 <span class="op">=</span> <span class="fl">0.8</span>, </span>
+<span>    gamma2 <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>    pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.5</span><span class="op">)</span>, </span>
+<span>    pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">2</span><span class="op">)</span>, </span>
+<span>    n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>    a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>    z <span class="op">=</span> <span class="cn">NULL</span>,           <span class="co"># Not needed for external design</span></span>
+<span>    m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, <span class="co"># Not needed for posterior probability</span></span>
+<span>    ne1 <span class="op">=</span> <span class="fl">20</span>, ne2 <span class="op">=</span> <span class="fl">20</span>, ye1 <span class="op">=</span> <span class="fl">8</span>, ye2 <span class="op">=</span> <span class="fl">4</span>, </span>
+<span>    ae1 <span class="op">=</span> <span class="va">.x</span>, ae2 <span class="op">=</span> <span class="va">.x</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">result</span><span class="op">$</span><span class="va">power_weight</span> <span class="op">&lt;-</span> <span class="va">.x</span></span>
+<span>  <span class="va">result</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">external_results</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   pi1 pi2          Go      Gray         NoGo power_weight</span></span>
+<span><span class="co">#&gt; 1 0.3 0.2 0.015781945 0.9315259 5.269216e-02         0.25</span></span>
+<span><span class="co">#&gt; 2 0.5 0.2 0.211410056 0.7856294 2.960528e-03         0.25</span></span>
+<span><span class="co">#&gt; 3 0.3 0.2 0.007654917 0.9758953 1.644983e-02         0.50</span></span>
+<span><span class="co">#&gt; 4 0.5 0.2 0.117916273 0.8812829 8.008043e-04         0.50</span></span>
+<span><span class="co">#&gt; 5 0.3 0.2 0.004800407 0.9899853 5.214270e-03         0.75</span></span>
+<span><span class="co">#&gt; 6 0.5 0.2 0.111006745 0.8887984 1.948866e-04         0.75</span></span>
+<span><span class="co">#&gt; 7 0.3 0.2 0.002421413 0.9961884 1.390148e-03         1.00</span></span>
+<span><span class="co">#&gt; 8 0.5 0.2 0.056317900 0.9436415 4.064003e-05         1.00</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="prior-sensitivity-analysis">Prior Sensitivity Analysis<a class="anchor" aria-label="anchor" href="#prior-sensitivity-analysis"></a>
+</h3>
+<p>Examining the impact of different beta prior parameters:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Compare different prior specifications</span></span>
+<span><span class="va">prior_specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Vague (0.5, 0.5)"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>,</span>
+<span>  <span class="st">"Uniform (1, 1)"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a1 <span class="op">=</span> <span class="fl">1</span>, a2 <span class="op">=</span> <span class="fl">1</span>, b1 <span class="op">=</span> <span class="fl">1</span>, b2 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  <span class="st">"Informative (2, 8)"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a1 <span class="op">=</span> <span class="fl">2</span>, a2 <span class="op">=</span> <span class="fl">2</span>, b1 <span class="op">=</span> <span class="fl">8</span>, b2 <span class="op">=</span> <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sensitivity_results</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_dfr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">prior_specs</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">prior_name</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">specs</span> <span class="op">&lt;-</span> <span class="va">prior_specs</span><span class="op">[[</span><span class="va">prior_name</span><span class="op">]</span><span class="op">]</span></span>
+<span>  </span>
+<span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesPostPredBinary.html">BayesPostPredBinary</a></span><span class="op">(</span></span>
+<span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>    n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, y1 <span class="op">=</span> <span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>    a1 <span class="op">=</span> <span class="va">specs</span><span class="op">$</span><span class="va">a1</span>, a2 <span class="op">=</span> <span class="va">specs</span><span class="op">$</span><span class="va">a2</span>, b1 <span class="op">=</span> <span class="va">specs</span><span class="op">$</span><span class="va">b1</span>, b2 <span class="op">=</span> <span class="va">specs</span><span class="op">$</span><span class="va">b2</span>,</span>
+<span>    m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>prior_type <span class="op">=</span> <span class="va">prior_name</span>, posterior_prob <span class="op">=</span> <span class="va">result</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">sensitivity_results</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
+<span><span class="co">#&gt;   prior_type         posterior_prob</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Vague (0.5, 0.5)            0.613</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Uniform (1, 1)              0.592</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Informative (2, 8)          0.451</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="interpretation-guidelines">Interpretation Guidelines<a class="anchor" aria-label="anchor" href="#interpretation-guidelines"></a>
+</h2>
+<div class="section level3">
+<h3 id="go-decision">Go Decision<a class="anchor" aria-label="anchor" href="#go-decision"></a>
+</h3>
+<ul>
+<li>High posterior/predictive probability that treatment effect exceeds
+efficacy threshold</li>
+<li>Proceed to next phase of development</li>
+<li>Typical threshold: P(θ &gt; θ_TV | data) ≥ 0.8</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="nogo-decision">NoGo Decision<a class="anchor" aria-label="anchor" href="#nogo-decision"></a>
+</h3>
+<ul>
+<li>Low posterior/predictive probability that treatment effect exceeds
+minimal acceptable value</li>
+<li>Stop development or major protocol modification needed</li>
+<li>Typical threshold: P(θ &gt; θ_MAV | data) ≤ 0.2</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="gray-zone">Gray Zone<a class="anchor" aria-label="anchor" href="#gray-zone"></a>
+</h3>
+<ul>
+<li>Inconclusive evidence</li>
+<li>Consider additional patients, protocol modifications, or biomarker
+analysis</li>
+<li>May warrant conditional advancement with risk mitigation</li>
+</ul>
+</div>
+</div>
+<div class="section level2">
+<h2 id="parameter-selection-guidelines">Parameter Selection Guidelines<a class="anchor" aria-label="anchor" href="#parameter-selection-guidelines"></a>
+</h2>
+<div class="section level3">
+<h3 id="prior-selection">Prior Selection<a class="anchor" aria-label="anchor" href="#prior-selection"></a>
+</h3>
+<ul>
+<li>
+<strong>Vague priors</strong> (a = b = 0.5): Minimal prior
+influence, data-driven</li>
+<li>
+<strong>Jeffreys priors</strong> (a = b = 0.5): Non-informative</li>
+<li>
+<strong>Informative priors</strong>: Incorporate historical
+knowledge</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="threshold-selection">Threshold Selection<a class="anchor" aria-label="anchor" href="#threshold-selection"></a>
+</h3>
+<ul>
+<li>
+<strong>θ_TV (Target Value)</strong>: Clinically meaningful effect
+size</li>
+<li>
+<strong>θ_MAV (Minimal Acceptable Value)</strong>: Smallest
+worthwhile effect</li>
+<li>
+<strong>γ1</strong>: Confidence level for Go decision (typically
+0.8-0.9)</li>
+<li>
+<strong>γ2</strong>: Maximum acceptable probability for NoGo
+(typically 0.2-0.3)</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="sample-size-considerations">Sample Size Considerations<a class="anchor" aria-label="anchor" href="#sample-size-considerations"></a>
+</h3>
+<ul>
+<li>Larger sample sizes provide more precise estimates</li>
+<li>Balance statistical power with resource constraints</li>
+<li>Consider interim analyses for adaptive designs</li>
+</ul>
+</div>
+</div>
+<div class="section level2">
+<h2 id="operating-characteristics">Operating Characteristics<a class="anchor" aria-label="anchor" href="#operating-characteristics"></a>
+</h2>
+<div class="section level3">
+<h3 id="sample-size-impact">Sample Size Impact<a class="anchor" aria-label="anchor" href="#sample-size-impact"></a>
+</h3>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Compare different sample sizes</span></span>
+<span><span class="va">sample_sizes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="va">oc_results</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_dfr</a></span><span class="op">(</span><span class="va">sample_sizes</span>, <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesDecisionProbBinary.html">BayesDecisionProbBinary</a></span><span class="op">(</span></span>
+<span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
+<span>    theta.TV <span class="op">=</span> <span class="fl">0.3</span>, theta.MAV <span class="op">=</span> <span class="fl">0.1</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>    pi1 <span class="op">=</span> <span class="fl">0.5</span>, pi2 <span class="op">=</span> <span class="fl">0.2</span>,  <span class="co"># True effect of 0.3</span></span>
+<span>    n1 <span class="op">=</span> <span class="va">n</span>, n2 <span class="op">=</span> <span class="va">n</span>,</span>
+<span>    a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>    z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">result</span><span class="op">$</span><span class="va">sample_size</span> <span class="op">&lt;-</span> <span class="va">n</span></span>
+<span>  <span class="va">result</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">oc_results</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   pi1 pi2        Go      Gray        NoGo sample_size</span></span>
+<span><span class="co">#&gt; 1 0.5 0.2 0.2319733 0.7241512 0.043875553          10</span></span>
+<span><span class="co">#&gt; 2 0.5 0.2 0.1920041 0.7950247 0.012971126          20</span></span>
+<span><span class="co">#&gt; 3 0.5 0.2 0.1646170 0.8295862 0.005796791          30</span></span>
+<span><span class="co">#&gt; 4 0.5 0.2 0.1916907 0.8067639 0.001545432          50</span></span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
+</h2>
+<p>The BayesianQDM package for binary endpoints provides:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Posterior probability calculations</strong> for treatment
+effects</li>
+<li>
+<strong>Posterior predictive probability</strong> for future trial
+success<br>
+</li>
+<li>
+<strong>Go/NoGo/Gray decision frameworks</strong> with customizable
+thresholds</li>
+<li>
+<strong>Multiple design types</strong> including controlled,
+uncontrolled, and external control</li>
+<li>
+<strong>Power prior integration</strong> for historical data
+incorporation</li>
+</ol>
+<p>This Bayesian approach enables evidence-based decision making that
+accounts for uncertainty and incorporates prior knowledge, making it
+particularly valuable for early-phase clinical trial decision
+making.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
