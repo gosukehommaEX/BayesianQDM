@@ -8,11 +8,11 @@ under the Bayesian framework using two metrics:
 (ii) posterior predictive probability of phase III study success.}
 \usage{
 BayesDecisionProbBinary(
-  prob,
-  design,
+  prob = "posterior",
+  design = "controlled",
   theta.TV,
   theta.MAV,
-  theta.NULL,
+  theta.NULL = NULL,
   gamma1,
   gamma2,
   pi1,
@@ -23,7 +23,7 @@ BayesDecisionProbBinary(
   a2,
   b1,
   b2,
-  z,
+  z = NULL,
   m1,
   m2,
   ne1,

@@ -1,6 +1,6 @@
 Package: BayesianQDM
 Type: Package
-Title: Bayesian Quantitative Decision-making Framework for binary and continuous endpoints
+Title: Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints
 Version: 0.1.0
 Authors@R: c(
     person(given = "Gosuke",
@@ -10,8 +10,12 @@ Authors@R: c(
     person(given  = "Yusuke",
            family = "Yamaguchi",
            role   = c("aut")))
-Description: Provides methods to calculate posterior probabilities and posterior predictive probabilities,
-    and Go, NoGo and Gray probabilities for quantitative decision-making framework under bayesian paradigm.
+Description: Provides comprehensive methods to calculate posterior probabilities, posterior predictive probabilities,
+    and Go/NoGo/Gray probabilities for quantitative decision-making framework under Bayesian paradigm in clinical trials.
+    The package supports both binary and continuous endpoints with controlled, uncontrolled, and external control designs.
+    Multiple calculation methods are available including numerical integration, Monte Carlo simulation, 
+    and Welch-Satterthwaite approximation for continuous outcomes. The framework enables evidence-based 
+    decision making in proof-of-concept and phase II clinical trials using Bayesian statistical methods.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -19,3 +23,10 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
     stats
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+URL: https://github.com/gosukehommaEX/BayesianQDM
+BugReports: https://github.com/gosukehommaEX/BayesianQDM/issues
