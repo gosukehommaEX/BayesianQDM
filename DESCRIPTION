@@ -13,16 +13,18 @@ Authors@R: c(
 Description: Provides comprehensive methods to calculate posterior probabilities, posterior predictive probabilities,
     and Go/NoGo/Gray probabilities for quantitative decision-making framework under Bayesian paradigm in clinical trials.
     The package supports both binary and continuous endpoints with controlled, uncontrolled, and external control designs.
-    Multiple calculation methods are available including numerical integration, Monte Carlo simulation, 
-    and Welch-Satterthwaite approximation for continuous outcomes. The framework enables evidence-based 
-    decision making in proof-of-concept and phase II clinical trials using Bayesian statistical methods.
+    For continuous outcomes, four calculation methods are available: numerical integration (NI), Monte Carlo simulation (MC), 
+    Welch-Satterthwaite approximation (WS), and Integrated Nested Laplace Approximation (INLA). 
+    The framework enables evidence-based decision making in proof-of-concept and phase II clinical trials using 
+    Bayesian statistical methods with power priors for incorporating external or historical data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
-    stats
+    stats,
+    INLA
 Suggests:
     testthat (>= 3.0.0),
     knitr,
