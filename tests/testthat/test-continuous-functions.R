@@ -105,11 +105,11 @@ test_that("BayesPostPredContinuous function works correctly with WS method", {
 })
 
 test_that("BayesDecisionProbContinuous function works correctly with NI method", {
-  # Test with small nsim for speed
+  # Test with small nsim for speed - ADD MISSING m1, m2 PARAMETERS
   result_ni <- BayesDecisionProbContinuous(
     nsim = 10, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
     theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, gamma1 = 0.8, gamma2 = 0.3,
-    n1 = 12, n2 = 12, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+    n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
     mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5), mu1 = 4, mu2 = 0,
     sigma1 = 1, sigma2 = 1, seed = 1
   )
@@ -139,7 +139,7 @@ test_that("Error handling works correctly for continuous functions", {
   expect_error(
     BayesPostPredContinuous(
       prob = 'predictive', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-      theta0 = 1, n1 = 12, n2 = 12,
+      theta0 = 1, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
       bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2
     ),
     "m1 and m2 should be non-null"
@@ -149,7 +149,7 @@ test_that("Error handling works correctly for continuous functions", {
   expect_error(
     BayesPostPredContinuous(
       prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-      theta0 = 2, n1 = 12, n2 = 12,
+      theta0 = 2, n1 = 12, n2 = 12, kappa01 = NULL, nu01 = NULL, sigma01 = NULL,
       bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1
     ),
     "kappa01, nu01 and sigma01 should be non-null"
@@ -159,7 +159,7 @@ test_that("Error handling works correctly for continuous functions", {
   expect_error(
     BayesPostPredContinuous(
       prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'NI',
-      theta0 = 1, n1 = 12, bar.y1 = 2, s1 = 1, mu02 = 0
+      theta0 = 1, n1 = 12, bar.y1 = 2, s1 = 1, mu02 = 0, r = NULL
     ),
     "r should be non-null"
   )
@@ -169,7 +169,7 @@ test_that("Error handling works correctly for continuous functions", {
     BayesDecisionProbContinuous(
       nsim = 10, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
       theta.TV = NULL, theta.MAV = 0, theta.NULL = NULL, gamma1 = 0.8, gamma2 = 0.3,
-      n1 = 12, n2 = 12, mu1 = 4, mu2 = 0, sigma1 = 1, sigma2 = 1, seed = 1
+      n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, mu1 = 4, mu2 = 0, sigma1 = 1, sigma2 = 1, seed = 1
     ),
     "theta.TV and theta.MAV should be non-null"
   )

@@ -56,13 +56,17 @@ binary_result <- BayesDecisionProbBinary(
   design = 'controlled',
   theta.TV = 0.3,      # Go threshold
   theta.MAV = 0.1,     # NoGo threshold
+  theta.NULL = NULL,   # Not needed for posterior probability
   gamma1 = 0.8,        # Minimum probability for Go
   gamma2 = 0.2,        # Maximum probability for NoGo
   pi1 = c(0.3, 0.5),   # True response rates for treatment
   pi2 = c(0.2, 0.2),   # True response rates for control
   n1 = 20, n2 = 20,    # Sample sizes
   a1 = 0.5, a2 = 0.5,  # Prior parameters
-  b1 = 0.5, b2 = 0.5
+  b1 = 0.5, b2 = 0.5,
+  z = NULL,            # Not needed for controlled design
+  m1 = NULL, m2 = NULL, # Not needed for posterior probability
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL # No external data
 )
 
 print(binary_result)
@@ -80,11 +84,19 @@ continuous_result <- BayesDecisionProbContinuous(
   CalcMethod = 'NI',   # Numerical integration
   theta.TV = 1.5,      # Go threshold
   theta.MAV = 0.5,     # NoGo threshold
+  theta.NULL = NULL,   # Not needed for posterior probability
+  nMC = NULL,          # Not needed for NI method
+  nINLAsample = NULL,  # Not needed for NI method
   gamma1 = 0.8,        # Minimum probability for Go
   gamma2 = 0.3,        # Maximum probability for NoGo
   n1 = 15, n2 = 15,    # Sample sizes
+  m1 = NULL, m2 = NULL, # Not needed for posterior probability
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, # Not needed for vague prior
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL, # Not needed for vague prior
   mu1 = 3.0, mu2 = 1.5, # True means
   sigma1 = 1.2, sigma2 = 1.1, # True standard deviations
+  r = NULL,            # Not needed for controlled design
+  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, # No external data
   seed = 123
 )
 
@@ -235,6 +247,7 @@ external_prob <- BayesPostPredBinary(
   theta0 = 0.2,
   n1 = 20, n2 = 20, y1 = 12, y2 = 8,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, # Not needed for posterior probability
   ne1 = 30, ne2 = 30, ye1 = 15, ye2 = 6,
   ae1 = 0.5, ae2 = 0.5  # Power prior weights
 )
@@ -307,6 +320,7 @@ power_comparison <- sapply(alpha_values, function(alpha) {
     theta0 = 0.15,
     n1 = 15, n2 = 15, y1 = 8, y2 = 6,
     a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+    m1 = NULL, m2 = NULL, # Not needed for posterior probability
     ne1 = 20, ne2 = 20, ye1 = 10, ye2 = 4,
     ae1 = alpha, ae2 = alpha
   )
@@ -343,10 +357,18 @@ ss_comparison <- sapply(sample_sizes, function(n) {
     prior = 'vague',
     CalcMethod = 'WS',
     theta.TV = 1.5, theta.MAV = 0.5,
+    theta.NULL = NULL,   # Not needed for posterior probability
+    nMC = NULL,          # Not needed for WS method
+    nINLAsample = NULL,  # Not needed for WS method
     gamma1 = 0.8, gamma2 = 0.3,
     n1 = n, n2 = n,
+    m1 = NULL, m2 = NULL, # Not needed for posterior probability
+    kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, # Not needed for vague prior
+    mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL, # Not needed for vague prior
     mu1 = 3.0, mu2 = 1.2,  # True effect = 1.8
     sigma1 = 1.5, sigma2 = 1.5,
+    r = NULL,            # Not needed for controlled design
+    ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, # No external data
     seed = 123
   )
   c(Go = result$Go, NoGo = result$NoGo, Gray = result$Gray)

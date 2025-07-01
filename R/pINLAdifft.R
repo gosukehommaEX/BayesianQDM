@@ -36,6 +36,7 @@
 #' approximations compared to full MCMC approaches.
 #'
 #' @examples
+#' \dontrun{
 #' # Both external treatment and control data
 #' pINLAdifft(nINLAsample = 1e+4, q = 4, mu.n1 = 5, mu.n2 = 0, sd.n1 = 1, sd.n2 = 1,
 #'           n1 = 12, n2 = 12, ne1 = 24, ne2 = 24, alpha01 = 0.5, alpha02 = 0.5)
@@ -43,6 +44,7 @@
 #' # External control data only
 #' pINLAdifft(nINLAsample = 1e+4, q = 4, mu.n1 = 5, mu.n2 = 0, sd.n1 = 1, sd.n2 = 1,
 #'           n1 = 12, n2 = 12, ne1 = NULL, ne2 = 24, alpha01 = NULL, alpha02 = 0.5)
+#' }
 #'
 #' @importFrom stats rnorm
 #' @importFrom INLA inla inla.posterior.sample
@@ -91,17 +93,17 @@ pINLAdifft <- function(nINLAsample, q, mu.n1, mu.n2, sd.n1, sd.n2, n1, n2, ne1, 
   }
 
   # Fit Bayesian model using INLA with power prior weighting
-  result <- inla(
+  result <- INLA::inla(
     formula = y ~ group,
     data = data,
     family = 'gaussian',
-    weights = weight,
+    weights = data$weight,
     control.family = list(hyper = list(prec = list(initial = 0, fixed = FALSE))),
     control.compute = list(config = TRUE)
   )
 
   # Generate posterior samples from the fitted model
-  samples <- inla.posterior.sample(nINLAsample, result)
+  samples <- INLA::inla.posterior.sample(nINLAsample, result)
 
   # Calculate the probability that the treatment effect exceeds the threshold q
   results <- mean(sapply(samples, function(x) x$latent['group1:1', 1]) > q)

@@ -28,7 +28,11 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    dplyr,
+    ggplot2,
+    tidyr,
+    purrr
 VignetteBuilder: knitr
 URL: https://github.com/gosukehommaEX/BayesianQDM
 BugReports: https://github.com/gosukehommaEX/BayesianQDM/issues

@@ -2,8 +2,8 @@
 % Please edit documentation in R/BayesPostPredBinary.R
 \name{BayesPostPredBinary}
 \alias{BayesPostPredBinary}
-\title{Calculate bayesian posterior probability or bayesian posterior predictive probability
-for a clinical trial when outcome is binary.}
+\title{Calculate Bayesian Posterior Probability or Bayesian Posterior Predictive Probability
+for a Clinical Trial When Outcome is Binary}
 \usage{
 BayesPostPredBinary(
   prob = "posterior",
@@ -28,67 +28,77 @@ BayesPostPredBinary(
 )
 }
 \arguments{
-\item{prob}{A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).}
+\item{prob}{A character string specifying the type of probability to calculate
+(\code{prob = 'posterior'} or \code{prob = 'predictive'}).}
 
-\item{design}{A type of design (i.e., \code{design='controlled'}, \code{design='uncontrolled'} or \code{design='external'}).}
+\item{design}{A character string specifying the type of design
+(\code{design = 'controlled'}, \code{design = 'uncontrolled'}, or \code{design = 'external'}).}
 
-\item{theta0}{A numeric pre-specified threshold value.}
+\item{theta0}{A numeric value representing the pre-specified threshold value.}
 
-\item{n1}{A number of patients in group 1 for a proof-of-concept (PoC) trial.}
+\item{n1}{A positive integer representing the number of patients in group 1 for a proof-of-concept (PoC) trial.}
 
-\item{n2}{A number of patients in group 2 for the PoC trial.}
+\item{n2}{A positive integer representing the number of patients in group 2 for the PoC trial.}
 
-\item{y1}{An observed number of responders in group 1 for the PoC trial.}
+\item{y1}{A non-negative integer representing the observed number of responders in group 1 for the PoC trial.}
 
-\item{y2}{An observed number of responders in group 2 for the PoC trial.}
+\item{y2}{A non-negative integer representing the observed number of responders in group 2 for the PoC trial.}
 
-\item{a1}{The first non-negative numeric value of the prior distribution for group 1.}
+\item{a1}{A positive numeric value representing the first shape parameter of the prior distribution for group 1.}
 
-\item{a2}{The first non-negative numeric value of the prior distribution for group 2.}
+\item{a2}{A positive numeric value representing the first shape parameter of the prior distribution for group 2.}
 
-\item{b1}{The second non-negative numeric value of the prior distribution for group 1.}
+\item{b1}{A positive numeric value representing the second shape parameter of the prior distribution for group 1.}
 
-\item{b2}{The second non-negative numeric value of the prior distribution for group 2.}
+\item{b2}{A positive numeric value representing the second shape parameter of the prior distribution for group 2.}
 
-\item{m1}{A number of patients in group 1 for the future trial data.}
+\item{m1}{A positive integer representing the number of patients in group 1 for the future trial data.}
 
-\item{m2}{A number of patients in group 2 for the future trial data.}
+\item{m2}{A positive integer representing the number of patients in group 2 for the future trial data.}
 
-\item{ne1}{A number of patients in group 1 for the external data.}
+\item{ne1}{A positive integer representing the number of patients in group 1 for the external data.}
 
-\item{ne2}{A number of patients in group 2 for the external data.}
+\item{ne2}{A positive integer representing the number of patients in group 2 for the external data.}
 
-\item{ye1}{An observed number of responders in group 1 for the external data.}
+\item{ye1}{A non-negative integer representing the observed number of responders in group 1 for the external data.}
 
-\item{ye2}{An observed number of responders in group 2 for the external data.}
+\item{ye2}{A non-negative integer representing the observed number of responders in group 2 for the external data.}
 
-\item{ae1}{A scale parameter (power parameter) for group 1.}
+\item{ae1}{A positive numeric value representing the scale parameter (power parameter) for group 1.}
 
-\item{ae2}{A scale parameter (power parameter) for group 2.}
+\item{ae2}{A positive numeric value representing the scale parameter (power parameter) for group 2.}
 }
 \value{
-The \code{BayesPostPredBinary} gives the numeric value of the
-bayesian posterior probability or bayesian posterior predictive probability.
+A numeric value representing the Bayesian posterior probability or Bayesian posterior
+predictive probability.
 }
 \description{
+This function computes Bayesian posterior probability or posterior predictive probability
+for binary outcome clinical trials. The function can handle controlled, uncontrolled, and
+external control designs, using beta-binomial conjugate priors.
+}
+\details{
 The function can obtain:
 \itemize{
 \item Bayesian posterior probability
 \item Bayesian posterior predictive probability
 }
-Prior distribution of proportion of responders (pij) for each treatment group (j=1,2) is
-following beta distribution.
-For posterior probability, posterior distribution of pij is following beta distribution.
-For posterior predictive probability, predictive distribution of future trial data is
-following beta-binomial distribution.
-The function can account for external (historical) data.
+
+The prior distribution of the proportion of responders (πij) for each treatment group (j=1,2) follows
+a beta distribution. For posterior probability, the posterior distribution of πij follows a beta distribution.
+For posterior predictive probability, the predictive distribution of future trial data follows
+a beta-binomial distribution. The function can account for external (historical) data through
+power priors.
 }
 \examples{
+# Calculate posterior probability with external control
 BayesPostPredBinary(
   prob = 'posterior', design = 'external', theta0 = 0.15,
   n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   m1 = NULL, m2 = NULL, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
 )
+
+# Calculate posterior predictive probability with external control
 BayesPostPredBinary(
   prob = 'predictive', design = 'external', theta0 = 0.5,
   n1 = 12, n2 = 15, y1 = 7, y2 = 7, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,

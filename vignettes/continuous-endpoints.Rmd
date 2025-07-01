@@ -142,15 +142,21 @@ decision_result <- BayesDecisionProbContinuous(
   CalcMethod = 'NI',
   theta.TV = 2.0,      # Go threshold
   theta.MAV = 0.5,     # NoGo threshold  
+  theta.NULL = NULL,   # Not needed for posterior probability
+  nMC = NULL,          # Not needed for NI method
+  nINLAsample = NULL,  # Not needed for NI method
   gamma1 = 0.8,        # Minimum probability for Go
   gamma2 = 0.3,        # Maximum probability for NoGo
   n1 = 15, n2 = 15,
+  m1 = NULL, m2 = NULL,  # Not needed for posterior probability
   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
   mu01 = 2, mu02 = 1, sigma01 = 1.5, sigma02 = 1.5,
   mu1 = 3.5,           # True treatment mean
   mu2 = 1.2,           # True control mean
   sigma1 = 1.3,        # True treatment SD
   sigma2 = 1.1,        # True control SD
+  r = NULL,            # Not needed for controlled design
+  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, # No external data
   seed = 123
 )
 
@@ -169,15 +175,20 @@ uncontrolled_result <- BayesDecisionProbContinuous(
   design = 'uncontrolled',
   prior = 'vague',
   CalcMethod = 'WS',
+  theta.TV = NULL, theta.MAV = NULL, # Not needed for predictive probability
   theta.NULL = 1.5,    # Threshold for future success
+  nMC = NULL,          # Not needed for WS method
+  nINLAsample = NULL,  # Not needed for WS method
   gamma1 = 0.85,
   gamma2 = 0.25,
   n1 = 20,
   m1 = 80, m2 = 80,
-  mu02 = 2.0,          # Historical control mean
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, # Not needed for vague prior
+  mu01 = NULL, mu02 = 2.0, sigma01 = NULL, sigma02 = NULL, # Historical control mean
   mu1 = 4.2,           # True treatment mean
   sigma1 = 1.6,        # True treatment SD
   r = 20,              # Historical control precision parameter
+  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, # No external data
   seed = 456
 )
 
@@ -252,7 +263,7 @@ scenarios <- expand.grid(
 ) %>%
   rowwise() %>%
   mutate(
-    decision = BayesDecisionProbContinuous(
+    decision = list(BayesDecisionProbContinuous(
       nsim = 30,  # Small for vignette speed
       prob = 'posterior',
       design = 'controlled',
@@ -260,13 +271,21 @@ scenarios <- expand.grid(
       CalcMethod = 'WS',
       theta.TV = 1.5,
       theta.MAV = 0.5,
+      theta.NULL = NULL,   # Not needed for posterior probability
+      nMC = NULL,          # Not needed for WS method
+      nINLAsample = NULL,  # Not needed for WS method
       gamma1 = 0.8,
       gamma2 = 0.3,
       n1 = sample_size, n2 = sample_size,
+      m1 = NULL, m2 = NULL, # Not needed for posterior probability
+      kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, # Not needed for vague prior
+      mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL, # Not needed for vague prior
       mu1 = 2 + true_diff, mu2 = 2,
       sigma1 = 1.5, sigma2 = 1.5,
+      r = NULL,            # Not needed for controlled design
+      ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, # No external data
       seed = 789
-    )
+    ))
   ) %>%
   ungroup() %>%
   unnest(decision)
@@ -358,7 +377,7 @@ prior_specs <- list(
   strong_informative = list(kappa01 = 10, kappa02 = 10, nu01 = 20, nu02 = 20)
 )
 
-sensitivity_results <- map_dfr(names(prior_specs), function(prior_name) {
+sensitivity_results <- purrr::map_dfr(names(prior_specs), function(prior_name) {
   specs <- prior_specs[[prior_name]]
   
   prob <- BayesPostPredContinuous(

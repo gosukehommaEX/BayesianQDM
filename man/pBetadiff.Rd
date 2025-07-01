@@ -2,29 +2,47 @@
 % Please edit documentation in R/pBetadiff.R
 \name{pBetadiff}
 \alias{pBetadiff}
-\title{Cumulative distribution function (CDF) of the difference between two beta variables}
+\title{Cumulative Distribution Function of the Difference Between Two Beta Variables}
 \usage{
 pBetadiff(q, alpha1, alpha2, beta1, beta2)
 }
 \arguments{
-\item{q}{Quantile value.}
+\item{q}{A numeric value representing the quantile threshold.}
 
-\item{alpha1}{The first non-negative numeric value of beta function for group 1.}
+\item{alpha1}{A positive numeric value representing the first shape parameter of the first beta distribution.}
 
-\item{alpha2}{The first non-negative numeric value of beta function for group 2.}
+\item{alpha2}{A positive numeric value representing the first shape parameter of the second beta distribution.}
 
-\item{beta1}{The second non-negative numeric value of beta function for group 1.}
+\item{beta1}{A positive numeric value representing the second shape parameter of the first beta distribution.}
 
-\item{beta2}{The second non-negative numeric value of beta function for group 2.}
+\item{beta2}{A positive numeric value representing the second shape parameter of the second beta distribution.}
 }
 \value{
-The \code{pBetadiff} gives the numeric value of the density.
+A numeric value representing P(X1 - X2 > q), the probability that the difference
+between the two beta variables exceeds the quantile q.
 }
 \description{
-This function calculates CDF(s) of difference between two beta variables
-using Appell’s first hypergeometric function of two variables.
+This function calculates the cumulative distribution function (CDF) of the difference
+between two independent beta-distributed random variables using Appell's first
+hypergeometric function. Specifically, it computes P(X1 - X2 > q) where X1 ~ Beta(alpha1, beta1)
+and X2 ~ Beta(alpha2, beta2).
+}
+\details{
+The function uses a piecewise approach based on the range of the difference π = X1 - X2:
+\itemize{
+\item For π ∈ [-1, 0): Uses Appell's F1 function with specific parameters
+\item For π ∈ [0, 1): Uses a different parameterization of Appell's F1 function
+\item Special case handling when π = 0 and certain parameter conditions are met
+}
 }
 \examples{
+# Calculate P(Beta(0.5, 0.5) - Beta(0.5, 0.5) > 0.2)
 pBetadiff(0.2, 0.5, 0.5, 0.5, 0.5)
+
+# Calculate P(Beta(2, 3) - Beta(1, 4) > -0.1)
+pBetadiff(-0.1, 2, 3, 1, 4)
+
+# Calculate P(Beta(1, 1) - Beta(1, 1) > 0)
+pBetadiff(0, 1, 1, 1, 1)
 
 }

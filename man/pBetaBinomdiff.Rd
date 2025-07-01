@@ -2,32 +2,54 @@
 % Please edit documentation in R/pBetaBinomdiff.R
 \name{pBetaBinomdiff}
 \alias{pBetaBinomdiff}
-\title{Cumulative distribution function (CDF) of the difference between two beta-binomial variables}
+\title{Cumulative Distribution Function of the Difference Between Two Beta-Binomial Variables}
 \usage{
 pBetaBinomdiff(q, m1, m2, alpha1, alpha2, beta1, beta2)
 }
 \arguments{
-\item{q}{Quantile value.}
+\item{q}{A numeric value representing the quantile threshold for the proportion difference.}
 
-\item{m1}{A number of patients in group 1 for the future trial data.}
+\item{m1}{A positive integer representing the number of trials for the first beta-binomial distribution.}
 
-\item{m2}{A number of patients in group 2 for the future trial data.}
+\item{m2}{A positive integer representing the number of trials for the second beta-binomial distribution.}
 
-\item{alpha1}{The first non-negative numeric value of beta function for group 1.}
+\item{alpha1}{A positive numeric value representing the first shape parameter of the first beta distribution.}
 
-\item{alpha2}{The first non-negative numeric value of beta function for group 2.}
+\item{alpha2}{A positive numeric value representing the first shape parameter of the second beta distribution.}
 
-\item{beta1}{The second non-negative numeric value of beta function for group 1.}
+\item{beta1}{A positive numeric value representing the second shape parameter of the first beta distribution.}
 
-\item{beta2}{The second non-negative numeric value of beta function for group 2.}
+\item{beta2}{A positive numeric value representing the second shape parameter of the second beta distribution.}
 }
 \value{
-The \code{pBetaBinomdiff} gives the numeric value of the density.
+A numeric value representing P((Y1/m1) - (Y2/m2) > q), the probability that the
+difference in proportions between the two beta-binomial variables exceeds the quantile q.
 }
 \description{
-This function calculates CDF(s) of difference between two beta-binomial variables.
+This function calculates the cumulative distribution function (CDF) of the difference
+between two independent beta-binomial random variables. Specifically, it computes
+P((Y1/m1) - (Y2/m2) > q) where Y1 ~ BetaBinomial(m1, alpha1, beta1) and
+Y2 ~ BetaBinomial(m2, alpha2, beta2).
+}
+\details{
+The function uses the probability mass functions of beta-binomial distributions to compute
+the exact probability. The beta-binomial distribution arises when the success probability
+in a binomial distribution follows a beta distribution, making it useful for modeling
+overdispersed count data.
+
+The probability mass function for BetaBinomial(m, α, β) is:
+\deqn{P(Y = k) = \binom{m}{k} \frac{B(k + \alpha, m - k + \beta)}{B(\alpha, \beta)}}
+
+where B(·,·) is the beta function.
 }
 \examples{
+# Calculate P((Y1/12) - (Y2/12) > 0.2) for symmetric beta priors
 pBetaBinomdiff(0.2, 12, 12, 0.5, 0.5, 0.5, 0.5)
+
+# Calculate P((Y1/20) - (Y2/15) > 0.1) for different sample sizes
+pBetaBinomdiff(0.1, 20, 15, 1, 1, 1, 1)
+
+# Calculate P((Y1/10) - (Y2/10) > 0) for informative priors
+pBetaBinomdiff(0, 10, 10, 2, 3, 3, 2)
 
 }

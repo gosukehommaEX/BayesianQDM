@@ -2,33 +2,54 @@
 % Please edit documentation in R/pNIdifft.R
 \name{pNIdifft}
 \alias{pNIdifft}
-\title{Cumulative distribution function (CDF) of the difference of two t-distributed outcomes by convolution of a difference of the t-distributions.}
+\title{Cumulative Distribution Function of the Difference of Two t-Distributed Variables by Numerical Integration}
 \usage{
 pNIdifft(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
 }
 \arguments{
-\item{q}{Quantile value.}
+\item{q}{A numeric value representing the quantile threshold.}
 
-\item{mu.t1}{Location parameter of t-distribution for group 1.}
+\item{mu.t1}{A numeric value representing the location parameter of the first t-distribution.}
 
-\item{mu.t2}{Location parameter of t-distribution for group 2.}
+\item{mu.t2}{A numeric value representing the location parameter of the second t-distribution.}
 
-\item{sd.t1}{Scale parameter of t-distribution for group 1.}
+\item{sd.t1}{A positive numeric value representing the scale parameter of the first t-distribution.}
 
-\item{sd.t2}{Scale parameter of t-distribution for group 2.}
+\item{sd.t2}{A positive numeric value representing the scale parameter of the second t-distribution.}
 
-\item{nu.t1}{Degrees of freedom of t-distribution for group 1.}
+\item{nu.t1}{A positive numeric value representing the degrees of freedom of the first t-distribution.}
 
-\item{nu.t2}{Degrees of freedom of t-distribution for group 2.}
+\item{nu.t2}{A positive numeric value representing the degrees of freedom of the second t-distribution.}
 }
 \value{
-Cumulative probability(s)
+A numeric vector representing P(T1 - T2 ≥ q), the probability that the difference
+between the two t-distributed variables is greater than or equal to the quantile q.
 }
 \description{
-This function calculates CDF(s) of difference between two variables following t-distribution
-using a numerical integration.
+This function calculates the cumulative distribution function (CDF) of the difference
+between two independent t-distributed random variables using numerical integration
+via convolution. Specifically, it computes P(T1 - T2 ≥ q) where T1 and T2 follow
+t-distributions with potentially different location, scale, and degrees of freedom parameters.
+}
+\details{
+This function uses the exact convolution approach to compute the distribution of the
+difference between two t-distributed variables. The method involves:
+\itemize{
+\item Using the convolution formula: \deqn{P(T_1 - T_2 ≥ q) = \int_{-\infty}^{\infty} f_1(x) \cdot F_2(x - q) dx}
+  \item Where \eqn{f_1(x)} is the PDF of the first t-distribution
+\item And \eqn{F_2(x - q)} is the CDF of the second t-distribution evaluated at \eqn{x - q}
+\item Adaptive integration bounds based on the distribution characteristics
+\item High-precision numerical integration with specified tolerances
+}
+
+This approach provides exact results (within numerical precision) but is more
+computationally intensive than approximation methods like Welch-Satterthwaite.
 }
 \examples{
+# Calculate P(t1 - t2 ≥ 3) for equal parameters
 pNIdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
+
+# Calculate P(t1 - t2 ≥ 1) for unequal variances
+pNIdifft(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15)
 
 }

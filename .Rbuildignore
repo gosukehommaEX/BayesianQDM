@@ -15,3 +15,5 @@
 ^\.lintr$
 ^\.pre-commit-config\.yaml$
 ^CRAN-SUBMISSION$
+^doc$
+^Meta$

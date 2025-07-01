@@ -2,30 +2,40 @@
 % Please edit documentation in R/AppellsF1.R
 \name{AppellsF1}
 \alias{AppellsF1}
-\title{The Appell's first hypergeometric function of two variables x and y.}
+\title{Calculate Appell's First Hypergeometric Function of Two Variables}
 \usage{
 AppellsF1(a, b1, b2, c, x, y)
 }
 \arguments{
-\item{a}{A numeric value.}
+\item{a}{A numeric value representing the first parameter.}
 
-\item{b1}{A numeric value.}
+\item{b1}{A numeric value representing the second parameter.}
 
-\item{b2}{A numeric value.}
+\item{b2}{A numeric value representing the third parameter.}
 
-\item{c}{A numeric value.}
+\item{c}{A numeric value representing the fourth parameter.}
 
-\item{x}{A numeric value.}
+\item{x}{A numeric value representing the first variable.}
 
-\item{y}{A numeric value.}
+\item{y}{A numeric value representing the second variable.}
 }
 \value{
-The \code{AppellsF1} gives the numeric value of the Appell's first hypergeometric function.
+A numeric value of Appell's first hypergeometric function F1(a; b1, b2; c; x, y).
 }
 \description{
-This function calculates the numeric value of the Appell's first hypergeometric function.
+This function computes the numeric value of Appell's first hypergeometric function
+F1(a; b1, b2; c; x, y) using integral representation. The Appell hypergeometric
+function is a generalization of the hypergeometric function to two variables.
+}
+\details{
+The function uses the integral representation:
+\deqn{F_1(a; b_1, b_2; c; x, y) = \frac{\Gamma(c)}{\Gamma(a)\Gamma(c-a)} \int_0^1 t^{a-1}(1-t)^{c-a-1}(1-xt)^{-b_1}(1-yt)^{-b_2} dt}
 }
 \examples{
+# Calculate F1(0.5; 0.5, 0; 1; 0.96, 1.2)
 AppellsF1(0.5, 0.5, 0, 1, 0.96, 1.2)
+
+# Calculate F1(1; 1, 1; 2; 0.3, 0.4)
+AppellsF1(1, 1, 1, 2, 0.3, 0.4)
 
 }

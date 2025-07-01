@@ -57,7 +57,9 @@ posterior_prob <- BayesPostPredBinary(
   design = 'controlled', 
   theta0 = 0.15,
   n1 = 12, n2 = 15, y1 = 7, y2 = 9, 
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, # Not needed for posterior probability
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL # No external data
 )
 
 cat("Posterior probability that treatment effect > 0.15:", round(posterior_prob, 4))
@@ -73,7 +75,8 @@ predictive_prob <- BayesPostPredBinary(
   theta0 = 0.1,
   n1 = 12, n2 = 15, y1 = 7, y2 = 7, 
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  m1 = 30, m2 = 30
+  m1 = 30, m2 = 30,    # Required for predictive probability
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL # No external data
 )
 
 cat("Posterior predictive probability that future trial effect > 0.1:", round(predictive_prob, 4))
@@ -91,6 +94,7 @@ external_prob <- BayesPostPredBinary(
   theta0 = 0.15,
   n1 = 12, n2 = 15, y1 = 7, y2 = 9, 
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, # Not needed for posterior probability
   ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, 
   ae1 = 0.5, ae2 = 0.5
 )
@@ -109,12 +113,16 @@ decision_posterior <- BayesDecisionProbBinary(
   design = 'controlled', 
   theta.TV = 0.3,    # Go threshold
   theta.MAV = 0.1,   # NoGo threshold
+  theta.NULL = NULL, # Not needed for posterior probability
   gamma1 = 0.8,      # Minimum probability for Go
   gamma2 = 0.2,      # Maximum probability for NoGo
   pi1 = c(0.2, 0.4, 0.6, 0.8), 
   pi2 = rep(0.2, 4), 
   n1 = 12, n2 = 12,
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = NULL,          # Not needed for controlled design
+  m1 = NULL, m2 = NULL, # Not needed for posterior probability
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL # No external data
 )
 
 print(decision_posterior)
@@ -127,6 +135,7 @@ print(decision_posterior)
 decision_predictive <- BayesDecisionProbBinary(
   prob = 'predictive', 
   design = 'controlled', 
+  theta.TV = NULL, theta.MAV = NULL, # Not needed for predictive probability
   theta.NULL = 0.15,  # Threshold for future trial
   gamma1 = 0.9,       # Minimum probability for Go
   gamma2 = 0.3,       # Maximum probability for NoGo
@@ -134,7 +143,9 @@ decision_predictive <- BayesDecisionProbBinary(
   pi2 = rep(0.2, 4), 
   n1 = 12, n2 = 12,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  m1 = 30, m2 = 30
+  z = NULL,           # Not needed for controlled design
+  m1 = 30, m2 = 30,   # Required for predictive probability
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL # No external data
 )
 
 print(decision_predictive)
@@ -144,34 +155,32 @@ print(decision_predictive)
 
 ```{r visualization, fig.width=10, fig.height=6}
 # Create comprehensive decision probability data
-results <- tibble(
-  design = rep(c('controlled', 'controlled'), each = 2),
-  prob = rep(c('posterior', 'predictive'), 2),
-  theta.TV = c(0.3, NA, 0.3, NA),
-  theta.MAV = c(0.1, NA, 0.1, NA),
-  theta.NULL = c(NA, 0.15, NA, 0.15),
-  gamma1 = c(0.8, 0.9, 0.8, 0.9),
-  gamma2 = c(0.2, 0.3, 0.2, 0.3)
+# Split into separate scenarios to avoid vectorization issues
+posterior_results <- BayesDecisionProbBinary(
+  prob = 'posterior', design = 'controlled', 
+  theta.TV = 0.3, theta.MAV = 0.1, theta.NULL = NULL, 
+  gamma1 = 0.8, gamma2 = 0.2,
+  pi1 = seq(0.1, 0.9, by = 0.05), pi2 = rep(0.2, length(seq(0.1, 0.9, by = 0.05))), 
+  n1 = 12, n2 = 15, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 ) %>%
-  group_by_all() %>%
-  reframe(
-    GoNoGoGray = map(list(1), ~ {
-      BayesDecisionProbBinary(
-        prob = prob, design = design, 
-        theta.TV = theta.TV, theta.MAV = theta.MAV, theta.NULL = theta.NULL, 
-        gamma1 = gamma1, gamma2 = gamma2,
-        pi1 = seq(0.1, 0.9, by = 0.05), pi2 = rep(0.2, length(seq(0.1, 0.9, by = 0.05))), 
-        n1 = 12, n2 = 15, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-        m1 = if(prob == 'predictive') 30 else NULL, 
-        m2 = if(prob == 'predictive') 30 else NULL
-      )
-    })
-  ) %>%
-  unnest(GoNoGoGray) %>%
-  mutate(
-    Gray = pmax(Gray, 0),  # Ensure non-negative Gray probabilities
-    theta = pi1 - pi2
-  )
+  mutate(prob = 'posterior', theta = pi1 - pi2)
+
+predictive_results <- BayesDecisionProbBinary(
+  prob = 'predictive', design = 'controlled', 
+  theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0.15, 
+  gamma1 = 0.9, gamma2 = 0.3,
+  pi1 = seq(0.1, 0.9, by = 0.05), pi2 = rep(0.2, length(seq(0.1, 0.9, by = 0.05))), 
+  n1 = 12, n2 = 15, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = NULL, m1 = 30, m2 = 30,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+) %>%
+  mutate(prob = 'predictive', theta = pi1 - pi2)
+
+# Combine results
+results <- bind_rows(posterior_results, predictive_results) %>%
+  mutate(Gray = pmax(Gray, 0))  # Ensure non-negative Gray probabilities
 
 # Create visualization
 figure <- results %>%
@@ -235,14 +244,17 @@ uncontrolled_result <- BayesDecisionProbBinary(
   design = 'uncontrolled', 
   theta.TV = 0.3, 
   theta.MAV = 0.1,
+  theta.NULL = NULL, # Not needed for posterior probability
   gamma1 = 0.8, 
   gamma2 = 0.2,
   pi1 = c(0.3, 0.5, 0.7), 
   pi2 = rep(0.2, 3),  # Historical control rate
   n1 = 20, 
-  n2 = NULL,  # No concurrent control
+  n2 = 20,    # Provide n2 even for uncontrolled design
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  z = 3  # Fixed number of historical control responders
+  z = 3,      # Fixed number of historical control responders
+  m1 = NULL, m2 = NULL, # Not needed for posterior probability
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL # No external data
 )
 
 print(uncontrolled_result)
@@ -255,18 +267,21 @@ Incorporating historical data with different power prior weights:
 ```{r external_comparison}
 # Compare different power prior weights
 power_weights <- c(0.25, 0.5, 0.75, 1.0)
-external_results <- map_dfr(power_weights, ~ {
+external_results <- purrr::map_dfr(power_weights, ~ {
   result <- BayesDecisionProbBinary(
     prob = 'posterior', 
     design = 'external', 
     theta.TV = 0.25, 
     theta.MAV = 0.05,
+    theta.NULL = NULL, # Not needed for posterior probability
     gamma1 = 0.8, 
     gamma2 = 0.2,
     pi1 = c(0.3, 0.5), 
     pi2 = rep(0.2, 2), 
     n1 = 15, n2 = 15,
     a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+    z = NULL,           # Not needed for external design
+    m1 = NULL, m2 = NULL, # Not needed for posterior probability
     ne1 = 20, ne2 = 20, ye1 = 8, ye2 = 4, 
     ae1 = .x, ae2 = .x
   )
@@ -314,7 +329,7 @@ print(external_results)
 
 ## Summary
 
-The BayesianQDM package provides flexible tools for:
+The BayesianQDM package for binary endpoints provides:
 
 1. **Posterior probability calculations** for treatment effects
 2. **Posterior predictive probability** for future trial success  

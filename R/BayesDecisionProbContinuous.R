@@ -87,39 +87,63 @@
 #' @examples
 #' # Example 1: Numerical Integration (NI) method
 #' BayesDecisionProbContinuous(
-#'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-#'   theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, nMC = NULL, nINLAsample = NULL, gamma1 = 0.8, gamma2 = 0.3,
-#'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
-#'   mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5), mu1 = 4, mu2 = 0,
-#'   sigma1 = 1, sigma2 = 1, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, seed = 1
+#'   nsim = 100, prob = 'posterior', design = 'controlled',
+#'   prior = 'N-Inv-Chisq', CalcMethod = 'NI',
+#'   theta.TV = 2, theta.MAV = 0, theta.NULL = NULL,
+#'   nMC = NULL, nINLAsample = NULL,
+#'   gamma1 = 0.8, gamma2 = 0.3,
+#'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+#'   kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+#'   mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+#'   mu1 = 4, mu2 = 0, sigma1 = 1, sigma2 = 1,
+#'   r = NULL, ne1 = NULL, ne2 = NULL,
+#'   alpha01 = NULL, alpha02 = NULL, seed = 1
 #' )
 #'
 #' # Example 2: Monte Carlo (MC) method
 #' BayesDecisionProbContinuous(
-#'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MC',
-#'   theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL, nMC = 5000, nINLAsample = NULL, gamma1 = 0.7, gamma2 = 0.2,
-#'   n1 = 15, n2 = 15, m1 = NULL, m2 = NULL, kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL, mu1 = 3, mu2 = 1,
-#'   sigma1 = 1.2, sigma2 = 1.1, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, seed = 2
+#'   nsim = 100, prob = 'posterior', design = 'controlled',
+#'   prior = 'vague', CalcMethod = 'MC',
+#'   theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
+#'   nMC = 5000, nINLAsample = NULL,
+#'   gamma1 = 0.7, gamma2 = 0.2,
+#'   n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+#'   mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
+#'   r = NULL, ne1 = NULL, ne2 = NULL,
+#'   alpha01 = NULL, alpha02 = NULL, seed = 2
 #' )
 #'
 #' # Example 3: Welch-Satterthwaite (WS) approximation method
 #' BayesDecisionProbContinuous(
-#'   nsim = 100, prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
-#'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1, nMC = NULL, nINLAsample = NULL, gamma1 = 0.8, gamma2 = 0.3,
-#'   n1 = 10, n2 = 10, m1 = 50, m2 = 50, kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
-#'   mu01 = 2, mu02 = 2, sigma01 = 1.5, sigma02 = 1.5, mu1 = 2.5, mu2 = 1.2,
-#'   sigma1 = 1, sigma2 = 1, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, seed = 3
+#'   nsim = 100, prob = 'predictive', design = 'controlled',
+#'   prior = 'N-Inv-Chisq', CalcMethod = 'WS',
+#'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1,
+#'   nMC = NULL, nINLAsample = NULL,
+#'   gamma1 = 0.8, gamma2 = 0.3,
+#'   n1 = 10, n2 = 10, m1 = 50, m2 = 50,
+#'   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
+#'   mu01 = 2, mu02 = 2, sigma01 = 1.5, sigma02 = 1.5,
+#'   mu1 = 2.5, mu2 = 1.2, sigma1 = 1, sigma2 = 1,
+#'   r = NULL, ne1 = NULL, ne2 = NULL,
+#'   alpha01 = NULL, alpha02 = NULL, seed = 3
 #' )
 #'
 #' \dontrun{
-#' # Example 4: INLA method with external control data (requires INLA package)
+#' # Example 4: INLA method with external control data
 #' BayesDecisionProbContinuous(
-#'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'INLA',
-#'   theta.TV = 1, theta.MAV = -1, theta.NULL = NULL, nMC = NULL, nINLAsample = 3000, gamma1 = 0.8, gamma2 = 0.2,
-#'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL, mu1 = 2, mu2 = 0,
-#'   sigma1 = 1, sigma2 = 1, r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5, seed = 4
+#'   nsim = 100, prob = 'posterior', design = 'external',
+#'   prior = 'vague', CalcMethod = 'INLA',
+#'   theta.TV = 1, theta.MAV = -1, theta.NULL = NULL,
+#'   nMC = NULL, nINLAsample = 3000,
+#'   gamma1 = 0.8, gamma2 = 0.2,
+#'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+#'   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
+#'   r = NULL, ne1 = NULL, ne2 = 20,
+#'   alpha01 = NULL, alpha02 = 0.5, seed = 4
 #' )
 #' }
 #'

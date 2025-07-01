@@ -2,8 +2,8 @@
 % Please edit documentation in R/BayesPostPredContinuous.R
 \name{BayesPostPredContinuous}
 \alias{BayesPostPredContinuous}
-\title{Calculate bayesian posterior probability or bayesian posterior predictive probability
-for a clinical trial when outcome is continuous.}
+\title{Calculate Bayesian Posterior Probability or Bayesian Posterior Predictive Probability
+for a Clinical Trial When Outcome is Continuous}
 \usage{
 BayesPostPredContinuous(
   prob = "posterior",
@@ -11,7 +11,8 @@ BayesPostPredContinuous(
   prior = "vague",
   CalcMethod = "NI",
   theta0,
-  nMC = 10000,
+  nMC = NULL,
+  nINLAsample = NULL,
   n1,
   n2,
   m1,
@@ -28,111 +29,143 @@ BayesPostPredContinuous(
   bar.y2,
   s1,
   s2,
-  r
+  r = NULL,
+  ne1 = NULL,
+  ne2 = NULL,
+  alpha01 = NULL,
+  alpha02 = NULL
 )
 }
 \arguments{
-\item{prob}{A type of probability (i.e., \code{prob='posterior'} or \code{prob='predictive'}).}
+\item{prob}{A character string specifying the type of probability to calculate
+(\code{prob = 'posterior'} or \code{prob = 'predictive'}).}
 
-\item{design}{A type of trial design (i.e., \code{design='controlled'} or \code{prob='uncontrolled'}).}
+\item{design}{A character string specifying the type of trial design
+(\code{design = 'controlled'}, \code{design = 'uncontrolled'}, or \code{design = 'external'}).}
 
-\item{prior}{A prior distribution (i.e., \code{prior='N-Inv-Chisq'} or \code{prior='vague'}).}
+\item{prior}{A character string specifying the prior distribution
+(\code{prior = 'N-Inv-Chisq'} or \code{prior = 'vague'}).}
 
-\item{CalcMethod}{An option to select a calculation method (\code{CalcMethod=NI} (numerical integration method), \code{CalcMethod=MC} (Monte Carlo method), or \code{CalcMethod=WS} (WS approximation)).}
+\item{CalcMethod}{A character string specifying the calculation method
+(\code{CalcMethod = 'NI'} for numerical integration, \code{CalcMethod = 'MC'} for Monte Carlo method,
+\code{CalcMethod = 'WS'} for Welch-Satterthwaite approximation, or \code{CalcMethod = 'INLA'} for INLA).}
 
-\item{theta0}{Numeric pre-specified threshold value.}
+\item{theta0}{A numeric value representing the pre-specified threshold value.}
 
-\item{nMC}{A number of iterations for Monte Carlo simulation (a numeric value is set only if \code{CalcMethod=MC}).}
+\item{nMC}{A positive integer representing the number of iterations for Monte Carlo simulation
+(required only if \code{CalcMethod = 'MC'}).}
 
-\item{n1}{A number of patients in group 1 for a proof-of-concept (PoC) trial.}
+\item{nINLAsample}{A positive integer representing the number of iterations for INLA sampling
+(required only if \code{CalcMethod = 'INLA'}).}
 
-\item{n2}{A number of patients in group 2 for the PoC trial.}
+\item{n1}{A positive integer representing the number of patients in group 1 for a proof-of-concept (PoC) trial.}
 
-\item{m1}{A number of patients in group 1 for the future trial data.}
+\item{n2}{A positive integer representing the number of patients in group 2 for the PoC trial.}
 
-\item{m2}{A number of patients in group 2 for the future trial data.}
+\item{m1}{A positive integer representing the number of patients in group 1 for the future trial data.}
 
-\item{kappa01}{A true value related to the mean for conjugate prior of Normal-Inverse-X^2 in group 1.}
+\item{m2}{A positive integer representing the number of patients in group 2 for the future trial data.}
 
-\item{kappa02}{A true value related to the mean for conjugate prior of Normal-Inverse-X^2 in group 2.}
+\item{kappa01}{A positive numeric value representing the prior precision parameter related to the mean
+for conjugate prior of Normal-Inverse-Chi-squared in group 1.}
 
-\item{nu01}{A true value related to the variance for conjugate prior of Normal-Inverse-X^2 in group 1.}
+\item{kappa02}{A positive numeric value representing the prior precision parameter related to the mean
+for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
 
-\item{nu02}{A true value related to the variance for conjugate prior of Normal-Inverse-X^2 in group 2.}
+\item{nu01}{A positive numeric value representing the prior degrees of freedom related to the variance
+for conjugate prior of Normal-Inverse-Chi-squared in group 1.}
 
-\item{mu01}{A true mean value of outcomes in group 1 for the PoC trial.}
+\item{nu02}{A positive numeric value representing the prior degrees of freedom related to the variance
+for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
 
-\item{mu02}{A true mean value of outcomes in group 2 for the PoC trial.}
+\item{mu01}{A numeric value representing the prior mean value of outcomes in group 1 for the PoC trial.}
 
-\item{sigma01}{A true standard deviation value of outcomes in group 1 for the PoC trial.}
+\item{mu02}{A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.}
 
-\item{sigma02}{A true standard deviation value of outcomes in group 2 for the PoC trial.}
+\item{sigma01}{A positive numeric value representing the prior standard deviation of outcomes in group 1 for the PoC trial.}
 
-\item{bar.y1}{A sample mean of group 1.}
+\item{sigma02}{A positive numeric value representing the prior standard deviation of outcomes in group 2 for the PoC trial.}
 
-\item{bar.y2}{A sample mean of group 2.}
+\item{bar.y1}{A numeric value representing the sample mean of group 1.}
 
-\item{s1}{A sample standard deviation of group 1.}
+\item{bar.y2}{A numeric value representing the sample mean of group 2.}
 
-\item{s2}{A sample standard deviation of group 2.}
+\item{s1}{A positive numeric value representing the sample standard deviation of group 1.}
 
-\item{r}{A parameter value associated with the distribution of mean for group 2 When \code{prob='uncontrolled'}.}
+\item{s2}{A positive numeric value representing the sample standard deviation of group 2.}
+
+\item{r}{A positive numeric value representing the parameter value associated with the distribution
+of mean for group 2 when \code{design = 'uncontrolled'}.}
+
+\item{ne1}{A positive integer representing the sample size for group 1 in external trial (can be NULL if no external treatment data).}
+
+\item{ne2}{A positive integer representing the sample size for group 2 in external trial (can be NULL if no external control data).}
+
+\item{alpha01}{A positive numeric value representing the scale parameter of the power prior for group 1 (can be NULL if no external treatment data).}
+
+\item{alpha02}{A positive numeric value representing the scale parameter of the power prior for group 2 (can be NULL if no external control data).}
 }
 \value{
-The \code{BayesPostPredContinuous} gives the numeric value(s) of the
-bayesian posterior probability or bayesian posterior predictive probability.
+A numeric vector representing the Bayesian posterior probability or Bayesian posterior
+predictive probability. The function can handle vectorized inputs.
 }
 \description{
+This function computes Bayesian posterior probability or posterior predictive probability
+for continuous outcome clinical trials. The function supports controlled, uncontrolled, and
+external control designs with Normal-Inverse-Chi-squared or vague priors, using four calculation
+methods: numerical integration, Monte Carlo simulation, Welch-Satterthwaite approximation, and INLA.
+}
+\details{
 The function can obtain:
 \itemize{
 \item Bayesian posterior probability
 \item Bayesian posterior predictive probability
 }
-Prior distribution of mean and variance of outcomes for each treatment group (k=1,2) is (1) Normal-Inverse-X^2 or (2) Vague.
-Posterior distribution or posterior predictive distribution of outcome for each treatment group is following t-distribution.
+
+Prior distribution of mean and variance of outcomes for each treatment group (k=1,2) can be either
+(1) Normal-Inverse-Chi-squared or (2) Vague. The posterior distribution or posterior predictive
+distribution of outcome for each treatment group follows a t-distribution.
+
+Four calculation methods are available:
+\itemize{
+\item NI: Numerical integration method for exact computation
+\item MC: Monte Carlo simulation for flexible approximation
+\item WS: Welch-Satterthwaite approximation for computational efficiency
+\item INLA: Integrated Nested Laplace Approximation for external data incorporation
+}
 }
 \examples{
-sapply(c(2, 0), function(theta0) {
-  BayesPostPredContinuous(
-    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-    nMC = NULL, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
-    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
-    sigma01 = sqrt(5), sigma02 = sqrt(5), bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
-  )
-})
-sapply(c(2, 0), function(theta0) {
-  BayesPostPredContinuous(
-    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MC',
-    nMC = 1e+6, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
-    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
-    sigma01 = sqrt(5), sigma02 = sqrt(5), bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
-  )
-})
-sapply(c(2, 0), function(theta0) {
-  BayesPostPredContinuous(
-    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
-    nMC = NULL, theta0 = theta0, n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
-    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5, mu01 = 5, mu02 = 5,
-    sigma01 = sqrt(5), sigma02 = sqrt(5), bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, r = NULL
-  )
-})
+# Example 1: Numerical Integration (NI) method with N-Inv-Chisq prior
 BayesPostPredContinuous(
-  prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'NI',
-  nMC = NULL, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0,
-  sigma01 = NULL, sigma02 = NULL, bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
+  prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
+  theta0 = 2, n1 = 12, n2 = 12, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+  mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+  bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1
 )
+
+# Example 2: Monte Carlo (MC) method with vague prior
 BayesPostPredContinuous(
-  prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MC',
-  nMC = 1e+6, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0,
-  sigma01 = NULL, sigma02 = NULL, bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
+  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MC',
+  theta0 = 1, nMC = 10000, n1 = 12, n2 = 12,
+  bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2
 )
+
+# Example 3: Welch-Satterthwaite (WS) approximation with N-Inv-Chisq prior
 BayesPostPredContinuous(
-  prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'WS',
-  nMC = NULL, theta0 = 0.5, n1 = 12, n2 = NULL, m1 = 120, m2 = 120,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = 0,
-  sigma01 = NULL, sigma02 = NULL, bar.y1 = 2, bar.y2 = NULL, s1 = 1, s2 = NULL, r = 12
+  prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
+  theta0 = 0.5, n1 = 15, n2 = 15, m1 = 100, m2 = 100,
+  kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4, mu01 = 2, mu02 = 2,
+  sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6
 )
+
+\dontrun{
+# Example 4: INLA method with external control data (requires INLA package)
+BayesPostPredContinuous(
+  prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'INLA',
+  theta0 = 1.5, nINLAsample = 5000, n1 = 12, n2 = 12,
+  bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
+  ne2 = 20, alpha02 = 0.5
+)
+}
 
 }
