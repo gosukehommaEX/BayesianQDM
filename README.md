@@ -5,6 +5,8 @@
 [![R-CMD-check](https://github.com/gosukehommaEX/BayesianQDM/workflows/R-CMD-check/badge.svg)](https://github.com/gosukehommaEX/BayesianQDM/actions)
 [![Codecov test coverage](https://codecov.io/gh/gosukehommaEX/BayesianQDM/branch/main/graph/badge.svg)](https://codecov.io/gh/gosukehommaEX/BayesianQDM?branch=main)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![R-CMD-check](https://github.com/gosukehommaEX/BayesianQDM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gosukehommaEX/BayesianQDM/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/gosukehommaEX/BayesianQDM/graph/badge.svg)](https://app.codecov.io/gh/gosukehommaEX/BayesianQDM)
 <!-- badges: end -->
 
 ## Overview

@@ -1,4 +1,17 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^README\.Rmd$
 ^cran-comments\.md$
+^\.github$
+^\.git$
+^\.gitignore$
+^codecov\.yml$
+^\.travis\.yml$
+^appveyor\.yml$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.lintr$
+^\.pre-commit-config\.yaml$
+^CRAN-SUBMISSION$
