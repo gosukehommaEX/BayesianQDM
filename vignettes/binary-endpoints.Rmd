@@ -239,4 +239,157 @@ print(figure)
 For single-arm trials where there's no concurrent control group:
 
 ```{r uncontrolled}
-# Uncont
+# Uncontrolled design example
+uncontrolled_result <- BayesDecisionProbBinary(
+  prob = 'posterior', 
+  design = 'uncontrolled', 
+  theta.TV = 0.3, 
+  theta.MAV = 0.1,
+  theta.NULL = NULL, # Not needed for posterior probability
+  gamma1 = 0.8, 
+  gamma2 = 0.2,
+  pi1 = c(0.3, 0.5, 0.7), 
+  pi2 = rep(0.2, 3),  # Historical control rate
+  n1 = 20, 
+  n2 = 20,    # Provide n2 even for uncontrolled design
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = 3,      # Fixed number of historical control responders
+  m1 = NULL, m2 = NULL, # Not needed for posterior probability
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL # No external data
+)
+
+print(uncontrolled_result)
+```
+
+### External Control with Power Prior
+
+Incorporating historical data with different power prior weights:
+
+```{r external_comparison}
+# Compare different power prior weights
+power_weights <- c(0.25, 0.5, 0.75, 1.0)
+external_results <- purrr::map_dfr(power_weights, ~ {
+  result <- BayesDecisionProbBinary(
+    prob = 'posterior', 
+    design = 'external', 
+    theta.TV = 0.25, 
+    theta.MAV = 0.05,
+    theta.NULL = NULL, # Not needed for posterior probability
+    gamma1 = 0.8, 
+    gamma2 = 0.2,
+    pi1 = c(0.3, 0.5), 
+    pi2 = rep(0.2, 2), 
+    n1 = 15, n2 = 15,
+    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+    z = NULL,           # Not needed for external design
+    m1 = NULL, m2 = NULL, # Not needed for posterior probability
+    ne1 = 20, ne2 = 20, ye1 = 8, ye2 = 4, 
+    ae1 = .x, ae2 = .x
+  )
+  result$power_weight <- .x
+  result
+})
+
+print(external_results)
+```
+
+### Prior Sensitivity Analysis
+
+Examining the impact of different beta prior parameters:
+
+```{r prior_sensitivity}
+# Compare different prior specifications
+prior_specs <- list(
+  "Vague (0.5, 0.5)" = list(a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5),
+  "Uniform (1, 1)" = list(a1 = 1, a2 = 1, b1 = 1, b2 = 1),
+  "Informative (2, 8)" = list(a1 = 2, a2 = 2, b1 = 8, b2 = 8)
+)
+
+sensitivity_results <- purrr::map_dfr(names(prior_specs), function(prior_name) {
+  specs <- prior_specs[[prior_name]]
+  
+  result <- BayesPostPredBinary(
+    prob = 'posterior', design = 'controlled', theta0 = 0.15,
+    n1 = 20, n2 = 20, y1 = 12, y2 = 8,
+    a1 = specs$a1, a2 = specs$a2, b1 = specs$b1, b2 = specs$b2,
+    m1 = NULL, m2 = NULL,
+    ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  )
+  
+  tibble(prior_type = prior_name, posterior_prob = result)
+})
+
+print(sensitivity_results)
+```
+
+## Interpretation Guidelines
+
+### Go Decision
+- High posterior/predictive probability that treatment effect exceeds efficacy threshold
+- Proceed to next phase of development
+- Typical threshold: P(θ > θ_TV | data) ≥ 0.8
+
+### NoGo Decision  
+- Low posterior/predictive probability that treatment effect exceeds minimal acceptable value
+- Stop development or major protocol modification needed
+- Typical threshold: P(θ > θ_MAV | data) ≤ 0.2
+
+### Gray Zone
+- Inconclusive evidence
+- Consider additional patients, protocol modifications, or biomarker analysis
+- May warrant conditional advancement with risk mitigation
+
+## Parameter Selection Guidelines
+
+### Prior Selection
+- **Vague priors** (a = b = 0.5): Minimal prior influence, data-driven
+- **Jeffreys priors** (a = b = 0.5): Non-informative
+- **Informative priors**: Incorporate historical knowledge
+
+### Threshold Selection
+- **θ_TV (Target Value)**: Clinically meaningful effect size
+- **θ_MAV (Minimal Acceptable Value)**: Smallest worthwhile effect
+- **γ1**: Confidence level for Go decision (typically 0.8-0.9)
+- **γ2**: Maximum acceptable probability for NoGo (typically 0.2-0.3)
+
+### Sample Size Considerations
+- Larger sample sizes provide more precise estimates
+- Balance statistical power with resource constraints
+- Consider interim analyses for adaptive designs
+
+## Operating Characteristics
+
+### Sample Size Impact
+
+```{r sample_size_comparison}
+# Compare different sample sizes
+sample_sizes <- c(10, 20, 30, 50)
+oc_results <- purrr::map_dfr(sample_sizes, function(n) {
+  result <- BayesDecisionProbBinary(
+    prob = 'posterior', design = 'controlled', 
+    theta.TV = 0.3, theta.MAV = 0.1, theta.NULL = NULL,
+    gamma1 = 0.8, gamma2 = 0.2,
+    pi1 = 0.5, pi2 = 0.2,  # True effect of 0.3
+    n1 = n, n2 = n,
+    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+    z = NULL, m1 = NULL, m2 = NULL,
+    ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  )
+  result$sample_size <- n
+  result
+})
+
+print(oc_results)
+```
+
+## Summary
+
+The BayesianQDM package for binary endpoints provides:
+
+1. **Posterior probability calculations** for treatment effects
+2. **Posterior predictive probability** for future trial success  
+3. **Go/NoGo/Gray decision frameworks** with customizable thresholds
+4. **Multiple design types** including controlled, uncontrolled, and external control
+5. **Power prior integration** for historical data incorporation
+
+This Bayesian approach enables evidence-based decision making that accounts for uncertainty and incorporates prior knowledge, making it particularly valuable for early-phase clinical trial decision making.
