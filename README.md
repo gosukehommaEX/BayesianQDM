@@ -241,19 +241,6 @@ comparison <- sapply(alpha_values, function(alpha) {
 })
 ```
 
-### Operating Characteristics
-Evaluate decision framework performance:
-``` r
-# Simulate trials across different scenarios
-scenarios <- expand.grid(
-  true_effect = c(0, 0.5, 1.0, 1.5, 2.0),
-  sample_size = c(15, 25, 35)
-)
-
-# Calculate Go probabilities for each scenario
-# (implementation details in vignettes)
-```
-
 ## Performance Considerations
 
 - **NI method**: Most accurate but moderate computational cost
@@ -264,7 +251,6 @@ scenarios <- expand.grid(
 For large simulation studies, consider:
 - Using WS method for screening
 - NI method for final analyses
-- Parallel processing for Monte Carlo approaches
 
 ## Common Use Cases
 
@@ -304,10 +290,6 @@ The package integrates seamlessly with:
 - **ggplot2**: Creating publication-quality decision probability plots
 - **knitr/rmarkdown**: Reproducible reporting and documentation
 - **parallel**: High-performance computing for large simulations
-
-## Contributing
-
-Contributions are welcome! Please see our contributing guidelines and code of conduct. For bugs or feature requests, please open an issue on GitHub.
 
 ## Citation
 
