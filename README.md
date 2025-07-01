@@ -139,7 +139,7 @@ vignette("continuous-endpoints", package = "BayesianQDM")
 | **NI** | Numerical Integration | Most accurate, recommended for final analyses |
 | **WS** | Welch-Satterthwaite | Fast approximation, good for simulations |
 | **MC** | Monte Carlo | Flexible, handles complex scenarios |
-| **INLA** | Integrated Nested Laplace | External data incorporation |
+| **INLA** | Integrated Nested Laplace Approximation | External data incorporation |
 
 ### Method Comparison Example
 
