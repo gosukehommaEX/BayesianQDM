@@ -47,9 +47,13 @@
 #' }
 #'
 #' @importFrom stats rnorm
-#' @importFrom INLA inla inla.posterior.sample
 #' @export
 pINLAdifft <- function(nINLAsample, q, mu.n1, mu.n2, sd.n1, sd.n2, n1, n2, ne1, ne2, alpha01, alpha02) {
+  # Check if INLA package is available
+  if (!requireNamespace("INLA", quietly = TRUE)) {
+    stop("INLA package is required for this function. Please install it from https://www.r-inla.org/download-install")
+  }
+
   # Check parameter sets for external data availability
   if((is.null(ne1) | is.null(alpha01)) & (is.null(ne2) | is.null(alpha02))) {
     stop('At least one complete pair (ne1 & alpha01) or (ne2 & alpha02) must be provided for external data analysis')

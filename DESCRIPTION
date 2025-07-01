@@ -23,9 +23,9 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
-    stats,
-    INLA
+    stats
 Suggests:
+    INLA,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
@@ -36,3 +36,4 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://gosukehommaEX.github.io/BayesianQDM/, https://github.com/gosukehommaEX/BayesianQDM
 BugReports: https://github.com/gosukehommaEX/BayesianQDM/issues
+Additional_repositories: https://inla.r-inla-download.org/R/stable
