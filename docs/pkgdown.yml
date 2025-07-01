@@ -1,0 +1,11 @@
+pandoc: '3.4'
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  BayesianQDM: BayesianQDM.html
+  binary-endpoints: binary-endpoints.html
+  continuous-endpoints: continuous-endpoints.html
+last_built: 2025-07-01T07:23Z
+urls:
+  reference: https://gosukehommaEX.github.io/BayesianQDM/reference
+  article: https://gosukehommaEX.github.io/BayesianQDM/articles
