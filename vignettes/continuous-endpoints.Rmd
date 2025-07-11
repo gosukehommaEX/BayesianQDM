@@ -22,6 +22,7 @@ library(BayesianQDM)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(purrr)
 ```
 
 ## Introduction
@@ -44,220 +45,93 @@ The package provides four computational approaches:
 1. **NI (Numerical Integration)**: Exact calculation using convolution
 2. **WS (Welch-Satterthwaite)**: Fast approximation for unequal variances  
 3. **MC (Monte Carlo)**: Simulation-based approach (not used in this vignette for speed)
-4. **INLA**: For external data incorporation (not used in this vignette for speed)
+4. **MCMC (Markov Chain Monte Carlo)**: Sampling-based approach for external data incorporation
 
-## Basic Probability Calculations
+For this vignette, we focus on the fastest methods (NI and WS) to ensure reasonable build times.
 
-### Posterior Probability with Different Methods
+## Basic Posterior Probability Calculation
 
-Let's compare the numerical integration (NI) and Welch-Satterthwaite (WS) methods:
+### Standard Controlled Design
 
-```{r posterior_comparison}
-# Sample data
-sample_data <- list(
-  bar.y1 = 4.2,    # Treatment group mean
-  bar.y2 = 2.1,    # Control group mean  
-  s1 = 1.5,        # Treatment group SD
-  s2 = 1.3,        # Control group SD
-  n1 = 15,         # Treatment group size
-  n2 = 15          # Control group size
-)
+Let's start with a basic two-arm trial:
 
-# Calculate posterior probability P(θ > 1.5) using different methods
-theta0 <- 1.5
-
-# Numerical Integration method
-prob_ni <- BayesPostPredContinuous(
-  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-  theta0 = theta0, n1 = sample_data$n1, n2 = sample_data$n2,
-  bar.y1 = sample_data$bar.y1, bar.y2 = sample_data$bar.y2, 
-  s1 = sample_data$s1, s2 = sample_data$s2
-)
-
-# Welch-Satterthwaite approximation
-prob_ws <- BayesPostPredContinuous(
-  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
-  theta0 = theta0, n1 = sample_data$n1, n2 = sample_data$n2,
-  bar.y1 = sample_data$bar.y1, bar.y2 = sample_data$bar.y2, 
-  s1 = sample_data$s1, s2 = sample_data$s2
-)
-
-cat("Posterior P(θ > 1.5):\n")
-cat("NI method:", round(prob_ni, 4), "\n")
-cat("WS method:", round(prob_ws, 4), "\n")
-cat("Difference:", round(abs(prob_ni - prob_ws), 4), "\n")
-```
-
-### Conjugate Prior vs Vague Prior
-
-Compare results using informative (Normal-Inverse-Chi-squared) vs vague priors:
-
-```{r prior_comparison}
-# With Normal-Inverse-Chi-squared prior
-prob_conjugate <- BayesPostPredContinuous(
-  prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-  theta0 = 2.0, n1 = 12, n2 = 12,
-  kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
-  mu01 = 3, mu02 = 1, sigma01 = sqrt(2), sigma02 = sqrt(2),
-  bar.y1 = 4.5, bar.y2 = 1.8, s1 = 1.2, s2 = 1.1
-)
-
-# With vague prior
-prob_vague <- BayesPostPredContinuous(
-  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-  theta0 = 2.0, n1 = 12, n2 = 12,
-  bar.y1 = 4.5, bar.y2 = 1.8, s1 = 1.2, s2 = 1.1
-)
-
-cat("Posterior P(θ > 2.0):\n")
-cat("Conjugate prior:", round(prob_conjugate, 4), "\n")
-cat("Vague prior:", round(prob_vague, 4), "\n")
-```
-
-### Posterior Predictive Probability
-
-Calculate the probability of future trial success:
-
-```{r predictive_probability}
-# Posterior predictive probability for future trial
-pred_prob <- BayesPostPredContinuous(
-  prob = 'predictive', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-  theta0 = 1.0, n1 = 12, n2 = 12, m1 = 100, m2 = 100,
-  bar.y1 = 3.2, bar.y2 = 1.5, s1 = 1.4, s2 = 1.2
-)
-
-cat("Posterior predictive P(future θ > 1.0):", round(pred_prob, 4))
-```
-
-## Go/NoGo/Gray Decision Making
-
-### Controlled Design with Posterior Probability
-
-```{r decision_controlled}
-# Calculate decision probabilities using posterior probability
-decision_result <- BayesDecisionProbContinuous(
-  nsim = 50,  # Small nsim for vignette speed
-  prob = 'posterior', 
+```{r basic-example}
+# Calculate posterior probability that treatment effect > 1.5
+posterior_prob <- BayesPostPredContinuous(
+  prob = 'posterior',
   design = 'controlled', 
-  prior = 'N-Inv-Chisq', 
-  CalcMethod = 'NI',
-  theta.TV = 2.0,      # Go threshold
-  theta.MAV = 0.5,     # NoGo threshold  
-  theta.NULL = NULL,   # Not needed for posterior probability
-  nMC = NULL,          # Not needed for NI method
-  nINLAsample = NULL,  # Not needed for NI method
-  gamma1 = 0.8,        # Minimum probability for Go
-  gamma2 = 0.3,        # Maximum probability for NoGo
+  prior = 'vague',
+  CalcMethod = 'WS',  # Fast method for vignette
+  theta0 = 1.5,
+  n1 = 12, n2 = 12,
+  bar.y1 = 5.2, bar.y2 = 3.1,
+  s1 = 1.8, s2 = 1.6
+)
+
+cat("Posterior probability P(μ₁ - μ₂ > 1.5):", round(posterior_prob, 4))
+```
+
+### Comparison of Calculation Methods
+
+Let's compare the accuracy and speed of different methods:
+
+```{r method-comparison}
+# Set common parameters
+params <- list(
+  prob = 'posterior',
+  design = 'controlled',
+  prior = 'vague', 
+  theta0 = 1,
   n1 = 15, n2 = 15,
-  m1 = NULL, m2 = NULL,  # Not needed for posterior probability
-  kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
-  mu01 = 2, mu02 = 1, sigma01 = 1.5, sigma02 = 1.5,
-  mu1 = 3.5,           # True treatment mean
-  mu2 = 1.2,           # True control mean
-  sigma1 = 1.3,        # True treatment SD
-  sigma2 = 1.1,        # True control SD
-  r = NULL,            # Not needed for controlled design
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, # No external data
+  bar.y1 = 4.2, bar.y2 = 2.8,
+  s1 = 1.5, s2 = 1.4
+)
+
+# Compare NI and WS methods (skip MC and MCMC for vignette speed)
+ni_result <- do.call(BayesPostPredContinuous, c(params, list(CalcMethod = 'NI')))
+ws_result <- do.call(BayesPostPredContinuous, c(params, list(CalcMethod = 'WS')))
+
+# Results comparison
+results_df <- data.frame(
+  Method = c("Numerical Integration", "Welch-Satterthwaite"),
+  Probability = c(ni_result, ws_result),
+  Speed = c("Slower", "Faster"),
+  Accuracy = c("Exact", "Approximation")
+)
+
+knitr::kable(results_df, digits = 4, caption = "Method Comparison")
+```
+
+## Go/NoGo/Gray Decision Framework
+
+### Basic Decision Probabilities
+
+```{r decision-framework}
+# Calculate Go/NoGo/Gray probabilities
+decision_result <- BayesDecisionProbContinuous(
+  nsim = 30,  # Reduced for vignette speed
+  prob = 'posterior',
+  design = 'controlled',
+  prior = 'vague',
+  CalcMethod = 'WS',  # Fast method
+  theta.TV = 2.0,   # Target value for Go
+  theta.MAV = 0.5,  # Minimum acceptable value for NoGo
+  theta.NULL = NULL,
+  gamma1 = 0.8,     # Go threshold
+  gamma2 = 0.3,     # NoGo threshold
+  n1 = 12, n2 = 12,
+  mu1 = 4.5, mu2 = 2.0,
+  sigma1 = 1.5, sigma2 = 1.3,
   seed = 123
 )
 
 print(decision_result)
 ```
 
-### Uncontrolled Design
+### Visualizing Decision Probabilities
 
-For single-arm studies comparing against historical control:
-
-```{r decision_uncontrolled}
-# Uncontrolled design decision making
-uncontrolled_result <- BayesDecisionProbContinuous(
-  nsim = 50,
-  prob = 'predictive',
-  design = 'uncontrolled',
-  prior = 'vague',
-  CalcMethod = 'WS',
-  theta.TV = NULL, theta.MAV = NULL, # Not needed for predictive probability
-  theta.NULL = 1.5,    # Threshold for future success
-  nMC = NULL,          # Not needed for WS method
-  nINLAsample = NULL,  # Not needed for WS method
-  gamma1 = 0.85,
-  gamma2 = 0.25,
-  n1 = 20,
-  m1 = 80, m2 = 80,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, # Not needed for vague prior
-  mu01 = NULL, mu02 = 2.0, sigma01 = NULL, sigma02 = NULL, # Historical control mean
-  mu1 = 4.2,           # True treatment mean
-  sigma1 = 1.6,        # True treatment SD
-  r = 20,              # Historical control precision parameter
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, # No external data
-  seed = 456
-)
-
-print(uncontrolled_result)
-```
-
-### Method Comparison Visualization
-
-```{r method_comparison, fig.width=10, fig.height=6, fig.alt="Comparison of numerical integration vs Welch-Satterthwaite methods showing posterior probabilities across different effect sizes and thresholds"}
-# Compare NI and WS methods across different effect sizes
-effect_sizes <- seq(0, 4, by = 0.2)
-theta_values <- seq(0, 3, by = 0.5)
-
-# Create comparison data
-comparison_data <- expand.grid(
-  true_effect = effect_sizes,
-  threshold = theta_values
-) %>%
-  filter(threshold <= true_effect + 1) %>%  # Reasonable combinations only
-  rowwise() %>%
-  mutate(
-    prob_ni = BayesPostPredContinuous(
-      prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-      theta0 = threshold, n1 = 15, n2 = 15,
-      bar.y1 = true_effect + 1, bar.y2 = 1, s1 = 1.2, s2 = 1.1
-    ),
-    prob_ws = BayesPostPredContinuous(
-      prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
-      theta0 = threshold, n1 = 15, n2 = 15,
-      bar.y1 = true_effect + 1, bar.y2 = 1, s1 = 1.2, s2 = 1.1
-    ),
-    difference = abs(prob_ni - prob_ws)
-  ) %>%
-  ungroup()
-
-# Visualization
-method_plot <- comparison_data %>%
-  select(true_effect, threshold, prob_ni, prob_ws) %>%
-  pivot_longer(cols = c(prob_ni, prob_ws), names_to = "method", values_to = "probability") %>%
-  mutate(method = factor(method, levels = c("prob_ni", "prob_ws"), 
-                        labels = c("Numerical Integration", "Welch-Satterthwaite"))) %>%
-  ggplot(aes(x = true_effect, y = probability, color = method)) +
-  geom_line(linewidth = 1) +
-  facet_wrap(~ paste("Threshold =", threshold), labeller = label_both) +
-  theme_bw() +
-  labs(
-    title = "Comparison of NI and WS Methods",
-    subtitle = "Posterior probabilities across different effect sizes and thresholds",
-    x = "True Treatment Effect",
-    y = "Posterior Probability",
-    color = "Method"
-  ) +
-  theme(
-    legend.position = "bottom",
-    strip.text = element_text(size = 10),
-    axis.title = element_text(size = 11),
-    plot.title = element_text(size = 12, face = "bold")
-  )
-
-print(method_plot)
-```
-
-## Operating Characteristics
-
-### Power and Type I Error Analysis
-
-```{r operating_characteristics}
-# Simulate operating characteristics across different scenarios
+```{r decision-visualization}
+# Create operating characteristics
 scenarios <- expand.grid(
   true_diff = c(0, 0.5, 1.0, 1.5, 2.0, 2.5),
   sample_size = c(10, 15, 20)
@@ -265,184 +139,170 @@ scenarios <- expand.grid(
   rowwise() %>%
   mutate(
     decision = list(BayesDecisionProbContinuous(
-      nsim = 30,  # Small for vignette speed
+      nsim = 20,  # Reduced for vignette speed
       prob = 'posterior',
       design = 'controlled',
       prior = 'vague',
       CalcMethod = 'WS',
       theta.TV = 1.5,
       theta.MAV = 0.5,
-      theta.NULL = NULL,   # Not needed for posterior probability
-      nMC = NULL,          # Not needed for WS method
-      nINLAsample = NULL,  # Not needed for WS method
+      theta.NULL = NULL,
       gamma1 = 0.8,
       gamma2 = 0.3,
       n1 = sample_size, n2 = sample_size,
-      m1 = NULL, m2 = NULL, # Not needed for posterior probability
-      kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL, # Not needed for vague prior
-      mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL, # Not needed for vague prior
-      mu1 = 2 + true_diff, mu2 = 2,
+      mu1 = 2.0 + true_diff, mu2 = 2.0,
       sigma1 = 1.5, sigma2 = 1.5,
-      r = NULL,            # Not needed for controlled design
-      ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, # No external data
-      seed = 789
+      seed = 123
     ))
   ) %>%
-  ungroup() %>%
-  unnest(decision)
+  unnest_wider(decision)
 
-# Summarize results
-oc_summary <- scenarios %>%
-  group_by(true_diff, sample_size) %>%
-  summarise(
-    go_prob = mean(Go),
-    nogo_prob = mean(NoGo),
-    gray_prob = mean(Gray),
-    .groups = 'drop'
-  )
+# Plot operating characteristics  
+scenarios_long <- scenarios %>%
+  select(true_diff, sample_size, Go, NoGo, Gray) %>%
+  pivot_longer(cols = c(Go, NoGo, Gray), names_to = "Decision", values_to = "Probability")
 
-print(oc_summary)
-```
-
-### Visualization of Operating Characteristics
-
-```{r oc_visualization, fig.width=10, fig.height=6, fig.alt="Operating characteristics showing Go, Gray, and NoGo decision probabilities across different true treatment effects and sample sizes"}
-# Create operating characteristics plot
-oc_plot <- oc_summary %>%
-  pivot_longer(cols = c(go_prob, nogo_prob, gray_prob), 
-               names_to = "decision", values_to = "probability") %>%
-  mutate(
-    decision = factor(decision, 
-                     levels = c("go_prob", "gray_prob", "nogo_prob"),
-                     labels = c("Go", "Gray", "NoGo")),
-    sample_size = factor(sample_size, labels = paste("n =", unique(sample_size)))
-  ) %>%
-  ggplot(aes(x = true_diff, y = probability, color = decision, linetype = decision)) +
-  geom_line(linewidth = 1.2) +
-  facet_wrap(~ sample_size) +
-  theme_bw() +
-  scale_color_manual(
-    values = c('Go' = '#2E8B57', 'Gray' = '#808080', 'NoGo' = '#DC143C')
-  ) +
-  scale_linetype_manual(
-    values = c('Go' = 'solid', 'Gray' = 'dashed', 'NoGo' = 'dotted')
-  ) +
+ggplot(scenarios_long, aes(x = true_diff, y = Probability, color = Decision)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  facet_wrap(~paste("N =", sample_size, "per arm")) +
+  scale_color_manual(values = c('Go' = '#2E8B57', 'Gray' = '#808080', 'NoGo' = '#DC143C')) +
   labs(
     title = "Operating Characteristics for Continuous Endpoints",
-    subtitle = "Decision probabilities across true treatment effects and sample sizes",
-    x = "True Treatment Effect",
+    x = "True Treatment Difference",
     y = "Decision Probability",
-    color = "Decision",
-    linetype = "Decision"
+    caption = "Note: Reduced simulation size for vignette speed"
   ) +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_blank(),
-    strip.text = element_text(size = 11, face = "bold"),
-    axis.title = element_text(size = 11),
-    plot.title = element_text(size = 13, face = "bold")
-  )
-
-print(oc_plot)
+  theme_bw()
 ```
 
-## Advanced Features
+## Advanced Prior Specifications
 
-### Direct Probability Function Usage
+### Normal-Inverse-Chi-squared Priors
 
-For custom analyses, you can use the underlying probability functions directly:
+For incorporating prior knowledge:
 
-```{r direct_functions}
-# Direct use of t-distribution difference functions
-mu1 <- 3.5; mu2 <- 1.2; sd1 <- 1.3; sd2 <- 1.1; nu1 <- 14; nu2 <- 14
-
-# Compare methods for P(T1 - T2 > 2)
-prob_ni_direct <- pNIdifft(q = 2, mu.t1 = mu1, mu.t2 = mu2, 
-                          sd.t1 = sd1, sd.t2 = sd2, nu.t1 = nu1, nu.t2 = nu2)
-
-prob_ws_direct <- pWSdifft(q = 2, mu.t1 = mu1, mu.t2 = mu2, 
-                          sd.t1 = sd1, sd.t2 = sd2, nu.t1 = nu1, nu.t2 = nu2)
-
-cat("Direct function usage - P(T1 - T2 > 2):\n")
-cat("NI method:", round(prob_ni_direct, 4), "\n")
-cat("WS method:", round(prob_ws_direct, 4), "\n")
-```
-
-### Sensitivity Analysis for Priors
-
-```{r sensitivity_analysis}
-# Sensitivity analysis for different prior specifications
-prior_specs <- list(
-  weak_informative = list(kappa01 = 1, kappa02 = 1, nu01 = 3, nu02 = 3),
-  moderate_informative = list(kappa01 = 5, kappa02 = 5, nu01 = 10, nu02 = 10),
-  strong_informative = list(kappa01 = 10, kappa02 = 10, nu01 = 20, nu02 = 20)
+```{r informative-priors}
+# Example with informative priors
+informative_result <- BayesPostPredContinuous(
+  prob = 'posterior',
+  design = 'controlled',
+  prior = 'N-Inv-Chisq',
+  CalcMethod = 'NI',
+  theta0 = 1.0,
+  n1 = 10, n2 = 10,
+  bar.y1 = 3.2, bar.y2 = 2.1,
+  s1 = 1.4, s2 = 1.2,
+  # Prior parameters
+  kappa01 = 2, kappa02 = 2,
+  nu01 = 4, nu02 = 4, 
+  mu01 = 3.0, mu02 = 2.0,
+  sigma01 = 1.5, sigma02 = 1.5
 )
 
-sensitivity_results <- purrr::map_dfr(names(prior_specs), function(prior_name) {
-  specs <- prior_specs[[prior_name]]
-  
-  prob <- BayesPostPredContinuous(
-    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-    theta0 = 1.5, n1 = 12, n2 = 12,
-    kappa01 = specs$kappa01, kappa02 = specs$kappa02, 
-    nu01 = specs$nu01, nu02 = specs$nu02,
-    mu01 = 3, mu02 = 1, sigma01 = 1.5, sigma02 = 1.5,
-    bar.y1 = 3.8, bar.y2 = 1.6, s1 = 1.3, s2 = 1.2
-  )
-  
-  tibble(prior_type = prior_name, posterior_prob = prob)
-})
-
-print(sensitivity_results)
+cat("Posterior probability with informative priors:", round(informative_result, 4))
 ```
 
-## Practical Guidelines
+## External Data Incorporation
 
-### When to Use Each Method
+### Power Prior with MCMC
 
-1. **Numerical Integration (NI)**
-   - Most accurate for posterior probabilities
-   - Recommended for final analyses
-   - Moderate computational cost
+When external/historical data is available, we can use power priors with MCMC sampling:
 
-2. **Welch-Satterthwaite (WS)**  
-   - Fast approximation
-   - Good for sensitivity analyses and simulations
-   - Handles unequal variances well
+```{r external-data, eval=FALSE}
+# Note: This example is not evaluated in the vignette due to computation time
+# In practice, use higher nMCMCsample values (e.g., 10000)
 
-3. **Monte Carlo (MC)**
-   - Flexible but computationally intensive
-   - Use when other methods face convergence issues
-   - Provides uncertainty estimates
+external_result <- pMCMCdiff(
+  nMCMCsample = 1000,  # Reduced for demonstration
+  q = 1.5,
+  mu.n1 = 4.2, mu.n2 = 2.8,
+  sd.n1 = 1.5, sd.n2 = 1.4, 
+  n1 = 12, n2 = 12,
+  ne1 = 24, ne2 = 24,  # External data sample sizes
+  alpha01 = 0.5, alpha02 = 0.5  # Power prior parameters
+)
 
-4. **INLA**
-   - Specialized for external data incorporation
-   - Fast approximate Bayesian inference
-   - Requires INLA package installation
+cat("Probability with external data:", round(external_result, 4))
+```
 
-### Parameter Selection Guidelines
+The power prior parameters (α₀₁, α₀₂) control the degree of borrowing:
+- α = 0: No borrowing (ignore external data)
+- α = 1: Full borrowing (external data weighted equally)
+- 0 < α < 1: Partial borrowing
 
-#### Threshold Selection
-- **θ_TV**: Clinically meaningful difference (e.g., 1.5 × minimal clinically important difference)
-- **θ_MAV**: Smallest worthwhile effect (e.g., 0.5 × minimal clinically important difference)
+## Practical Considerations
 
-#### Decision Criteria
-- **γ1 (Go threshold)**: 0.8-0.9 for high confidence
-- **γ2 (NoGo threshold)**: 0.2-0.3 for early stopping
+### Sample Size Planning
 
-#### Prior Selection
-- **Vague priors**: When minimal prior information is available
-- **Conjugate priors**: When incorporating historical data or expert opinion
-- **Power priors**: For external control incorporation
+```{r sample-size-planning}
+# Evaluate required sample size for desired operating characteristics
+sample_sizes <- seq(5, 25, by = 5)
+
+oc_results <- do.call(rbind, lapply(sample_sizes, function(.x) {
+  result <- BayesDecisionProbContinuous(
+    nsim = 20,  # Reduced for vignette
+    prob = 'posterior',
+    design = 'controlled', 
+    prior = 'vague',
+    CalcMethod = 'WS',
+    theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
+    gamma1 = 0.8, gamma2 = 0.3,
+    n1 = .x, n2 = .x,
+    mu1 = 3.5, mu2 = 2.0,  # Assume true effect of 1.5
+    sigma1 = 1.5, sigma2 = 1.5,
+    seed = 123
+  )
+  
+  data.frame(
+    sample_size = .x,
+    go_prob = result$Go,
+    nogo_prob = result$NoGo,
+    gray_prob = result$Gray
+  )
+}))
+
+ggplot(oc_results, aes(x = sample_size)) +
+  geom_line(aes(y = go_prob, color = "Go"), linewidth = 1) +
+  geom_line(aes(y = gray_prob, color = "Gray"), linewidth = 1) +
+  geom_line(aes(y = nogo_prob, color = "NoGo"), linewidth = 1) +
+  scale_color_manual(values = c('Go' = '#2E8B57', 'Gray' = '#808080', 'NoGo' = '#DC143C')) +
+  labs(
+    title = "Power Analysis: Sample Size vs Decision Probabilities",
+    x = "Sample Size (per arm)",
+    y = "Decision Probability",
+    color = "Decision",
+    subtitle = "Assuming true treatment effect = 1.5"
+  ) +
+  theme_bw()
+```
+
+### Method Selection Guidelines
+
+Choose calculation methods based on your needs:
+
+- **NI**: Use when exact results are required and computational time is not critical
+- **WS**: Use for quick approximations, especially with unequal variances
+- **MC**: Use when other methods fail or for sensitivity analysis (not shown in vignette)
+- **MCMC**: Use when incorporating external data with power priors
 
 ## Summary
 
-The BayesianQDM package for continuous endpoints provides:
+This vignette demonstrated:
 
-1. **Multiple calculation methods** with different accuracy-speed trade-offs
-2. **Flexible prior specifications** for incorporating existing knowledge  
-3. **Comprehensive decision frameworks** with customizable thresholds
-4. **Support for various designs** including controlled, uncontrolled, and external control
-5. **Operating characteristics evaluation** for trial planning
+1. **Basic probability calculations** for continuous endpoints
+2. **Go/NoGo/Gray decision framework** with customizable thresholds  
+3. **Method comparisons** balancing accuracy and speed
+4. **Prior specification** for incorporating prior knowledge
+5. **External data incorporation** using power priors and MCMC
+6. **Operating characteristics** for trial planning
 
-This framework enables robust, evidence-based decision making in clinical trials with continuous endpoints while accounting for uncertainty and prior information.
+The BayesianQDM package provides flexible tools for evidence-based decision making in clinical trials with continuous endpoints. For computational efficiency in routine use, consider the WS method for most applications, reserving exact methods (NI) and simulation approaches (MCMC) for critical decisions or when external data is available.
+
+## References
+
+For more details on the statistical methods, see:
+
+- The main BayesianQDM vignette for framework overview
+- Function documentation for parameter specifications  
+- The binary endpoints vignette for comparison with discrete outcomes

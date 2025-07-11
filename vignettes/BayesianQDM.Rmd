@@ -84,76 +84,14 @@ result_continuous <- BayesDecisionProbContinuous(
   prior = 'vague', 
   CalcMethod = 'WS',  # Fast method for vignette
   theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,  # All required thresholds
-  nMC = NULL, nINLAsample = NULL,  # Not needed for WS method
+  nMC = NULL, nMCMCsample = NULL,  # Not needed for WS method
   gamma1 = 0.8, gamma2 = 0.3,
-  n1 = 15, n2 = 15,
-  m1 = NULL, m2 = NULL,  # Not needed for posterior probability
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,  # Not needed for vague prior
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,  # Not needed for vague prior
-  mu1 = 3.0, mu2 = 1.2,
-  sigma1 = 1.5, sigma2 = 1.5,
-  r = NULL,  # Not needed for controlled design
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,  # No external data
+  n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+  mu1 = 4.5, mu2 = 2.0, sigma1 = 1.5, sigma2 = 1.3,
   seed = 123
 )
 
 print(result_continuous)
-```
-
-### Posterior Probability
-
-```{r continuous_posterior}
-# Calculate posterior probability using WS method
-posterior_prob_cont <- BayesPostPredContinuous(
-  prob = 'posterior', 
-  design = 'controlled', 
-  prior = 'vague', 
-  CalcMethod = 'WS',
-  theta0 = 1.5, 
-  n1 = 15, n2 = 15,
-  bar.y1 = 4.2, bar.y2 = 2.1, 
-  s1 = 1.5, s2 = 1.3
-)
-
-cat("Posterior probability:", round(posterior_prob_cont, 4))
-```
-
-## Calculation Methods
-
-The package provides multiple calculation methods for continuous endpoints:
-
-### Method Comparison
-
-```{r method_comparison}
-# Compare different methods
-sample_data <- list(
-  bar.y1 = 4.2, bar.y2 = 2.1,
-  s1 = 1.5, s2 = 1.3,
-  n1 = 15, n2 = 15
-)
-
-theta0 <- 1.5
-
-# Numerical Integration (most accurate)
-prob_ni <- BayesPostPredContinuous(
-  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-  theta0 = theta0, n1 = sample_data$n1, n2 = sample_data$n2,
-  bar.y1 = sample_data$bar.y1, bar.y2 = sample_data$bar.y2, 
-  s1 = sample_data$s1, s2 = sample_data$s2
-)
-
-# Welch-Satterthwaite (fast approximation)
-prob_ws <- BayesPostPredContinuous(
-  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
-  theta0 = theta0, n1 = sample_data$n1, n2 = sample_data$n2,
-  bar.y1 = sample_data$bar.y1, bar.y2 = sample_data$bar.y2, 
-  s1 = sample_data$s1, s2 = sample_data$s2
-)
-
-cat("Method comparison for P(θ > 1.5):\n")
-cat("NI method:", round(prob_ni, 4), "\n")
-cat("WS method:", round(prob_ws, 4), "\n")
-cat("Difference:", round(abs(prob_ni - prob_ws), 4), "\n")
 ```
 
 ## Study Designs
@@ -173,6 +111,15 @@ The package supports three study designs:
 ### Continuous Endpoints
 - **Vague priors**: Non-informative approach
 - **Normal-Inverse-Chi-squared**: Conjugate priors for incorporating prior knowledge
+
+## Calculation Methods
+
+For continuous endpoints, four methods are available:
+
+1. **NI (Numerical Integration)**: Exact calculation using convolution
+2. **WS (Welch-Satterthwaite)**: Fast approximation for unequal variances
+3. **MC (Monte Carlo)**: Simulation-based flexible approach
+4. **MCMC (Markov Chain Monte Carlo)**: For external data incorporation with power priors
 
 ## Summary
 

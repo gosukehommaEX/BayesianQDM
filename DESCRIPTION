@@ -14,7 +14,7 @@ Description: Provides comprehensive methods to calculate posterior probabilities
     and Go/NoGo/Gray probabilities for quantitative decision-making framework under Bayesian paradigm in clinical trials.
     The package supports both binary and continuous endpoints with controlled, uncontrolled, and external control designs.
     For continuous outcomes, four calculation methods are available: numerical integration (NI), Monte Carlo simulation (MC), 
-    Welch-Satterthwaite approximation (WS), and Integrated Nested Laplace Approximation (INLA). 
+    Welch-Satterthwaite approximation (WS), and Markov Chain Monte Carlo (MCMC). 
     The framework enables evidence-based decision making in proof-of-concept and phase II clinical trials using 
     Bayesian statistical methods with power priors for incorporating external or historical data.
 License: MIT + file LICENSE
@@ -24,7 +24,7 @@ RoxygenNote: 7.3.2
 Imports: 
     stats
 Suggests:
-    INLA,
+    bayesDP,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
@@ -35,4 +35,3 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://gosukehommaEX.github.io/BayesianQDM/, https://github.com/gosukehommaEX/BayesianQDM
 BugReports: https://github.com/gosukehommaEX/BayesianQDM/issues
-Additional_repositories: https://inla.r-inla-download.org/R/stable

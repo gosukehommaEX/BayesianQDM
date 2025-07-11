@@ -15,7 +15,7 @@ BayesDecisionProbContinuous(
   theta.MAV,
   theta.NULL,
   nMC = NULL,
-  nINLAsample = NULL,
+  nMCMCsample = NULL,
   gamma1,
   gamma2,
   n1,
@@ -43,84 +43,74 @@ BayesDecisionProbContinuous(
 )
 }
 \arguments{
-\item{nsim}{A positive integer representing the number of iterations for calculating posterior/posterior predictive probability.}
+\item{nsim}{A positive integer representing the number of simulations.}
 
-\item{prob}{A character string specifying the type of probability to use
-(\code{prob = 'posterior'} or \code{prob = 'predictive'}).}
+\item{prob}{A character string specifying the type of probability to calculate
+('posterior' or 'predictive').}
 
 \item{design}{A character string specifying the type of trial design
-(\code{design = 'controlled'}, \code{design = 'uncontrolled'}, or \code{design = 'external'}).}
+('controlled', 'uncontrolled', or 'external').}
 
 \item{prior}{A character string specifying the prior distribution
-(\code{prior = 'N-Inv-Chisq'} or \code{prior = 'vague'}).}
+('N-Inv-Chisq' or 'vague').}
 
 \item{CalcMethod}{A character string specifying the calculation method
-(\code{CalcMethod = 'NI'} for numerical integration, \code{CalcMethod = 'MC'} for Monte Carlo method,
-\code{CalcMethod = 'WS'} for Welch-Satterthwaite approximation, or \code{CalcMethod = 'INLA'} for INLA).}
+('NI' for numerical integration, 'MC' for Monte Carlo method,
+'WS' for Welch-Satterthwaite approximation, or 'MCMC' for MCMC).}
 
-\item{theta.TV}{A numeric value representing the pre-specified threshold value for calculating
-Go probability when \code{prob = 'posterior'}.}
+\item{theta.TV}{A numeric value representing the target value threshold.}
 
-\item{theta.MAV}{A numeric value representing the pre-specified threshold value for calculating
-NoGo probability when \code{prob = 'posterior'}.}
+\item{theta.MAV}{A numeric value representing the minimum acceptable value threshold.}
 
-\item{theta.NULL}{A numeric value representing the pre-specified threshold value for calculating
-Go/NoGo probabilities when \code{prob = 'predictive'}.}
+\item{theta.NULL}{A numeric value representing the null hypothesis value (default: NULL).}
 
 \item{nMC}{A positive integer representing the number of iterations for Monte Carlo simulation
-(required only if \code{CalcMethod = 'MC'}).}
+(required only if CalcMethod = 'MC').}
 
-\item{nINLAsample}{A positive integer representing the number of iterations for INLA sampling
-(required only if \code{CalcMethod = 'INLA'}).}
+\item{nMCMCsample}{A positive integer representing the number of iterations for MCMC sampling
+(required only if CalcMethod = 'MCMC').}
 
-\item{gamma1}{A numeric value between 0 and 1 representing the minimum probability to declare success.}
+\item{gamma1}{A numeric value representing the go threshold.}
 
-\item{gamma2}{A numeric value between 0 and 1 representing the futility threshold.}
+\item{gamma2}{A numeric value representing the no-go threshold.}
 
-\item{n1}{A positive integer representing the number of patients in group 1 for a proof-of-concept (PoC) trial.}
+\item{n1}{A positive integer representing the number of patients in group 1.}
 
-\item{n2}{A positive integer representing the number of patients in group 2 for the PoC trial.}
+\item{n2}{A positive integer representing the number of patients in group 2.}
 
-\item{m1}{A positive integer representing the number of patients in group 1 for the future trial data.}
+\item{m1}{A positive integer representing the number of patients in group 1 for future trial.}
 
-\item{m2}{A positive integer representing the number of patients in group 2 for the future trial data.}
+\item{m2}{A positive integer representing the number of patients in group 2 for future trial.}
 
-\item{kappa01}{A positive numeric value representing the prior precision parameter related to the mean
-for conjugate prior of Normal-Inverse-Chi-squared in group 1.}
+\item{kappa01}{A positive numeric value representing the prior sample size for group 1 (N-Inv-Chisq prior).}
 
-\item{kappa02}{A positive numeric value representing the prior precision parameter related to the mean
-for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
+\item{kappa02}{A positive numeric value representing the prior sample size for group 2 (N-Inv-Chisq prior).}
 
-\item{nu01}{A positive numeric value representing the prior degrees of freedom related to the variance
-for conjugate prior of Normal-Inverse-Chi-squared in group 1.}
+\item{nu01}{A positive numeric value representing the prior degrees of freedom for group 1 (N-Inv-Chisq prior).}
 
-\item{nu02}{A positive numeric value representing the prior degrees of freedom related to the variance
-for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
+\item{nu02}{A positive numeric value representing the prior degrees of freedom for group 2 (N-Inv-Chisq prior).}
 
-\item{mu01}{A numeric value representing the prior mean value of outcomes in group 1 for the PoC trial.}
+\item{mu01}{A numeric value representing the prior mean for group 1 (N-Inv-Chisq prior).}
 
-\item{mu02}{A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.}
+\item{mu02}{A numeric value representing the prior mean for group 2 (N-Inv-Chisq prior).}
 
-\item{sigma01}{A positive numeric value representing the prior standard deviation of outcomes in group 1 for the PoC trial.}
+\item{sigma01}{A positive numeric value representing the prior standard deviation for group 1 (N-Inv-Chisq prior).}
 
-\item{sigma02}{A positive numeric value representing the prior standard deviation of outcomes in group 2 for the PoC trial.}
+\item{sigma02}{A positive numeric value representing the prior standard deviation for group 2 (N-Inv-Chisq prior).}
 
-\item{mu1}{A numeric value representing the true mean of group 1 for PoC trial.}
+\item{mu1}{A numeric value representing the true mean of group 1.}
 
-\item{mu2}{A numeric value representing the true mean of group 2 for PoC trial.}
+\item{mu2}{A numeric value representing the true mean of group 2.}
 
-\item{sigma1}{A positive numeric value representing the true standard deviation of group 1 for PoC trial.}
+\item{sigma1}{A positive numeric value representing the true standard deviation of group 1.}
 
-\item{sigma2}{A positive numeric value representing the true standard deviation of group 2 for PoC trial.}
+\item{sigma2}{A positive numeric value representing the true standard deviation of group 2.}
 
-\item{r}{A positive numeric value representing the parameter value associated with the distribution
-of mean for group 2 when \code{design = 'uncontrolled'}.}
+\item{r}{A positive numeric value for uncontrolled design (default: NULL).}
 
-\item{ne1}{A positive integer representing the sample size for group 1 in external trial
-(required for external design, can be NULL if no external treatment data).}
+\item{ne1}{A positive integer representing the sample size for group 1 in external trial (default: NULL).}
 
-\item{ne2}{A positive integer representing the sample size for group 2 in external trial
-(required for external design, can be NULL if no external control data).}
+\item{ne2}{A positive integer representing the sample size for group 2 in external trial (default: NULL).}
 
 \item{alpha01}{A positive numeric value representing the scale parameter of the power prior for group 1
 (required for external design, can be NULL if no external treatment data).}
@@ -159,7 +149,7 @@ The decision framework is based on:
 The function uses simulation to generate observed data and then applies Bayesian methods to calculate
 decision probabilities. Four calculation methods are available for computing the underlying probabilities:
 numerical integration (NI), Monte Carlo simulation (MC), Welch-Satterthwaite approximation (WS),
-and Integrated Nested Laplace Approximation (INLA) for external data incorporation.
+and MCMC for external data incorporation.
 }
 \examples{
 # Example 1: Numerical Integration (NI) method
@@ -167,7 +157,7 @@ BayesDecisionProbContinuous(
   nsim = 100, prob = 'posterior', design = 'controlled',
   prior = 'N-Inv-Chisq', CalcMethod = 'NI',
   theta.TV = 2, theta.MAV = 0, theta.NULL = NULL,
-  nMC = NULL, nINLAsample = NULL,
+  nMC = NULL, nMCMCsample = NULL,
   gamma1 = 0.8, gamma2 = 0.3,
   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
   kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
@@ -181,39 +171,39 @@ BayesDecisionProbContinuous(
 BayesDecisionProbContinuous(
   nsim = 100, prob = 'posterior', design = 'controlled',
   prior = 'vague', CalcMethod = 'MC',
-  theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
-  nMC = 5000, nINLAsample = NULL,
-  gamma1 = 0.7, gamma2 = 0.2,
-  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+  theta.TV = 1.5, theta.MAV = -1, theta.NULL = NULL,
+  nMC = 1e+4, nMCMCsample = NULL,
+  gamma1 = 0.8, gamma2 = 0.2,
+  n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
+  mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
   r = NULL, ne1 = NULL, ne2 = NULL,
   alpha01 = NULL, alpha02 = NULL, seed = 2
 )
 
-# Example 3: Welch-Satterthwaite (WS) approximation method
+# Example 3: Welch-Satterthwaite (WS) method
 BayesDecisionProbContinuous(
   nsim = 100, prob = 'predictive', design = 'controlled',
-  prior = 'N-Inv-Chisq', CalcMethod = 'WS',
+  prior = 'vague', CalcMethod = 'WS',
   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1,
-  nMC = NULL, nINLAsample = NULL,
-  gamma1 = 0.8, gamma2 = 0.3,
-  n1 = 10, n2 = 10, m1 = 50, m2 = 50,
-  kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
-  mu01 = 2, mu02 = 2, sigma01 = 1.5, sigma02 = 1.5,
+  nMC = NULL, nMCMCsample = NULL,
+  gamma1 = 0.8, gamma2 = 0.2,
+  n1 = 12, n2 = 12, m1 = 24, m2 = 24,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
   mu1 = 2.5, mu2 = 1.2, sigma1 = 1, sigma2 = 1,
   r = NULL, ne1 = NULL, ne2 = NULL,
   alpha01 = NULL, alpha02 = NULL, seed = 3
 )
 
 \dontrun{
-# Example 4: INLA method with external control data
+# Example 4: MCMC method with external control data
 BayesDecisionProbContinuous(
   nsim = 100, prob = 'posterior', design = 'external',
-  prior = 'vague', CalcMethod = 'INLA',
+  prior = 'vague', CalcMethod = 'MCMC',
   theta.TV = 1, theta.MAV = -1, theta.NULL = NULL,
-  nMC = NULL, nINLAsample = 3000,
+  nMC = NULL, nMCMCsample = 3000,
   gamma1 = 0.8, gamma2 = 0.2,
   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,

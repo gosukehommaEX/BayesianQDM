@@ -2,8 +2,7 @@
 % Please edit documentation in R/BayesPostPredContinuous.R
 \name{BayesPostPredContinuous}
 \alias{BayesPostPredContinuous}
-\title{Calculate Bayesian Posterior Probability or Bayesian Posterior Predictive Probability
-for a Clinical Trial When Outcome is Continuous}
+\title{Calculate Bayesian Posterior Probability or Bayesian Posterior Predictive Probability for a Clinical Trial When Outcome is Continuous}
 \usage{
 BayesPostPredContinuous(
   prob = "posterior",
@@ -12,7 +11,7 @@ BayesPostPredContinuous(
   CalcMethod = "NI",
   theta0,
   nMC = NULL,
-  nINLAsample = NULL,
+  nMCMCsample = NULL,
   n1,
   n2,
   m1,
@@ -37,54 +36,48 @@ BayesPostPredContinuous(
 )
 }
 \arguments{
-\item{prob}{A character string specifying the type of probability to calculate
-(\code{prob = 'posterior'} or \code{prob = 'predictive'}).}
+\item{prob}{A character string specifying the type of probability to calculate.
+Options are 'posterior' (default) for posterior probability or 'predictive' for posterior predictive probability.}
 
-\item{design}{A character string specifying the type of trial design
-(\code{design = 'controlled'}, \code{design = 'uncontrolled'}, or \code{design = 'external'}).}
+\item{design}{A character string specifying the trial design.
+Options are 'controlled' (default), 'uncontrolled', or 'external'.}
 
-\item{prior}{A character string specifying the prior distribution
-(\code{prior = 'N-Inv-Chisq'} or \code{prior = 'vague'}).}
+\item{prior}{A character string specifying the prior distribution.
+Options are 'vague' (default) or 'N-Inv-Chisq' for Normal-Inverse-Chi-squared.}
 
-\item{CalcMethod}{A character string specifying the calculation method
-(\code{CalcMethod = 'NI'} for numerical integration, \code{CalcMethod = 'MC'} for Monte Carlo method,
-\code{CalcMethod = 'WS'} for Welch-Satterthwaite approximation, or \code{CalcMethod = 'INLA'} for INLA).}
+\item{CalcMethod}{A character string specifying the calculation method.
+Options are 'NI' (numerical integration, default), 'MC' (Monte Carlo), 'WS' (Welch-Satterthwaite),
+or 'MCMC' (MCMC sampling for external design).}
 
-\item{theta0}{A numeric value representing the pre-specified threshold value.}
+\item{theta0}{A numeric value representing the threshold for the treatment effect.}
 
-\item{nMC}{A positive integer representing the number of iterations for Monte Carlo simulation
-(required only if \code{CalcMethod = 'MC'}).}
+\item{nMC}{A positive integer representing the number of Monte Carlo iterations for MC method (default: NULL).}
 
-\item{nINLAsample}{A positive integer representing the number of iterations for INLA sampling
-(required only if \code{CalcMethod = 'INLA'}).}
+\item{nMCMCsample}{A positive integer representing the number of MCMC iterations for external design (default: NULL).}
 
-\item{n1}{A positive integer representing the number of patients in group 1 for a proof-of-concept (PoC) trial.}
+\item{n1}{A positive integer representing the sample size for group 1 in PoC trial.}
 
-\item{n2}{A positive integer representing the number of patients in group 2 for the PoC trial.}
+\item{n2}{A positive integer representing the sample size for group 2 in PoC trial.}
 
-\item{m1}{A positive integer representing the number of patients in group 1 for the future trial data.}
+\item{m1}{A positive integer representing the sample size for group 1 in future trial (for predictive probability).}
 
-\item{m2}{A positive integer representing the number of patients in group 2 for the future trial data.}
+\item{m2}{A positive integer representing the sample size for group 2 in future trial (for predictive probability).}
 
-\item{kappa01}{A positive numeric value representing the prior precision parameter related to the mean
-for conjugate prior of Normal-Inverse-Chi-squared in group 1.}
+\item{kappa01}{A positive numeric value representing the prior precision parameter for group 1 (N-Inv-Chisq prior).}
 
-\item{kappa02}{A positive numeric value representing the prior precision parameter related to the mean
-for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
+\item{kappa02}{A positive numeric value representing the prior precision parameter for group 2 (N-Inv-Chisq prior).}
 
-\item{nu01}{A positive numeric value representing the prior degrees of freedom related to the variance
-for conjugate prior of Normal-Inverse-Chi-squared in group 1.}
+\item{nu01}{A positive numeric value representing the prior degrees of freedom for group 1 (N-Inv-Chisq prior).}
 
-\item{nu02}{A positive numeric value representing the prior degrees of freedom related to the variance
-for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
+\item{nu02}{A positive numeric value representing the prior degrees of freedom for group 2 (N-Inv-Chisq prior).}
 
-\item{mu01}{A numeric value representing the prior mean value of outcomes in group 1 for the PoC trial.}
+\item{mu01}{A numeric value representing the prior mean for group 1 (N-Inv-Chisq prior).}
 
-\item{mu02}{A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.}
+\item{mu02}{A numeric value representing the prior mean for group 2 (N-Inv-Chisq prior).}
 
-\item{sigma01}{A positive numeric value representing the prior standard deviation of outcomes in group 1 for the PoC trial.}
+\item{sigma01}{A positive numeric value representing the prior standard deviation for group 1 (N-Inv-Chisq prior).}
 
-\item{sigma02}{A positive numeric value representing the prior standard deviation of outcomes in group 2 for the PoC trial.}
+\item{sigma02}{A positive numeric value representing the prior standard deviation for group 2 (N-Inv-Chisq prior).}
 
 \item{bar.y1}{A numeric value representing the sample mean of group 1.}
 
@@ -94,16 +87,15 @@ for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
 
 \item{s2}{A positive numeric value representing the sample standard deviation of group 2.}
 
-\item{r}{A positive numeric value representing the parameter value associated with the distribution
-of mean for group 2 when \code{design = 'uncontrolled'}.}
+\item{r}{A positive numeric value for uncontrolled design (default: NULL).}
 
-\item{ne1}{A positive integer representing the sample size for group 1 in external trial (can be NULL if no external treatment data).}
+\item{ne1}{A positive integer representing the sample size for group 1 in external trial (default: NULL).}
 
-\item{ne2}{A positive integer representing the sample size for group 2 in external trial (can be NULL if no external control data).}
+\item{ne2}{A positive integer representing the sample size for group 2 in external trial (default: NULL).}
 
-\item{alpha01}{A positive numeric value representing the scale parameter of the power prior for group 1 (can be NULL if no external treatment data).}
+\item{alpha01}{A positive numeric value representing the power prior scale parameter for group 1 (default: NULL).}
 
-\item{alpha02}{A positive numeric value representing the scale parameter of the power prior for group 2 (can be NULL if no external control data).}
+\item{alpha02}{A positive numeric value representing the power prior scale parameter for group 2 (default: NULL).}
 }
 \value{
 A numeric vector representing the Bayesian posterior probability or Bayesian posterior
@@ -112,8 +104,9 @@ predictive probability. The function can handle vectorized inputs.
 \description{
 This function computes Bayesian posterior probability or posterior predictive probability
 for continuous outcome clinical trials. The function supports controlled, uncontrolled, and
-external control designs with Normal-Inverse-Chi-squared or vague priors, using four calculation
-methods: numerical integration, Monte Carlo simulation, Welch-Satterthwaite approximation, and INLA.
+external control designs with Normal-Inverse-Chi-squared or vague priors, using three calculation
+methods: numerical integration, Monte Carlo simulation, and Welch-Satterthwaite approximation.
+For external control designs, MCMC sampling is used to incorporate historical data through power priors.
 }
 \details{
 The function can obtain:
@@ -126,12 +119,26 @@ Prior distribution of mean and variance of outcomes for each treatment group (k=
 (1) Normal-Inverse-Chi-squared or (2) Vague. The posterior distribution or posterior predictive
 distribution of outcome for each treatment group follows a t-distribution.
 
-Four calculation methods are available:
+For controlled and uncontrolled designs, three calculation methods are available:
 \itemize{
 \item NI: Numerical integration method for exact computation
 \item MC: Monte Carlo simulation for flexible approximation
 \item WS: Welch-Satterthwaite approximation for computational efficiency
-\item INLA: Integrated Nested Laplace Approximation for external data incorporation
+}
+
+For external control designs, the function uses MCMC sampling to incorporate historical
+data through power prior methodology:
+\itemize{
+\item MCMC: Markov Chain Monte Carlo sampling for posterior inference with external data
+\item Power priors allow controlled borrowing from historical data
+\item alpha parameters control the degree of borrowing (0 = no borrowing, 1 = full borrowing)
+}
+
+The external design supports:
+\itemize{
+\item External control data only (ne2, alpha02)
+\item External treatment data only (ne1, alpha01)
+\item Both external control and treatment data
 }
 }
 \examples{
@@ -158,16 +165,12 @@ BayesPostPredContinuous(
   sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6
 )
 
-\donttest{
-# Example 4: INLA method with external control data (requires INLA package)
-if (requireNamespace("INLA", quietly = TRUE)) {
-  BayesPostPredContinuous(
-    prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'INLA',
-    theta0 = 1.5, nINLAsample = 5000, n1 = 12, n2 = 12,
-    bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-    ne2 = 20, alpha02 = 0.5
-  )
-}
-}
+# Example 4: External control design with MCMC method
+BayesPostPredContinuous(
+  prob = 'posterior', design = 'external', CalcMethod = 'MCMC',
+  theta0 = 1.5, nMCMCsample = 5000, n1 = 12, n2 = 12,
+  bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
+  ne2 = 20, alpha02 = 0.5
+)
 
 }

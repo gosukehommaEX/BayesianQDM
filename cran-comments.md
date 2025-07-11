@@ -33,7 +33,7 @@ BayesianQDM provides comprehensive methods for Bayesian quantitative decision-ma
 * Beta-binomial modeling for binary endpoints
 * Normal-inverse-chi-squared and vague priors for continuous endpoints
 * Exact and approximate methods for t-distribution differences
-* INLA integration for complex external data scenarios
+* MCMC integration for complex external data scenarios
 
 ## Documentation
 * Three comprehensive vignettes with practical examples
@@ -41,13 +41,13 @@ BayesianQDM provides comprehensive methods for Bayesian quantitative decision-ma
 * Extensive test suite covering all core functionality
 
 ## Dependencies
-* Imports: stats, INLA
-* Suggests: testthat, knitr, rmarkdown
-* All dependencies are well-established CRAN packages (INLA from separate repository)
+* Imports: stats
+* Suggests: bayesDP, testthat, knitr, rmarkdown
+* All dependencies are well-established CRAN packages
 
 ## Performance Considerations
 * Functions include computational method options (exact vs. approximate)
-* Test suite and vignettes avoid computationally intensive methods (MC, INLA) for CRAN check speed
+* Test suite and vignettes avoid computationally intensive methods (MC, MCMC) for CRAN check speed
 * Efficient implementations using vectorized operations where possible
 
 ## Backwards Compatibility
@@ -55,7 +55,7 @@ BayesianQDM provides comprehensive methods for Bayesian quantitative decision-ma
 * API designed for stability and extensibility
 
 ## Special Notes
-* INLA package is suggested but not required - functions gracefully handle its absence
+* bayesDP package is suggested but not required - functions gracefully handle its absence
 * Monte Carlo methods have adjustable iteration counts for performance tuning
 * All numerical integration uses adaptive algorithms with appropriate tolerances
 

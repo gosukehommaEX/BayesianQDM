@@ -2,41 +2,51 @@
 
 ## Initial Release
 
-This is the initial release of BayesianQDM, providing comprehensive methods for Bayesian quantitative decision-making in clinical trials.
+The initial release of BayesianQDM provides a comprehensive framework for Bayesian decision-making in clinical trials with support for both binary and continuous endpoints.
 
-### Core Features
+### Core Functions
 
 #### Binary Endpoints
-* `BayesDecisionProbBinary()` - Calculate Go/NoGo/Gray probabilities for binary outcomes
-* `BayesPostPredBinary()` - Calculate posterior and posterior predictive probabilities
-* `pBetadiff()` - Cumulative distribution function for difference of beta variables
-* `pBetaBinomdiff()` - CDF for difference of beta-binomial variables
-* `AppellsF1()` - Appell's first hypergeometric function implementation
+
+* `BayesPostPredBinary()` - Posterior and posterior predictive probability calculation
+* `BayesDecisionProbBinary()` - Go/NoGo/Gray decision probability framework
+* `pBetadiff()` - Beta distribution differences
+* `pBetaBinomdiff()` - Beta-Binomial distribution differences
 
 #### Continuous Endpoints
-* `BayesDecisionProbContinuous()` - Calculate Go/NoGo/Gray probabilities for continuous outcomes
-* `BayesPostPredContinuous()` - Calculate posterior and posterior predictive probabilities
-* `pNIdifft()` - Exact numerical integration method for t-distribution differences
-* `pWSdifft()` - Welch-Satterthwaite approximation method
-* `pMCdifft()` - Monte Carlo simulation method
-* `pINLAdifft()` - INLA-based method for external data incorporation
+
+* `BayesPostPredContinuous()` - Posterior and posterior predictive probability calculation
+* `BayesDecisionProbContinuous()` - Go/NoGo/Gray decision probability framework
+* Distribution difference functions:
+  - `pNIdifft()` - Numerical integration method
+  - `pMCdifft()` - Monte Carlo simulation method
+  - `pWSdifft()` - Welch-Satterthwaite approximation method
+  - `pMCMCdiff()` - MCMC sampling method with power prior for external data
+
+#### Utility Functions
+
+* `AppellsF1()` - Appell's hypergeometric function F1 for numerical calculations
 
 ### Study Designs
+
 * **Controlled design** - Standard randomized controlled trials
 * **Uncontrolled design** - Single-arm studies with historical controls
 * **External control design** - Power prior incorporation of historical data
 
 ### Prior Distributions
+
 * **Binary endpoints** - Beta priors with flexible parameterization
 * **Continuous endpoints** - Normal-Inverse-Chi-squared conjugate priors and vague priors
 
 ### Calculation Methods
-* **NI (Numerical Integration)** - Exact calculation using convolution
-* **WS (Welch-Satterthwaite)** - Fast approximation for unequal variances
-* **MC (Monte Carlo)** - Simulation-based flexible approach
-* **INLA** - Integrated Nested Laplace Approximation for external data
+
+* **NI** (Numerical Integration) - Exact calculation using convolution
+* **WS** (Welch-Satterthwaite) - Fast approximation for unequal variances
+* **MC** (Monte Carlo) - Simulation-based flexible approach
+* **MCMC** - Markov Chain Monte Carlo sampling for external data incorporation
 
 ### Documentation
+
 * Comprehensive function documentation with examples
 * Three detailed vignettes:
   - Introduction to BayesianQDM
@@ -45,11 +55,13 @@ This is the initial release of BayesianQDM, providing comprehensive methods for 
 * Complete test suite using testthat
 
 ### Dependencies
+
 * Base R stats functions
-* INLA package (suggested) for external data incorporation
+* bayesDP package (suggested) for external data incorporation via MCMC
 * Compatible with tidyverse ecosystem for data manipulation and visualization
 
 ### Quality Assurance
+
 * Extensive test coverage for all core functions
 * Input validation and informative error messages
 * Numerical precision checks and method comparisons
