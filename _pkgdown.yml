@@ -21,7 +21,7 @@ reference:
   - pNIdifft
   - pWSdifft
   - pMCdifft
-  - pINLAdifft
+  - pMCMCdiff
 
 - title: Distribution Functions for Binary Endpoints
   desc: Functions for calculating differences of beta distributions
