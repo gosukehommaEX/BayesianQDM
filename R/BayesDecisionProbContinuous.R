@@ -138,6 +138,7 @@
 #' )
 #' }
 #'
+#' @importFrom stats rnorm
 #' @export
 BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
                                         nMC = NULL, nMCMCsample = NULL,
