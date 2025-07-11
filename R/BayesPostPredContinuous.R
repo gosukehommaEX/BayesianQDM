@@ -100,7 +100,7 @@
 #'   sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6
 #' )
 #'
-#' # Example 2: External control design with MCMC method
+#' # Example 4: External control design with MCMC method
 #' BayesPostPredContinuous(
 #'   prob = 'posterior', design = 'external', CalcMethod = 'MCMC',
 #'   theta0 = 1.5, nMCMCsample = 5000, n1 = 12, n2 = 12,
