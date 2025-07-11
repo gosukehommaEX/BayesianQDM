@@ -25,7 +25,6 @@ Imports:
     stats,
     bayesDP
 Suggests:
-    bayesDP,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
