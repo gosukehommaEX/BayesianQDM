@@ -13,17 +13,18 @@ Authors@R: c(
 Description: Provides comprehensive methods to calculate posterior probabilities, posterior predictive probabilities,
     and Go/NoGo/Gray probabilities for quantitative decision-making framework under Bayesian paradigm in clinical trials.
     The package supports both binary and continuous endpoints with controlled, uncontrolled, and external control designs.
-    For continuous outcomes, four calculation methods are available: numerical integration (NI), Monte Carlo simulation (MC), 
-    Welch-Satterthwaite approximation (WS), and Markov Chain Monte Carlo (MCMC). 
+    For continuous outcomes, three calculation methods are available: numerical integration (NI), Monte Carlo simulation (MC), 
+    and Welch-Satterthwaite approximation (WS). For external control designs, power priors are incorporated using 
+    exact conjugate representation as Normal-Inverse-Chi-squared distributions, enabling closed-form posterior computation 
+    without MCMC sampling. This approach significantly reduces computational burden while preserving complete Bayesian rigor.
     The framework enables evidence-based decision making in proof-of-concept and phase II clinical trials using 
-    Bayesian statistical methods with power priors for incorporating external or historical data.
+    Bayesian statistical methods with efficient power prior implementation for incorporating external or historical data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
-    stats,
-    bayesDP
+    stats
 Suggests:
     testthat (>= 3.0.0),
     knitr,
