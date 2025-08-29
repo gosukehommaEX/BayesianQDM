@@ -1,150 +1,155 @@
-#' Calculate the Go, NoGo and Gray Probabilities for a Clinical Trial When Outcome is Continuous
-#' Under the Bayesian Framework Using Two Metrics
+#' Calculate the Go, NoGo and Gray Probabilities for a Clinical Trial When Outcome is Continuous Under the Bayesian Framework Using Two Metrics
 #'
 #' @description
-#' This function calculates Go, NoGo, and Gray probabilities for continuous outcome clinical trials
-#' under the Bayesian framework using two metrics: (i) posterior probability for the treatment
-#' effect to be greater than a threshold, and (ii) posterior predictive probability of phase III
-#' study success. The function supports controlled, uncontrolled, and external control designs with
-#' multiple calculation methods.
+#' This function computes the Go, NoGo, and Gray probabilities for continuous outcome clinical trials
+#' using the Bayesian framework. The function supports controlled, uncontrolled, and external control designs with
+#' multiple calculation methods including numerical integration, Monte Carlo simulation, and Welch-Satterthwaite approximation.
+#' For external control designs, power priors are incorporated using exact conjugate representation.
 #'
-#' @param nsim A positive integer representing the number of simulations.
-#' @param prob A character string specifying the type of probability to calculate
-#' ('posterior' or 'predictive').
+#' @param nsim A positive integer representing the number of iterations for calculating posterior/posterior predictive probability.
+#' @param prob A character string specifying the type of probability to use
+#'        (\code{prob = 'posterior'} or \code{prob = 'predictive'}).
 #' @param design A character string specifying the type of trial design
-#' ('controlled', 'uncontrolled', or 'external').
+#'        (\code{design = 'controlled'}, \code{design = 'uncontrolled'}, or \code{design = 'external'}).
 #' @param prior A character string specifying the prior distribution
-#' ('N-Inv-Chisq' or 'vague').
+#'        (\code{prior = 'N-Inv-Chisq'} or \code{prior = 'vague'}).
 #' @param CalcMethod A character string specifying the calculation method
-#' ('NI' for numerical integration, 'MC' for Monte Carlo method,
-#' 'WS' for Welch-Satterthwaite approximation, or 'MCMC' for MCMC).
-#' @param theta.TV A numeric value representing the target value threshold.
-#' @param theta.MAV A numeric value representing the minimum acceptable value threshold.
-#' @param theta.NULL A numeric value representing the null hypothesis value (default: NULL).
+#'        (\code{CalcMethod = 'NI'} for numerical integration, \code{CalcMethod = 'MC'} for Monte Carlo method,
+#'        or \code{CalcMethod = 'WS'} for Welch-Satterthwaite approximation).
+#' @param theta.TV A numeric value representing the pre-specified threshold value for calculating
+#'        Go probability when \code{prob = 'posterior'}.
+#' @param theta.MAV A numeric value representing the pre-specified threshold value for calculating
+#'        NoGo probability when \code{prob = 'posterior'}.
+#' @param theta.NULL A numeric value representing the pre-specified threshold value for calculating
+#'        Go probability when \code{prob = 'predictive'}.
 #' @param nMC A positive integer representing the number of iterations for Monte Carlo simulation
-#' (required only if CalcMethod = 'MC').
-#' @param nMCMCsample A positive integer representing the number of iterations for MCMC sampling
-#' (required only if CalcMethod = 'MCMC').
-#' @param gamma1 A numeric value representing the go threshold.
-#' @param gamma2 A numeric value representing the no-go threshold.
-#' @param n1 A positive integer representing the number of patients in group 1.
-#' @param n2 A positive integer representing the number of patients in group 2.
-#' @param m1 A positive integer representing the number of patients in group 1 for future trial.
-#' @param m2 A positive integer representing the number of patients in group 2 for future trial.
-#' @param kappa01 A positive numeric value representing the prior sample size for group 1 (N-Inv-Chisq prior).
-#' @param kappa02 A positive numeric value representing the prior sample size for group 2 (N-Inv-Chisq prior).
-#' @param nu01 A positive numeric value representing the prior degrees of freedom for group 1 (N-Inv-Chisq prior).
-#' @param nu02 A positive numeric value representing the prior degrees of freedom for group 2 (N-Inv-Chisq prior).
-#' @param mu01 A numeric value representing the prior mean for group 1 (N-Inv-Chisq prior).
-#' @param mu02 A numeric value representing the prior mean for group 2 (N-Inv-Chisq prior).
-#' @param sigma01 A positive numeric value representing the prior standard deviation for group 1 (N-Inv-Chisq prior).
-#' @param sigma02 A positive numeric value representing the prior standard deviation for group 2 (N-Inv-Chisq prior).
-#' @param mu1 A numeric value representing the true mean of group 1.
-#' @param mu2 A numeric value representing the true mean of group 2.
-#' @param sigma1 A positive numeric value representing the true standard deviation of group 1.
-#' @param sigma2 A positive numeric value representing the true standard deviation of group 2.
-#' @param r A positive numeric value for uncontrolled design (default: NULL).
-#' @param ne1 A positive integer representing the sample size for group 1 in external trial (default: NULL).
-#' @param ne2 A positive integer representing the sample size for group 2 in external trial (default: NULL).
-#' @param alpha01 A positive numeric value representing the scale parameter of the power prior for group 1
-#' (required for external design, can be NULL if no external treatment data).
-#' @param alpha02 A positive numeric value representing the scale parameter of the power prior for group 2
-#' (required for external design, can be NULL if no external control data).
+#'        (required if \code{CalcMethod = 'MC'}).
+#' @param gamma1 A numeric value between 0 and 1 representing the minimum probability to declare success.
+#' @param gamma2 A numeric value between 0 and 1 representing the futility threshold.
+#' @param n1 A positive integer representing the number of patients in group 1 for the proof-of-concept (PoC) trial.
+#' @param n2 A positive integer representing the number of patients in group 2 for the PoC trial.
+#' @param m1 A positive integer representing the number of patients in group 1 for the future trial data.
+#' @param m2 A positive integer representing the number of patients in group 2 for the future trial data.
+#' @param kappa01 A positive numeric value representing the prior precision parameter related to the mean
+#'        for conjugate prior of Normal-Inverse-Chi-squared in group 1.
+#' @param kappa02 A positive numeric value representing the prior precision parameter related to the mean
+#'        for conjugate prior of Normal-Inverse-Chi-squared in group 2.
+#' @param nu01 A positive numeric value representing the prior degrees of freedom related to the variance
+#'        for conjugate prior of Normal-Inverse-Chi-squared in group 1.
+#' @param nu02 A positive numeric value representing the prior degrees of freedom related to the variance
+#'        for conjugate prior of Normal-Inverse-Chi-squared in group 2.
+#' @param mu01 A numeric value representing the prior mean value of outcomes in group 1 for the PoC trial.
+#' @param mu02 A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.
+#' @param sigma01 A positive numeric value representing the prior standard deviation of outcomes in group 1 for the PoC trial.
+#' @param sigma02 A positive numeric value representing the prior standard deviation of outcomes in group 2 for the PoC trial.
+#' @param mu1 A numeric value representing the true mean of group 1 for PoC trial.
+#' @param mu2 A numeric value representing the true mean of group 2 for PoC trial.
+#' @param sigma1 A positive numeric value representing the true standard deviation of group 1 for PoC trial.
+#' @param sigma2 A positive numeric value representing the true standard deviation of group 2 for PoC trial.
+#' @param r A positive numeric value representing the parameter value associated with the distribution
+#'        mean of group 2 for \code{design = 'uncontrolled'}.
+#' @param ne1 A positive integer representing the sample size for group 1 in external trial
+#'        (required if external design, can be NULL if no external treatment data).
+#' @param ne2 A positive integer representing the sample size for group 2 in external trial
+#'        (required if external design, can be NULL if no external control data).
+#' @param alpha01 A positive numeric value representing the scale parameter (power prior) for group 1
+#'        (required if external design, can be NULL if no external treatment data).
+#' @param alpha02 A positive numeric value representing the scale parameter (power prior) for group 2
+#'        (required if external design, can be NULL if no external control data).
+#' @param bar.ye1 A numeric value representing the external sample mean of group 1 (required if external treatment data available).
+#' @param bar.ye2 A numeric value representing the external sample mean of group 2 (required if external control data available).
+#' @param se1 A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).
+#' @param se2 A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).
 #' @param seed A numeric value representing the seed number for reproducible random number generation.
 #'
-#' @return A data frame containing the true means for both groups, and the Go, NoGo, and Gray probabilities.
+#' @return A data frame containing the true means for both groups and the Go, NoGo, and Gray probabilities.
 #'
 #' @details
-#' The function can obtain:
+#' The function performs Monte Carlo simulation to evaluate operating characteristics by:
 #' \itemize{
-#'   \item Go probability
-#'   \item NoGo probability
-#'   \item Gray probability
+#'   \item Generating random trial data based on specified true parameters
+#'   \item Computing posterior or predictive probabilities for each simulated trial
+#'   \item Classifying each trial as Go, NoGo, or Gray based on decision thresholds
 #' }
 #'
-#' The function can be used for controlled design, uncontrolled design, and external control design.
-#' The decision framework is based on:
+#' For external control designs, power priors are incorporated using exact conjugate representation:
 #' \itemize{
-#'   \item Go: Probability that the treatment effect exceeds the efficacy threshold
-#'   \item NoGo: Probability that the treatment effect is below the futility threshold
-#'   \item Gray: Intermediate zone where neither Go nor NoGo criteria are met
+#'   \item Power priors for normal data are mathematically equivalent to Normal-Inverse-Chi-squared distributions
+#'   \item This enables closed-form computation without MCMC sampling
+#'   \item Alpha parameters control the degree of borrowing (0 = no borrowing, 1 = full borrowing)
 #' }
 #'
-#' The function uses simulation to generate observed data and then applies Bayesian methods to calculate
-#' decision probabilities. Four calculation methods are available for computing the underlying probabilities:
-#' numerical integration (NI), Monte Carlo simulation (MC), Welch-Satterthwaite approximation (WS),
-#' and MCMC for external data incorporation.
+#' Decision rules:
+#' \itemize{
+#'   \item **Go**: P(treatment effect > threshold) ≥ γ₁
+#'   \item **NoGo**: P(treatment effect > threshold) ≤ γ₂
+#'   \item **Gray**: γ₂ < P(treatment effect > threshold) < γ₁
+#' }
 #'
 #' @examples
-#' # Example 1: Numerical Integration (NI) method
+#' # Example 1: Controlled design with vague prior and NI method
 #' BayesDecisionProbContinuous(
-#'   nsim = 100, prob = 'posterior', design = 'controlled',
-#'   prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-#'   theta.TV = 2, theta.MAV = 0, theta.NULL = NULL,
-#'   nMC = NULL, nMCMCsample = NULL,
-#'   gamma1 = 0.8, gamma2 = 0.3,
-#'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
-#'   kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
-#'   mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-#'   mu1 = 4, mu2 = 0, sigma1 = 1, sigma2 = 1,
-#'   r = NULL, ne1 = NULL, ne2 = NULL,
-#'   alpha01 = NULL, alpha02 = NULL, seed = 1
-#' )
-#'
-#' # Example 2: Monte Carlo (MC) method
-#' BayesDecisionProbContinuous(
-#'   nsim = 100, prob = 'posterior', design = 'controlled',
-#'   prior = 'vague', CalcMethod = 'MC',
-#'   theta.TV = 1.5, theta.MAV = -1, theta.NULL = NULL,
-#'   nMC = 1e+4, nMCMCsample = NULL,
-#'   gamma1 = 0.8, gamma2 = 0.2,
-#'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+#'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+#'   theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
+#'   nMC = NULL, gamma1 = 0.7, gamma2 = 0.2,
+#'   n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
 #'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
 #'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
-#'   r = NULL, ne1 = NULL, ne2 = NULL,
-#'   alpha01 = NULL, alpha02 = NULL, seed = 2
+#'   mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
+#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 2
 #' )
 #'
-#' # Example 3: Welch-Satterthwaite (WS) method
-#' BayesDecisionProbContinuous(
-#'   nsim = 100, prob = 'predictive', design = 'controlled',
-#'   prior = 'vague', CalcMethod = 'WS',
-#'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1,
-#'   nMC = NULL, nMCMCsample = NULL,
-#'   gamma1 = 0.8, gamma2 = 0.2,
-#'   n1 = 12, n2 = 12, m1 = 24, m2 = 24,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   mu1 = 2.5, mu2 = 1.2, sigma1 = 1, sigma2 = 1,
-#'   r = NULL, ne1 = NULL, ne2 = NULL,
-#'   alpha01 = NULL, alpha02 = NULL, seed = 3
-#' )
-#'
+#' # Example 2: External design with control data
 #' \dontrun{
-#' # Example 4: MCMC method with external control data
 #' BayesDecisionProbContinuous(
-#'   nsim = 100, prob = 'posterior', design = 'external',
-#'   prior = 'vague', CalcMethod = 'MCMC',
-#'   theta.TV = 1, theta.MAV = -1, theta.NULL = NULL,
-#'   nMC = NULL, nMCMCsample = 3000,
-#'   gamma1 = 0.8, gamma2 = 0.2,
+#'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'WS',
+#'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
+#'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
 #'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
 #'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
 #'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
 #'   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
-#'   r = NULL, ne1 = NULL, ne2 = 20,
-#'   alpha01 = NULL, alpha02 = 0.5, seed = 4
+#'   r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5,
+#'   bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1, seed = 4
+#' )
+#' }
+#'
+#' # Example 3: Controlled design with predictive probability
+#' BayesDecisionProbContinuous(
+#'   nsim = 100, prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
+#'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 2.0,
+#'   nMC = NULL, gamma1 = 0.75, gamma2 = 0.15,
+#'   n1 = 15, n2 = 15, m1 = 50, m2 = 50,
+#'   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
+#'   mu01 = 3.5, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.5,
+#'   mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
+#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 3
+#' )
+#'
+#' # Example 4: External design with predictive probability
+#' \dontrun{
+#' BayesDecisionProbContinuous(
+#'   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
+#'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1.5,
+#'   nMC = 5000, gamma1 = 0.7, gamma2 = 0.2,
+#'   n1 = 12, n2 = 12, m1 = 30, m2 = 30,
+#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+#'   mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
+#'   r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
+#'   bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0, seed = 5
 #' )
 #' }
 #'
 #' @importFrom stats rnorm
 #' @export
 BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
-                                        nMC = NULL, nMCMCsample = NULL,
-                                        gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
+                                        nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
                                         mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
-                                        r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL, seed) {
+                                        r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+                                        bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed) {
 
   # Set seed for reproducibility
   set.seed(seed)
@@ -162,18 +167,8 @@ BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, t
     stop("prior must be either 'vague' or 'N-Inv-Chisq'")
   }
 
-  if (!CalcMethod %in% c("NI", "MC", "WS", "MCMC")) {
-    stop("CalcMethod must be 'NI', 'MC', 'WS', or 'MCMC'")
-  }
-
-  # For external design, only MCMC is supported
-  if (design == "external" && CalcMethod != "MCMC") {
-    stop("For external design, CalcMethod must be 'MCMC'. Other methods are not supported for external data incorporation.")
-  }
-
-  # For non-external designs, MCMC is not supported
-  if (design != "external" && CalcMethod == "MCMC") {
-    stop("MCMC method is only available for external design.")
+  if (!CalcMethod %in% c("NI", "MC", "WS")) {
+    stop("CalcMethod must be 'NI', 'MC', or 'WS'")
   }
 
   # Validate required parameters for each method
@@ -181,12 +176,21 @@ BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, t
     stop("nMC must be specified for Monte Carlo method")
   }
 
-  if (CalcMethod == "MCMC" && is.null(nMCMCsample)) {
-    stop("nMCMCsample must be specified for MCMC method")
-  }
-
   if (prob == "predictive" && (missing(m1) || missing(m2))) {
     stop("m1 and m2 must be specified for predictive probability")
+  }
+
+  # Validate external design parameters
+  if (design == "external") {
+    if (is.null(ne1) && is.null(ne2)) {
+      stop("For external design, at least one of ne1 or ne2 must be specified")
+    }
+    if (!is.null(ne1) && (is.null(alpha01) || is.null(bar.ye1) || is.null(se1))) {
+      stop("For external treatment data, alpha01, bar.ye1, and se1 must be specified")
+    }
+    if (!is.null(ne2) && (is.null(alpha02) || is.null(bar.ye2) || is.null(se2))) {
+      stop("For external control data, alpha02, bar.ye2, and se2 must be specified")
+    }
   }
 
   # Set seed number for reproducible results
@@ -211,37 +215,45 @@ BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, t
     # Calculate sample standard deviation for group 2
     s2 <- sqrt(rowSums((y2 - bar.y2) ^ 2) / (n2 - 1))
   } else if(design == 'uncontrolled') {
-    # Set sample mean and standard deviation for group 2 to NULL for uncontrolled design
+    # For uncontrolled design, set bar.y2 and s2 to NULL
     bar.y2 <- NULL
     s2 <- NULL
   }
 
-  # Set values of theta0 based on probability type
+  # External data are provided as fixed historical sample statistics
+  # No data generation needed - these are already observed historical values
+
+  # Initialize vectors to store Go and NoGo probabilities
   if(prob == 'posterior') {
-    theta0 <- c(theta.TV, theta.MAV)
+    # Define thresholds: theta.TV for Go, theta.MAV for NoGo
+    theta_values <- c(theta.TV, theta.MAV)
   } else {
-    theta0 <- theta.NULL
+    # For predictive probability, use theta.NULL (single threshold)
+    theta_values <- theta.NULL
   }
 
-  # Calculate Go, NoGo and Gray probabilities
-  list.Go.and.NoGo.probs <- lapply(seq(theta0), function(i) {
+  # Calculate Go, NoGo and Gray probabilities using vectorized operations
+  list.Go.and.NoGo.probs <- lapply(seq_along(theta_values), function(i) {
     # Calculate probability of success for each simulated dataset
     prob.success <- BayesPostPredContinuous(
-      prob, design, prior, CalcMethod, theta0[i], nMC, nMCMCsample, n1, n2, m1, m2,
-      kappa01, kappa02, nu01, nu02, mu01, mu02, sigma01, sigma02,
-      bar.y1, bar.y2, s1, s2, r, ne1, ne2, alpha01, alpha02
+      prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
+      theta0 = theta_values[i], nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
+      kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
+      mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
+      bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2,
+      r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
+      bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2
     )
 
     if(prob == 'posterior') {
       # Calculate Go probability (for theta.TV) or NoGo probability (for theta.MAV)
-      Go   <- ifelse(i == 1, 1, NA) * sum(prob.success >= gamma1) / nsim
-      NoGo <- ifelse(i == 1, NA, 1) * sum(prob.success <= gamma2) / nsim
+      Go   <- ifelse(i == 1, sum(prob.success >= gamma1) / nsim, NA)
+      NoGo <- ifelse(i == 2, sum(prob.success <= gamma2) / nsim, NA)
     } else {
       # Calculate Go and NoGo probabilities for posterior predictive
       Go <- sum(prob.success >= gamma1) / nsim
       NoGo <- sum(prob.success <= gamma2) / nsim
     }
-
     return(c(Go, NoGo))
   })
 
@@ -253,17 +265,33 @@ BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, t
 
   # Check for negative Gray probabilities
   if(Gray.prob < 0) {
-    print('Because negative gray probability(s) is obtained, re-consider appropriate threshold')
+    message('Because negative gray probability is obtained, re-consider appropriate threshold')
   }
 
-  # Prepare results data frame
+  # Extract final probabilities
+  Go_final <- Go.and.NoGo.probs[1]
+  NoGo_final <- Go.and.NoGo.probs[2]
+  Gray_final <- Gray.prob
+
+  # Create results data frame
   if(design == 'uncontrolled') {
     # For uncontrolled design, only include mu1
-    results <- data.frame(mu1, Go = Go.and.NoGo.probs[1], NoGo = Go.and.NoGo.probs[2], Gray = Gray.prob)
+    result <- data.frame(
+      mu1 = mu1,
+      Go = Go_final,
+      NoGo = NoGo_final,
+      Gray = Gray_final
+    )
   } else {
     # For controlled and external designs, include both mu1 and mu2
-    results <- data.frame(mu1, mu2, Go = Go.and.NoGo.probs[1], NoGo = Go.and.NoGo.probs[2], Gray = Gray.prob)
+    result <- data.frame(
+      mu1 = mu1,
+      mu2 = mu2,
+      Go = Go_final,
+      NoGo = NoGo_final,
+      Gray = Gray_final
+    )
   }
 
-  return(results)
+  return(result)
 }
