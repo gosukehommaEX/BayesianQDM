@@ -8,7 +8,7 @@
 <!-- badges: end -->
 
 ## Overview
-
+  
 `BayesianQDM` is an R package that provides comprehensive methods for Bayesian quantitative decision-making in clinical trials. The package supports both binary and continuous endpoints with various study designs including controlled, uncontrolled, and external control designs.
 
 ### Key Features
@@ -17,12 +17,12 @@
 - **Study Designs**: Controlled, uncontrolled, and external control designs
 - **Decision Framework**: Go/NoGo/Gray zones for evidence-based decision making
 - **Calculation Methods**: Multiple approaches optimized for accuracy and speed
-- **Prior Integration**: Flexible prior specifications including power priors for external data
+- **Prior Integration**: Flexible prior specifications including efficient power priors for external data
 
 ### Decision Framework
 
 The package implements a three-zone Bayesian decision framework:
-
+  
 - **Go**: Sufficient evidence to proceed to next phase (high posterior probability of efficacy)
 - **NoGo**: Insufficient evidence to proceed (low posterior probability of efficacy)  
 - **Gray**: Inconclusive evidence (intermediate posterior probability requiring additional data)
@@ -41,14 +41,8 @@ install.packages("BayesianQDM")
 # Install from GitHub
 devtools::install_github("gosukehommaEX/BayesianQDM")
 
-# Or with dependencies for external data features
+# Or with dependencies
 devtools::install_github("gosukehommaEX/BayesianQDM", dependencies = TRUE)
-```
-
-### Optional Dependencies
-For external data incorporation with MCMC sampling:
-``` r
-install.packages("bayesDP")
 ```
 
 ## Quick Start
@@ -80,8 +74,7 @@ result_continuous <- BayesDecisionProbContinuous(
   nsim = 100, prob = 'posterior', design = 'controlled', 
   prior = 'vague', CalcMethod = 'WS',
   theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
-  nMC = NULL, nMCMCsample = NULL,
-  gamma1 = 0.8, gamma2 = 0.3,
+  nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
   mu1 = 4.5, mu2 = 2.0, sigma1 = 1.5, sigma2 = 1.3,
   seed = 123
@@ -95,7 +88,7 @@ print(result_continuous)
 ### 📚 Comprehensive Vignettes
 
 The package includes detailed vignettes with practical examples:
-
+  
 - **[Introduction to BayesianQDM](https://gosukehommaEX.github.io/BayesianQDM/articles/BayesianQDM.html)**: Overview and quick start guide
 - **[Binary Endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/binary-endpoints.html)**: Detailed examples for binary outcome analysis  
 - **[Continuous Endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/continuous-endpoints.html)**: Comprehensive guide for continuous outcome analysis
@@ -115,7 +108,7 @@ Visit our [pkgdown website](https://gosukehommaEX.github.io/BayesianQDM/) for:
 ### Local Access
 
 Access vignettes locally after installation:
-``` r
+  ``` r
 # View available vignettes
 vignette(package = "BayesianQDM")
 
@@ -137,7 +130,7 @@ vignette("continuous-endpoints", package = "BayesianQDM")
 
 ### Distribution Functions
 - `pBetadiff()`, `pBetaBinomdiff()` - Beta distribution differences
-- `pNIdifft()`, `pWSdifft()`, `pMCdifft()`, `pMCMCdiff()` - t-distribution differences  
+- `pNIdifft()`, `pWSdifft()`, `pMCdifft()` - t-distribution differences  
 - `AppellsF1()` - Appell's hypergeometric function
 
 ## Calculation Methods
@@ -149,7 +142,6 @@ vignette("continuous-endpoints", package = "BayesianQDM")
 | **NI** | Numerical Integration | Most accurate, recommended for final analyses |
 | **WS** | Welch-Satterthwaite | Fast approximation, good for simulations |
 | **MC** | Monte Carlo | Flexible, handles complex scenarios |
-| **MCMC** | Markov Chain Monte Carlo | External data incorporation with power priors |
 
 ### Method Comparison Example
 
@@ -178,7 +170,7 @@ Standard two-arm randomized controlled trial.
 Single-arm study with comparison to historical control.
 
 ### External Control Design
-Incorporating historical data using power priors.
+Incorporating historical data using power priors with exact conjugate representation.
 
 ## Prior Distributions
 
@@ -189,47 +181,49 @@ Incorporating historical data using power priors.
 ### Continuous Endpoints  
 - **Vague priors**: Non-informative approach letting data drive conclusions
 - **Normal-Inverse-Chi-squared**: Conjugate priors for incorporating prior knowledge
-- **Power priors**: For external data incorporation with controlled borrowing
+- **Power priors**: Exact conjugate representation for external data incorporation
 
 ## Advanced Features
 
 ### Power Prior Integration
-Control the degree of borrowing from external data:
-``` r
-# α = 0: No borrowing
-# α = 1: Full borrowing  
-# 0 < α < 1: Partial borrowing
+Control the degree of borrowing from external data using exact conjugate representation:
 
-alpha_values <- c(0, 0.5, 1.0)
-comparison <- sapply(alpha_values, function(alpha) {
-  BayesPostPredBinary(
-    prob = 'posterior', design = 'external', theta0 = 0.2,
-    n1 = 15, n2 = 15, y1 = 8, y2 = 6,
-    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-    m1 = NULL, m2 = NULL,
-    ne1 = 20, ne2 = 20, ye1 = 10, ye2 = 4,
-    ae1 = alpha, ae2 = alpha
-  )
-})
+``` r
+# Example with external control data
+result_external <- BayesPostPredContinuous(
+  prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
+  theta0 = 1.5, n1 = 12, n2 = 12, 
+  bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
+  ne2 = 20, alpha02 = 0.5,           # External control parameters
+  bar.ye2 = 1.8, se2 = 1.0           # Historical sample statistics
+)
+
+# Power prior parameters control borrowing strength:
+# α = 0: No borrowing (ignore external data)
+# α = 1: Full borrowing (external data weighted equally)
+# 0 < α < 1: Partial borrowing
 ```
 
-### External Data with MCMC
+### External Data Examples
+
 For continuous endpoints with historical data:
+
 ``` r
-# Example with external control data (requires bayesDP package)
-if (requireNamespace("bayesDP", quietly = TRUE)) {
-  result_mcmc <- pMCMCdiff(
-    nMCMCsample = 5000,
-    q = 1.5,
-    mu.n1 = 4.2, mu.n2 = 2.8,
-    sd.n1 = 1.5, sd.n2 = 1.4,
-    n1 = 12, n2 = 12,
-    ne1 = NULL, ne2 = 24,  # External control data only
-    alpha01 = NULL, alpha02 = 0.5  # 50% borrowing from control
-  )
-  
-  cat("Posterior probability with external data:", round(result_mcmc, 4))
-}
+# External control design with power priors
+result_power_prior <- BayesDecisionProbContinuous(
+  nsim = 100, prob = 'posterior', design = 'external', 
+  prior = 'vague', CalcMethod = 'WS',
+  theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
+  nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
+  n1 = 15, n2 = 15, mu1 = 3.0, mu2 = 1.5, sigma1 = 1.2, sigma2 = 1.1,
+  ne1 = 25, ne2 = 25,                    # External sample sizes
+  alpha01 = 0.6, alpha02 = 0.7,          # Power prior parameters
+  bar.ye1 = 2.8, bar.ye2 = 1.4,          # Historical sample means
+  se1 = 1.3, se2 = 1.2,                  # Historical sample SDs
+  seed = 123
+)
+
+print(result_power_prior)
 ```
 
 ### Operating Characteristics
@@ -247,16 +241,35 @@ scenarios <- expand.grid(
 
 ## Performance Considerations
 
-- **NI method**: Most accurate but moderate computational cost
-- **WS method**: Fast approximation suitable for simulations
-- **MC method**: Flexible but computationally intensive (use larger nMC for precision)
-- **MCMC method**: Efficient for external data scenarios with power priors
+### Computational Efficiency
+The package now uses **exact conjugate representation** for power priors, providing:
+
+- **No MCMC required**: Closed-form computation for external data incorporation
+- **Significant speed improvement**: Orders of magnitude faster than traditional power prior methods
+- **Complete Bayesian rigor**: No approximation involved in power prior calculations
+
+### Method Selection
+- **NI method**: Most accurate, recommended for final analyses
+- **WS method**: Fast approximation, excellent for large simulation studies
+- **MC method**: Flexible, handles complex scenarios with adjustable precision
 
 For large simulation studies, consider:
-- Using WS method for screening
+- Using WS method for efficient screening
 - NI method for final analyses
 - Parallel processing for Monte Carlo methods
-- Caching results for repeated analyses
+- Leveraging exact power prior computation for external data scenarios
+
+## Technical Innovation
+
+### Exact Conjugate Power Priors
+BayesianQDM implements a breakthrough approach to power prior computation:
+
+- **Mathematical equivalence**: Power priors for normal data are exactly equivalent to Normal-Inverse-Chi-squared distributions
+- **Closed-form solutions**: Eliminates computational burden of MCMC sampling
+- **Theoretical rigor**: Preserves complete Bayesian framework without approximation
+- **Practical benefits**: Enables efficient simulation studies and real-time analysis
+
+This innovation makes power prior analysis computationally feasible for large-scale simulation studies while maintaining full statistical rigor.
 
 ## Citation
 
