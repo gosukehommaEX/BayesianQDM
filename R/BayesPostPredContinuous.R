@@ -1,47 +1,58 @@
 #' Calculate Bayesian Posterior Probability or Bayesian Posterior Predictive Probability for a Clinical Trial When Outcome is Continuous
 #'
+#' @description
 #' This function computes Bayesian posterior probability or posterior predictive probability
 #' for continuous outcome clinical trials. The function supports controlled, uncontrolled, and
 #' external control designs with Normal-Inverse-Chi-squared or vague priors, using three calculation
 #' methods: numerical integration, Monte Carlo simulation, and Welch-Satterthwaite approximation.
-#' For external control designs, MCMC sampling is used to incorporate historical data through power priors.
+#' For external control designs, power priors are incorporated using exact conjugate representation
+#' as Normal-Inverse-Chi-squared distributions, enabling closed-form computation without MCMC sampling.
 #'
-#' @param prob A character string specifying the type of probability to calculate.
-#' Options are 'posterior' (default) for posterior probability or 'predictive' for posterior predictive probability.
-#' @param design A character string specifying the trial design.
-#' Options are 'controlled' (default), 'uncontrolled', or 'external'.
-#' @param prior A character string specifying the prior distribution.
-#' Options are 'vague' (default) or 'N-Inv-Chisq' for Normal-Inverse-Chi-squared.
-#' @param CalcMethod A character string specifying the calculation method.
-#' Options are 'NI' (numerical integration, default), 'MC' (Monte Carlo), 'WS' (Welch-Satterthwaite),
-#' or 'MCMC' (MCMC sampling for external design).
-#' @param theta0 A numeric value representing the threshold for the treatment effect.
-#' @param nMC A positive integer representing the number of Monte Carlo iterations for MC method (default: NULL).
-#' @param nMCMCsample A positive integer representing the number of MCMC iterations for external design (default: NULL).
-#' @param n1 A positive integer representing the sample size for group 1 in PoC trial.
-#' @param n2 A positive integer representing the sample size for group 2 in PoC trial.
-#' @param m1 A positive integer representing the sample size for group 1 in future trial (for predictive probability).
-#' @param m2 A positive integer representing the sample size for group 2 in future trial (for predictive probability).
-#' @param kappa01 A positive numeric value representing the prior precision parameter for group 1 (N-Inv-Chisq prior).
-#' @param kappa02 A positive numeric value representing the prior precision parameter for group 2 (N-Inv-Chisq prior).
-#' @param nu01 A positive numeric value representing the prior degrees of freedom for group 1 (N-Inv-Chisq prior).
-#' @param nu02 A positive numeric value representing the prior degrees of freedom for group 2 (N-Inv-Chisq prior).
-#' @param mu01 A numeric value representing the prior mean for group 1 (N-Inv-Chisq prior).
-#' @param mu02 A numeric value representing the prior mean for group 2 (N-Inv-Chisq prior).
-#' @param sigma01 A positive numeric value representing the prior standard deviation for group 1 (N-Inv-Chisq prior).
-#' @param sigma02 A positive numeric value representing the prior standard deviation for group 2 (N-Inv-Chisq prior).
+#' @param prob A character string specifying the type of probability to use
+#'        (\code{prob = 'posterior'} or \code{prob = 'predictive'}).
+#' @param design A character string specifying the type of trial design
+#'        (\code{design = 'controlled'}, \code{design = 'uncontrolled'}, or \code{design = 'external'}).
+#' @param prior A character string specifying the prior distribution
+#'        (\code{prior = 'N-Inv-Chisq'} or \code{prior = 'vague'}).
+#' @param CalcMethod A character string specifying the calculation method
+#'        (\code{CalcMethod = 'NI'} for numerical integration, \code{CalcMethod = 'MC'} for Monte Carlo method,
+#'        or \code{CalcMethod = 'WS'} for Welch-Satterthwaite approximation).
+#' @param theta0 A numeric value representing the pre-specified threshold value.
+#' @param nMC A positive integer representing the number of iterations for Monte Carlo simulation
+#'        (required if \code{CalcMethod = 'MC'}).
+#' @param n1 A positive integer representing the number of patients in group 1 for the PoC trial.
+#' @param n2 A positive integer representing the number of patients in group 2 for the PoC trial.
+#' @param m1 A positive integer representing the number of patients in group 1 for the future trial data.
+#' @param m2 A positive integer representing the number of patients in group 2 for the future trial data.
+#' @param kappa01 A positive numeric value representing the prior precision parameter related to the mean
+#'        for conjugate prior of Normal-Inverse-Chi-squared in group 1.
+#' @param kappa02 A positive numeric value representing the prior precision parameter related to the mean
+#'        for conjugate prior of Normal-Inverse-Chi-squared in group 2.
+#' @param nu01 A positive numeric value representing the prior degrees of freedom related to the variance
+#'        for conjugate prior of Normal-Inverse-Chi-squared in group 1.
+#' @param nu02 A positive numeric value representing the prior degrees of freedom related to the variance
+#'        for conjugate prior of Normal-Inverse-Chi-squared in group 2.
+#' @param mu01 A numeric value representing the prior mean value of outcomes in group 1 for the PoC trial.
+#' @param mu02 A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.
+#' @param sigma01 A positive numeric value representing the prior standard deviation of outcomes in group 1 for the PoC trial.
+#' @param sigma02 A positive numeric value representing the prior standard deviation of outcomes in group 2 for the PoC trial.
 #' @param bar.y1 A numeric value representing the sample mean of group 1.
 #' @param bar.y2 A numeric value representing the sample mean of group 2.
 #' @param s1 A positive numeric value representing the sample standard deviation of group 1.
 #' @param s2 A positive numeric value representing the sample standard deviation of group 2.
-#' @param r A positive numeric value for uncontrolled design (default: NULL).
-#' @param ne1 A positive integer representing the sample size for group 1 in external trial (default: NULL).
-#' @param ne2 A positive integer representing the sample size for group 2 in external trial (default: NULL).
-#' @param alpha01 A positive numeric value representing the power prior scale parameter for group 1 (default: NULL).
-#' @param alpha02 A positive numeric value representing the power prior scale parameter for group 2 (default: NULL).
+#' @param r A positive numeric value representing the parameter value associated with the distribution
+#'        mean of group 2 for \code{design = 'uncontrolled'}.
+#' @param ne1 A positive integer representing the sample size for group 1 in external trial (can be NULL if no external treatment data).
+#' @param ne2 A positive integer representing the sample size for group 2 in external trial (can be NULL if no external control data).
+#' @param alpha01 A positive numeric value representing the power prior scale parameter for group 1 (can be NULL if no external treatment data).
+#' @param alpha02 A positive numeric value representing the power prior scale parameter for group 2 (can be NULL if no external control data).
+#' @param bar.ye1 A numeric value representing the external sample mean of group 1 (required if external treatment data available).
+#' @param bar.ye2 A numeric value representing the external sample mean of group 2 (required if external control data available).
+#' @param se1 A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).
+#' @param se2 A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).
 #'
 #' @return A numeric vector representing the Bayesian posterior probability or Bayesian posterior
-#' predictive probability. The function can handle vectorized inputs.
+#'         predictive probability. The function can handle vectorized inputs.
 #'
 #' @details
 #' The function can obtain:
@@ -61,18 +72,18 @@
 #'   \item WS: Welch-Satterthwaite approximation for computational efficiency
 #' }
 #'
-#' For external control designs, the function uses MCMC sampling to incorporate historical
-#' data through power prior methodology:
+#' For external control designs, power priors are incorporated using exact conjugate representation:
 #' \itemize{
-#'   \item MCMC: Markov Chain Monte Carlo sampling for posterior inference with external data
-#'   \item Power priors allow controlled borrowing from historical data
-#'   \item alpha parameters control the degree of borrowing (0 = no borrowing, 1 = full borrowing)
+#'   \item Power priors for normal data are mathematically equivalent to Normal-Inverse-Chi-squared distributions
+#'   \item This enables closed-form posterior computation without MCMC sampling
+#'   \item Alpha parameters control the degree of borrowing (0 = no borrowing, 1 = full borrowing)
+#'   \item The method preserves complete Bayesian rigor with no approximation
 #' }
 #'
 #' The external design supports:
 #' \itemize{
-#'   \item External control data only (ne2, alpha02)
-#'   \item External treatment data only (ne1, alpha01)
+#'   \item External control data only (ne2, alpha02, bar.ye2, se2)
+#'   \item External treatment data only (ne1, alpha01, bar.ye1, se1)
 #'   \item Both external control and treatment data
 #' }
 #'
@@ -100,20 +111,29 @@
 #'   sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6
 #' )
 #'
-#' # Example 4: External control design with MCMC method
+#' # Example 4: External control design with power prior (NI method)
 #' BayesPostPredContinuous(
-#'   prob = 'posterior', design = 'external', CalcMethod = 'MCMC',
-#'   theta0 = 1.5, nMCMCsample = 5000, n1 = 12, n2 = 12,
-#'   bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-#'   ne2 = 20, alpha02 = 0.5
+#'   prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
+#'   theta0 = 1.5, n1 = 12, n2 = 12, bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
+#'   ne2 = 20, alpha02 = 0.5, bar.ye2 = 1.8, se2 = 1.0
+#' )
+#'
+#' # Example 5: External design with both treatment and control data
+#' BayesPostPredContinuous(
+#'   prob = 'posterior', design = 'external', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
+#'   theta0 = 1.0, n1 = 15, n2 = 15, bar.y1 = 3.5, bar.y2 = 2.0, s1 = 1.3, s2 = 1.1,
+#'   kappa01 = 2, kappa02 = 2, nu01 = 3, nu02 = 3, mu01 = 3, mu02 = 2,
+#'   sigma01 = 1.5, sigma02 = 1.5,
+#'   ne1 = 25, ne2 = 25, alpha01 = 0.7, alpha02 = 0.7,
+#'   bar.ye1 = 3.2, bar.ye2 = 1.9, se1 = 1.4, se2 = 1.2
 #' )
 #'
 #' @export
 BayesPostPredContinuous <- function(prob = "posterior", design = "controlled", prior = "vague", CalcMethod = "NI",
-                                    theta0, nMC = NULL, nMCMCsample = NULL,
-                                    n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
-                                    mu01, mu02, sigma01, sigma02, bar.y1, bar.y2, s1, s2,
-                                    r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL) {
+                                    theta0, nMC = NULL, n1, n2, m1 = NULL, m2 = NULL, kappa01 = NULL, kappa02 = NULL,
+                                    nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+                                    bar.y1, bar.y2, s1, s2, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+                                    bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL) {
 
   # Input validation
   if (!prob %in% c("posterior", "predictive")) {
@@ -128,18 +148,8 @@ BayesPostPredContinuous <- function(prob = "posterior", design = "controlled", p
     stop("prior must be either 'vague' or 'N-Inv-Chisq'")
   }
 
-  if (!CalcMethod %in% c("NI", "MC", "WS", "MCMC")) {
-    stop("CalcMethod must be 'NI', 'MC', 'WS', or 'MCMC'")
-  }
-
-  # For external design, only MCMC is supported
-  if (design == "external" && CalcMethod != "MCMC") {
-    stop("For external design, CalcMethod must be 'MCMC'. Other methods are not supported for external data incorporation.")
-  }
-
-  # For non-external designs, MCMC is not supported
-  if (design != "external" && CalcMethod == "MCMC") {
-    stop("MCMC method is only available for external design.")
+  if (!CalcMethod %in% c("NI", "MC", "WS")) {
+    stop("CalcMethod must be 'NI', 'MC', or 'WS'")
   }
 
   # Validate required parameters for each method
@@ -147,93 +157,220 @@ BayesPostPredContinuous <- function(prob = "posterior", design = "controlled", p
     stop("nMC must be specified for Monte Carlo method")
   }
 
-  if (CalcMethod == "MCMC" && is.null(nMCMCsample)) {
-    stop("nMCMCsample must be specified for MCMC method")
-  }
-
-  if (prob == "predictive" && (missing(m1) || missing(m2))) {
+  if (prob == "predictive" && (is.null(m1) || is.null(m2))) {
     stop("m1 and m2 must be specified for predictive probability")
   }
 
-  # Define parameters for calculating posterior/posterior predictive probabilities
-  if(!is.null(prior) && prior == 'N-Inv-Chisq') {
-    # Calculate updated precision parameters
-    kappa.n1 <- kappa01 + n1
-    kappa.n2 <- kappa02 + n2
-
-    # Calculate updated degrees of freedom
-    nu.t1 <- nu01 + n1
-    if(design == 'controlled') {
-      nu.t2 <- nu02 + n2
-    } else if(design == 'uncontrolled') {
-      nu.t2 <- nu.t1
+  # Validate external design parameters
+  if (design == "external") {
+    if (is.null(ne1) && is.null(ne2)) {
+      stop("For external design, at least one of ne1 or ne2 must be specified")
     }
-
-    # Calculate posterior means of t-distributions
-    mu.t1 <- (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
-    if(design == 'controlled') {
-      mu.t2 <- (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
-    } else if(design == 'uncontrolled') {
-      mu.t2 <- mu02
+    if (!is.null(ne1) && (is.null(alpha01) || is.null(bar.ye1) || is.null(se1))) {
+      stop("For external treatment data, alpha01, bar.ye1, and se1 must be specified")
     }
-
-    # Calculate posterior variance for group 1
-    var.n1 <- (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 + n1 * kappa01 / (kappa01 + n1) * (mu01 - bar.y1) ^ 2) / nu.t1
-
-    # Calculate posterior variance for group 2 (controlled design only)
-    if(design == 'controlled') {
-      var.n2 <- (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 + n2 * kappa02 / (kappa02 + n2) * (mu02 - bar.y2) ^ 2) / nu.t2
-    } else if(design == 'uncontrolled') {
-      var.n2 <- NULL
+    if (!is.null(ne2) && (is.null(alpha02) || is.null(bar.ye2) || is.null(se2))) {
+      stop("For external control data, alpha02, bar.ye2, and se2 must be specified")
     }
+  }
 
+  # Validate N-Inv-Chisq prior parameters
+  if (!is.null(prior) && prior == 'N-Inv-Chisq' && design != 'external') {
+    required_params <- c("kappa01", "kappa02", "nu01", "nu02", "mu01", "mu02", "sigma01", "sigma02")
+    missing_params <- required_params[sapply(required_params, function(x) is.null(get(x, envir = environment())))]
+    if (length(missing_params) > 0) {
+      stop(paste("For N-Inv-Chisq prior, the following parameters are required:", paste(missing_params, collapse = ", ")))
+    }
+  }
+
+  # Calculate hyperparameters for different designs
+  if (design == "external") {
+    # Power prior implementation using exact conjugate representation
+    if (!is.null(prior) && prior == 'N-Inv-Chisq') {
+      ## Informative prior case
+      # Group 1 (Treatment) - Apply power prior if external data available
+      if (!is.null(ne1) && !is.null(alpha01)) {
+        # Power prior parameters for group 1
+        mu.n1 <- (alpha01 * ne1 * bar.ye1 + kappa01 * mu01) / (alpha01 * ne1 + kappa01)
+        kappa.n1 <- alpha01 * ne1 + kappa01
+        nu.n1 <- alpha01 * ne1 + nu01
+        sigma2.n1 <- '+'(
+          alpha01 * (ne1 - 1) * se1 ^ 2 + nu01 * sigma01 ^ 2,
+          (alpha01 * ne1 * kappa01 * (bar.ye1 - mu01) ^ 2) / (alpha01 * ne1 + kappa01)
+        ) / nu.n1
+        # Posterior parameters after current data
+        mu.t1 <- (n1 * bar.y1 + kappa.n1 * mu.n1) / (n1 + kappa.n1)
+        kappa.star.n1 <- n1 + kappa.n1
+        nu.t1 <- n1 + nu.n1
+        sigma2.star.n1 <- '+'(
+          (n1 - 1) * s1 ^ 2 + nu.n1 * sigma2.n1,
+          (n1 * kappa.n1 * (bar.y1 - mu.n1) ^ 2) / (n1 + kappa.n1)
+        ) / nu.t1
+      } else {
+        # No external treatment data - use original prior
+        mu.t1 <- (kappa01 * mu01 + n1 * bar.y1) / (kappa01 + n1)
+        kappa.star.n1 <- kappa01 + n1
+        nu.t1 <- nu01 + n1
+        sigma2.star.n1 <- '+'(
+          nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2,
+          n1 * kappa01 * (mu01 - bar.y1) ^ 2 / (kappa01 + n1)
+        ) / nu.t1
+      }
+      # Group 2 (Control) - Apply power prior if external data available
+      if (!is.null(ne2) && !is.null(alpha02)) {
+        # Power prior parameters for group 2
+        mu.n2 <- (alpha02 * ne2 * bar.ye2 + kappa02 * mu02) / (alpha02 * ne2 + kappa02)
+        kappa.n2 <- alpha02 * ne2 + kappa02
+        nu.n2 <- alpha02 * ne2 + nu02
+        sigma2.n2 <- '+'(
+          alpha02 * (ne2 - 1) * se2 ^ 2 + nu02 * sigma02 ^ 2,
+          (alpha02 * ne2 * kappa02 * (bar.ye2 - mu02) ^ 2) / (alpha02 * ne2 + kappa02)
+        ) / nu.n2
+        # Posterior parameters after current data
+        mu.t2 <- (n2 * bar.y2 + kappa.n2 * mu.n2) / (n2 + kappa.n2)
+        kappa.star.n2 <- n2 + kappa.n2
+        nu.t2 <- n2 + nu.n2
+        sigma2.star.n2 <- '+'(
+          (n2 - 1) * s2 ^ 2 + nu.n2 * sigma2.n2,
+          (n2 * kappa.n2 * (bar.y2 - mu.n2) ^ 2) / (n2 + kappa.n2)
+        ) / nu.t2
+      } else {
+        # No external control data - use original prior
+        mu.t2 <- (kappa02 * mu02 + n2 * bar.y2) / (kappa02 + n2)
+        kappa.star.n2 <- kappa02 + n2
+        nu.t2 <- nu02 + n2
+        Sy2 <-
+          sigma2.star.n2 <- '+'(
+            nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2,
+            n2 * kappa02 * (mu02 - bar.y2) ^ 2 / (kappa02 + n2)
+          ) / nu.t2
+      }
+    } else {
+      ## Vague prior case
+      # Group 1 (Treatment) - Apply power prior if external data available
+      if (!is.null(ne1) && !is.null(alpha01)) {
+        # Posterior parameters with power prior
+        mu.t1 <- (alpha01 * ne1 * bar.ye1 + n1 * bar.y1) / (alpha01 * ne1 + n1)
+        kappa.star.n1 <- alpha01 * ne1 + n1
+        nu.t1 <- alpha01 * ne1 + n1
+        sigma2.star.n1 <- '+'(
+          alpha01 * (ne1 - 1) * se1 ^ 2 + (n1 - 1) * s1 ^ 2,
+          (alpha01 * ne1 * n1 * (bar.ye1 - bar.y1) ^ 2) / (alpha01 * ne1 + n1)
+        ) / nu.t1
+      } else {
+        # No external treatment data - use vague prior
+        mu.t1 <- bar.y1
+        kappa.star.n1 <- n1
+        nu.t1 <- n1 - 1
+        sigma2.star.n1 <- s1 ^ 2
+      }
+      # Group 2 (Control) - Apply power prior if external data available
+      if (!is.null(ne2) && !is.null(alpha02)) {
+        # Posterior parameters with power prior (Theorem 4)
+        mu.t2 <- (alpha02 * ne2 * bar.ye2 + n2 * bar.y2) / (alpha02 * ne2 + n2)
+        kappa.star.n2 <- alpha02 * ne2 + n2
+        nu.t2 <- alpha02 * ne2 + n2
+        Sy2 <- (n2 - 1) * s2 ^ 2
+        sigma2.star.n2 <- '+'(
+          alpha02 * (ne2 - 1) * se2 ^ 2 + (n2 - 1) * s2 ^ 2,
+          (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) / (alpha02 * ne2 + n2)
+        ) / nu.t2
+      } else {
+        # No external control data - use vague prior
+        mu.t2 <- bar.y2
+        kappa.star.n2 <- n2
+        nu.t2 <- n2 - 1
+        sigma2.star.n2 <- s2 ^ 2
+      }
+    }
     # Calculate standard deviations of t-distributions based on probability type
-    if(prob == 'posterior') {
-      sd.t1 <- sqrt(var.n1 / kappa.n1)
-      if(design == 'controlled') {
-        sd.t2 <- sqrt(var.n2 / kappa.n2)
-      } else if(design == 'uncontrolled') {
-        sd.t2 <- sqrt(r) * sd.t1
-      }
-    } else if(prob == 'predictive') {
-      sd.t1 <- sqrt((1 + kappa.n1) * var.n1 / (kappa.n1 * m1))
-      if(design == 'controlled') {
-        sd.t2 <- sqrt((1 + kappa.n2) * var.n2 / (kappa.n2 * m2))
-      } else if(design == 'uncontrolled') {
-        sd.t2 <- sqrt(r) * sd.t1
-      }
+    if (prob == 'posterior') {
+      sd.t1 <- sqrt(sigma2.star.n1 / kappa.star.n1)
+      sd.t2 <- sqrt(sigma2.star.n2 / kappa.star.n2)
+    } else if (prob == 'predictive') {
+      sd.t1 <- sqrt((1 + 1 / kappa.star.n1) * sigma2.star.n1 / m1)
+      sd.t2 <- sqrt((1 + 1 / kappa.star.n2) * sigma2.star.n2 / m2)
     }
-  } else if(!is.null(prior) && prior == 'vague') {
-    # Calculate degrees of freedom for vague priors
-    nu.t1 <- n1 - 1
-    if(design == 'controlled') {
-      nu.t2 <- n2 - 1
-    } else if(design == 'uncontrolled') {
-      nu.t2 <- nu.t1
-    }
-
-    # Set means of t-distributions to sample means
-    mu.t1 <- bar.y1
-    if(design == 'controlled') {
-      mu.t2 <- bar.y2
-    } else if(design == 'uncontrolled') {
-      mu.t2 <- mu02
-    }
-
-    # Calculate standard deviations of t-distributions based on probability type
-    if(prob == 'posterior') {
-      sd.t1 <- sqrt(s1 ^ 2 / n1)
+  } else {
+    # For controlled and uncontrolled designs
+    if(!is.null(prior) && prior == 'N-Inv-Chisq') {
+      # Calculate updated precision parameters
+      kappa.n1 <- kappa01 + n1
+      kappa.n2 <- kappa02 + n2
+      # Calculate updated degrees of freedom
+      nu.t1 <- nu01 + n1
       if(design == 'controlled') {
-        sd.t2 <- sqrt(s2 ^ 2 / n2)
+        nu.t2 <- nu02 + n2
       } else if(design == 'uncontrolled') {
-        sd.t2 <- sqrt(r) * sd.t1
+        nu.t2 <- nu.t1
       }
-    } else if(prob == 'predictive') {
-      sd.t1 <- sqrt((1 + n1) * s1 ^ 2 / (n1 * m1))
+      # Calculate posterior means of t-distributions
+      mu.t1 <- (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
       if(design == 'controlled') {
-        sd.t2 <- sqrt((1 + n2) * s2 ^ 2 / (n2 * m2))
+        mu.t2 <- (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
       } else if(design == 'uncontrolled') {
-        sd.t2 <- sqrt(r) * sd.t1
+        mu.t2 <- mu02
+      }
+      # Calculate posterior variance for group 1
+      var.n1 <- '+'(
+        nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2,
+        n1 * kappa01 * (mu01 - bar.y1) ^ 2 / (kappa01 + n1)
+      ) / nu.t1
+      # Calculate posterior variance for group 2 (controlled design only)
+      if(design == 'controlled') {
+        var.n2 <- '+'(
+          nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2,
+          n2 * kappa02 * (mu02 - bar.y2) ^ 2 / (kappa02 + n2)
+        )
+      } else if(design == 'uncontrolled') {
+        var.n2 <- NULL
+      }
+      # Calculate standard deviations of t-distributions based on probability type
+      if(prob == 'posterior') {
+        sd.t1 <- sqrt(var.n1 / kappa.n1)
+        if(design == 'controlled') {
+          sd.t2 <- sqrt(var.n2 / kappa.n2)
+        } else if(design == 'uncontrolled') {
+          sd.t2 <- sqrt(r) * sd.t1
+        }
+      } else if(prob == 'predictive') {
+        sd.t1 <- sqrt((1 + 1 / kappa.n1) * var.n1 / m1)
+        if(design == 'controlled') {
+          sd.t2 <- sqrt((1 + 1 / kappa.n2) * var.n2 / m2)
+        } else if(design == 'uncontrolled') {
+          sd.t2 <- sqrt(r) * sd.t1
+        }
+      }
+    } else if(!is.null(prior) && prior == 'vague') {
+      # Calculate degrees of freedom for vague priors
+      nu.t1 <- n1 - 1
+      if(design == 'controlled') {
+        nu.t2 <- n2 - 1
+      } else if(design == 'uncontrolled') {
+        nu.t2 <- nu.t1
+      }
+      # Set means of t-distributions to sample means
+      mu.t1 <- bar.y1
+      if(design == 'controlled') {
+        mu.t2 <- bar.y2
+      } else if(design == 'uncontrolled') {
+        mu.t2 <- mu02
+      }
+      # Calculate standard deviations of t-distributions based on probability type
+      if(prob == 'posterior') {
+        sd.t1 <- sqrt(s1 ^ 2 / n1)
+        if(design == 'controlled') {
+          sd.t2 <- sqrt(s2 ^ 2 / n2)
+        } else if(design == 'uncontrolled') {
+          sd.t2 <- sqrt(r) * sd.t1
+        }
+      } else if(prob == 'predictive') {
+        sd.t1 <- sqrt((1 + 1 / n1) * s1 ^ 2 / m1)
+        if(design == 'controlled') {
+          sd.t2 <- sqrt((1 + 1 / n2) * s2 ^ 2 / m2)
+        } else if(design == 'uncontrolled') {
+          sd.t2 <- sqrt(r) * sd.t1
+        }
       }
     }
   }
@@ -245,11 +382,8 @@ BayesPostPredContinuous <- function(prob = "posterior", design = "controlled", p
     results <- pMCdifft(nMC, theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
   } else if(CalcMethod == 'WS') {
     results <- pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
-  } else if((design == 'external') && (CalcMethod == 'MCMC')) {
-    # Use MCMC sampling for external design with power prior
-    results <- pMCMCdiff(nMCMCsample, theta0, bar.y1, bar.y2, s1, s2, n1, n2, ne1, ne2, alpha01, alpha02)
   } else {
-    stop("Invalid combination of design and CalcMethod.")
+    stop("Invalid CalcMethod.")
   }
 
   # Return results
