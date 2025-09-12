@@ -2,7 +2,7 @@
 #'
 #' This function calculates the cumulative distribution function (CDF) of the difference
 #' between two independent t-distributed random variables using Monte Carlo simulation.
-#' Specifically, it computes P(T1 - T2 > q) where T1 and T2 follow t-distributions
+#' Specifically, it computes P(T1 - T2 <= q) or P(T1 - T2 > q) where T1 and T2 follow t-distributions
 #' with potentially different location, scale, and degrees of freedom parameters.
 #'
 #' @param nMC A positive integer representing the number of Monte Carlo iterations for simulation.
@@ -13,9 +13,10 @@
 #' @param sd.t2 A positive numeric value representing the scale parameter of the second t-distribution.
 #' @param nu.t1 A positive numeric value representing the degrees of freedom of the first t-distribution.
 #' @param nu.t2 A positive numeric value representing the degrees of freedom of the second t-distribution.
+#' @param lower.tail logical; if TRUE (default), probabilities are P(T1 - T2 <= q), otherwise, P(T1 - T2 > q).
 #'
-#' @return A numeric vector representing P(T1 - T2 > q), the probability that the difference
-#'         between the two t-distributed variables exceeds the quantile q.
+#' @return A numeric value representing the probability that the difference
+#'         between the two t-distributed variables below or exceeds the quantile q.
 #'
 #' @details
 #' This function uses Monte Carlo simulation to approximate the distribution of the
@@ -32,18 +33,18 @@
 #' Larger nMC values yield more precise estimates but require more computational time.
 #'
 #' @examples
-#' # Calculate P(t1 - t2 > 3) for equal parameters using 10,000 simulations
-#' pMCdifft(nMC = 1e+4, q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
+#' # Calculate P(t1 - t2 > 3) for equal parameters
+#' pMCdifft(nMC = 1e+5, q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
 #'
-#' # Calculate P(t1 - t2 > 1) for unequal variances using 50,000 simulations
-#' pMCdifft(nMC = 5e+4, q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15)
+#' # Calculate P(t1 - t2 > 1) for unequal variances
+#' pMCdifft(nMC = 1e+5, q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
 #'
-#' # Calculate P(t1 - t2 > 0) for high precision with 100,000 simulations
-#' pMCdifft(nMC = 1e+5, q = 0, mu.t1 = 1, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 5, nu.t2 = 20)
+#' # Calculate P(t1 - t2 > 0) for different degrees of freedom
+#' pMCdifft(nMC = 1e+5, q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1, nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 #'
 #' @importFrom stats rt
 #' @export
-pMCdifft <- function(nMC, q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
+pMCdifft <- function(nMC, q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE) {
   # Determine the number of results to compute
   n = max(length(mu.t1), length(mu.t2), length(sd.t1), length(sd.t2))
 
@@ -67,6 +68,9 @@ pMCdifft <- function(nMC, q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
     # Count how many differences exceed q and divide by total simulations
     sum(rand.t1 - rand.t2 > q) / nMC
   })
+
+  # Return the final results
+  results <- lower.tail + c(1, -1)[lower.tail + 1] * results
 
   return(results)
 }

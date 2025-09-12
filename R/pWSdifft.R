@@ -2,7 +2,7 @@
 #'
 #' This function calculates the cumulative distribution function (CDF) of the difference
 #' between two independent t-distributed random variables using the Welch-Satterthwaite
-#' approximation. Specifically, it computes P(T1 - T2 > q) where T1 and T2 follow
+#' approximation. Specifically, it computes P(T1 - T2 <= q) or P(T1 - T2 > q) where T1 and T2 follow
 #' t-distributions with potentially different degrees of freedom and scale parameters.
 #'
 #' @param q A numeric value representing the quantile threshold.
@@ -12,9 +12,10 @@
 #' @param sd.t2 A positive numeric value representing the scale parameter of the second t-distribution.
 #' @param nu.t1 A positive numeric value representing the degrees of freedom of the first t-distribution.
 #' @param nu.t2 A positive numeric value representing the degrees of freedom of the second t-distribution.
+#' @param lower.tail logical; if TRUE (default), probabilities are P(T1 - T2 <= q), otherwise, P(T1 - T2 > q).
 #'
-#' @return A numeric value representing P(T1 - T2 > q), the probability that the difference
-#'         between the two t-distributed variables exceeds the quantile q.
+#' @return A numeric value representing the probability that the difference
+#'         between the two t-distributed variables below or exceeds the quantile q.
 #'
 #' @details
 #' The Welch-Satterthwaite approximation is used to approximate the distribution of the
@@ -31,17 +32,17 @@
 #'
 #' @examples
 #' # Calculate P(t1 - t2 > 3) for equal parameters
-#' pWSdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
+#' pWSdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
 #'
 #' # Calculate P(t1 - t2 > 1) for unequal variances
-#' pWSdifft(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15)
+#' pWSdifft(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
 #'
 #' # Calculate P(t1 - t2 > 0) for different degrees of freedom
-#' pWSdifft(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1, nu.t1 = 5, nu.t2 = 20)
+#' pWSdifft(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1, nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 #'
 #' @importFrom stats pt
 #' @export
-pWSdifft <- function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
+pWSdifft <- function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE) {
   # Calculate the adjusted scale parameter for the difference
   # This combines the variances of both t-distributions
   adj.scale <- sqrt(sd.t1 ^ 2 + sd.t2 ^ 2)
@@ -58,6 +59,9 @@ pWSdifft <- function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) {
 
   # Return the upper tail probability P(T1 - T2 > q) using the approximated t-distribution
   results <- pt(standardized.q, df = nu.star, lower.tail = FALSE)
+
+  # Return the final results
+  results <- lower.tail + c(1, -1)[lower.tail + 1] * results
 
   return(results)
 }

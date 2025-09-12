@@ -50,6 +50,7 @@
 #' @param bar.ye2 A numeric value representing the external sample mean of group 2 (required if external control data available).
 #' @param se1 A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).
 #' @param se2 A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).
+#' @param lower.tail logical; if TRUE (default), probabilities are P(theta <= theta0), otherwise, P(theta > theta0)
 #'
 #' @return A numeric vector representing the Bayesian posterior probability or Bayesian posterior
 #'         predictive probability. The function can handle vectorized inputs.
@@ -89,51 +90,51 @@
 #'
 #' @examples
 #' # Example 1: Numerical Integration (NI) method with N-Inv-Chisq prior
-#' BayesPostPredContinuous(
+#' pPostPred1Continuous(
 #'   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
 #'   theta0 = 2, n1 = 12, n2 = 12, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
 #'   mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-#'   bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1
+#'   bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, lower.tail = FALSE
 #' )
 #'
 #' # Example 2: Monte Carlo (MC) method with vague prior
-#' BayesPostPredContinuous(
+#' pPostPred1Continuous(
 #'   prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MC',
 #'   theta0 = 1, nMC = 10000, n1 = 12, n2 = 12,
-#'   bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2
+#'   bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2, lower.tail = FALSE
 #' )
 #'
 #' # Example 3: Welch-Satterthwaite (WS) approximation with N-Inv-Chisq prior
-#' BayesPostPredContinuous(
+#' pPostPred1Continuous(
 #'   prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
 #'   theta0 = 0.5, n1 = 15, n2 = 15, m1 = 100, m2 = 100,
 #'   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4, mu01 = 2, mu02 = 2,
-#'   sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6
+#'   sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6, lower.tail = FALSE
 #' )
 #'
 #' # Example 4: External control design with power prior (NI method)
-#' BayesPostPredContinuous(
+#' pPostPred1Continuous(
 #'   prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
 #'   theta0 = 1.5, n1 = 12, n2 = 12, bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-#'   ne2 = 20, alpha02 = 0.5, bar.ye2 = 1.8, se2 = 1.0
+#'   ne2 = 20, alpha02 = 0.5, bar.ye2 = 1.8, se2 = 1.0, lower.tail = FALSE
 #' )
 #'
 #' # Example 5: External design with both treatment and control data
-#' BayesPostPredContinuous(
+#' pPostPred1Continuous(
 #'   prob = 'posterior', design = 'external', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
 #'   theta0 = 1.0, n1 = 15, n2 = 15, bar.y1 = 3.5, bar.y2 = 2.0, s1 = 1.3, s2 = 1.1,
 #'   kappa01 = 2, kappa02 = 2, nu01 = 3, nu02 = 3, mu01 = 3, mu02 = 2,
 #'   sigma01 = 1.5, sigma02 = 1.5,
 #'   ne1 = 25, ne2 = 25, alpha01 = 0.7, alpha02 = 0.7,
-#'   bar.ye1 = 3.2, bar.ye2 = 1.9, se1 = 1.4, se2 = 1.2
+#'   bar.ye1 = 3.2, bar.ye2 = 1.9, se1 = 1.4, se2 = 1.2, lower.tail = FALSE
 #' )
 #'
 #' @export
-BayesPostPredContinuous <- function(prob = "posterior", design = "controlled", prior = "vague", CalcMethod = "NI",
-                                    theta0, nMC = NULL, n1, n2, m1 = NULL, m2 = NULL, kappa01 = NULL, kappa02 = NULL,
-                                    nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-                                    bar.y1, bar.y2, s1, s2, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-                                    bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL) {
+pPostPred1Continuous <- function(prob = "posterior", design = "controlled", prior = "vague", CalcMethod = "NI",
+                                 theta0, nMC = NULL, n1, n2, m1 = NULL, m2 = NULL, kappa01 = NULL, kappa02 = NULL,
+                                 nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+                                 bar.y1, bar.y2, s1, s2, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+                                 bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, lower.tail = TRUE) {
 
   # Input validation
   if (!prob %in% c("posterior", "predictive")) {
@@ -375,13 +376,13 @@ BayesPostPredContinuous <- function(prob = "posterior", design = "controlled", p
     }
   }
 
-  # Calculate the probability of exceeding θ₀ using the specified method
+  # Calculate the probability of below or exceeding θ₀ using the specified method
   if(CalcMethod == 'NI') {
-    results <- pNIdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+    results <- pNIdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
   } else if(CalcMethod == 'MC') {
-    results <- pMCdifft(nMC, theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+    results <- pMCdifft(nMC, theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
   } else if(CalcMethod == 'WS') {
-    results <- pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+    results <- pWSdifft(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
   } else {
     stop("Invalid CalcMethod.")
   }

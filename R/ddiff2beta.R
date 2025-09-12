@@ -16,14 +16,21 @@
 #'
 #' @export
 ddiff2beta = function(pi, alpha1, alpha2, beta1, beta2) {
+  # Calculate the normalization constant using beta functions
   k = 1 / (beta(alpha1, beta1) * beta(alpha2, beta2))
+
+  # Calculate gamma parameter for Appell's function
   gamma = alpha1 + alpha2 + beta1 + beta2 - 2
+
+  # Case 1: pi in [-1, 0)
   if((pi >= -1) & (pi < 0)) {
     density = '*'(
       k * beta(alpha1, beta2) * (-pi) ^ (beta1 + beta2 - 1) * (1 + pi) ^ (alpha1 + beta2 - 1),
       AppellsF1(beta2, 1 - alpha2, gamma, alpha1 + beta2, 1 - pi ^ 2, 1 + pi)
     )
-  } else if((pi >= 0) & (pi < 1)) {
+  }
+  # Case 2: pi in [0, 1)
+  else if((pi >= 0) & (pi < 1)) {
     if ((pi == 0) & (alpha1 + alpha2 > 1) & (beta1 + beta2 > 1)) {
       density = k * beta(alpha1 + alpha2 - 1, beta1 + beta2 - 1)
     } else {
@@ -32,8 +39,11 @@ ddiff2beta = function(pi, alpha1, alpha2, beta1, beta2) {
         AppellsF1(beta1, gamma, 1 - alpha1, alpha2 + beta1, 1 - pi, 1 - pi ^ 2)
       )
     }
-  } else {
+  }
+  # Case 3: pi outside [-1, 1]
+  else {
     density = 0
   }
+
   return(density)
 }

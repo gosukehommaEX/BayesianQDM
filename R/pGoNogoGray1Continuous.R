@@ -88,7 +88,7 @@
 #'
 #' @examples
 #' # Example 1: Controlled design with vague prior and NI method
-#' BayesDecisionProbContinuous(
+#' pGoNogoGray1Continuous(
 #'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
 #'   theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
 #'   nMC = NULL, gamma1 = 0.7, gamma2 = 0.2,
@@ -102,7 +102,7 @@
 #'
 #' # Example 2: External design with control data
 #' \dontrun{
-#' BayesDecisionProbContinuous(
+#' pGoNogoGray1Continuous(
 #'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'WS',
 #'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
 #'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
@@ -116,7 +116,7 @@
 #' }
 #'
 #' # Example 3: Controlled design with predictive probability
-#' BayesDecisionProbContinuous(
+#' pGoNogoGray1Continuous(
 #'   nsim = 100, prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
 #'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 2.0,
 #'   nMC = NULL, gamma1 = 0.75, gamma2 = 0.15,
@@ -130,7 +130,7 @@
 #'
 #' # Example 4: External design with predictive probability
 #' \dontrun{
-#' BayesDecisionProbContinuous(
+#' pGoNogoGray1Continuous(
 #'   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
 #'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1.5,
 #'   nMC = 5000, gamma1 = 0.7, gamma2 = 0.2,
@@ -145,11 +145,11 @@
 #'
 #' @importFrom stats rnorm
 #' @export
-BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
-                                        nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
-                                        mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
-                                        r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-                                        bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed) {
+pGoNogoGray1Continuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
+                                   nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
+                                   mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
+                                   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+                                   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed) {
 
   # Set seed for reproducibility
   set.seed(seed)
@@ -229,31 +229,24 @@ BayesDecisionProbContinuous <- function(nsim, prob, design, prior, CalcMethod, t
     theta_values <- c(theta.TV, theta.MAV)
   } else {
     # For predictive probability, use theta.NULL (single threshold)
-    theta_values <- theta.NULL
+    theta_values <- c(theta.NULL, theta.NULL)
   }
 
   # Calculate Go, NoGo and Gray probabilities using vectorized operations
   list.Go.and.NoGo.probs <- lapply(seq_along(theta_values), function(i) {
     # Calculate probability of success for each simulated dataset
-    prob.success <- BayesPostPredContinuous(
+    prob.success <- pPostPred1Continuous(
       prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
       theta0 = theta_values[i], nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
       kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
       mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
       bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2,
       r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
-      bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2
+      bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2, lower.tail = c(FALSE, TRUE)[i]
     )
-
-    if(prob == 'posterior') {
-      # Calculate Go probability (for theta.TV) or NoGo probability (for theta.MAV)
-      Go   <- ifelse(i == 1, sum(prob.success >= gamma1) / nsim, NA)
-      NoGo <- ifelse(i == 2, sum(prob.success <= gamma2) / nsim, NA)
-    } else {
-      # Calculate Go and NoGo probabilities for posterior predictive
-      Go <- sum(prob.success >= gamma1) / nsim
-      NoGo <- sum(prob.success <= gamma2) / nsim
-    }
+    # Calculate Go and NoGo probabilities
+    Go   <- ifelse(i == 1, sum(prob.success >= gamma1) / nsim, NA)
+    NoGo <- ifelse(i == 2, sum(prob.success >= gamma2) / nsim, NA)
     return(c(Go, NoGo))
   })
 

@@ -36,11 +36,7 @@ AppellsF1 <- function(a, b1, b2, c, x, y) {
   }
 
   # Perform numerical integration from 0 to 1
-  integral_result <- integrate(
-    integrand,
-    lower = 0,
-    upper = 1
-  )[['value']]
+  integral_result <- integrate(integrand, lower = 0, upper = 1)[['value']]
 
   # Return the final result
   return(coefficient * integral_result)

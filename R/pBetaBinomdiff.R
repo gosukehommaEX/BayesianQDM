@@ -12,15 +12,14 @@
 #' @param alpha2 A positive numeric value representing the first shape parameter of the second beta distribution.
 #' @param beta1 A positive numeric value representing the second shape parameter of the first beta distribution.
 #' @param beta2 A positive numeric value representing the second shape parameter of the second beta distribution.
+#' @param lower.tail logical; if TRUE (default), probabilities are P(X1 - X2 <= q), otherwise, P(X1 - X2 > q).
 #'
-#' @return A numeric value representing P((Y1/m1) - (Y2/m2) > q), the probability that the
-#'         difference in proportions between the two beta-binomial variables exceeds the quantile q.
+#' @return A numeric value representing the probability that the difference in proportions
+#' between the two beta-binomial variables below or exceeds the quantile q.
 #'
 #' @details
 #' The function uses the probability mass functions of beta-binomial distributions to compute
-#' the exact probability. The beta-binomial distribution arises when the success probability
-#' in a binomial distribution follows a beta distribution, making it useful for modeling
-#' overdispersed count data.
+#' the exact probability.
 #'
 #' The probability mass function for BetaBinomial(m, α, β) is:
 #' \deqn{P(Y = k) = \binom{m}{k} \frac{B(k + \alpha, m - k + \beta)}{B(\alpha, \beta)}}
@@ -29,16 +28,16 @@
 #'
 #' @examples
 #' # Calculate P((Y1/12) - (Y2/12) > 0.2) for symmetric beta priors
-#' pBetaBinomdiff(0.2, 12, 12, 0.5, 0.5, 0.5, 0.5)
+#' pBetaBinomdiff(0.2, 12, 12, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
 #'
 #' # Calculate P((Y1/20) - (Y2/15) > 0.1) for different sample sizes
-#' pBetaBinomdiff(0.1, 20, 15, 1, 1, 1, 1)
+#' pBetaBinomdiff(0.1, 20, 15, 1, 1, 1, 1, lower.tail = FALSE)
 #'
 #' # Calculate P((Y1/10) - (Y2/10) > 0) for informative priors
-#' pBetaBinomdiff(0, 10, 10, 2, 3, 3, 2)
+#' pBetaBinomdiff(0, 10, 10, 2, 3, 3, 2, lower.tail = FALSE)
 #'
 #' @export
-pBetaBinomdiff <- function(q, m1, m2, alpha1, alpha2, beta1, beta2) {
+pBetaBinomdiff <- function(q, m1, m2, alpha1, alpha2, beta1, beta2, lower.tail = TRUE) {
   # Calculate probability mass functions of beta-binomial distributions
   # PMF for first beta-binomial: BetaBinomial(m1, alpha1, beta1)
   dbetabinom1 <- choose(m1, 0:m1) * beta(0:m1 + alpha1, m1 - (0:m1) + beta1) / beta(alpha1, beta1)
@@ -48,7 +47,12 @@ pBetaBinomdiff <- function(q, m1, m2, alpha1, alpha2, beta1, beta2) {
 
   # Create indicator matrix for the condition (Y1/m1) - (Y2/m2) > q
   # This compares all possible combinations of outcomes
-  I <- (outer(m2 * 0:m1, m1 * 0:m2, '-') / (m1 * m2) > q)
+  #I <- (outer(m2 * 0:m1, m1 * 0:m2, '-') / (m1 * m2) > q)
+  if(lower.tail) {
+    I <- (outer(m2 * 0:m1, m1 * 0:m2, '-') / (m1 * m2) <= q)
+  } else {
+    I <- (outer(m2 * 0:m1, m1 * 0:m2, '-') / (m1 * m2) > q)
+  }
 
   # Calculate the posterior predictive probability by summing over all valid combinations
   # Use matrix operations for efficient computation

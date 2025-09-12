@@ -1,7 +1,7 @@
-#' Calculate the Go, NoGo and Gray Probabilities for a Clinical Trial When Outcome is Binary
+#' Calculate the Go, NoGo and Gray Probabilities for a Clinical Trial When Outcome is Single Binary
 #' Under the Bayesian Framework Using Two Metrics
 #'
-#' This function calculates Go, NoGo, and Gray probabilities for binary outcome clinical trials
+#' This function calculates Go, NoGo, and Gray probabilities for a binary outcome clinical trials
 #' under the Bayesian framework using two metrics: (i) posterior probability for the treatment
 #' effect to be greater than a threshold, and (ii) posterior predictive probability of phase III
 #' study success. The function supports controlled, uncontrolled, and external control designs.
@@ -57,7 +57,7 @@
 #'
 #' @examples
 #' # Calculate Go/NoGo/Gray probabilities using posterior probability for controlled design
-#' BayesDecisionProbBinary(
+#' pGoNogoGray1Binary(
 #'   prob = 'posterior', design = 'controlled', theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
 #'   gamma1 = 0.5, gamma2 = 0.2, pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4), n1 = 12, n2 = 12,
 #'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL, m1 = NULL, m2 = NULL, ne1 = NULL, ne2 = NULL,
@@ -65,7 +65,7 @@
 #' )
 #'
 #' # Calculate Go/NoGo/Gray probabilities using posterior predictive probability for controlled design
-#' BayesDecisionProbBinary(
+#' pGoNogoGray1Binary(
 #'   prob = 'predictive', design = 'controlled', theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0,
 #'   gamma1 = 0.9, gamma2 = 0.3, pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4), n1 = 12, n2 = 12,
 #'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL, m1 = 30, m2 = 30, ne1 = NULL, ne2 = NULL,
@@ -74,9 +74,9 @@
 #'
 #' @importFrom stats dbinom
 #' @export
-BayesDecisionProbBinary <- function(prob = 'posterior', design = 'controlled', theta.TV, theta.MAV, theta.NULL = NULL, gamma1, gamma2,
-                                    pi1, pi2, n1, n2, a1, a2, b1, b2, z = NULL,
-                                    m1, m2, ne1, ne2, ye1, ye2, ae1, ae2) {
+pGoNogoGray1Binary <- function(prob = 'posterior', design = 'controlled', theta.TV, theta.MAV, theta.NULL = NULL, gamma1, gamma2,
+                               pi1, pi2, n1, n2, a1, a2, b1, b2, z = NULL,
+                               m1, m2, ne1, ne2, ye1, ye2, ae1, ae2) {
   # Check parameter sets for posterior probability
   if((prob == 'posterior') & (sum(sapply(list(theta.TV, theta.MAV), is.null)) > 0)) {
     stop('If you calculate the Go, NoGo and Gray probabilities using posterior probability, theta.TV and theta.MAV should be non-null')
@@ -106,7 +106,7 @@ BayesDecisionProbBinary <- function(prob = 'posterior', design = 'controlled', t
   if(prob == 'posterior') {
     theta0 <- c(theta.TV, theta.MAV)
   } else {
-    theta0 <- theta.NULL
+    theta0 <- c(theta.NULL, theta.NULL)
   }
 
   # Calculate Bayesian posterior probability or Bayesian posterior predictive probability
@@ -119,10 +119,10 @@ BayesDecisionProbBinary <- function(prob = 'posterior', design = 'controlled', t
   gPost <- lapply(seq(length(theta0)), function(i) {
     sapply(Y1, function(y1) {
       sapply(Y2, function(y2) {
-        BayesPostPredBinary(
+        pPostPred1Binary(
           prob, design, theta0[i],
           n1, n2, y1, y2, a1, a2, b1, b2,
-          m1, m2, ne1, ne2, ye1, ye2, ae1, ae2
+          m1, m2, ne1, ne2, ye1, ye2, ae1, ae2, c(FALSE, TRUE)[i]
         )
       })
     })
@@ -132,8 +132,7 @@ BayesDecisionProbBinary <- function(prob = 'posterior', design = 'controlled', t
   GoNogoProb <- matrix(
     sapply(seq(2), function(j) {
       # Create indicator matrix for Go (j=1) or NoGo (j=2) decisions
-      I <- matrix((c(1, -1)[j] * gPost[[ifelse(prob == 'posterior', j, 1)]] >= c(gamma1, -gamma2)[j]), nrow = length(Y2))
-
+      I <- matrix(gPost[[j]] >= c(gamma1, gamma2)[j], nrow = length(Y2))
       if(design == 'uncontrolled') {
         # For uncontrolled design, sum over group 1 outcomes only
         colSums(outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)))

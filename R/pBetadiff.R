@@ -10,9 +10,10 @@
 #' @param alpha2 A positive numeric value representing the first shape parameter of the second beta distribution.
 #' @param beta1 A positive numeric value representing the second shape parameter of the first beta distribution.
 #' @param beta2 A positive numeric value representing the second shape parameter of the second beta distribution.
+#' @param lower.tail logical; if TRUE (default), probabilities are P(X1 - X2 <= q), otherwise, P(X1 - X2 > q).
 #'
-#' @return A numeric value representing P(X1 - X2 > q), the probability that the difference
-#'         between the two beta variables exceeds the quantile q.
+#' @return A numeric value representing the probability that the difference
+#'         between the two beta variables below or exceeds the quantile q.
 #'
 #' @details
 #' The function uses a piecewise approach based on the range of the difference π = X1 - X2:
@@ -24,17 +25,17 @@
 #'
 #' @examples
 #' # Calculate P(Beta(0.5, 0.5) - Beta(0.5, 0.5) > 0.2)
-#' pBetadiff(0.2, 0.5, 0.5, 0.5, 0.5)
+#' pBetadiff(0.2, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
 #'
 #' # Calculate P(Beta(2, 3) - Beta(1, 4) > -0.1)
-#' pBetadiff(-0.1, 2, 3, 1, 4)
+#' pBetadiff(-0.1, 2, 3, 1, 4, lower.tail = FALSE)
 #'
 #' # Calculate P(Beta(1, 1) - Beta(1, 1) > 0)
-#' pBetadiff(0, 1, 1, 1, 1)
+#' pBetadiff(0, 1, 1, 1, 1, lower.tail = FALSE)
 #'
 #' @importFrom stats integrate
 #' @export
-pBetadiff <- function(q, alpha1, alpha2, beta1, beta2) {
+pBetadiff <- function(q, alpha1, alpha2, beta1, beta2, lower.tail = TRUE) {
   # Calculate the normalization constant using beta functions
   k <- 1 / (beta(alpha1, beta1) * beta(alpha2, beta2))
 
@@ -44,37 +45,16 @@ pBetadiff <- function(q, alpha1, alpha2, beta1, beta2) {
   # Compute the posterior probability using numerical integration
   results <- integrate(
     Vectorize(function(pi) {
-      # Case 1: pi in [-1, 0)
-      if((pi >= -1) & (pi < 0)) {
-        density <- '*'(
-          k * beta(alpha1, beta2) * (-pi) ^ (beta1 + beta2 - 1) * (1 + pi) ^ (alpha1 + beta2 - 1),
-          AppellsF1(beta2, 1 - alpha2, gamma, alpha1 + beta2, 1 - pi ^ 2, 1 + pi)
-        )
-      }
-      # Case 2: pi in [0, 1)
-      else if((pi >= 0) & (pi < 1)) {
-        # Special case: pi = 0 with specific parameter conditions
-        if ((pi == 0) & (alpha1 + alpha2 > 1) & (beta1 + beta2 > 1)) {
-          density <- k * beta(alpha1 + alpha2 - 1, beta1 + beta2 - 1)
-        } else {
-          # General case for pi in (0, 1)
-          density <- '*'(
-            k * beta(alpha2, beta1) * pi ^ (beta1 + beta2 - 1) * (1 - pi) ^ (alpha2 + beta1 - 1),
-            AppellsF1(beta1, gamma, 1 - alpha1, alpha2 + beta1, 1 - pi, 1 - pi ^ 2)
-          )
-        }
-      }
-      # Case 3: pi outside [-1, 1]
-      else {
-        density <- 0
-      }
-
+      density <- ddiff2beta(pi, alpha1, alpha2, beta1, beta2)
       return(density)
     }),
     # Integration bounds: from q to 1 (upper tail probability)
     lower = q,
     upper = 1
   )[['value']]
+
+  # Return the final results
+  results <- lower.tail + c(1, -1)[lower.tail + 1] * results
 
   return(results)
 }
