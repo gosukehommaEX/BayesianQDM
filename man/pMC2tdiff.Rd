@@ -37,7 +37,7 @@ the second t-distribution. Must be > 2 for finite variance.}
 otherwise P(T1 - T2 > q).}
 }
 \value{
-A numeric value in \link{0, 1} representing the estimated cumulative probability
+A numeric value in \code{[0, 1]} representing the estimated cumulative probability
 that the difference between the two t-distributed variables is below
 (if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile q.
 The estimate is subject to Monte Carlo error that decreases as √(1/nMC).

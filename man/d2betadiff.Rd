@@ -7,7 +7,7 @@
 d2betadiff(pi, alpha1, alpha2, beta1, beta2)
 }
 \arguments{
-\item{pi}{A numeric value in the range \link{-1, 1} representing the difference
+\item{pi}{A numeric value in the range \code{[-1, 1]} representing the difference
 between the two beta variables.}
 
 \item{alpha1}{A positive numeric value representing the first shape parameter
@@ -24,7 +24,7 @@ of the second beta distribution.}
 }
 \value{
 A numeric value representing the probability density at the specified
-difference value. Returns 0 if pi is outside the range \link{-1, 1}.
+difference value. Returns 0 if pi is outside the range \code{[-1, 1]}.
 }
 \description{
 This function calculates the probability density function (PDF) of the difference
@@ -37,13 +37,13 @@ and X2 ~ Beta(alpha2, beta2).
 The function evaluates the density using different formulations depending on
 the range of π:
 \itemize{
-\item For π ∈ [-1, 0): Uses Appell's F1 function with parameters adjusted
+\item For π ∈ \code{[-1, 0)}: Uses Appell's F1 function with parameters adjusted
 for negative differences
-\item For π ∈ [0, 1): Uses Appell's F1 function with parameters adjusted
+\item For π ∈ \code{[0, 1)}: Uses Appell's F1 function with parameters adjusted
 for positive differences
 \item Special case at π = 0: When alpha1 + alpha2 > 1 and beta1 + beta2 > 1,
 uses a simplified beta function form
-\item For π ∉ \link{-1, 1}: Returns 0 (outside support of the distribution)
+\item For π ∉ \code{[-1, 1]}: Returns 0 (outside support of the distribution)
 }
 
 The normalization constant k is computed as:

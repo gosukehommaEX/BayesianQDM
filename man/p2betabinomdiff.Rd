@@ -32,7 +32,7 @@ of the second beta distribution.}
 P((Y1/m1) - (Y2/m2) ≤ q), otherwise P((Y1/m1) - (Y2/m2) > q).}
 }
 \value{
-A numeric value in \link{0, 1} representing the cumulative probability that
+A numeric value in \code{[0, 1]} representing the cumulative probability that
 the difference in proportions between the two beta-binomial variables
 is below (if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile q.
 }

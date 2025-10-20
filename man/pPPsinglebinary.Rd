@@ -94,7 +94,7 @@ of borrowing: 0 = no borrowing, 1 = full borrowing.}
 P(treatment effect ≤ theta0), otherwise P(treatment effect > theta0).}
 }
 \value{
-A numeric value in \link{0, 1} representing the Bayesian posterior probability
+A numeric value in \code{[0, 1]} representing the Bayesian posterior probability
 or posterior predictive probability that the treatment effect exceeds
 (or is below) the threshold theta0.
 }

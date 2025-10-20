@@ -7,7 +7,7 @@
 p2betadiff(q, alpha1, alpha2, beta1, beta2, lower.tail = TRUE)
 }
 \arguments{
-\item{q}{A numeric value in the range \link{-1, 1} representing the quantile threshold.}
+\item{q}{A numeric value in the range \code{[-1, 1]} representing the quantile threshold.}
 
 \item{alpha1}{A positive numeric value representing the first shape parameter
 of the first beta distribution.}
@@ -25,7 +25,7 @@ of the second beta distribution.}
 otherwise P(X1 - X2 > q).}
 }
 \value{
-A numeric value in \link{0, 1} representing the cumulative probability that
+A numeric value in \code{[0, 1]} representing the cumulative probability that
 the difference between the two beta variables is below (if lower.tail = TRUE)
 or exceeds (if lower.tail = FALSE) the quantile q.
 }
@@ -41,8 +41,8 @@ The function computes the CDF by numerically integrating the probability density
 function of the difference using adaptive quadrature. The density is evaluated
 using piecewise formulations based on Appell's F1 hypergeometric function:
 \itemize{
-\item For π ∈ [-1, 0): Uses Appell's F1 with parameters adjusted for negative differences
-\item For π ∈ [0, 1): Uses Appell's F1 with parameters adjusted for positive differences
+\item For π ∈ \code{[-1, 0)}: Uses Appell's F1 with parameters adjusted for negative differences
+\item For π ∈ \code{[0, 1)}: Uses Appell's F1 with parameters adjusted for positive differences
 \item Special case handling when π = 0 and certain parameter conditions are met
 }
 
