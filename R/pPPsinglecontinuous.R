@@ -34,18 +34,24 @@
 #'        for conjugate prior of Normal-Inverse-Chi-squared in group 2.
 #' @param mu01 A numeric value representing the prior mean value of outcomes in group 1 for the PoC trial.
 #' @param mu02 A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.
-#' @param sigma01 A positive numeric value representing the prior standard deviation of outcomes in group 1 for the PoC trial.
-#' @param sigma02 A positive numeric value representing the prior standard deviation of outcomes in group 2 for the PoC trial.
+#' @param sigma01 A positive numeric value representing the prior standard deviation of the outcomes for group 1.
+#' @param sigma02 A positive numeric value representing the prior standard deviation of the outcomes for group 2.
 #' @param bar.y1 A numeric value representing the sample mean of group 1.
 #' @param bar.y2 A numeric value representing the sample mean of group 2.
 #' @param s1 A positive numeric value representing the sample standard deviation of group 1.
 #' @param s2 A positive numeric value representing the sample standard deviation of group 2.
-#' @param r A positive numeric value representing the parameter value associated with the distribution
-#'        mean of group 2 for \code{design = 'uncontrolled'}.
-#' @param ne1 A positive integer representing the sample size for group 1 in external trial (can be NULL if no external treatment data).
-#' @param ne2 A positive integer representing the sample size for group 2 in external trial (can be NULL if no external control data).
-#' @param alpha01 A positive numeric value representing the power prior scale parameter for group 1 (can be NULL if no external treatment data).
-#' @param alpha02 A positive numeric value representing the power prior scale parameter for group 2 (can be NULL if no external control data).
+#' @param r A positive numeric value representing the ratio of the hypothesized values
+#'        for the null hypotheses (required if \code{design = 'uncontrolled'}).
+#' @param ne1 A positive integer representing the number of patients in group 1 for
+#'        the external data (required if external treatment data available).
+#' @param ne2 A positive integer representing the number of patients in group 2 for
+#'        the external data (required if external control data available).
+#' @param alpha01 A numeric value in \code{[0, 1]}: representing the scale parameter (power prior) for group 1
+#'        (required if external treatment data available). Controls the degree of borrowing:
+#'        0 = no borrowing, 1 = full borrowing.
+#' @param alpha02 A numeric value in \code{[0, 1]} representing the scale parameter (power prior) for group 2
+#'        (required if external control data available). Controls the degree of borrowing:
+#'        0 = no borrowing, 1 = full borrowing.
 #' @param bar.ye1 A numeric value representing the external sample mean of group 1 (required if external treatment data available).
 #' @param bar.ye2 A numeric value representing the external sample mean of group 2 (required if external control data available).
 #' @param se1 A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).
@@ -131,10 +137,10 @@
 #'
 #' @export
 pPPsinglecontinuous <- function(prob = "posterior", design = "controlled", prior = "vague", CalcMethod = "NI",
-                                 theta0, nMC = NULL, n1, n2, m1 = NULL, m2 = NULL, kappa01 = NULL, kappa02 = NULL,
-                                 nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-                                 bar.y1, bar.y2, s1, s2, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-                                 bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, lower.tail = TRUE) {
+                                theta0, nMC = NULL, n1, n2, m1 = NULL, m2 = NULL, kappa01 = NULL, kappa02 = NULL,
+                                nu01 = NULL, nu02 = NULL, mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+                                bar.y1, bar.y2, s1, s2, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+                                bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, lower.tail = TRUE) {
 
   # Input validation
   if (!prob %in% c("posterior", "predictive")) {
@@ -225,7 +231,7 @@ pPPsinglecontinuous <- function(prob = "posterior", design = "controlled", prior
       }
       # Group 2 (Control) - Apply power prior if external data available
       if (!is.null(ne2) && !is.null(alpha02)) {
-        # Power prior parameters for group 1
+        # Power prior parameters for group 2
         mu.n2 <- (alpha02 * ne2 * bar.ye2 + kappa02 * mu02) / (alpha02 * ne2 + kappa02)
         # Posterior parameters after current data
         mu.t2 <- '/'(
@@ -237,11 +243,11 @@ pPPsinglecontinuous <- function(prob = "posterior", design = "controlled", prior
         sigma2.star.n2 <- '/'(
           '+'(
             '+'(
-              alpha02 * (ne2 - 2) * se2 ^ 2 + nu02 * sigma02 ^ 2,
+              alpha02 * (ne2 - 1) * se2 ^ 2 + nu02 * sigma02 ^ 2,
               (alpha02 * ne2 * kappa02 * (bar.ye2 - mu02) ^ 2) / (alpha02 * ne2 + kappa02)
             ),
             '+'(
-              (n2 - 2) * s2 ^ 2,
+              (n2 - 1) * s2 ^ 2,
               n2 * (alpha02 * ne2 + kappa02) / (alpha02 * ne2 + kappa02 + n2) * (mu.n2 - bar.y2) ^ 2
             )
           ),
@@ -252,11 +258,10 @@ pPPsinglecontinuous <- function(prob = "posterior", design = "controlled", prior
         mu.t2 <- (kappa02 * mu02 + n2 * bar.y2) / (kappa02 + n2)
         kappa.star.n2 <- kappa02 + n2
         nu.t2 <- nu02 + n2
-        Sy2 <-
-          sigma2.star.n2 <- '+'(
-            nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2,
-            n2 * kappa02 * (mu02 - bar.y2) ^ 2 / (kappa02 + n2)
-          ) / nu.t2
+        sigma2.star.n2 <- '+'(
+          nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2,
+          n2 * kappa02 * (mu02 - bar.y2) ^ 2 / (kappa02 + n2)
+        ) / nu.t2
       }
     } else {
       ## Vague prior case
@@ -285,10 +290,10 @@ pPPsinglecontinuous <- function(prob = "posterior", design = "controlled", prior
         # Posterior parameters with power prior
         mu.t2 <- (alpha02 * ne2 * bar.ye2 + n2 * bar.y2) / (alpha02 * ne2 + n2)
         kappa.star.n2 <- alpha02 * ne2 + n2
-        nu.t2 <- alpha02 * ne2 + n2 - 2
+        nu.t2 <- alpha02 * ne2 + n2 - 1
         sigma2.star.n2 <- '/'(
           '+'(
-            alpha02 * (ne2 - 2) * se2 ^ 2 + (n2 - 2) * s2 ^ 2,
+            alpha02 * (ne2 - 1) * se2 ^ 2 + (n2 - 1) * s2 ^ 2,
             (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) / (alpha02 * ne2 + n2)
           ),
           alpha02 * ne2 + n2

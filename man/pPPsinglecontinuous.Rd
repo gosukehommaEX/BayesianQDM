@@ -82,9 +82,9 @@ for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
 
 \item{mu02}{A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.}
 
-\item{sigma01}{A positive numeric value representing the prior standard deviation of outcomes in group 1 for the PoC trial.}
+\item{sigma01}{A positive numeric value representing the prior standard deviation of the outcomes for group 1.}
 
-\item{sigma02}{A positive numeric value representing the prior standard deviation of outcomes in group 2 for the PoC trial.}
+\item{sigma02}{A positive numeric value representing the prior standard deviation of the outcomes for group 2.}
 
 \item{bar.y1}{A numeric value representing the sample mean of group 1.}
 
@@ -94,16 +94,22 @@ for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
 
 \item{s2}{A positive numeric value representing the sample standard deviation of group 2.}
 
-\item{r}{A positive numeric value representing the parameter value associated with the distribution
-mean of group 2 for \code{design = 'uncontrolled'}.}
+\item{r}{A positive numeric value representing the ratio of the hypothesized values
+for the null hypotheses (required if \code{design = 'uncontrolled'}).}
 
-\item{ne1}{A positive integer representing the sample size for group 1 in external trial (can be NULL if no external treatment data).}
+\item{ne1}{A positive integer representing the number of patients in group 1 for
+the external data (required if external treatment data available).}
 
-\item{ne2}{A positive integer representing the sample size for group 2 in external trial (can be NULL if no external control data).}
+\item{ne2}{A positive integer representing the number of patients in group 2 for
+the external data (required if external control data available).}
 
-\item{alpha01}{A positive numeric value representing the power prior scale parameter for group 1 (can be NULL if no external treatment data).}
+\item{alpha01}{A numeric value in \code{[0, 1]}: representing the scale parameter (power prior) for group 1
+(required if external treatment data available). Controls the degree of borrowing:
+0 = no borrowing, 1 = full borrowing.}
 
-\item{alpha02}{A positive numeric value representing the power prior scale parameter for group 2 (can be NULL if no external control data).}
+\item{alpha02}{A numeric value in \code{[0, 1]} representing the scale parameter (power prior) for group 2
+(required if external control data available). Controls the degree of borrowing:
+0 = no borrowing, 1 = full borrowing.}
 
 \item{bar.ye1}{A numeric value representing the external sample mean of group 1 (required if external treatment data available).}
 

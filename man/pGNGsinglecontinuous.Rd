@@ -101,26 +101,26 @@ for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
 
 \item{mu02}{A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.}
 
-\item{sigma01}{A positive numeric value representing the prior standard deviation of outcomes in group 1 for the PoC trial.}
+\item{sigma01}{A positive numeric value representing the prior standard deviation of the outcomes for group 1.}
 
-\item{sigma02}{A positive numeric value representing the prior standard deviation of outcomes in group 2 for the PoC trial.}
+\item{sigma02}{A positive numeric value representing the prior standard deviation of the outcomes for group 2.}
 
-\item{mu1}{A numeric value representing the true mean of group 1 for PoC trial.}
+\item{mu1}{A numeric value representing the true mean of outcomes in group 1 for the PoC trial.}
 
-\item{mu2}{A numeric value representing the true mean of group 2 for PoC trial.}
+\item{mu2}{A numeric value representing the true mean of outcomes in group 2 for the PoC trial.}
 
-\item{sigma1}{A positive numeric value representing the true standard deviation of group 1 for PoC trial.}
+\item{sigma1}{A positive numeric value representing the true standard deviation of outcomes in group 1.}
 
-\item{sigma2}{A positive numeric value representing the true standard deviation of group 2 for PoC trial.}
+\item{sigma2}{A positive numeric value representing the true standard deviation of outcomes in group 2.}
 
-\item{r}{A positive numeric value representing the parameter value associated with the distribution
-mean of group 2 for \code{design = 'uncontrolled'}.}
+\item{r}{A positive numeric value representing the ratio of the hypothesized values
+for the null hypotheses (required if \code{design = 'uncontrolled'}).}
 
-\item{ne1}{A positive integer representing the sample size for group 1 in external trial
-(required if external design, can be NULL if no external treatment data).}
+\item{ne1}{A positive integer representing the number of patients in group 1 for
+the external data (can be NULL if no external treatment data).}
 
-\item{ne2}{A positive integer representing the sample size for group 2 in external trial
-(required if external design, can be NULL if no external control data).}
+\item{ne2}{A positive integer representing the number of patients in group 2 for
+the external data (can be NULL if no external control data).}
 
 \item{alpha01}{A positive numeric value representing the scale parameter (power prior) for group 1
 (required if external design, can be NULL if no external treatment data).}
@@ -204,7 +204,7 @@ pGNGsinglecontinuous(
 pGNGsinglecontinuous(
   nsim = 100, prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 2.0,
-  nMC = NULL, gamma1 = 0.75, gamma2 = 0.15,
+  nMC = NULL, gamma1 = 0.75, gamma2 = 0.35,
   n1 = 15, n2 = 15, m1 = 50, m2 = 50,
   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
   mu01 = 3.5, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.5,
@@ -218,7 +218,7 @@ pGNGsinglecontinuous(
 pGNGsinglecontinuous(
   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1.5,
-  nMC = 5000, gamma1 = 0.7, gamma2 = 0.2,
+  nMC = 5000, gamma1 = 0.7, gamma2 = 0.4,
   n1 = 12, n2 = 12, m1 = 30, m2 = 30,
   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
