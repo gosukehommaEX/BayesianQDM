@@ -53,9 +53,10 @@ devtools::install_github("gosukehommaEX/BayesianQDM", dependencies = TRUE)
 library(BayesianQDM)
 
 # Calculate Go/NoGo/Gray probabilities for binary endpoint
-result_binary <- BayesDecisionProbBinary(
+result_binary <- pGNGsinglebinary(
   prob = 'posterior', design = 'controlled', 
-  theta.TV = 0.3, theta.MAV = 0.1, gamma1 = 0.8, gamma2 = 0.2,
+  theta.TV = 0.3, theta.MAV = 0.1, theta.NULL = NULL,
+  gamma1 = 0.8, gamma2 = 0.2,
   pi1 = c(0.3, 0.5, 0.7), pi2 = rep(0.2, 3), 
   n1 = 15, n2 = 15,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
@@ -70,17 +71,58 @@ print(result_binary)
 
 ``` r
 # Calculate decision probabilities for continuous endpoint  
-result_continuous <- BayesDecisionProbContinuous(
+result_continuous <- pGNGsinglecontinuous(
   nsim = 100, prob = 'posterior', design = 'controlled', 
   prior = 'vague', CalcMethod = 'WS',
   theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
   nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
   mu1 = 4.5, mu2 = 2.0, sigma1 = 1.5, sigma2 = 1.3,
+  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
   seed = 123
 )
 
 print(result_continuous)
+```
+
+### External Control Design Example
+
+``` r
+# External control design with power priors
+result_power_prior <- pGNGsinglecontinuous(
+  nsim = 100, prob = 'posterior', design = 'external', 
+  prior = 'vague', CalcMethod = 'WS',
+  theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
+  nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
+  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  mu1 = 3.0, mu2 = 1.5, sigma1 = 1.2, sigma2 = 1.1,
+  r = NULL,
+  ne1 = 25, ne2 = 25,                    # External sample sizes
+  alpha01 = 0.6, alpha02 = 0.7,          # Power prior parameters
+  bar.ye1 = 2.8, bar.ye2 = 1.4,          # Historical sample means
+  se1 = 1.3, se2 = 1.2,                  # Historical sample SDs
+  seed = 123
+)
+
+print(result_power_prior)
+```
+
+### Operating Characteristics
+Evaluate decision framework performance:
+``` r
+# Simulate trials across different scenarios
+scenarios <- expand.grid(
+  true_effect = c(0, 0.5, 1.0, 1.5, 2.0),
+  sample_size = c(15, 25, 35)
+)
+
+# Calculate Go probabilities for each scenario
+# (implementation details in vignettes)
 ```
 
 ## Documentation
@@ -108,7 +150,7 @@ Visit our [pkgdown website](https://gosukehommaEX.github.io/BayesianQDM/) for:
 ### Local Access
 
 Access vignettes locally after installation:
-  ``` r
+``` r
 # View available vignettes
 vignette(package = "BayesianQDM")
 
@@ -121,123 +163,21 @@ vignette("continuous-endpoints", package = "BayesianQDM")
 ## Core Functions
 
 ### Decision Making Functions
-- `BayesDecisionProbBinary()` - Go/NoGo/Gray probabilities for binary endpoints
-- `BayesDecisionProbContinuous()` - Go/NoGo/Gray probabilities for continuous endpoints
+- `pGNGsinglebinary()` - Go/NoGo/Gray probabilities for binary endpoints
+- `pGNGsinglecontinuous()` - Go/NoGo/Gray probabilities for continuous endpoints
 
 ### Probability Calculation Functions  
-- `BayesPostPredBinary()` - Posterior/predictive probabilities for binary data
-- `BayesPostPredContinuous()` - Posterior/predictive probabilities for continuous data
+- `pPPsinglebinary()` - Posterior/predictive probabilities for binary endpoints
+- `pPPsinglecontinuous()` - Posterior/predictive probabilities for continuous endpoints
 
-### Distribution Functions
-- `pBetadiff()`, `pBetaBinomdiff()` - Beta distribution differences
-- `pNIdifft()`, `pWSdifft()`, `pMCdifft()` - t-distribution differences  
-- `AppellsF1()` - Appell's hypergeometric function
-
-## Calculation Methods
-
-### For Continuous Endpoints
-
-| Method | Description | Use Case |
-|--------|-------------|----------|
-| **NI** | Numerical Integration | Most accurate, recommended for final analyses |
-| **WS** | Welch-Satterthwaite | Fast approximation, good for simulations |
-| **MC** | Monte Carlo | Flexible, handles complex scenarios |
-
-### Method Comparison Example
-
-``` r
-# Compare calculation methods
-mu1 <- 3.5; mu2 <- 1.8; sd1 <- 1.3; sd2 <- 1.1; nu1 <- 14; nu2 <- 16
-
-# Numerical integration (exact)
-prob_ni <- pNIdifft(q = 1.5, mu.t1 = mu1, mu.t2 = mu2, 
-                   sd.t1 = sd1, sd.t2 = sd2, nu.t1 = nu1, nu.t2 = nu2)
-
-# Welch-Satterthwaite approximation (fast)  
-prob_ws <- pWSdifft(q = 1.5, mu.t1 = mu1, mu.t2 = mu2,
-                   sd.t1 = sd1, sd.t2 = sd2, nu.t1 = nu1, nu.t2 = nu2)
-
-cat("NI:", round(prob_ni, 4), "WS:", round(prob_ws, 4), 
-    "Diff:", round(abs(prob_ni - prob_ws), 4))
-```
-
-## Study Design Examples
-
-### Controlled Design
-Standard two-arm randomized controlled trial.
-
-### Uncontrolled Design  
-Single-arm study with comparison to historical control.
-
-### External Control Design
-Incorporating historical data using power priors with exact conjugate representation.
-
-## Prior Distributions
-
-### Binary Endpoints
-- **Beta priors**: Beta(a, b) for response probabilities
-- **Common choices**: Beta(0.5, 0.5) for Jeffreys prior, Beta(1, 1) for uniform
-
-### Continuous Endpoints  
-- **Vague priors**: Non-informative approach letting data drive conclusions
-- **Normal-Inverse-Chi-squared**: Conjugate priors for incorporating prior knowledge
-- **Power priors**: Exact conjugate representation for external data incorporation
-
-## Advanced Features
-
-### Power Prior Integration
-Control the degree of borrowing from external data using exact conjugate representation:
-
-``` r
-# Example with external control data
-result_external <- BayesPostPredContinuous(
-  prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
-  theta0 = 1.5, n1 = 12, n2 = 12, 
-  bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-  ne2 = 20, alpha02 = 0.5,           # External control parameters
-  bar.ye2 = 1.8, se2 = 1.0           # Historical sample statistics
-)
-
-# Power prior parameters control borrowing strength:
-# α = 0: No borrowing (ignore external data)
-# α = 1: Full borrowing (external data weighted equally)
-# 0 < α < 1: Partial borrowing
-```
-
-### External Data Examples
-
-For continuous endpoints with historical data:
-
-``` r
-# External control design with power priors
-result_power_prior <- BayesDecisionProbContinuous(
-  nsim = 100, prob = 'posterior', design = 'external', 
-  prior = 'vague', CalcMethod = 'WS',
-  theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
-  nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
-  n1 = 15, n2 = 15, mu1 = 3.0, mu2 = 1.5, sigma1 = 1.2, sigma2 = 1.1,
-  ne1 = 25, ne2 = 25,                    # External sample sizes
-  alpha01 = 0.6, alpha02 = 0.7,          # Power prior parameters
-  bar.ye1 = 2.8, bar.ye2 = 1.4,          # Historical sample means
-  se1 = 1.3, se2 = 1.2,                  # Historical sample SDs
-  seed = 123
-)
-
-print(result_power_prior)
-```
-
-### Operating Characteristics
-Evaluate decision framework performance:
-``` r
-# Simulate trials across different scenarios
-scenarios <- expand.grid(
-  true_effect = c(0, 0.5, 1.0, 1.5, 2.0),
-  sample_size = c(15, 25, 35)
-)
-
-# Calculate Go probabilities for each scenario
-# (implementation details in vignettes)
-```
+### Utility Functions
+- `p2betadiff()` - CDF for difference of two beta distributions
+- `p2betabinomdiff()` - Beta-binomial posterior predictive probability
+- `d2betadiff()` - PDF for difference of two beta distributions
+- `pNI2tdiff()` - Numerical integration for t-distribution differences
+- `pMC2tdiff()` - Monte Carlo for t-distribution differences
+- `pWS2tdiff()` - Welch-Satterthwaite approximation for t-distribution differences
+- `AppellsF1()` - Appell's hypergeometric function F1
 
 ## Performance Considerations
 
@@ -288,11 +228,3 @@ Kang et al. (20XX). [Title]. [Journal].
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.html) file for details.
-
-## Support
-
-- **Documentation**: See package vignettes and function help
-- **Issues**: Report bugs or request features on [GitHub](https://github.com/gosukehommaEX/BayesianQDM/issues)
-- **Questions**: Use GitHub Discussions for methodology questions
-
----
