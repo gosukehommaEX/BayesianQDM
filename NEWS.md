@@ -8,19 +8,20 @@ The initial release of BayesianQDM provides a comprehensive framework for Bayesi
 
 #### Binary Endpoints
 
-* `BayesPostPredBinary()` - Posterior and posterior predictive probability calculation
-* `BayesDecisionProbBinary()` - Go/NoGo/Gray decision probability framework
-* `pBetadiff()` - Beta distribution differences
-* `pBetaBinomdiff()` - Beta-Binomial distribution differences
+* `pPPsinglebinary()` - Posterior and posterior predictive probability calculation
+* `pGNGsinglebinary()` - Go/NoGo/Gray decision probability framework
+* `p2betadiff()` - Beta distribution differences
+* `p2betabinomdiff()` - Beta-Binomial distribution differences
+* `d2betadiff()` - Density function for beta distribution differences
 
 #### Continuous Endpoints
 
-* `BayesPostPredContinuous()` - Posterior and posterior predictive probability calculation
-* `BayesDecisionProbContinuous()` - Go/NoGo/Gray decision probability framework
+* `pPPsinglecontinuous()` - Posterior and posterior predictive probability calculation
+* `pGNGsinglecontinuous()` - Go/NoGo/Gray decision probability framework
 * Distribution difference functions:
-  - `pNIdifft()` - Numerical integration method
-  - `pMCdifft()` - Monte Carlo simulation method
-  - `pWSdifft()` - Welch-Satterthwaite approximation method
+  - `pNI2tdiff()` - Numerical integration method
+  - `pMC2tdiff()` - Monte Carlo simulation method
+  - `pWS2tdiff()` - Welch-Satterthwaite approximation method
 
 #### Utility Functions
 

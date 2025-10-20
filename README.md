@@ -32,17 +32,16 @@ For technical details about the methodology, please refer to Kang et al. (20XX).
 ## Installation
 
 ### From CRAN (when available)
+
 ``` r
 install.packages("BayesianQDM")
 ```
 
-### Development Version
-``` r
-# Install from GitHub
-devtools::install_github("gosukehommaEX/BayesianQDM")
+### Development version from GitHub
 
-# Or with dependencies
-devtools::install_github("gosukehommaEX/BayesianQDM", dependencies = TRUE)
+``` r
+# install.packages("devtools")
+devtools::install_github("gosukehommaEX/BayesianQDM")
 ```
 
 ## Quick Start
@@ -51,12 +50,9 @@ devtools::install_github("gosukehommaEX/BayesianQDM", dependencies = TRUE)
 
 ``` r
 library(BayesianQDM)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
 
-# Calculate Go/NoGo/Gray probabilities for binary endpoint
-result_binary <- BayesDecisionProbBinary(
+# Calculate decision probabilities for binary endpoint
+result_binary <- pGNGsinglebinary(
   prob = 'posterior', 
   design = 'controlled', 
   theta.TV = 0.3, 
@@ -64,10 +60,10 @@ result_binary <- BayesDecisionProbBinary(
   theta.NULL = NULL,
   gamma1 = 0.8, 
   gamma2 = 0.2,
-  pi1 = seq(0.1, 0.9, by = 0.05), 
-  pi2 = rep(0.2, length(seq(0.1, 0.9, by = 0.05))), 
-  n1 = 20, 
-  n2 = 20,
+  pi1 = c(0.2, 0.4, 0.6, 0.8), 
+  pi2 = rep(0.2, 4), 
+  n1 = 12, 
+  n2 = 12,
   a1 = 0.5, 
   a2 = 0.5, 
   b1 = 0.5, 
@@ -81,17 +77,22 @@ result_binary <- BayesDecisionProbBinary(
   ye2 = NULL, 
   ae1 = NULL, 
   ae2 = NULL
-) %>%
-  mutate(theta = pi1 - pi2)
+)
 
-# Plot decision probabilities
-results_binary %>%
-  pivot_longer(cols = c(Go, NoGo, Gray), names_to = 'Decision', values_to = 'Probability') %>%
-  mutate(Decision = factor(Decision, levels = c('Go', 'Gray', 'NoGo'))) %>%
-  ggplot(aes(x = theta, y = Probability)) +
-  geom_line(aes(colour = Decision, linetype = Decision), linewidth = 1.2) +
-  scale_colour_manual(values = c('Go' = '#00BA38', 'Gray' = '#619CFF', 'NoGo' = '#F8766D')) +
-  scale_linetype_manual(values = c('Go' = 'solid', 'Gray' = 'dashed', 'NoGo' = 'dotted')) +
+print(result_binary)
+
+# Visualize results
+library(ggplot2)
+library(tidyr)
+
+result_long <- pivot_longer(result_binary, 
+                            cols = c(Go, Gray, NoGo), 
+                            names_to = "Decision", 
+                            values_to = "Probability")
+
+ggplot(result_long, aes(x = pi1 - pi2, y = Probability, fill = Decision)) +
+  geom_col(position = "stack") +
+  scale_fill_manual(values = c("Go" = "#2E7D32", "Gray" = "#BABABA", "NoGo" = "#D32F2F")) +
   labs(title = 'Decision Probabilities for Binary Endpoint',
        x = 'Treatment Effect (π1 - π2)',
        y = 'Probability') +
@@ -102,7 +103,8 @@ results_binary %>%
 
 ``` r
 # Calculate decision probabilities for continuous endpoint  
-result_continuous <- BayesDecisionProbContinuous(
+result_continuous <- pGNGsinglecontinuous(
+  nsim = 100,
   prob = 'posterior', 
   design = 'controlled', 
   prior = 'vague', 
@@ -134,6 +136,10 @@ result_continuous <- BayesDecisionProbContinuous(
   ne2 = NULL, 
   alpha01 = NULL, 
   alpha02 = NULL,
+  bar.ye1 = NULL,
+  bar.ye2 = NULL,
+  se1 = NULL,
+  se2 = NULL,
   seed = 123
 )
 
@@ -178,19 +184,20 @@ vignette("continuous-endpoints", package = "BayesianQDM")
 ## Core Functions
 
 ### Decision Making Functions
-- `BayesDecisionProbBinary()` - Go/NoGo/Gray probabilities for binary endpoints
-- `BayesDecisionProbContinuous()` - Go/NoGo/Gray probabilities for continuous endpoints
+- `pGNGsinglebinary()` - Go/NoGo/Gray probabilities for binary endpoints
+- `pGNGsinglecontinuous()` - Go/NoGo/Gray probabilities for continuous endpoints
 
 ### Probability Calculation Functions  
-- `BayesPostPredBinary()` - Posterior/predictive probabilities for binary endpoints
-- `BayesPostPredContinuous()` - Posterior/predictive probabilities for continuous endpoints
+- `pPPsinglebinary()` - Posterior/predictive probabilities for binary endpoints
+- `pPPsinglecontinuous()` - Posterior/predictive probabilities for continuous endpoints
 
 ### Distribution Functions
-- `pBetadiff()` - CDF for difference of two beta distributions
-- `pBetaBinomdiff()` - Beta-binomial posterior predictive probability
-- `pNIdifft()` - Numerical integration for t-distribution differences
-- `pMCdifft()` - Monte Carlo for t-distribution differences
-- `pWSdifft()` - Welch-Satterthwaite approximation for t-distribution differences
+- `p2betadiff()` - CDF for difference of two beta distributions
+- `p2betabinomdiff()` - Beta-binomial posterior predictive probability
+- `pNI2tdiff()` - Numerical integration for t-distribution differences
+- `pMC2tdiff()` - Monte Carlo for t-distribution differences
+- `pWS2tdiff()` - Welch-Satterthwaite approximation for t-distribution differences
+- `d2betadiff()` - Density function for difference of two beta distributions
 
 ### Utility Functions
 - `AppellsF1()` - Appell's hypergeometric function F1
@@ -206,25 +213,77 @@ Single-arm studies using historical controls with beta priors (binary) or inform
 ### External Control Design
 Incorporating historical/external data through power priors for enhanced decision making.
 
-## Prior Distributions
-
-### Binary Endpoints
-- Beta priors: `Beta(a, b)` for response probabilities
-- Flexible parameterization for different levels of informativeness
-- Power priors for external control data
-
-### Continuous Endpoints
-- **Conjugate priors**: Normal-Inverse-Chi-squared for efficient computation
-- **Vague priors**: Minimal prior information
-- **Power priors**: Efficient incorporation of external data using exact conjugate representation
-
 ## Calculation Methods
 
 ### For Continuous Endpoints
 
-- **NI (Numerical Integration)**: Exact calculation using convolution - most accurate
-- **WS (Welch-Satterthwaite)**: Fast approximation - recommended for routine use
-- **MC (Monte Carlo)**: Simulation-based - flexible for complex scenarios
+| Method | Description | Use Case |
+|--------|-------------|----------|
+| **NI** | Numerical Integration | Most accurate, recommended for final analyses |
+| **WS** | Welch-Satterthwaite | Fast approximation for unequal variances |
+| **MC** | Monte Carlo | Flexible simulation-based approach |
+
+### Method Comparison Example
+
+``` r
+# Compare calculation methods
+mu1 <- 3.5; mu2 <- 1.8; sd1 <- 1.3; sd2 <- 1.1; nu1 <- 14; nu2 <- 16
+
+# Numerical integration (exact)
+prob_ni <- pNI2tdiff(q = 1.5, mu.t1 = mu1, mu.t2 = mu2, 
+                     sd.t1 = sd1, sd.t2 = sd2, nu.t1 = nu1, nu.t2 = nu2)
+
+# Welch-Satterthwaite approximation (fast)  
+prob_ws <- pWS2tdiff(q = 1.5, mu.t1 = mu1, mu.t2 = mu2, 
+                     sd.t1 = sd1, sd.t2 = sd2, nu.t1 = nu1, nu.t2 = nu2)
+
+cat("NI:", round(prob_ni, 4), "WS:", round(prob_ws, 4), 
+    "Diff:", round(abs(prob_ni - prob_ws), 4))
+```
+
+## Study Design Examples
+
+### Controlled Design
+Standard two-arm randomized controlled trial.
+
+``` r
+result <- pPPsinglebinary(
+  prob = 'posterior', design = 'controlled', theta0 = 0.15,
+  n1 = 20, n2 = 20, y1 = 12, y2 = 8,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL,
+  ae1 = NULL, ae2 = NULL
+)
+```
+
+### Uncontrolled Design
+Single-arm study with historical control.
+
+``` r
+result <- pPPsinglebinary(
+    prob = 'posterior', design = 'uncontrolled', theta0 = 0.15,
+    n1 = 20, n2 = 20, y1 = 12, y2 = 3.5,
+    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+    m1 = NULL, m2 = NULL,
+    ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL,
+    ae1 = NULL, ae2 = NULL
+)
+```
+
+### External Control Design
+Incorporating historical data using power priors.
+
+``` r
+result <- pPPsinglebinary(
+  prob = 'posterior', design = 'external', theta0 = 0.15,
+  n1 = 20, n2 = 20, y1 = 12, y2 = 8,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL,
+  ne1 = 30, ne2 = 30, ye1 = 18, ye2 = 12,
+  ae1 = 0.5, ae2 = 0.5
+)
+```
 
 ## Best Practices
 
@@ -246,18 +305,17 @@ Incorporating historical/external data through power priors for enhanced decisio
 ## Integration with R Ecosystem
 
 The package integrates seamlessly with:
-
 - **tidyverse**: Data manipulation and visualization workflows
 - **ggplot2**: Creating publication-quality decision probability plots
 - **knitr/rmarkdown**: Reproducible reporting and documentation
 
 ## Citation
 
-If you use BayesianQDM in your research, please cite:
+To cite BayesianQDM in publications, please use:
 
 ```
-Homma, G., Yamaguchi, Y. (2025). 
-BayesianQDM: Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints. 
+Homma, G., Yamaguchi, Y. (2025). BayesianQDM: Bayesian Quantitative 
+Decision-Making Framework for Binary and Continuous Endpoints. 
 R package version 0.1.0.
 ```
 
@@ -267,12 +325,10 @@ Kang et al. (20XX). [Title]. [Journal].
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.html) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ## Support
 
 - **Documentation**: See package vignettes and function help
 - **Issues**: Report bugs or request features on [GitHub](https://github.com/gosukehommaEX/BayesianQDM/issues)
 - **Questions**: Use GitHub Discussions for methodology questions
-
----
