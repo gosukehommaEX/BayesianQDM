@@ -193,20 +193,26 @@ pPostPred1Continuous <- function(prob = "posterior", design = "controlled", prio
       if (!is.null(ne1) && !is.null(alpha01)) {
         # Power prior parameters for group 1
         mu.n1 <- (alpha01 * ne1 * bar.ye1 + kappa01 * mu01) / (alpha01 * ne1 + kappa01)
-        kappa.n1 <- alpha01 * ne1 + kappa01
-        nu.n1 <- alpha01 * ne1 + nu01
-        sigma2.n1 <- '+'(
-          alpha01 * (ne1 - 1) * se1 ^ 2 + nu01 * sigma01 ^ 2,
-          (alpha01 * ne1 * kappa01 * (bar.ye1 - mu01) ^ 2) / (alpha01 * ne1 + kappa01)
-        ) / nu.n1
         # Posterior parameters after current data
-        mu.t1 <- (n1 * bar.y1 + kappa.n1 * mu.n1) / (n1 + kappa.n1)
-        kappa.star.n1 <- n1 + kappa.n1
-        nu.t1 <- n1 + nu.n1
-        sigma2.star.n1 <- '+'(
-          (n1 - 1) * s1 ^ 2 + nu.n1 * sigma2.n1,
-          (n1 * kappa.n1 * (bar.y1 - mu.n1) ^ 2) / (n1 + kappa.n1)
-        ) / nu.t1
+        mu.t1 <- '/'(
+          alpha01 * ne1 * bar.ye1 + kappa01 * mu01 + n1 * bar.y1,
+          alpha01 * ne1 + kappa01 + n1
+        )
+        kappa.star.n1 <- alpha01 * ne1 + kappa01 + n1
+        nu.t1 <- alpha01 * ne1 + nu01 + n1
+        sigma2.star.n1 <- '/'(
+          '+'(
+            '+'(
+              alpha01 * (ne1 - 1) * se1 ^ 2 + nu01 * sigma01 ^ 2,
+              (alpha01 * ne1 * kappa01 * (bar.ye1 - mu01) ^ 2) / (alpha01 * ne1 + kappa01)
+            ),
+            '+'(
+              (n1 - 1) * s1 ^ 2,
+              n1 * (alpha01 * ne1 + kappa01) / (alpha01 * ne1 + kappa01 + n1) * (mu.n1 - bar.y1) ^ 2
+            )
+          ),
+          nu.t1
+        )
       } else {
         # No external treatment data - use original prior
         mu.t1 <- (kappa01 * mu01 + n1 * bar.y1) / (kappa01 + n1)
@@ -219,22 +225,28 @@ pPostPred1Continuous <- function(prob = "posterior", design = "controlled", prio
       }
       # Group 2 (Control) - Apply power prior if external data available
       if (!is.null(ne2) && !is.null(alpha02)) {
-        # Power prior parameters for group 2
+        # Power prior parameters for group 1
         mu.n2 <- (alpha02 * ne2 * bar.ye2 + kappa02 * mu02) / (alpha02 * ne2 + kappa02)
-        kappa.n2 <- alpha02 * ne2 + kappa02
-        nu.n2 <- alpha02 * ne2 + nu02
-        sigma2.n2 <- '+'(
-          alpha02 * (ne2 - 1) * se2 ^ 2 + nu02 * sigma02 ^ 2,
-          (alpha02 * ne2 * kappa02 * (bar.ye2 - mu02) ^ 2) / (alpha02 * ne2 + kappa02)
-        ) / nu.n2
         # Posterior parameters after current data
-        mu.t2 <- (n2 * bar.y2 + kappa.n2 * mu.n2) / (n2 + kappa.n2)
-        kappa.star.n2 <- n2 + kappa.n2
-        nu.t2 <- n2 + nu.n2
-        sigma2.star.n2 <- '+'(
-          (n2 - 1) * s2 ^ 2 + nu.n2 * sigma2.n2,
-          (n2 * kappa.n2 * (bar.y2 - mu.n2) ^ 2) / (n2 + kappa.n2)
-        ) / nu.t2
+        mu.t2 <- '/'(
+          alpha02 * ne2 * bar.ye2 + kappa02 * mu02 + n2 * bar.y2,
+          alpha02 * ne2 + kappa02 + n2
+        )
+        kappa.star.n2 <- alpha02 * ne2 + kappa02 + n2
+        nu.t2 <- alpha02 * ne2 + nu02 + n2
+        sigma2.star.n2 <- '/'(
+          '+'(
+            '+'(
+              alpha02 * (ne2 - 2) * se2 ^ 2 + nu02 * sigma02 ^ 2,
+              (alpha02 * ne2 * kappa02 * (bar.ye2 - mu02) ^ 2) / (alpha02 * ne2 + kappa02)
+            ),
+            '+'(
+              (n2 - 2) * s2 ^ 2,
+              n2 * (alpha02 * ne2 + kappa02) / (alpha02 * ne2 + kappa02 + n2) * (mu.n2 - bar.y2) ^ 2
+            )
+          ),
+          nu.t2
+        )
       } else {
         # No external control data - use original prior
         mu.t2 <- (kappa02 * mu02 + n2 * bar.y2) / (kappa02 + n2)
@@ -253,11 +265,14 @@ pPostPred1Continuous <- function(prob = "posterior", design = "controlled", prio
         # Posterior parameters with power prior
         mu.t1 <- (alpha01 * ne1 * bar.ye1 + n1 * bar.y1) / (alpha01 * ne1 + n1)
         kappa.star.n1 <- alpha01 * ne1 + n1
-        nu.t1 <- alpha01 * ne1 + n1
-        sigma2.star.n1 <- '+'(
-          alpha01 * (ne1 - 1) * se1 ^ 2 + (n1 - 1) * s1 ^ 2,
-          (alpha01 * ne1 * n1 * (bar.ye1 - bar.y1) ^ 2) / (alpha01 * ne1 + n1)
-        ) / nu.t1
+        nu.t1 <- alpha01 * ne1 + n1 - 1
+        sigma2.star.n1 <- '/'(
+          '+'(
+            alpha01 * (ne1 - 1) * se1 ^ 2 + (n1 - 1) * s1 ^ 2,
+            (alpha01 * ne1 * n1 * (bar.ye1 - bar.y1) ^ 2) / (alpha01 * ne1 + n1)
+          ),
+          alpha01 * ne1 + n1
+        )
       } else {
         # No external treatment data - use vague prior
         mu.t1 <- bar.y1
@@ -267,15 +282,17 @@ pPostPred1Continuous <- function(prob = "posterior", design = "controlled", prio
       }
       # Group 2 (Control) - Apply power prior if external data available
       if (!is.null(ne2) && !is.null(alpha02)) {
-        # Posterior parameters with power prior (Theorem 4)
+        # Posterior parameters with power prior
         mu.t2 <- (alpha02 * ne2 * bar.ye2 + n2 * bar.y2) / (alpha02 * ne2 + n2)
         kappa.star.n2 <- alpha02 * ne2 + n2
-        nu.t2 <- alpha02 * ne2 + n2
-        Sy2 <- (n2 - 1) * s2 ^ 2
-        sigma2.star.n2 <- '+'(
-          alpha02 * (ne2 - 1) * se2 ^ 2 + (n2 - 1) * s2 ^ 2,
-          (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) / (alpha02 * ne2 + n2)
-        ) / nu.t2
+        nu.t2 <- alpha02 * ne2 + n2 - 2
+        sigma2.star.n2 <- '/'(
+          '+'(
+            alpha02 * (ne2 - 2) * se2 ^ 2 + (n2 - 2) * s2 ^ 2,
+            (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) / (alpha02 * ne2 + n2)
+          ),
+          alpha02 * ne2 + n2
+        )
       } else {
         # No external control data - use vague prior
         mu.t2 <- bar.y2

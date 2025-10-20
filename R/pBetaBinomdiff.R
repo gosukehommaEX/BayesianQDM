@@ -2,7 +2,7 @@
 #'
 #' This function calculates the cumulative distribution function (CDF) of the difference
 #' between two independent beta-binomial random variables. Specifically, it computes
-#' P((Y1/m1) - (Y2/m2) > q) where Y1 ~ BetaBinomial(m1, alpha1, beta1) and
+#' P((Y1/m1) - (Y2/m2) <= q) or P((Y1/m1) - (Y2/m2) > q) where Y1 ~ BetaBinomial(m1, alpha1, beta1) and
 #' Y2 ~ BetaBinomial(m2, alpha2, beta2).
 #'
 #' @param q A numeric value representing the quantile threshold for the proportion difference.
@@ -12,7 +12,7 @@
 #' @param alpha2 A positive numeric value representing the first shape parameter of the second beta distribution.
 #' @param beta1 A positive numeric value representing the second shape parameter of the first beta distribution.
 #' @param beta2 A positive numeric value representing the second shape parameter of the second beta distribution.
-#' @param lower.tail logical; if TRUE (default), probabilities are P(X1 - X2 <= q), otherwise, P(X1 - X2 > q).
+#' @param lower.tail logical; if TRUE (default), probabilities are P((Y1/m1) - (Y2/m2) <= q), otherwise, P((Y1/m1) - (Y2/m2) > q).
 #'
 #' @return A numeric value representing the probability that the difference in proportions
 #' between the two beta-binomial variables below or exceeds the quantile q.

@@ -60,6 +60,7 @@
 #' @param bar.ye2 A numeric value representing the external sample mean of group 2 (required if external control data available).
 #' @param se1 A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).
 #' @param se2 A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).
+#' @param Gray_inc_Miss A logical value representing that Miss probability is included into Gray probability if TRUE, not otherwise.
 #' @param seed A numeric value representing the seed number for reproducible random number generation.
 #'
 #' @return A data frame containing the true means for both groups and the Go, NoGo, and Gray probabilities.
@@ -149,7 +150,7 @@ pGoNogoGray1Continuous <- function(nsim, prob, design, prior, CalcMethod, theta.
                                    nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
                                    mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
                                    r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-                                   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed) {
+                                   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, Gray_inc_Miss = FALSE, seed) {
 
   # Set seed for reproducibility
   set.seed(seed)
@@ -232,10 +233,9 @@ pGoNogoGray1Continuous <- function(nsim, prob, design, prior, CalcMethod, theta.
     theta_values <- c(theta.NULL, theta.NULL)
   }
 
-  # Calculate Go, NoGo and Gray probabilities using vectorized operations
-  list.Go.and.NoGo.probs <- lapply(seq_along(theta_values), function(i) {
-    # Calculate probability of success for each simulated dataset
-    prob.success <- pPostPred1Continuous(
+  # Calculate posterior/posterior predictive probabilities for each threshold
+  gPost <- lapply(seq_along(theta_values), function(i) {
+    pPostPred1Continuous(
       prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
       theta0 = theta_values[i], nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
       kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
@@ -244,47 +244,44 @@ pGoNogoGray1Continuous <- function(nsim, prob, design, prior, CalcMethod, theta.
       r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
       bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2, lower.tail = c(FALSE, TRUE)[i]
     )
-    # Calculate Go and NoGo probabilities
-    Go   <- ifelse(i == 1, sum(prob.success >= gamma1) / nsim, NA)
-    NoGo <- ifelse(i == 2, sum(prob.success >= gamma2) / nsim, NA)
-    return(c(Go, NoGo))
   })
 
-  # Combine Go and NoGo probabilities across thresholds
-  Go.and.NoGo.probs <- do.call(pmax, c(list(na.rm = TRUE), list.Go.and.NoGo.probs))
+  # Calculate Go, NoGo and Miss probabilities based on decision criteria
+  GoNogoProb <- sapply(seq(3), function(j) {
+    # Create indicator matrix for Go (j=1) or NoGo (j=2) decisions
+    if(j == 1) {
+      I <- as.numeric((gPost[[1]] >= gamma1) & (gPost[[2]] < gamma2))
+    } else if(j == 2) {
+      I <- as.numeric((gPost[[1]] < gamma1) & (gPost[[2]] >= gamma2))
+    } else {
+      I <- as.numeric((gPost[[1]] >= gamma1) & (gPost[[2]] >= gamma2))
+    }
+    sum(I) / nsim
+  })
 
-  # Calculate Gray probability (complement of Go and NoGo)
-  Gray.prob <- 1 - sum(Go.and.NoGo.probs)
-
-  # Check for negative Gray probabilities
-  if(Gray.prob < 0) {
-    message('Because negative gray probability is obtained, re-consider appropriate threshold')
+  # Check for positive Miss probabilities
+  if(sum(GoNogoProb[3]) > 0) {
+    stop('Because positive Miss probability(s) is obtained, re-consider appropriate threshold')
   }
 
-  # Extract final probabilities
-  Go_final <- Go.and.NoGo.probs[1]
-  NoGo_final <- Go.and.NoGo.probs[2]
-  Gray_final <- Gray.prob
+  # Calculate Gray probability (complement of Go and NoGo)
+  GrayProb <- 1 - sum(GoNogoProb[-3])
+  if(Gray_inc_Miss) {
+    GrayProb <- GrayProb + GoNogoProb[3]
+  }
 
   # Create results data frame
   if(design == 'uncontrolled') {
     # For uncontrolled design, only include mu1
-    result <- data.frame(
-      mu1 = mu1,
-      Go = Go_final,
-      NoGo = NoGo_final,
-      Gray = Gray_final
+    results <- data.frame(
+      mu1, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2], Miss = GoNogoProb[3]
     )
   } else {
     # For controlled and external designs, include both mu1 and mu2
-    result <- data.frame(
-      mu1 = mu1,
-      mu2 = mu2,
-      Go = Go_final,
-      NoGo = NoGo_final,
-      Gray = Gray_final
+    results <- data.frame(
+      mu1, mu2, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2], Miss = GoNogoProb[3]
     )
   }
 
-  return(result)
+  return(results)
 }

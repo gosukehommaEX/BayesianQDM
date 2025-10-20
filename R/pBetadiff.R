@@ -2,7 +2,7 @@
 #'
 #' This function calculates the cumulative distribution function (CDF) of the difference
 #' between two independent beta-distributed random variables using Appell's first
-#' hypergeometric function. Specifically, it computes P(X1 - X2 > q) where X1 ~ Beta(alpha1, beta1)
+#' hypergeometric function. Specifically, it computes P(X1 - X2 <= q) or P(X1 - X2 > q) where X1 ~ Beta(alpha1, beta1)
 #' and X2 ~ Beta(alpha2, beta2).
 #'
 #' @param q A numeric value representing the quantile threshold.

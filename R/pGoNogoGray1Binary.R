@@ -35,6 +35,7 @@
 #' @param ye2 A non-negative integer representing the observed number of responders in group 2 for the external data.
 #' @param ae1 A positive numeric value representing the scale parameter (power parameter) for group 1.
 #' @param ae2 A positive numeric value representing the scale parameter (power parameter) for group 2.
+#' @param Gray_inc_Miss A logical value representing that Miss probability is included into Gray probability if TRUE, not otherwise.
 #'
 #' @return A data frame containing the true response probabilities for both groups, and the
 #'         Go, NoGo, and Gray probabilities.
@@ -76,7 +77,7 @@
 #' @export
 pGoNogoGray1Binary <- function(prob = 'posterior', design = 'controlled', theta.TV, theta.MAV, theta.NULL = NULL, gamma1, gamma2,
                                pi1, pi2, n1, n2, a1, a2, b1, b2, z = NULL,
-                               m1, m2, ne1, ne2, ye1, ye2, ae1, ae2) {
+                               m1, m2, ne1, ne2, ye1, ye2, ae1, ae2, Gray_inc_Miss = FALSE) {
   # Check parameter sets for posterior probability
   if((prob == 'posterior') & (sum(sapply(list(theta.TV, theta.MAV), is.null)) > 0)) {
     stop('If you calculate the Go, NoGo and Gray probabilities using posterior probability, theta.TV and theta.MAV should be non-null')
@@ -128,11 +129,17 @@ pGoNogoGray1Binary <- function(prob = 'posterior', design = 'controlled', theta.
     })
   })
 
-  # Calculate Go/NoGo probabilities based on decision criteria
+  # Calculate Go, NoGo and Miss probabilities based on decision criteria
   GoNogoProb <- matrix(
-    sapply(seq(2), function(j) {
+    sapply(seq(3), function(j) {
       # Create indicator matrix for Go (j=1) or NoGo (j=2) decisions
-      I <- matrix(gPost[[j]] >= c(gamma1, gamma2)[j], nrow = length(Y2))
+      if(j == 1) {
+        I <- matrix((gPost[[1]] >= gamma1) & (gPost[[2]] < gamma2), nrow = length(Y2))
+      } else if(j == 2) {
+        I <- matrix((gPost[[1]] < gamma1) & (gPost[[2]] >= gamma2), nrow = length(Y2))
+      } else {
+        I <- matrix((gPost[[1]] >= gamma1) & (gPost[[2]] >= gamma2), nrow = length(Y2))
+      }
       if(design == 'uncontrolled') {
         # For uncontrolled design, sum over group 1 outcomes only
         colSums(outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)))
@@ -144,20 +151,23 @@ pGoNogoGray1Binary <- function(prob = 'posterior', design = 'controlled', theta.
         ))
       }
     }),
-    ncol = 2
+    ncol = 3
   )
 
-  # Calculate Gray probability (complement of Go and NoGo)
-  GrayProb <- 1 - rowSums(GoNogoProb)
+  # Check for positive Miss probabilities
+  if(sum(GoNogoProb[, 3]) > 0) {
+    stop('Because positive Miss probability(s) is obtained, re-consider appropriate threshold')
+  }
 
-  # Check for negative Gray probabilities
-  if(sum(GrayProb < 0) > 0) {
-    print('Because negative gray probability(s) is obtained, re-consider appropriate threshold')
+  # Calculate Gray probability (complement of Go and NoGo)
+  GrayProb <- 1 - rowSums(GoNogoProb[, -3])
+  if(Gray_inc_Miss) {
+    GrayProb <- GrayProb + c(GoNogoProb[, 3])
   }
 
   # Prepare results data frame
   results <- data.frame(
-    pi1, pi2, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]
+    pi1, pi2, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2], Miss = GoNogoProb[, 3]
   )
 
   return(results)

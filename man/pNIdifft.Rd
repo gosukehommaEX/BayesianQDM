@@ -4,7 +4,7 @@
 \alias{pNIdifft}
 \title{Cumulative Distribution Function of the Difference of Two t-Distributed Variables by Numerical Integration}
 \usage{
-pNIdifft(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+pNIdifft(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE)
 }
 \arguments{
 \item{q}{A numeric value representing the quantile threshold.}
@@ -20,15 +20,17 @@ pNIdifft(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
 \item{nu.t1}{A positive numeric value representing the degrees of freedom of the first t-distribution.}
 
 \item{nu.t2}{A positive numeric value representing the degrees of freedom of the second t-distribution.}
+
+\item{lower.tail}{logical; if TRUE (default), probabilities are P(T1 - T2 <= q), otherwise, P(T1 - T2 > q).}
 }
 \value{
-A numeric vector representing P(T1 - T2 ≥ q), the probability that the difference
-between the two t-distributed variables is greater than or equal to the quantile q.
+A numeric value representing the probability that the difference
+between the two t-distributed variables below or exceeds the quantile q.
 }
 \description{
 This function calculates the cumulative distribution function (CDF) of the difference
 between two independent t-distributed random variables using numerical integration
-via convolution. Specifically, it computes P(T1 - T2 ≥ q) where T1 and T2 follow
+via convolution. Specifically, it computes P(T1 - T2 <= q) or P(T1 - T2 > q) where T1 and T2 follow
 t-distributions with potentially different location, scale, and degrees of freedom parameters.
 }
 \details{
@@ -46,10 +48,13 @@ This approach provides exact results (within numerical precision) but is more
 computationally intensive than approximation methods like Welch-Satterthwaite.
 }
 \examples{
-# Calculate P(t1 - t2 ≥ 3) for equal parameters
-pNIdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
+# Calculate P(t1 - t2 > 3) for equal parameters
+pNIdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
 
-# Calculate P(t1 - t2 ≥ 1) for unequal variances
-pNIdifft(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15)
+# Calculate P(t1 - t2 > 1) for unequal variances
+pNIdifft(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
+
+# Calculate P(t1 - t2 > 0) for different degrees of freedom
+pNIdifft(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1, nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 
 }

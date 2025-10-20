@@ -4,7 +4,7 @@
 \alias{pWSdifft}
 \title{Cumulative Distribution Function of the Welch-Satterthwaite Approximated Difference of Two t-Distributed Variables}
 \usage{
-pWSdifft(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
+pWSdifft(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE)
 }
 \arguments{
 \item{q}{A numeric value representing the quantile threshold.}
@@ -20,15 +20,17 @@ pWSdifft(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2)
 \item{nu.t1}{A positive numeric value representing the degrees of freedom of the first t-distribution.}
 
 \item{nu.t2}{A positive numeric value representing the degrees of freedom of the second t-distribution.}
+
+\item{lower.tail}{logical; if TRUE (default), probabilities are P(T1 - T2 <= q), otherwise, P(T1 - T2 > q).}
 }
 \value{
-A numeric value representing P(T1 - T2 > q), the probability that the difference
-between the two t-distributed variables exceeds the quantile q.
+A numeric value representing the probability that the difference
+between the two t-distributed variables below or exceeds the quantile q.
 }
 \description{
 This function calculates the cumulative distribution function (CDF) of the difference
 between two independent t-distributed random variables using the Welch-Satterthwaite
-approximation. Specifically, it computes P(T1 - T2 > q) where T1 and T2 follow
+approximation. Specifically, it computes P(T1 - T2 <= q) or P(T1 - T2 > q) where T1 and T2 follow
 t-distributions with potentially different degrees of freedom and scale parameters.
 }
 \details{
@@ -46,12 +48,12 @@ providing a computationally efficient alternative to exact convolution methods.
 }
 \examples{
 # Calculate P(t1 - t2 > 3) for equal parameters
-pWSdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
+pWSdifft(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
 
 # Calculate P(t1 - t2 > 1) for unequal variances
-pWSdifft(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15)
+pWSdifft(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
 
 # Calculate P(t1 - t2 > 0) for different degrees of freedom
-pWSdifft(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1, nu.t1 = 5, nu.t2 = 20)
+pWSdifft(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1, nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 
 }
