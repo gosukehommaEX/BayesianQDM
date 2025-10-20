@@ -21,7 +21,6 @@ The initial release of BayesianQDM provides a comprehensive framework for Bayesi
   - `pNIdifft()` - Numerical integration method
   - `pMCdifft()` - Monte Carlo simulation method
   - `pWSdifft()` - Welch-Satterthwaite approximation method
-  - `pMCMCdiff()` - MCMC sampling method with power prior for external data
 
 #### Utility Functions
 
@@ -43,7 +42,6 @@ The initial release of BayesianQDM provides a comprehensive framework for Bayesi
 * **NI** (Numerical Integration) - Exact calculation using convolution
 * **WS** (Welch-Satterthwaite) - Fast approximation for unequal variances
 * **MC** (Monte Carlo) - Simulation-based flexible approach
-* **MCMC** - Markov Chain Monte Carlo sampling for external data incorporation
 
 ### Documentation
 
@@ -57,7 +55,7 @@ The initial release of BayesianQDM provides a comprehensive framework for Bayesi
 ### Dependencies
 
 * Base R stats functions
-* bayesDP package (suggested) for external data incorporation via MCMC
+* Suggested packages: testthat, knitr, rmarkdown, dplyr, ggplot2, tidyr, purrr
 * Compatible with tidyverse ecosystem for data manipulation and visualization
 
 ### Quality Assurance

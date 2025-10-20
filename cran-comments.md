@@ -21,7 +21,7 @@ BayesianQDM provides comprehensive methods for Bayesian quantitative decision-ma
 * Go/NoGo/Gray decision probability calculations for clinical trials
 * Posterior and posterior predictive probability computations
 * Support for binary and continuous endpoints
-* Multiple calculation methods (numerical integration, approximations, simulation)
+* Multiple calculation methods (numerical integration, Welch-Satterthwaite approximation, Monte Carlo simulation)
 * Power prior incorporation for external/historical data
 
 ### Study Designs
@@ -32,8 +32,8 @@ BayesianQDM provides comprehensive methods for Bayesian quantitative decision-ma
 ### Statistical Methods
 * Beta-binomial modeling for binary endpoints
 * Normal-inverse-chi-squared and vague priors for continuous endpoints
-* Exact and approximate methods for t-distribution differences
-* MCMC integration for complex external data scenarios
+* Exact numerical integration and fast approximation methods for t-distribution differences
+* Efficient power prior implementation for external data incorporation
 
 ## Documentation
 * Three comprehensive vignettes with practical examples
@@ -42,12 +42,12 @@ BayesianQDM provides comprehensive methods for Bayesian quantitative decision-ma
 
 ## Dependencies
 * Imports: stats
-* Suggests: bayesDP, testthat, knitr, rmarkdown
+* Suggests: testthat, knitr, rmarkdown, dplyr, ggplot2, tidyr, purrr
 * All dependencies are well-established CRAN packages
 
 ## Performance Considerations
 * Functions include computational method options (exact vs. approximate)
-* Test suite and vignettes avoid computationally intensive methods (MC, MCMC) for CRAN check speed
+* Test suite and vignettes avoid computationally intensive methods for CRAN check speed
 * Efficient implementations using vectorized operations where possible
 
 ## Backwards Compatibility
@@ -55,9 +55,9 @@ BayesianQDM provides comprehensive methods for Bayesian quantitative decision-ma
 * API designed for stability and extensibility
 
 ## Special Notes
-* bayesDP package is suggested but not required - functions gracefully handle its absence
-* Monte Carlo methods have adjustable iteration counts for performance tuning
+* Monte Carlo and MCMC methods have adjustable iteration counts for performance tuning
 * All numerical integration uses adaptive algorithms with appropriate tolerances
+* Power prior implementation uses exact conjugate representation for efficient computation without MCMC sampling in most cases
 
 ## Previous Submissions
 This is the initial submission to CRAN.

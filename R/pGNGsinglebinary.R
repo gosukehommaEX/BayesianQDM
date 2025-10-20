@@ -217,14 +217,14 @@ pGNGsinglebinary <- function(prob = 'posterior', design = 'controlled',
   )
 
   # Check for positive Miss probabilities (indicates inappropriate thresholds)
-  if(sum(GoNogoProb[, 3]) > 0) {
+  if(sum(GoNogoProb[, 3, drop = FALSE]) > 0) {
     stop('Because positive Miss probability(s) is obtained, re-consider appropriate thresholds')
   }
 
   # Calculate Gray probability (complement of Go and NoGo)
-  GrayProb <- 1 - rowSums(GoNogoProb[, -3])
+  GrayProb <- 1 - rowSums(GoNogoProb[, -3, drop = FALSE])
   if(Gray_inc_Miss) {
-    GrayProb <- GrayProb + c(GoNogoProb[, 3])
+    GrayProb <- GrayProb + c(GoNogoProb[, 3, drop = FALSE])
   }
 
   # Prepare results data frame
