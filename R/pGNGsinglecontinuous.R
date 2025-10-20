@@ -89,7 +89,7 @@
 #'
 #' @examples
 #' # Example 1: Controlled design with vague prior and NI method
-#' pGoNogoGray1Continuous(
+#' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
 #'   theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
 #'   nMC = NULL, gamma1 = 0.7, gamma2 = 0.2,
@@ -103,7 +103,7 @@
 #'
 #' # Example 2: External design with control data
 #' \dontrun{
-#' pGoNogoGray1Continuous(
+#' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'WS',
 #'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
 #'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
@@ -117,7 +117,7 @@
 #' }
 #'
 #' # Example 3: Controlled design with predictive probability
-#' pGoNogoGray1Continuous(
+#' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
 #'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 2.0,
 #'   nMC = NULL, gamma1 = 0.75, gamma2 = 0.15,
@@ -131,7 +131,7 @@
 #'
 #' # Example 4: External design with predictive probability
 #' \dontrun{
-#' pGoNogoGray1Continuous(
+#' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
 #'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1.5,
 #'   nMC = 5000, gamma1 = 0.7, gamma2 = 0.2,
@@ -146,11 +146,11 @@
 #'
 #' @importFrom stats rnorm
 #' @export
-pGoNogoGray1Continuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
-                                   nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
-                                   mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
-                                   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-                                   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, Gray_inc_Miss = FALSE, seed) {
+pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
+                                 nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
+                                 mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
+                                 r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+                                 bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, Gray_inc_Miss = FALSE, seed) {
 
   # Set seed for reproducibility
   set.seed(seed)
@@ -235,7 +235,7 @@ pGoNogoGray1Continuous <- function(nsim, prob, design, prior, CalcMethod, theta.
 
   # Calculate posterior/posterior predictive probabilities for each threshold
   gPost <- lapply(seq_along(theta_values), function(i) {
-    pPostPred1Continuous(
+    pPPsinglecontinuous(
       prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
       theta0 = theta_values[i], nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
       kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,

@@ -7,35 +7,52 @@
 AppellsF1(a, b1, b2, c, x, y)
 }
 \arguments{
-\item{a}{A numeric value representing the first parameter.}
+\item{a}{A numeric value representing the first parameter (must satisfy Re(a) > 0
+and Re(c - a) > 0 for convergence).}
 
 \item{b1}{A numeric value representing the second parameter.}
 
 \item{b2}{A numeric value representing the third parameter.}
 
-\item{c}{A numeric value representing the fourth parameter.}
+\item{c}{A numeric value representing the fourth parameter (must be greater than a).}
 
-\item{x}{A numeric value representing the first variable.}
+\item{x}{A numeric value representing the first variable (typically |x| < 1 for convergence).}
 
-\item{y}{A numeric value representing the second variable.}
+\item{y}{A numeric value representing the second variable (typically |y| < 1 for convergence).}
 }
 \value{
 A numeric value of Appell's first hypergeometric function F1(a; b1, b2; c; x, y).
 }
 \description{
-This function computes the numeric value of Appell's first hypergeometric function
-F1(a; b1, b2; c; x, y) using integral representation. The Appell hypergeometric
-function is a generalization of the hypergeometric function to two variables.
+This function computes Appell's first hypergeometric function F1(a; b1, b2; c; x, y)
+using numerical integration of its integral representation. The Appell F1 function
+is a generalization of the Gauss hypergeometric function to two variables and
+appears in various statistical applications including beta distribution differences.
 }
 \details{
-The function uses the integral representation:
+The function evaluates Appell's F1 hypergeometric function using the integral representation:
 \deqn{F_1(a; b_1, b_2; c; x, y) = \frac{\Gamma(c)}{\Gamma(a)\Gamma(c-a)} \int_0^1 t^{a-1}(1-t)^{c-a-1}(1-xt)^{-b_1}(1-yt)^{-b_2} dt}
+
+where \eqn{\Gamma(\cdot)} is the gamma function. This implementation uses numerical
+integration via the \code{integrate} function from the stats package.
+
+The Appell F1 function satisfies the following properties:
+\itemize{
+\item Symmetry: \eqn{F_1(a; b_1, b_2; c; x, y) = F_1(a; b_2, b_1; c; y, x)}
+\item Reduction to Gauss hypergeometric: \eqn{F_1(a; b, 0; c; x, y) = {}_2F_1(a, b; c; x)}
+\item Special case: \eqn{F_1(a; 0, 0; c; x, y) = 1}
+}
 }
 \examples{
-# Calculate F1(0.5; 0.5, 0; 1; 0.96, 1.2)
+# Calculate F1(0.5; 0.5, 0; 1; 0.96, 1.2) - reduces to hypergeometric function
 AppellsF1(0.5, 0.5, 0, 1, 0.96, 1.2)
 
 # Calculate F1(1; 1, 1; 2; 0.3, 0.4)
 AppellsF1(1, 1, 1, 2, 0.3, 0.4)
+
+# Verify symmetry property: F1(a; b1, b2; c; x, y) = F1(a; b2, b1; c; y, x)
+result1 <- AppellsF1(1, 2, 3, 4, 0.2, 0.3)
+result2 <- AppellsF1(1, 3, 2, 4, 0.3, 0.2)
+all.equal(result1, result2)
 
 }
