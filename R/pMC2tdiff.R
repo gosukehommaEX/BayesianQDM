@@ -28,7 +28,7 @@
 #' @param lower.tail A logical value; if TRUE (default), probabilities are P(T1 - T2 ≤ q),
 #'        otherwise P(T1 - T2 > q).
 #'
-#' @return A numeric value in [0, 1] representing the estimated cumulative probability
+#' @return A numeric value in \code{[0, 1]} representing the estimated cumulative probability
 #'         that the difference between the two t-distributed variables is below
 #'         (if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile q.
 #'         The estimate is subject to Monte Carlo error that decreases as √(1/nMC).

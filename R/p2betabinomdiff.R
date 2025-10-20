@@ -23,7 +23,7 @@
 #' @param lower.tail A logical value; if TRUE (default), probabilities are
 #'        P((Y1/m1) - (Y2/m2) ≤ q), otherwise P((Y1/m1) - (Y2/m2) > q).
 #'
-#' @return A numeric value in [0, 1] representing the cumulative probability that
+#' @return A numeric value in \code{[0, 1]} representing the cumulative probability that
 #'         the difference in proportions between the two beta-binomial variables
 #'         is below (if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile q.
 #'

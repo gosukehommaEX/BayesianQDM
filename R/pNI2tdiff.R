@@ -24,7 +24,7 @@
 #' @param lower.tail A logical value; if TRUE (default), probabilities are P(T1 - T2 ≤ q),
 #'        otherwise P(T1 - T2 > q).
 #'
-#' @return A numeric value in [0, 1] representing the cumulative probability that the
+#' @return A numeric value in \code{[0, 1]} representing the cumulative probability that the
 #'         difference between the two t-distributed variables is below (if lower.tail = TRUE)
 #'         or exceeds (if lower.tail = FALSE) the quantile q.
 #'

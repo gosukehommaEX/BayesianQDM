@@ -6,7 +6,7 @@
 #' hypergeometric function for computation. Specifically, it computes P(X1 - X2 ≤ q) or
 #' P(X1 - X2 > q) where X1 ~ Beta(alpha1, beta1) and X2 ~ Beta(alpha2, beta2).
 #'
-#' @param q A numeric value in the range [-1, 1] representing the quantile threshold.
+#' @param q A numeric value in the range \code{[-1, 1]} representing the quantile threshold.
 #' @param alpha1 A positive numeric value representing the first shape parameter
 #'        of the first beta distribution.
 #' @param alpha2 A positive numeric value representing the first shape parameter
@@ -18,7 +18,7 @@
 #' @param lower.tail A logical value; if TRUE (default), probabilities are P(X1 - X2 ≤ q),
 #'        otherwise P(X1 - X2 > q).
 #'
-#' @return A numeric value in [0, 1] representing the cumulative probability that
+#' @return A numeric value in \code{[0, 1]} representing the cumulative probability that
 #'         the difference between the two beta variables is below (if lower.tail = TRUE)
 #'         or exceeds (if lower.tail = FALSE) the quantile q.
 #'
@@ -27,8 +27,8 @@
 #' function of the difference using adaptive quadrature. The density is evaluated
 #' using piecewise formulations based on Appell's F1 hypergeometric function:
 #' \itemize{
-#'   \item For π ∈ [-1, 0): Uses Appell's F1 with parameters adjusted for negative differences
-#'   \item For π ∈ [0, 1): Uses Appell's F1 with parameters adjusted for positive differences
+#'   \item For π ∈ \code{[-1, 0)}: Uses Appell's F1 with parameters adjusted for negative differences
+#'   \item For π ∈ \code{[0, 1)}: Uses Appell's F1 with parameters adjusted for positive differences
 #'   \item Special case handling when π = 0 and certain parameter conditions are met
 #' }
 #'

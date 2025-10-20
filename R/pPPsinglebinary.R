@@ -51,7 +51,7 @@
 #' @param lower.tail A logical value; if TRUE (default), probabilities are
 #'        P(treatment effect ≤ theta0), otherwise P(treatment effect > theta0).
 #'
-#' @return A numeric value in [0, 1] representing the Bayesian posterior probability
+#' @return A numeric value in \code{[0, 1]} representing the Bayesian posterior probability
 #'         or posterior predictive probability that the treatment effect exceeds
 #'         (or is below) the threshold theta0.
 #'
