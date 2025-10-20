@@ -103,10 +103,10 @@ probability)</li>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate decision probabilities for binary endpoint</span></span>
-<span><span class="va">result_binary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesDecisionProbBinary.html">BayesDecisionProbBinary</a></span><span class="op">(</span></span>
+<span><span class="va">result_binary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pGNGsinglebinary.html">pGNGsinglebinary</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
 <span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
-<span>  theta.TV <span class="op">=</span> <span class="fl">0.3</span>, theta.MAV <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  theta.TV <span class="op">=</span> <span class="fl">0.3</span>, theta.MAV <span class="op">=</span> <span class="fl">0.1</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span><span class="op">)</span>, </span>
 <span>  pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">3</span><span class="op">)</span>, </span>
@@ -117,17 +117,17 @@ probability)</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_binary</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   pi1 pi2         Go      Gray         NoGo</span></span>
-<span><span class="co">#&gt; 1 0.3 0.2 0.01578194 0.7624183 0.2217997893</span></span>
-<span><span class="co">#&gt; 2 0.5 0.2 0.21141006 0.7643635 0.0242264031</span></span>
-<span><span class="co">#&gt; 3 0.7 0.2 0.67440950 0.3248368 0.0007536922</span></span></code></pre></div>
+<span><span class="co">#&gt;   pi1 pi2         Go      Gray      NoGo Miss</span></span>
+<span><span class="co">#&gt; 1 0.3 0.2 0.01578194 0.1810868 0.8031312    0</span></span>
+<span><span class="co">#&gt; 2 0.5 0.2 0.21141006 0.4500322 0.3385577    0</span></span>
+<span><span class="co">#&gt; 3 0.7 0.2 0.67440950 0.2761393 0.0494512    0</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="posterior-probability">Posterior Probability<a class="anchor" aria-label="anchor" href="#posterior-probability"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate posterior probability</span></span>
-<span><span class="va">posterior_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesPostPredBinary.html">BayesPostPredBinary</a></span><span class="op">(</span></span>
+<span><span class="va">posterior_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
 <span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
 <span>  theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
@@ -138,7 +138,7 @@ probability)</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Posterior probability:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">posterior_prob</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Posterior probability: 0.6861</span></span></code></pre></div>
+<span><span class="co">#&gt; Posterior probability: 0.3139</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -149,92 +149,48 @@ probability)</li>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Calculate decision probabilities for continuous endpoint  </span></span>
-<span><span class="va">result_continuous</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesDecisionProbContinuous.html">BayesDecisionProbContinuous</a></span><span class="op">(</span></span>
+<span><span class="va">result_continuous</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous</a></span><span class="op">(</span></span>
 <span>  nsim <span class="op">=</span> <span class="fl">50</span>,  <span class="co"># Small nsim for vignette speed</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
 <span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
 <span>  prior <span class="op">=</span> <span class="st">'vague'</span>, </span>
 <span>  CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,  <span class="co"># Fast method for vignette</span></span>
-<span>  theta.TV <span class="op">=</span> <span class="fl">1.5</span>, theta.MAV <span class="op">=</span> <span class="fl">0.5</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># All required thresholds</span></span>
-<span>  nMC <span class="op">=</span> <span class="cn">NULL</span>, nINLAsample <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># Not needed for WS method</span></span>
-<span>  gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.3</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># Not needed for posterior probability</span></span>
-<span>  kappa01 <span class="op">=</span> <span class="cn">NULL</span>, kappa02 <span class="op">=</span> <span class="cn">NULL</span>, nu01 <span class="op">=</span> <span class="cn">NULL</span>, nu02 <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># Not needed for vague prior</span></span>
-<span>  mu01 <span class="op">=</span> <span class="cn">NULL</span>, mu02 <span class="op">=</span> <span class="cn">NULL</span>, sigma01 <span class="op">=</span> <span class="cn">NULL</span>, sigma02 <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># Not needed for vague prior</span></span>
-<span>  mu1 <span class="op">=</span> <span class="fl">3.0</span>, mu2 <span class="op">=</span> <span class="fl">1.2</span>,</span>
-<span>  sigma1 <span class="op">=</span> <span class="fl">1.5</span>, sigma2 <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>  r <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># Not needed for controlled design</span></span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, alpha01 <span class="op">=</span> <span class="cn">NULL</span>, alpha02 <span class="op">=</span> <span class="cn">NULL</span>,  <span class="co"># No external data</span></span>
+<span>  theta.TV <span class="op">=</span> <span class="fl">1.5</span>, theta.MAV <span class="op">=</span> <span class="fl">0.5</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nMC <span class="op">=</span> <span class="cn">NULL</span>, gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  kappa01 <span class="op">=</span> <span class="cn">NULL</span>, kappa02 <span class="op">=</span> <span class="cn">NULL</span>, nu01 <span class="op">=</span> <span class="cn">NULL</span>, nu02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu01 <span class="op">=</span> <span class="cn">NULL</span>, mu02 <span class="op">=</span> <span class="cn">NULL</span>, sigma01 <span class="op">=</span> <span class="cn">NULL</span>, sigma02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu1 <span class="op">=</span> <span class="fl">4.5</span>, mu2 <span class="op">=</span> <span class="fl">2.0</span>, sigma1 <span class="op">=</span> <span class="fl">1.5</span>, sigma2 <span class="op">=</span> <span class="fl">1.3</span>,</span>
+<span>  r <span class="op">=</span> <span class="cn">NULL</span>, ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, alpha01 <span class="op">=</span> <span class="cn">NULL</span>, alpha02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bar.ye1 <span class="op">=</span> <span class="cn">NULL</span>, bar.ye2 <span class="op">=</span> <span class="cn">NULL</span>, se1 <span class="op">=</span> <span class="cn">NULL</span>, se2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">123</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_continuous</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   mu1 mu2   Go NoGo Gray</span></span>
-<span><span class="co">#&gt; 1   3 1.2 0.34    0 0.66</span></span></code></pre></div>
+<span><span class="co">#&gt;   mu1 mu2   Go Gray NoGo Miss</span></span>
+<span><span class="co">#&gt; 1 4.5   2 0.82 0.18    0    0</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="posterior-probability-1">Posterior Probability<a class="anchor" aria-label="anchor" href="#posterior-probability-1"></a>
+<h3 id="comparing-calculation-methods">Comparing Calculation Methods<a class="anchor" aria-label="anchor" href="#comparing-calculation-methods"></a>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Calculate posterior probability using WS method</span></span>
-<span><span class="va">posterior_prob_cont</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesPostPredContinuous.html">BayesPostPredContinuous</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
-<span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
-<span>  prior <span class="op">=</span> <span class="st">'vague'</span>, </span>
-<span>  CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
-<span>  theta0 <span class="op">=</span> <span class="fl">1.5</span>, </span>
-<span>  n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>,</span>
-<span>  bar.y1 <span class="op">=</span> <span class="fl">4.2</span>, bar.y2 <span class="op">=</span> <span class="fl">2.1</span>, </span>
-<span>  s1 <span class="op">=</span> <span class="fl">1.5</span>, s2 <span class="op">=</span> <span class="fl">1.3</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Posterior probability:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">posterior_prob_cont</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Posterior probability: 0.8741</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="calculation-methods">Calculation Methods<a class="anchor" aria-label="anchor" href="#calculation-methods"></a>
-</h2>
-<p>The package provides multiple calculation methods for continuous
-endpoints:</p>
-<div class="section level3">
-<h3 id="method-comparison">Method Comparison<a class="anchor" aria-label="anchor" href="#method-comparison"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Compare different methods</span></span>
-<span><span class="va">sample_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  bar.y1 <span class="op">=</span> <span class="fl">4.2</span>, bar.y2 <span class="op">=</span> <span class="fl">2.1</span>,</span>
-<span>  s1 <span class="op">=</span> <span class="fl">1.5</span>, s2 <span class="op">=</span> <span class="fl">1.3</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">theta0</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span>
-<span></span>
-<span><span class="co"># Numerical Integration (most accurate)</span></span>
-<span><span class="va">prob_ni</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesPostPredContinuous.html">BayesPostPredContinuous</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="co"># Compare NI and WS methods</span></span>
+<span><span class="va">prob_ni</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, prior <span class="op">=</span> <span class="st">'vague'</span>, CalcMethod <span class="op">=</span> <span class="st">'NI'</span>,</span>
-<span>  theta0 <span class="op">=</span> <span class="va">theta0</span>, n1 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">n1</span>, n2 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">n2</span>,</span>
-<span>  bar.y1 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">bar.y1</span>, bar.y2 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">bar.y2</span>, </span>
-<span>  s1 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">s1</span>, s2 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">s2</span></span>
+<span>  theta0 <span class="op">=</span> <span class="fl">1</span>, n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, bar.y1 <span class="op">=</span> <span class="fl">3</span>, bar.y2 <span class="op">=</span> <span class="fl">1</span>, s1 <span class="op">=</span> <span class="fl">1.5</span>, s2 <span class="op">=</span> <span class="fl">1.2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Welch-Satterthwaite (fast approximation)</span></span>
-<span><span class="va">prob_ws</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BayesPostPredContinuous.html">BayesPostPredContinuous</a></span><span class="op">(</span></span>
+<span><span class="va">prob_ws</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, prior <span class="op">=</span> <span class="st">'vague'</span>, CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
-<span>  theta0 <span class="op">=</span> <span class="va">theta0</span>, n1 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">n1</span>, n2 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">n2</span>,</span>
-<span>  bar.y1 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">bar.y1</span>, bar.y2 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">bar.y2</span>, </span>
-<span>  s1 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">s1</span>, s2 <span class="op">=</span> <span class="va">sample_data</span><span class="op">$</span><span class="va">s2</span></span>
+<span>  theta0 <span class="op">=</span> <span class="fl">1</span>, n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, bar.y1 <span class="op">=</span> <span class="fl">3</span>, bar.y2 <span class="op">=</span> <span class="fl">1</span>, s1 <span class="op">=</span> <span class="fl">1.5</span>, s2 <span class="op">=</span> <span class="fl">1.2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Method comparison for P(θ &gt; 1.5):\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Method comparison for P(θ &gt; 1.5):</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"NI method:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">prob_ni</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; NI method: 0.8656</span></span>
+<span><span class="co">#&gt; NI method: 0.0503</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"WS method:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">prob_ws</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; WS method: 0.8741</span></span>
+<span><span class="co">#&gt; WS method: 0.0429</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Difference:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">prob_ni</span> <span class="op">-</span> <span class="va">prob_ws</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Difference: 0.0085</span></span></code></pre></div>
+<span><span class="co">#&gt; Difference: 0.0074</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -275,6 +231,22 @@ data via power priors</li>
 incorporating prior knowledge</li>
 </ul>
 </div>
+</div>
+<div class="section level2">
+<h2 id="calculation-methods">Calculation Methods<a class="anchor" aria-label="anchor" href="#calculation-methods"></a>
+</h2>
+<p>For continuous endpoints, three methods are available:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>NI (Numerical Integration)</strong>: Exact calculation using
+convolution</li>
+<li>
+<strong>WS (Welch-Satterthwaite)</strong>: Fast approximation for
+unequal variances</li>
+<li>
+<strong>MC (Monte Carlo)</strong>: Simulation-based flexible
+approach</li>
+</ol>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>

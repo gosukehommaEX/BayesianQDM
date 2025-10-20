@@ -44,36 +44,41 @@
 <h2 class="pkg-version" data-toc-text="0.1.0" id="bayesianqdm-010">BayesianQDM 0.1.0<a class="anchor" aria-label="anchor" href="#bayesianqdm-010"></a></h2>
 <div class="section level3">
 <h3 id="initial-release-0-1-0">Initial Release<a class="anchor" aria-label="anchor" href="#initial-release-0-1-0"></a></h3>
-<p>This is the initial release of BayesianQDM, providing comprehensive methods for Bayesian quantitative decision-making in clinical trials.</p>
+<p>The initial release of BayesianQDM provides a comprehensive framework for Bayesian decision-making in clinical trials with support for both binary and continuous endpoints.</p>
 <div class="section level4">
-<h4 id="core-features-0-1-0">Core Features<a class="anchor" aria-label="anchor" href="#core-features-0-1-0"></a></h4>
+<h4 id="core-functions-0-1-0">Core Functions<a class="anchor" aria-label="anchor" href="#core-functions-0-1-0"></a></h4>
 <div class="section level5">
 <h5 id="binary-endpoints-0-1-0">Binary Endpoints<a class="anchor" aria-label="anchor" href="#binary-endpoints-0-1-0"></a></h5>
 <ul><li>
-<code><a href="../reference/BayesDecisionProbBinary.html">BayesDecisionProbBinary()</a></code> - Calculate Go/NoGo/Gray probabilities for binary outcomes</li>
+<code><a href="../reference/pPPsinglebinary.html">pPPsinglebinary()</a></code> - Posterior and posterior predictive probability calculation</li>
 <li>
-<code><a href="../reference/BayesPostPredBinary.html">BayesPostPredBinary()</a></code> - Calculate posterior and posterior predictive probabilities</li>
+<code><a href="../reference/pGNGsinglebinary.html">pGNGsinglebinary()</a></code> - Go/NoGo/Gray decision probability framework</li>
 <li>
-<code><a href="../reference/pBetadiff.html">pBetadiff()</a></code> - Cumulative distribution function for difference of beta variables</li>
+<code><a href="../reference/p2betadiff.html">p2betadiff()</a></code> - Beta distribution differences</li>
 <li>
-<code><a href="../reference/pBetaBinomdiff.html">pBetaBinomdiff()</a></code> - CDF for difference of beta-binomial variables</li>
+<code><a href="../reference/p2betabinomdiff.html">p2betabinomdiff()</a></code> - Beta-Binomial distribution differences</li>
 <li>
-<code><a href="../reference/AppellsF1.html">AppellsF1()</a></code> - Appell’s first hypergeometric function implementation</li>
+<code><a href="../reference/d2betadiff.html">d2betadiff()</a></code> - Density function for beta distribution differences</li>
 </ul></div>
 <div class="section level5">
 <h5 id="continuous-endpoints-0-1-0">Continuous Endpoints<a class="anchor" aria-label="anchor" href="#continuous-endpoints-0-1-0"></a></h5>
 <ul><li>
-<code><a href="../reference/BayesDecisionProbContinuous.html">BayesDecisionProbContinuous()</a></code> - Calculate Go/NoGo/Gray probabilities for continuous outcomes</li>
+<code><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous()</a></code> - Posterior and posterior predictive probability calculation</li>
 <li>
-<code><a href="../reference/BayesPostPredContinuous.html">BayesPostPredContinuous()</a></code> - Calculate posterior and posterior predictive probabilities</li>
+<code><a href="../reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous()</a></code> - Go/NoGo/Gray decision probability framework</li>
+<li>Distribution difference functions:
+<ul><li>
+<code><a href="../reference/pNI2tdiff.html">pNI2tdiff()</a></code> - Numerical integration method</li>
 <li>
-<code><a href="../reference/pNIdifft.html">pNIdifft()</a></code> - Exact numerical integration method for t-distribution differences</li>
+<code><a href="../reference/pMC2tdiff.html">pMC2tdiff()</a></code> - Monte Carlo simulation method</li>
 <li>
-<code><a href="../reference/pWSdifft.html">pWSdifft()</a></code> - Welch-Satterthwaite approximation method</li>
-<li>
-<code><a href="../reference/pMCdifft.html">pMCdifft()</a></code> - Monte Carlo simulation method</li>
-<li>
-<code><a href="../reference/pINLAdifft.html">pINLAdifft()</a></code> - INLA-based method for external data incorporation</li>
+<code><a href="../reference/pWS2tdiff.html">pWS2tdiff()</a></code> - Welch-Satterthwaite approximation method</li>
+</ul></li>
+</ul></div>
+<div class="section level5">
+<h5 id="utility-functions-0-1-0">Utility Functions<a class="anchor" aria-label="anchor" href="#utility-functions-0-1-0"></a></h5>
+<ul><li>
+<code><a href="../reference/AppellsF1.html">AppellsF1()</a></code> - Appell’s hypergeometric function F1 for numerical calculations</li>
 </ul></div>
 </div>
 <div class="section level4">
@@ -95,13 +100,11 @@
 <div class="section level4">
 <h4 id="calculation-methods-0-1-0">Calculation Methods<a class="anchor" aria-label="anchor" href="#calculation-methods-0-1-0"></a></h4>
 <ul><li>
-<strong>NI (Numerical Integration)</strong> - Exact calculation using convolution</li>
+<strong>NI</strong> (Numerical Integration) - Exact calculation using convolution</li>
 <li>
-<strong>WS (Welch-Satterthwaite)</strong> - Fast approximation for unequal variances</li>
+<strong>WS</strong> (Welch-Satterthwaite) - Fast approximation for unequal variances</li>
 <li>
-<strong>MC (Monte Carlo)</strong> - Simulation-based flexible approach</li>
-<li>
-<strong>INLA</strong> - Integrated Nested Laplace Approximation for external data</li>
+<strong>MC</strong> (Monte Carlo) - Simulation-based flexible approach</li>
 </ul></div>
 <div class="section level4">
 <h4 id="documentation-0-1-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-1-0"></a></h4>
@@ -116,7 +119,7 @@
 <div class="section level4">
 <h4 id="dependencies-0-1-0">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-0-1-0"></a></h4>
 <ul><li>Base R stats functions</li>
-<li>INLA package (suggested) for external data incorporation</li>
+<li>Suggested packages: testthat, knitr, rmarkdown, dplyr, ggplot2, tidyr, purrr</li>
 <li>Compatible with tidyverse ecosystem for data manipulation and visualization</li>
 </ul></div>
 <div class="section level4">

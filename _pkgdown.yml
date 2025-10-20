@@ -6,28 +6,28 @@ reference:
 - title: Decision Making Functions
   desc: Main functions for Go/NoGo/Gray decision making
   contents:
-  - BayesDecisionProbBinary
-  - BayesDecisionProbContinuous
+  - pGNGsinglebinary
+  - pGNGsinglecontinuous
 
 - title: Probability Calculation Functions
   desc: Functions for posterior and posterior predictive probabilities
   contents:
-  - BayesPostPredBinary
-  - BayesPostPredContinuous
+  - pPPsinglebinary
+  - pPPsinglecontinuous
 
 - title: Distribution Functions for Continuous Endpoints
   desc: Functions for calculating differences of t-distributions
   contents:
-  - pNIdifft
-  - pWSdifft
-  - pMCdifft
-  - pMCMCdiff
+  - pNI2tdiff
+  - pWS2tdiff
+  - pMC2tdiff
 
 - title: Distribution Functions for Binary Endpoints
   desc: Functions for calculating differences of beta distributions
   contents:
-  - pBetadiff
-  - pBetaBinomdiff
+  - p2betadiff
+  - p2betabinomdiff
+  - d2betadiff
 
 - title: Utility Functions
   desc: Supporting mathematical functions
