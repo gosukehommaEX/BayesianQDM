@@ -41,6 +41,7 @@ pGoNogoGray1Continuous(
   bar.ye2 = NULL,
   se1 = NULL,
   se2 = NULL,
+  Gray_inc_Miss = FALSE,
   seed
 )
 }
@@ -134,6 +135,8 @@ mean of group 2 for \code{design = 'uncontrolled'}.}
 \item{se1}{A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).}
 
 \item{se2}{A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).}
+
+\item{Gray_inc_Miss}{A logical value representing that Miss probability is included into Gray probability if TRUE, not otherwise.}
 
 \item{seed}{A numeric value representing the seed number for reproducible random number generation.}
 }
