@@ -1,4 +1,4 @@
-# BayesianQDM <img src="man/figures/badge-BayesianQDM.png" align="right" height="139" alt="BayesianQDM package logo" />
+# BayesianQDM <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/BayesianQDM)](http://cran.r-project.org/package=BayesianQDM)
@@ -8,147 +8,83 @@
 <!-- badges: end -->
 
 ## Overview
-  
-`BayesianQDM` is an R package that provides comprehensive methods for Bayesian quantitative decision-making in clinical trials. The package supports both binary and continuous endpoints with various study designs including controlled, uncontrolled, and external control designs.
 
-### Key Features
+BayesianQDM provides a comprehensive framework for **Bayesian Quantitative Decision-Making** in clinical trials. The package enables researchers to make **Go/NoGo/Gray** decisions using posterior and predictive probabilities for both binary and continuous endpoints.
 
-- **Endpoint Types**: Binary (response/non-response) and continuous (biomarker changes, scores)
-- **Study Designs**: Controlled, uncontrolled, and external control designs
-- **Decision Framework**: Go/NoGo/Gray zones for evidence-based decision making
-- **Calculation Methods**: Multiple approaches optimized for accuracy and speed
-- **Prior Integration**: Flexible prior specifications including efficient power priors for external data
+## Key Features
 
-### Decision Framework
-
-The package implements a three-zone Bayesian decision framework:
-  
-- **Go**: Sufficient evidence to proceed to next phase (high posterior probability of efficacy)
-- **NoGo**: Insufficient evidence to proceed (low posterior probability of efficacy)  
-- **Gray**: Inconclusive evidence (intermediate posterior probability requiring additional data)
-
-For technical details about the methodology, please refer to Kang et al. (20XX).
+- ✅ **Multiple Study Designs**: Controlled, uncontrolled, and external control designs
+- 📊 **Flexible Endpoints**: Support for both binary and continuous outcomes
+- 🔢 **Multiple Calculation Methods**: For continuous endpoints (Numerical Integration, Monte Carlo, Welch-Satterthwaite)
+- 🎯 **Three-Zone Decision Framework**: Go/NoGo/Gray probability calculation
+- 📈 **Power Priors**: Incorporation of historical/external data
 
 ## Installation
 
-### From CRAN (when available)
+### From CRAN
 
-``` r
+```r
 install.packages("BayesianQDM")
 ```
 
-### Development version from GitHub
+### Development Version
 
-``` r
+```r
 # install.packages("devtools")
 devtools::install_github("gosukehommaEX/BayesianQDM")
 ```
 
 ## Quick Start
 
-### Binary Endpoints Example
+### Binary Endpoint Example
 
-``` r
+```r
 library(BayesianQDM)
 
-# Calculate decision probabilities for binary endpoint
-result_binary <- pGNGsinglebinary(
+# Calculate Go/NoGo/Gray probabilities for binary endpoint
+result <- pGNGsinglebinary(
   prob = 'posterior', 
-  design = 'controlled', 
-  theta.TV = 0.3, 
-  theta.MAV = 0.1, 
-  theta.NULL = NULL,
-  gamma1 = 0.8, 
-  gamma2 = 0.2,
-  pi1 = c(0.2, 0.4, 0.6, 0.8), 
-  pi2 = rep(0.2, 4), 
-  n1 = 12, 
-  n2 = 12,
-  a1 = 0.5, 
-  a2 = 0.5, 
-  b1 = 0.5, 
-  b2 = 0.5,
-  z = NULL, 
-  m1 = NULL, 
-  m2 = NULL,
-  ne1 = NULL, 
-  ne2 = NULL, 
-  ye1 = NULL, 
-  ye2 = NULL, 
-  ae1 = NULL, 
-  ae2 = NULL
+  design = 'controlled',
+  theta.TV = 0.3, theta.MAV = 0.1, theta.NULL = NULL,
+  gamma1 = 0.8, gamma2 = 0.2,
+  pi1 = c(0.3, 0.5, 0.7), 
+  pi2 = rep(0.2, 3),
+  n1 = 15, n2 = 15,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 )
 
-print(result_binary)
-
-# Visualize results
-library(ggplot2)
-library(tidyr)
-
-result_long <- pivot_longer(result_binary, 
-                            cols = c(Go, Gray, NoGo), 
-                            names_to = "Decision", 
-                            values_to = "Probability")
-
-ggplot(result_long, aes(x = pi1 - pi2, y = Probability, fill = Decision)) +
-  geom_col(position = "stack") +
-  scale_fill_manual(values = c("Go" = "#2E7D32", "Gray" = "#BABABA", "NoGo" = "#D32F2F")) +
-  labs(title = 'Decision Probabilities for Binary Endpoint',
-       x = 'Treatment Effect (π1 - π2)',
-       y = 'Probability') +
-  theme_minimal()
+print(result)
 ```
 
-### Continuous Endpoints Example
+### Continuous Endpoint Example
 
-``` r
-# Calculate decision probabilities for continuous endpoint  
-result_continuous <- pGNGsinglecontinuous(
-  nsim = 100,
+```r
+# Calculate Go/NoGo/Gray probabilities for continuous endpoint
+result <- pGNGsinglecontinuous(
+  nsim = 100, 
   prob = 'posterior', 
   design = 'controlled', 
   prior = 'vague', 
-  CalcMethod = 'WS',
-  theta.TV = 1.5, 
-  theta.MAV = 0.5, 
-  theta.NULL = NULL,
-  nMC = NULL, 
-  gamma1 = 0.8, 
-  gamma2 = 0.3,
-  n1 = 15, 
-  n2 = 15, 
-  m1 = NULL, 
-  m2 = NULL,
-  kappa01 = NULL, 
-  kappa02 = NULL, 
-  nu01 = NULL, 
-  nu02 = NULL,
-  mu01 = NULL, 
-  mu02 = NULL, 
-  sigma01 = NULL, 
-  sigma02 = NULL,
-  mu1 = 3.0, 
-  mu2 = 1.2, 
-  sigma1 = 1.5, 
-  sigma2 = 1.5,
-  r = NULL, 
-  ne1 = NULL, 
-  ne2 = NULL, 
-  alpha01 = NULL, 
-  alpha02 = NULL,
-  bar.ye1 = NULL,
-  bar.ye2 = NULL,
-  se1 = NULL,
-  se2 = NULL,
+  CalcMethod = 'NI',
+  theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
+  nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
+  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  mu1 = 4.0, mu2 = 2.0, sigma1 = 1.5, sigma2 = 1.3,
+  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
   seed = 123
 )
 
-print(result_continuous)
+print(result)
 ```
 
 ## Documentation
 
-### 📚 Comprehensive Vignettes
+### 📚 Vignettes
 
 The package includes detailed vignettes with practical examples:
 
@@ -211,7 +147,7 @@ Standard randomized controlled trials with treatment and control groups.
 Single-arm studies using historical controls with beta priors (binary) or informative priors (continuous).
 
 ### External Control Design
-Incorporating historical/external data through power priors for enhanced decision making.
+Incorporating historical/external data through power priors for enhanced decision making. For binary endpoints, use `ne1`, `ne2`, `ye1`, `ye2`, `ae1`, `ae2` parameters. For continuous endpoints, use `ne1`, `ne2`, `alpha01`, `alpha02`, `bar.ye1`, `bar.ye2`, `se1`, `se2` parameters.
 
 ## Calculation Methods
 
@@ -246,68 +182,52 @@ cat("NI:", round(prob_ni, 4), "WS:", round(prob_ws, 4),
 ### Controlled Design
 Standard two-arm randomized controlled trial.
 
-``` r
+```r
+# Binary endpoint
 result <- pPPsinglebinary(
-  prob = 'posterior', design = 'controlled', theta0 = 0.15,
-  n1 = 20, n2 = 20, y1 = 12, y2 = 8,
+  prob = 'posterior', 
+  design = 'controlled', 
+  theta0 = 0.15,
+  n1 = 12, n2 = 15, y1 = 7, y2 = 5, 
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL,
-  ae1 = NULL, ae2 = NULL
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 )
 ```
 
 ### Uncontrolled Design
-Single-arm study with historical control.
+Single-arm study with historical control assumption.
 
-``` r
+```r
 result <- pPPsinglebinary(
-    prob = 'posterior', design = 'uncontrolled', theta0 = 0.15,
-    n1 = 20, n2 = 20, y1 = 12, y2 = 3.5,
-    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-    m1 = NULL, m2 = NULL,
-    ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL,
-    ae1 = NULL, ae2 = NULL
+  prob = 'posterior', 
+  design = 'uncontrolled', 
+  theta0 = 0.15,
+  n1 = 20, n2 = 20, y1 = 12, y2 = 3.5,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 )
 ```
 
 ### External Control Design
 Incorporating historical data using power priors.
 
-``` r
+```r
 result <- pPPsinglebinary(
-  prob = 'posterior', design = 'external', theta0 = 0.15,
+  prob = 'posterior', 
+  design = 'external', 
+  theta0 = 0.15,
   n1 = 20, n2 = 20, y1 = 12, y2 = 8,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   m1 = NULL, m2 = NULL,
-  ne1 = 30, ne2 = 30, ye1 = 18, ye2 = 12,
-  ae1 = 0.5, ae2 = 0.5
+  ne1 = 15, ne2 = 25, ye1 = 9, ye2 = 10, ae1 = 0.5, ae2 = 0.5
 )
 ```
 
-## Best Practices
+## References
 
-### Parameter Selection
-- **Thresholds**: Align with clinical meaningfulness (e.g., MCID)
-- **Decision criteria**: Balance Type I/II errors with study objectives
-- **Priors**: Document rationale and conduct sensitivity analyses
-
-### Validation
-- **Operating characteristics**: Evaluate across relevant scenarios
-- **Sensitivity analysis**: Test robustness to assumptions
-- **Method comparison**: Verify consistency across calculation approaches
-
-### Reporting
-- **Transparency**: Report all inputs (priors, thresholds, methods)
-- **Uncertainty**: Include credible intervals and sensitivity analyses
-- **Interpretation**: Provide clinical context for decision probabilities
-
-## Integration with R Ecosystem
-
-The package integrates seamlessly with:
-- **tidyverse**: Data manipulation and visualization workflows
-- **ggplot2**: Creating publication-quality decision probability plots
-- **knitr/rmarkdown**: Reproducible reporting and documentation
+For theoretical background and methodology details, please refer to the package vignettes and function documentation.
 
 ## Citation
 
@@ -319,16 +239,15 @@ Decision-Making Framework for Binary and Continuous Endpoints.
 R package version 0.1.0.
 ```
 
-## References
-
-Kang et al. (20XX). [Title]. [Journal].
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This package is licensed under GPL (>= 3).
 
-## Support
+## Authors
 
-- **Documentation**: See package vignettes and function help
-- **Issues**: Report bugs or request features on [GitHub](https://github.com/gosukehommaEX/BayesianQDM/issues)
-- **Questions**: Use GitHub Discussions for methodology questions
+- Gosuke Homma
+- Yusuke Yamaguchi
+
+## Issues and Contributions
+
+To report bugs or request features, please visit our [GitHub repository](https://github.com/gosukehommaEX/BayesianQDM/issues).

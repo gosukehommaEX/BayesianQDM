@@ -123,169 +123,144 @@ ensure reasonable build times.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="basic-usage">Basic Usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
+<h2 id="basic-examples">Basic Examples<a class="anchor" aria-label="anchor" href="#basic-examples"></a>
 </h2>
 <div class="section level3">
 <h3 id="posterior-probability">Posterior Probability<a class="anchor" aria-label="anchor" href="#posterior-probability"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Calculate posterior probability from trial data</span></span>
+<code class="sourceCode R"><span><span class="co"># Calculate posterior probability using NI method</span></span>
 <span><span class="va">posterior_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>,</span>
-<span>  design <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  prior <span class="op">=</span> <span class="st">'vague'</span>,</span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
+<span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
+<span>  prior <span class="op">=</span> <span class="st">'vague'</span>, </span>
 <span>  CalcMethod <span class="op">=</span> <span class="st">'NI'</span>,</span>
-<span>  theta0 <span class="op">=</span> <span class="fl">1.5</span>,  <span class="co"># Minimum clinically meaningful difference</span></span>
-<span>  n1 <span class="op">=</span> <span class="fl">25</span>, n2 <span class="op">=</span> <span class="fl">25</span>,</span>
-<span>  bar.y1 <span class="op">=</span> <span class="fl">5.2</span>, bar.y2 <span class="op">=</span> <span class="fl">3.5</span>,  <span class="co"># Observed means</span></span>
-<span>  s1 <span class="op">=</span> <span class="fl">2.1</span>, s2 <span class="op">=</span> <span class="fl">1.9</span>           <span class="co"># Observed SDs</span></span>
+<span>  theta0 <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, </span>
+<span>  bar.y1 <span class="op">=</span> <span class="fl">5.2</span>, bar.y2 <span class="op">=</span> <span class="fl">3.0</span>, </span>
+<span>  s1 <span class="op">=</span> <span class="fl">2.0</span>, s2 <span class="op">=</span> <span class="fl">1.8</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Posterior probability that treatment effect &gt; 1.5:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">posterior_prob</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Posterior probability that treatment effect &gt; 1.5: 0.3655</span></span></code></pre></div>
+<span><span class="co">#&gt; Posterior probability that treatment effect &gt; 1.5: 0.1323</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="posterior-predictive-probability">Posterior Predictive Probability<a class="anchor" aria-label="anchor" href="#posterior-predictive-probability"></a>
+<h3 id="comparing-calculation-methods">Comparing Calculation Methods<a class="anchor" aria-label="anchor" href="#comparing-calculation-methods"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Calculate probability of future trial success</span></span>
-<span><span class="va">predictive_prob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'predictive'</span>,</span>
-<span>  design <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  prior <span class="op">=</span> <span class="st">'vague'</span>,</span>
-<span>  CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
-<span>  theta0 <span class="op">=</span> <span class="fl">1.0</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">25</span>, n2 <span class="op">=</span> <span class="fl">25</span>,      <span class="co"># Current trial</span></span>
-<span>  m1 <span class="op">=</span> <span class="fl">100</span>, m2 <span class="op">=</span> <span class="fl">100</span>,    <span class="co"># Future trial</span></span>
-<span>  bar.y1 <span class="op">=</span> <span class="fl">5.2</span>, bar.y2 <span class="op">=</span> <span class="fl">3.5</span>,</span>
-<span>  s1 <span class="op">=</span> <span class="fl">2.1</span>, s2 <span class="op">=</span> <span class="fl">1.9</span></span>
+<code class="sourceCode R"><span><span class="co"># Compare NI and WS methods</span></span>
+<span><span class="va">prob_ni</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, prior <span class="op">=</span> <span class="st">'vague'</span>, CalcMethod <span class="op">=</span> <span class="st">'NI'</span>,</span>
+<span>  theta0 <span class="op">=</span> <span class="fl">1.5</span>, n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>, bar.y1 <span class="op">=</span> <span class="fl">5</span>, bar.y2 <span class="op">=</span> <span class="fl">3</span>, s1 <span class="op">=</span> <span class="fl">2</span>, s2 <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Probability of future trial success:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">predictive_prob</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Probability of future trial success: 0.0096</span></span></code></pre></div>
+<span><span class="va">prob_ws</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, prior <span class="op">=</span> <span class="st">'vague'</span>, CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
+<span>  theta0 <span class="op">=</span> <span class="fl">1.5</span>, n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>, bar.y1 <span class="op">=</span> <span class="fl">5</span>, bar.y2 <span class="op">=</span> <span class="fl">3</span>, s1 <span class="op">=</span> <span class="fl">2</span>, s2 <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"NI method:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">prob_ni</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; NI method: 0.2572</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"WS method:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">prob_ws</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; WS method: 0.2496</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Difference:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">prob_ni</span> <span class="op">-</span> <span class="va">prob_ws</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Difference: 0.00763</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="comparison-of-calculation-methods">Comparison of Calculation Methods<a class="anchor" aria-label="anchor" href="#comparison-of-calculation-methods"></a>
+<h2 id="gonogogray-decision-probabilities">Go/NoGo/Gray Decision Probabilities<a class="anchor" aria-label="anchor" href="#gonogogray-decision-probabilities"></a>
 </h2>
 <div class="section level3">
-<h3 id="method-accuracy-and-speed">Method Accuracy and Speed<a class="anchor" aria-label="anchor" href="#method-accuracy-and-speed"></a>
+<h3 id="basic-usage">Basic Usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Compare NI and WS methods</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"=== Method Comparison ===\n\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; === Method Comparison ===</span></span>
+<code class="sourceCode R"><span><span class="co"># Calculate Go/NoGo/Gray probabilities</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous</a></span><span class="op">(</span></span>
+<span>  nsim <span class="op">=</span> <span class="fl">50</span>,  <span class="co"># Small nsim for vignette speed</span></span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
+<span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
+<span>  prior <span class="op">=</span> <span class="st">'vague'</span>, </span>
+<span>  CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
+<span>  theta.TV <span class="op">=</span> <span class="fl">1.5</span>, theta.MAV <span class="op">=</span> <span class="fl">0.5</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nMC <span class="op">=</span> <span class="cn">NULL</span>, gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  kappa01 <span class="op">=</span> <span class="cn">NULL</span>, kappa02 <span class="op">=</span> <span class="cn">NULL</span>, nu01 <span class="op">=</span> <span class="cn">NULL</span>, nu02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu01 <span class="op">=</span> <span class="cn">NULL</span>, mu02 <span class="op">=</span> <span class="cn">NULL</span>, sigma01 <span class="op">=</span> <span class="cn">NULL</span>, sigma02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu1 <span class="op">=</span> <span class="fl">5.0</span>, mu2 <span class="op">=</span> <span class="fl">3.0</span>, sigma1 <span class="op">=</span> <span class="fl">2.0</span>, sigma2 <span class="op">=</span> <span class="fl">1.8</span>,</span>
+<span>  r <span class="op">=</span> <span class="cn">NULL</span>, ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, alpha01 <span class="op">=</span> <span class="cn">NULL</span>, alpha02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bar.ye1 <span class="op">=</span> <span class="cn">NULL</span>, bar.ye2 <span class="op">=</span> <span class="cn">NULL</span>, se1 <span class="op">=</span> <span class="cn">NULL</span>, se2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fl">123</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># NI method (exact)</span></span>
-<span><span class="va">time_ni</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>  <span class="va">prob_ni</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
-<span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, prior <span class="op">=</span> <span class="st">'vague'</span>, CalcMethod <span class="op">=</span> <span class="st">'NI'</span>,</span>
-<span>    theta0 <span class="op">=</span> <span class="fl">1.5</span>, n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, bar.y1 <span class="op">=</span> <span class="fl">5</span>, bar.y2 <span class="op">=</span> <span class="fl">3</span>, s1 <span class="op">=</span> <span class="fl">2</span>, s2 <span class="op">=</span> <span class="fl">2</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"NI method:\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; NI method:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"  Probability:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">prob_ni</span>, <span class="fl">6</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   Probability: 0.223105</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"  Time:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">time_ni</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"seconds\n\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   Time: 0 seconds</span></span>
-<span></span>
-<span><span class="co"># WS method (approximation)</span></span>
-<span><span class="va">time_ws</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>  <span class="va">prob_ws</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
-<span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, prior <span class="op">=</span> <span class="st">'vague'</span>, CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
-<span>    theta0 <span class="op">=</span> <span class="fl">1.5</span>, n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, bar.y1 <span class="op">=</span> <span class="fl">5</span>, bar.y2 <span class="op">=</span> <span class="fl">3</span>, s1 <span class="op">=</span> <span class="fl">2</span>, s2 <span class="op">=</span> <span class="fl">2</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"WS method:\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; WS method:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"  Probability:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">prob_ws</span>, <span class="fl">6</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   Probability: 0.217051</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"  Time:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">time_ws</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"seconds\n\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   Time: 0 seconds</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Difference:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">prob_ni</span> <span class="op">-</span> <span class="va">prob_ws</span><span class="op">)</span>, <span class="fl">6</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Difference: 0.006054</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Speed-up:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">time_ni</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_ws</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"x\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Speed-up: NaN x</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   mu1 mu2   Go Gray NoGo</span></span>
+<span><span class="co">#&gt; 1   5   3 0.46 0.52 0.02</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="gonogogray-decision-making">Go/NoGo/Gray Decision Making<a class="anchor" aria-label="anchor" href="#gonogogray-decision-making"></a>
+<h2 id="operating-characteristics">Operating Characteristics<a class="anchor" aria-label="anchor" href="#operating-characteristics"></a>
 </h2>
 <div class="section level3">
-<h3 id="operating-characteristics">Operating Characteristics<a class="anchor" aria-label="anchor" href="#operating-characteristics"></a>
+<h3 id="evaluating-across-treatment-effects">Evaluating Across Treatment Effects<a class="anchor" aria-label="anchor" href="#evaluating-across-treatment-effects"></a>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Evaluate decision probabilities across different scenarios</span></span>
-<span><span class="va">true_effects</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  mu1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span><span class="op">)</span>,</span>
-<span>  mu2 <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Evaluate OC across different treatment effects</span></span>
+<span><span class="va">mu1_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">7</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">oc_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">true_effects</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous</a></span><span class="op">(</span></span>
-<span>    nsim <span class="op">=</span> <span class="fl">50</span>,  <span class="co"># Increased for better estimates</span></span>
-<span>    prob <span class="op">=</span> <span class="st">'posterior'</span>,</span>
-<span>    design <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>    prior <span class="op">=</span> <span class="st">'vague'</span>,</span>
-<span>    CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
-<span>    theta.TV <span class="op">=</span> <span class="fl">2.0</span>,   <span class="co"># Target value for Go</span></span>
-<span>    theta.MAV <span class="op">=</span> <span class="fl">0.5</span>,  <span class="co"># Minimum acceptable value for NoGo</span></span>
-<span>    theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    nMC <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    gamma1 <span class="op">=</span> <span class="fl">0.8</span>,     <span class="co"># Go threshold</span></span>
-<span>    gamma2 <span class="op">=</span> <span class="fl">0.2</span>,     <span class="co"># NoGo threshold</span></span>
-<span>    n1 <span class="op">=</span> <span class="fl">30</span>, n2 <span class="op">=</span> <span class="fl">30</span>,</span>
-<span>    m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span><span class="va">oc_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">mu1_values</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m1</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous</a></span><span class="op">(</span></span>
+<span>    nsim <span class="op">=</span> <span class="fl">30</span>,  <span class="co"># Reduced for vignette speed</span></span>
+<span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, prior <span class="op">=</span> <span class="st">'vague'</span>, CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
+<span>    theta.TV <span class="op">=</span> <span class="fl">1.5</span>, theta.MAV <span class="op">=</span> <span class="fl">0.5</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    nMC <span class="op">=</span> <span class="cn">NULL</span>, gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>    n1 <span class="op">=</span> <span class="fl">30</span>, n2 <span class="op">=</span> <span class="fl">30</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    kappa01 <span class="op">=</span> <span class="cn">NULL</span>, kappa02 <span class="op">=</span> <span class="cn">NULL</span>, nu01 <span class="op">=</span> <span class="cn">NULL</span>, nu02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    mu01 <span class="op">=</span> <span class="cn">NULL</span>, mu02 <span class="op">=</span> <span class="cn">NULL</span>, sigma01 <span class="op">=</span> <span class="cn">NULL</span>, sigma02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    mu1 <span class="op">=</span> <span class="va">true_effects</span><span class="op">$</span><span class="va">mu1</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
-<span>    mu2 <span class="op">=</span> <span class="va">true_effects</span><span class="op">$</span><span class="va">mu2</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>,</span>
-<span>    sigma1 <span class="op">=</span> <span class="fl">2</span>, sigma2 <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>    mu1 <span class="op">=</span> <span class="va">m1</span>, mu2 <span class="op">=</span> <span class="fl">3</span>, sigma1 <span class="op">=</span> <span class="fl">2</span>, sigma2 <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>    r <span class="op">=</span> <span class="cn">NULL</span>, ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, alpha01 <span class="op">=</span> <span class="cn">NULL</span>, alpha02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    bar.ye1 <span class="op">=</span> <span class="cn">NULL</span>, bar.ye2 <span class="op">=</span> <span class="cn">NULL</span>, se1 <span class="op">=</span> <span class="cn">NULL</span>, se2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    seed <span class="op">=</span> <span class="fl">123</span> <span class="op">+</span> <span class="va">i</span></span>
+<span>    seed <span class="op">=</span> <span class="fl">123</span></span>
+<span>  <span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    mu1 <span class="op">=</span> <span class="va">m1</span>,</span>
+<span>    treatment_effect <span class="op">=</span> <span class="va">m1</span> <span class="op">-</span> <span class="fl">3</span>,</span>
+<span>    go_prob <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">Go</span>,</span>
+<span>    nogo_prob <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">NoGo</span>,</span>
+<span>    gray_prob <span class="op">=</span> <span class="va">result</span><span class="op">$</span><span class="va">Gray</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">oc_results</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   mu1 mu2   Go Gray NoGo Miss</span></span>
-<span><span class="co">#&gt; 1   3   2 0.00 0.42 0.58    0</span></span>
-<span><span class="co">#&gt; 2   4   2 0.18 0.76 0.06    0</span></span>
-<span><span class="co">#&gt; 3   5   2 0.80 0.20 0.00    0</span></span>
-<span><span class="co">#&gt; 4   6   2 1.00 0.00 0.00    0</span></span>
-<span><span class="co">#&gt; 5   7   2 1.00 0.00 0.00    0</span></span></code></pre></div>
+<span><span class="co">#&gt;   mu1 treatment_effect   go_prob  nogo_prob  gray_prob</span></span>
+<span><span class="co">#&gt; 1   3                0 0.0000000 0.96666667 0.03333333</span></span>
+<span><span class="co">#&gt; 2   4                1 0.0000000 0.23333333 0.76666667</span></span>
+<span><span class="co">#&gt; 3   5                2 0.6000000 0.03333333 0.36666667</span></span>
+<span><span class="co">#&gt; 4   6                3 0.9333333 0.00000000 0.06666667</span></span>
+<span><span class="co">#&gt; 5   7                4 1.0000000 0.00000000 0.00000000</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="visualizing-decision-probabilities">Visualizing Decision Probabilities<a class="anchor" aria-label="anchor" href="#visualizing-decision-probabilities"></a>
+<h3 id="visualizing-operating-characteristics">Visualizing Operating Characteristics<a class="anchor" aria-label="anchor" href="#visualizing-operating-characteristics"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Calculate true treatment effect</span></span>
-<span><span class="va">oc_results</span><span class="op">$</span><span class="va">true_effect</span> <span class="op">&lt;-</span> <span class="va">oc_results</span><span class="op">$</span><span class="va">mu1</span> <span class="op">-</span> <span class="va">oc_results</span><span class="op">$</span><span class="va">mu2</span></span>
-<span></span>
-<span><span class="co"># Reshape for plotting</span></span>
+<code class="sourceCode R"><span><span class="co"># Reshape for plotting</span></span>
 <span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">oc_results</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">true_effect</span>, <span class="va">Go</span>, <span class="va">NoGo</span>, <span class="va">Gray</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">Go</span>, <span class="va">NoGo</span>, <span class="va">Gray</span><span class="op">)</span>, </span>
-<span>               names_to <span class="op">=</span> <span class="st">"Decision"</span>, </span>
-<span>               values_to <span class="op">=</span> <span class="st">"Probability"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">go_prob</span>, <span class="va">gray_prob</span>, <span class="va">nogo_prob</span><span class="op">)</span>, </span>
+<span>               names_to <span class="op">=</span> <span class="st">"decision"</span>, </span>
+<span>               values_to <span class="op">=</span> <span class="st">"probability"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Decision <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>    <span class="va">decision</span> <span class="op">==</span> <span class="st">"go_prob"</span> <span class="op">~</span> <span class="st">"Go"</span>,</span>
+<span>    <span class="va">decision</span> <span class="op">==</span> <span class="st">"gray_prob"</span> <span class="op">~</span> <span class="st">"Gray"</span>,</span>
+<span>    <span class="va">decision</span> <span class="op">==</span> <span class="st">"nogo_prob"</span> <span class="op">~</span> <span class="st">"NoGo"</span></span>
+<span>  <span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Create visualization</span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">true_effect</span>, y <span class="op">=</span> <span class="va">Probability</span>, color <span class="op">=</span> <span class="va">Decision</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">treatment_effect</span>, y <span class="op">=</span> <span class="va">probability</span>, color <span class="op">=</span> <span class="va">Decision</span>, linetype <span class="op">=</span> <span class="va">Decision</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span></span>
-<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Go'</span> <span class="op">=</span> <span class="st">'#2E8B57'</span>, <span class="st">'Gray'</span> <span class="op">=</span> <span class="st">'#808080'</span>, <span class="st">'NoGo'</span> <span class="op">=</span> <span class="st">'#DC143C'</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">2.0</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span>, color <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0.5</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span>, color <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html" class="external-link">annotate</a></span><span class="op">(</span><span class="st">"text"</span>, x <span class="op">=</span> <span class="fl">2.0</span>, y <span class="op">=</span> <span class="fl">0.95</span>, label <span class="op">=</span> <span class="st">"θ_TV"</span>, color <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html" class="external-link">annotate</a></span><span class="op">(</span><span class="st">"text"</span>, x <span class="op">=</span> <span class="fl">0.5</span>, y <span class="op">=</span> <span class="fl">0.95</span>, label <span class="op">=</span> <span class="st">"θ_MAV"</span>, color <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Go"</span> <span class="op">=</span> <span class="st">"#2E8B57"</span>, <span class="st">"Gray"</span> <span class="op">=</span> <span class="st">"#DAA520"</span>, <span class="st">"NoGo"</span> <span class="op">=</span> <span class="st">"#DC143C"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_linetype_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Go"</span> <span class="op">=</span> <span class="st">"solid"</span>, <span class="st">"Gray"</span> <span class="op">=</span> <span class="st">"dashed"</span>, <span class="st">"NoGo"</span> <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Operating Characteristics for Continuous Endpoint Trial"</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"Operating Characteristics: Decision Probabilities"</span>,</span>
 <span>    subtitle <span class="op">=</span> <span class="st">"Sample size = 30 per arm, σ = 2"</span>,</span>
 <span>    x <span class="op">=</span> <span class="st">"True Treatment Effect (μ₁ - μ₂)"</span>,</span>
 <span>    y <span class="op">=</span> <span class="st">"Decision Probability"</span>,</span>
@@ -297,7 +272,7 @@ ensure reasonable build times.</p>
 <span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>face <span class="op">=</span> <span class="st">"bold"</span>, size <span class="op">=</span> <span class="fl">14</span><span class="op">)</span>,</span>
 <span>    legend.position <span class="op">=</span> <span class="st">"bottom"</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p><img src="continuous-endpoints_files/figure-html/decision_plot-1.png" alt="Visualization of statistical methods and decision probabilities for continuous endpoints" width="768"></p>
+<p><img src="continuous-endpoints_files/figure-html/oc_plot-1.png" alt="Visualization of statistical methods and decision probabilities for continuous endpoints" width="768"></p>
 </div>
 </div>
 <div class="section level2">
@@ -441,28 +416,24 @@ ensure reasonable build times.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Reshape for plotting</span></span>
 <span><span class="va">power_plot_data</span> <span class="op">&lt;-</span> <span class="va">oc_results_n</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">go_prob</span>, <span class="va">gray_prob</span>, <span class="va">nogo_prob</span><span class="op">)</span>,</span>
-<span>               names_to <span class="op">=</span> <span class="st">"Decision"</span>,</span>
-<span>               values_to <span class="op">=</span> <span class="st">"Probability"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Decision <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/recode.html" class="external-link">recode</a></span><span class="op">(</span><span class="va">Decision</span>,</span>
-<span>                           <span class="st">"go_prob"</span> <span class="op">=</span> <span class="st">"Go"</span>,</span>
-<span>                           <span class="st">"gray_prob"</span> <span class="op">=</span> <span class="st">"Gray"</span>,</span>
-<span>                           <span class="st">"nogo_prob"</span> <span class="op">=</span> <span class="st">"NoGo"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">go_prob</span>, <span class="va">gray_prob</span>, <span class="va">nogo_prob</span><span class="op">)</span>, </span>
+<span>               names_to <span class="op">=</span> <span class="st">"decision"</span>, </span>
+<span>               values_to <span class="op">=</span> <span class="st">"probability"</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>Decision <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>    <span class="va">decision</span> <span class="op">==</span> <span class="st">"go_prob"</span> <span class="op">~</span> <span class="st">"Go"</span>,</span>
+<span>    <span class="va">decision</span> <span class="op">==</span> <span class="st">"gray_prob"</span> <span class="op">~</span> <span class="st">"Gray"</span>,</span>
+<span>    <span class="va">decision</span> <span class="op">==</span> <span class="st">"nogo_prob"</span> <span class="op">~</span> <span class="st">"NoGo"</span></span>
+<span>  <span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">power_plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">sample_size</span>, y <span class="op">=</span> <span class="va">Probability</span>, color <span class="op">=</span> <span class="va">Decision</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">power_plot_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">sample_size</span>, y <span class="op">=</span> <span class="va">probability</span>, color <span class="op">=</span> <span class="va">Decision</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span></span>
-<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Go'</span> <span class="op">=</span> <span class="st">'#2E8B57'</span>, <span class="st">'Gray'</span> <span class="op">=</span> <span class="st">'#808080'</span>, <span class="st">'NoGo'</span> <span class="op">=</span> <span class="st">'#DC143C'</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_hline</a></span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.8</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, color <span class="op">=</span> <span class="st">"blue"</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html" class="external-link">annotate</a></span><span class="op">(</span><span class="st">"text"</span>, x <span class="op">=</span> <span class="fl">45</span>, y <span class="op">=</span> <span class="fl">0.85</span>, label <span class="op">=</span> <span class="st">"Target: 80%"</span>, color <span class="op">=</span> <span class="st">"blue"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_color_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Go"</span> <span class="op">=</span> <span class="st">"#2E8B57"</span>, <span class="st">"Gray"</span> <span class="op">=</span> <span class="st">"#DAA520"</span>, <span class="st">"NoGo"</span> <span class="op">=</span> <span class="st">"#DC143C"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Power Analysis: Sample Size vs Decision Probabilities"</span>,</span>
+<span>    title <span class="op">=</span> <span class="st">"Power Analysis: Sample Size vs Decision Probability"</span>,</span>
 <span>    x <span class="op">=</span> <span class="st">"Sample Size (per arm)"</span>,</span>
 <span>    y <span class="op">=</span> <span class="st">"Decision Probability"</span>,</span>
-<span>    color <span class="op">=</span> <span class="st">"Decision"</span>,</span>
-<span>    subtitle <span class="op">=</span> <span class="st">"Assuming true treatment effect = 2.0, σ = 2"</span></span>
+<span>    subtitle <span class="op">=</span> <span class="st">"True treatment effect = 2.0, σ = 2"</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="va"><a href="https://scales.r-lib.org/reference/percent_format.html" class="external-link">percent</a></span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -477,62 +448,50 @@ ensure reasonable build times.</p>
 <h2 id="practical-guidelines">Practical Guidelines<a class="anchor" aria-label="anchor" href="#practical-guidelines"></a>
 </h2>
 <div class="section level3">
-<h3 id="method-selection-guidelines">Method Selection Guidelines<a class="anchor" aria-label="anchor" href="#method-selection-guidelines"></a>
+<h3 id="method-selection">Method Selection<a class="anchor" aria-label="anchor" href="#method-selection"></a>
 </h3>
-<p>Choose calculation methods based on your needs:</p>
-<ul>
-<li>
-<strong>NI</strong>: Use when exact results are required and
-computational time is not critical</li>
-<li>
-<strong>WS</strong>: Use for quick approximations, especially with
-unequal variances</li>
-<li>
-<strong>MC</strong>: Use when other methods fail or for sensitivity
-analysis</li>
-</ul>
+<p><strong>NI (Numerical Integration)</strong> - Most accurate -
+Recommended for final analyses and regulatory submissions - Moderate
+computational time</p>
+<p><strong>WS (Welch-Satterthwaite)</strong> - Fast approximation - Good
+for exploratory analyses and simulations - Very close to NI results in
+most cases</p>
+<p><strong>MC (Monte Carlo)</strong> - Flexible but slowest - Use when
+other methods are not applicable - Requires careful selection of nMC
+(typically 10,000+)</p>
 </div>
 <div class="section level3">
-<h3 id="parameter-selection-guidelines">Parameter Selection Guidelines<a class="anchor" aria-label="anchor" href="#parameter-selection-guidelines"></a>
+<h3 id="design-selection">Design Selection<a class="anchor" aria-label="anchor" href="#design-selection"></a>
 </h3>
-<div class="section level4">
-<h4 id="threshold-selection">Threshold Selection<a class="anchor" aria-label="anchor" href="#threshold-selection"></a>
-</h4>
-<ul>
+<ol style="list-style-type: decimal">
 <li>
-<strong>θ_TV</strong>: Clinically meaningful difference (e.g., 1.5 ×
-minimal clinically important difference)</li>
+<strong>Controlled</strong>: Standard two-arm trial with concurrent
+controls</li>
 <li>
-<strong>θ_MAV</strong>: Smallest worthwhile effect (e.g., 0.5 ×
-minimal clinically important difference)</li>
-</ul>
+<strong>Uncontrolled</strong>: Single-arm when ethical/practical
+constraints prevent randomization</li>
+<li>
+<strong>External</strong>: When incorporating historical data can
+reduce sample size requirements</li>
+</ol>
 </div>
-<div class="section level4">
-<h4 id="decision-criteria">Decision Criteria<a class="anchor" aria-label="anchor" href="#decision-criteria"></a>
-</h4>
+<div class="section level3">
+<h3 id="threshold-selection">Threshold Selection<a class="anchor" aria-label="anchor" href="#threshold-selection"></a>
+</h3>
 <ul>
 <li>
-<strong>γ₁ (Go threshold)</strong>: 0.8-0.9 for high confidence</li>
+<strong>θ_TV (Target Value)</strong>: Clinically meaningful
+difference</li>
 <li>
-<strong>γ₂ (NoGo threshold)</strong>: 0.2-0.3 for early
+<strong>θ_MAV (Minimum Acceptable Value)</strong>: Smallest
+worthwhile effect</li>
+<li>
+<strong>γ₁ (Go threshold)</strong>: 0.7-0.9 depending on risk
+tolerance</li>
+<li>
+<strong>γ₂ (NoGo threshold)</strong>: 0.2-0.4 for early
 stopping</li>
 </ul>
-</div>
-<div class="section level4">
-<h4 id="prior-selection">Prior Selection<a class="anchor" aria-label="anchor" href="#prior-selection"></a>
-</h4>
-<ul>
-<li>
-<strong>Vague priors</strong>: When minimal prior information is
-available</li>
-<li>
-<strong>Conjugate priors</strong>: For incorporating historical data
-or expert opinion</li>
-<li>
-<strong>Power priors</strong>: For external control
-incorporation</li>
-</ul>
-</div>
 </div>
 </div>
 <div class="section level2">
@@ -544,31 +503,21 @@ incorporation</li>
 <strong>Basic probability calculations</strong> for continuous
 endpoints</li>
 <li>
-<strong>Comparison of calculation methods</strong> (NI vs WS)</li>
+<strong>Method comparison</strong> (NI, WS, MC)</li>
 <li>
-<strong>Go/NoGo/Gray decision framework</strong> with operating
-characteristics</li>
+<strong>Go/NoGo/Gray decision framework</strong> implementation</li>
+<li>
+<strong>Operating characteristics</strong> evaluation</li>
 <li>
 <strong>Prior specification</strong> (vague vs informative)</li>
 <li>
-<strong>External control design</strong> using power priors</li>
+<strong>External control design</strong> with power priors</li>
 <li>
-<strong>Power analysis</strong> for sample size determination</li>
+<strong>Sample size and power</strong> considerations</li>
 </ol>
-<p>The BayesianQDM package for continuous endpoints provides:</p>
-<ul>
-<li>Multiple calculation methods for different accuracy-speed
-trade-offs</li>
-<li>Flexible prior specifications for incorporating existing
-knowledge</li>
-<li>Comprehensive decision frameworks with customizable thresholds</li>
-<li>Support for various designs including controlled, uncontrolled, and
-external control</li>
-<li>Operating characteristics evaluation for trial planning</li>
-</ul>
-<p>This framework enables robust, evidence-based decision making in
-clinical trials with continuous endpoints while accounting for
-uncertainty and prior information.</p>
+<p>The BayesianQDM package provides flexible and rigorous tools for
+Bayesian decision-making in clinical trials with continuous
+endpoints.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -577,8 +526,7 @@ uncertainty and prior information.</p>
 <ul>
 <li>The main BayesianQDM vignette for framework overview</li>
 <li>Function documentation for parameter specifications</li>
-<li>The binary endpoints vignette for comparison with discrete
-outcomes</li>
+<li>The binary endpoints vignette for analysis of discrete outcomes</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

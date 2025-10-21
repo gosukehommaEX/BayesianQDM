@@ -84,6 +84,7 @@ controlled, uncontrolled, and external control designs.</p>
 <span>  <span class="va">ye2</span>,</span>
 <span>  <span class="va">ae1</span>,</span>
 <span>  <span class="va">ae2</span>,</span>
+<span>  error_if_Miss <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -222,15 +223,26 @@ for group 2 (required if <code>design = 'external'</code>). Controls the degree
 of borrowing: 0 = no borrowing, 1 = full borrowing.</p></dd>
 
 
+<dt id="arg-error-if-miss">error_if_Miss<a class="anchor" aria-label="anchor" href="#arg-error-if-miss"></a></dt>
+<dd><p>A logical value; if <code>TRUE</code> (default), the function stops
+with an error when positive Miss probability is obtained, indicating poorly
+chosen thresholds. If <code>FALSE</code>, the function proceeds and reports Miss
+probability based on <code>Gray_inc_Miss</code> setting.</p></dd>
+
+
 <dt id="arg-gray-inc-miss">Gray_inc_Miss<a class="anchor" aria-label="anchor" href="#arg-gray-inc-miss"></a></dt>
-<dd><p>A logical value; if TRUE, Miss probability is included in
-Gray probability. If FALSE, Miss probability is reported separately.</p></dd>
+<dd><p>A logical value; if <code>TRUE</code>, Miss probability is included
+in Gray probability (Miss is not reported separately). If <code>FALSE</code>
+(default), Miss probability is reported as a separate category. This parameter
+is only active when <code>error_if_Miss = FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data frame containing the true response probabilities for both groups
-and the corresponding Go, NoGo, Gray, and Miss probabilities.</p>
+and the corresponding Go, NoGo, and Gray probabilities. When
+<code>error_if_Miss = FALSE</code> and <code>Gray_inc_Miss = FALSE</code>, Miss
+probability is also included as a separate column.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -246,6 +258,12 @@ P(treatment effect &gt; threshold | data) in lower tail ≥ γ₂</p></li>
 <li><p><strong>Gray</strong>: Neither Go nor NoGo criteria are met (γ₂ &lt; probability &lt; γ₁)</p></li>
 <li><p><strong>Miss</strong>: Both Go and NoGo criteria are met simultaneously (indicates
 poorly chosen thresholds)</p></li>
+</ul><p><strong>Handling Miss probability</strong>:</p><ul><li><p>When <code>error_if_Miss = TRUE</code> (default): Function stops with error if
+Miss probability &gt; 0, prompting reconsideration of thresholds</p></li>
+<li><p>When <code>error_if_Miss = FALSE</code> and <code>Gray_inc_Miss = TRUE</code>: Miss
+probability is added to Gray probability</p></li>
+<li><p>When <code>error_if_Miss = FALSE</code> and <code>Gray_inc_Miss = FALSE</code>: Miss
+probability is reported as a separate category</p></li>
 </ul><p>The function can be used for:</p><ul><li><p><strong>Controlled design</strong>: Two-arm randomized trial</p></li>
 <li><p><strong>Uncontrolled design</strong>: Single-arm trial with historical control</p></li>
 <li><p><strong>External design</strong>: Incorporating historical data through power priors</p></li>
@@ -253,7 +271,8 @@ poorly chosen thresholds)</p></li>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Calculate Go/NoGo/Gray probabilities using posterior probability for controlled design</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example 1: Calculate Go/NoGo/Gray probabilities using posterior probability</span></span></span>
+<span class="r-in"><span><span class="co"># for controlled design (default: error_if_Miss = TRUE)</span></span></span>
 <span class="r-in"><span><span class="fu">pGNGsinglebinary</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>,</span></span>
 <span class="r-in"><span>  theta.TV <span class="op">=</span> <span class="fl">0.4</span>, theta.MAV <span class="op">=</span> <span class="fl">0.2</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
@@ -261,15 +280,16 @@ poorly chosen thresholds)</p></li>
 <span class="r-in"><span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span><span class="op">)</span>, pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">4</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span></span>
 <span class="r-in"><span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
-<span class="r-in"><span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span></span>
+<span class="r-in"><span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  error_if_Miss <span class="op">=</span> <span class="cn">TRUE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pi1 pi2           Go        Gray       NoGo Miss</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.2 0.2 0.0004067764 0.009831985 0.98976124    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.4 0.2 0.0277220471 0.140475165 0.83180279    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.6 0.2 0.2223529072 0.342730771 0.43491632    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.8 0.2 0.6558924323 0.254936309 0.08917126    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pi1 pi2           Go        Gray       NoGo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.2 0.2 0.0004067764 0.009831985 0.98976124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.4 0.2 0.0277220471 0.140475165 0.83180279</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.6 0.2 0.2223529072 0.342730771 0.43491632</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.8 0.2 0.6558924323 0.254936309 0.08917126</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Calculate Go/NoGo/Gray probabilities using posterior predictive probability</span></span></span>
+<span class="r-in"><span><span class="co"># Example 2: Calculate Go/NoGo/Gray probabilities using posterior predictive probability</span></span></span>
 <span class="r-in"><span><span class="fu">pGNGsinglebinary</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  prob <span class="op">=</span> <span class="st">'predictive'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>,</span></span>
 <span class="r-in"><span>  theta.TV <span class="op">=</span> <span class="cn">NULL</span>, theta.MAV <span class="op">=</span> <span class="cn">NULL</span>, theta.NULL <span class="op">=</span> <span class="fl">0</span>,</span></span>
@@ -277,13 +297,44 @@ poorly chosen thresholds)</p></li>
 <span class="r-in"><span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span><span class="op">)</span>, pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">4</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span></span>
 <span class="r-in"><span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="fl">30</span>, m2 <span class="op">=</span> <span class="fl">30</span>,</span></span>
-<span class="r-in"><span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span></span>
+<span class="r-in"><span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  error_if_Miss <span class="op">=</span> <span class="cn">TRUE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pi1 pi2         Go       Gray        NoGo Miss</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.2 0.2 0.05181157 0.16723674 0.780951694    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.4 0.2 0.31955679 0.34291483 0.337528381    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.6 0.2 0.73018709 0.20070958 0.069103325    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.8 0.2 0.96383294 0.03237868 0.003788378    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pi1 pi2         Go       Gray        NoGo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.2 0.2 0.05181157 0.16723674 0.780951694</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.4 0.2 0.31955679 0.34291483 0.337528381</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 0.6 0.2 0.73018709 0.20070958 0.069103325</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.8 0.2 0.96383294 0.03237868 0.003788378</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 3: Report Miss probability separately when thresholds may be suboptimal</span></span></span>
+<span class="r-in"><span><span class="fu">pGNGsinglebinary</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>,</span></span>
+<span class="r-in"><span>  theta.TV <span class="op">=</span> <span class="fl">0.3</span>, theta.MAV <span class="op">=</span> <span class="fl">0.25</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  gamma1 <span class="op">=</span> <span class="fl">0.7</span>, gamma2 <span class="op">=</span> <span class="fl">0.6</span>,</span></span>
+<span class="r-in"><span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.6</span><span class="op">)</span>, pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  n1 <span class="op">=</span> <span class="fl">10</span>, n2 <span class="op">=</span> <span class="fl">10</span>, a1 <span class="op">=</span> <span class="fl">1</span>, a2 <span class="op">=</span> <span class="fl">1</span>, b1 <span class="op">=</span> <span class="fl">1</span>, b2 <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  error_if_Miss <span class="op">=</span> <span class="cn">FALSE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pi1 pi2         Go      Gray      NoGo Miss</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.4 0.3 0.04690148 0.1937072 0.7593913    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.6 0.3 0.24398543 0.3574158 0.3985988    0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 4: Include Miss probability in Gray when error_if_Miss = FALSE</span></span></span>
+<span class="r-in"><span><span class="fu">pGNGsinglebinary</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>,</span></span>
+<span class="r-in"><span>  theta.TV <span class="op">=</span> <span class="fl">0.3</span>, theta.MAV <span class="op">=</span> <span class="fl">0.25</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  gamma1 <span class="op">=</span> <span class="fl">0.7</span>, gamma2 <span class="op">=</span> <span class="fl">0.6</span>,</span></span>
+<span class="r-in"><span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.6</span><span class="op">)</span>, pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  n1 <span class="op">=</span> <span class="fl">10</span>, n2 <span class="op">=</span> <span class="fl">10</span>, a1 <span class="op">=</span> <span class="fl">1</span>, a2 <span class="op">=</span> <span class="fl">1</span>, b1 <span class="op">=</span> <span class="fl">1</span>, b2 <span class="op">=</span> <span class="fl">1</span>,</span></span>
+<span class="r-in"><span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  error_if_Miss <span class="op">=</span> <span class="cn">FALSE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pi1 pi2         Go      Gray      NoGo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 0.4 0.3 0.04690148 0.1937072 0.7593913</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 0.6 0.3 0.24398543 0.3574158 0.3985988</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

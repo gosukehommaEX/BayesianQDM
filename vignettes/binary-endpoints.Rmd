@@ -1,8 +1,8 @@
 ---
-title: "Bayesian Decision Making for Binary Endpoints"
+title: "Introduction to BayesianQDM"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Bayesian Decision Making for Binary Endpoints}
+  %\VignetteIndexEntry{Introduction to BayesianQDM}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,288 +12,161 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 5,
-  fig.alt = "Visualization of Go/NoGo/Gray decision probabilities for binary endpoints"
+  fig.height = 5
 )
 ```
 
 ```{r setup}
 library(BayesianQDM)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
 ```
 
-## Introduction
+## Overview
 
-The BayesianQDM package provides comprehensive methods for Bayesian quantitative decision-making in clinical trials with binary endpoints. This vignette demonstrates how to use the package for calculating posterior probabilities, posterior predictive probabilities, and Go/NoGo/Gray decision probabilities.
+The BayesianQDM package provides comprehensive methods for Bayesian quantitative decision-making in clinical trials. This vignette demonstrates the basic functionality for both binary and continuous endpoints.
 
-## Basic Concepts
+## Decision Framework
 
-### Decision Framework
+The package implements a three-zone decision framework:
 
-The Bayesian decision-making framework categorizes trial outcomes into three zones:
+- **Go**: Sufficient evidence to proceed (high posterior probability)
+- **NoGo**: Insufficient evidence (low posterior probability)
+- **Gray**: Inconclusive evidence (intermediate probability)
 
-- **Go**: Evidence suggests the treatment is effective (proceed to next phase)
-- **NoGo**: Evidence suggests the treatment is not effective (stop development)
-- **Gray**: Evidence is inconclusive (may need additional data)
+## Binary Endpoints
 
-### Probability Types
+### Basic Example
 
-Two types of probabilities can be calculated:
-
-1. **Posterior Probability**: $P(\theta > \theta_0 | data)$ where $\theta$ is the treatment effect
-2. **Posterior Predictive Probability**: $P(future\ trial\ success | current\ data)$
-
-## Basic Usage
-
-### Posterior Probability
-
-```{r posterior_basic}
-# Calculate posterior probability for a single trial outcome
-posterior_prob <- pPPsinglebinary(
-  prob = 'posterior',
-  design = 'controlled',
-  theta0 = 0.15,  # Minimum clinically meaningful difference
-  n1 = 20, n2 = 20,  # Sample sizes
-  y1 = 12, y2 = 6,   # Observed responders
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,  # Beta prior parameters
-  m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
-)
-
-cat("Posterior probability that treatment effect > 0.15:", round(posterior_prob, 4))
-```
-
-### Posterior Predictive Probability
-
-```{r predictive_basic}
-# Calculate posterior predictive probability for future trial
-predictive_prob <- pPPsinglebinary(
-  prob = 'predictive',
-  design = 'controlled',
-  theta0 = 0.1,
-  n1 = 20, n2 = 20,     # Current trial sample sizes
-  y1 = 12, y2 = 6,      # Current trial outcomes
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  m1 = 100, m2 = 100,   # Future trial sample sizes
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
-)
-
-cat("Probability of future trial success:", round(predictive_prob, 4))
-```
-
-## Go/NoGo/Gray Decision Making
-
-### Operating Characteristics
-
-Evaluate decision probabilities across different true response rates:
-
-```{r operating_characteristics}
-# Define true response rates to evaluate
-true_rates <- expand.grid(
-  pi1 = c(0.2, 0.3, 0.4, 0.5, 0.6),
-  pi2 = 0.2
-)
-
-# Calculate Go/NoGo/Gray probabilities
-oc_results <- pGNGsinglebinary(
-  prob = 'posterior',
-  design = 'controlled',
-  theta.TV = 0.25,   # Target value for Go
-  theta.MAV = 0.05,  # Minimum acceptable value for NoGo
-  theta.NULL = NULL,
-  gamma1 = 0.8,      # Go threshold
-  gamma2 = 0.2,      # NoGo threshold
-  pi1 = true_rates$pi1,
-  pi2 = true_rates$pi2,
-  n1 = 30, n2 = 30,
+```{r binary_example}
+# Calculate decision probabilities for binary endpoint
+result_binary <- pGNGsinglebinary(
+  prob = 'posterior', 
+  design = 'controlled', 
+  theta.TV = 0.3, theta.MAV = 0.1, theta.NULL = NULL,
+  gamma1 = 0.8, gamma2 = 0.2,
+  pi1 = c(0.3, 0.5, 0.7), 
+  pi2 = rep(0.2, 3), 
+  n1 = 15, n2 = 15,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = NULL, m2 = NULL,
   ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 )
 
-print(oc_results)
+print(result_binary)
 ```
 
-### Visualizing Decision Probabilities
+### Posterior Probability
 
-```{r decision_plot, fig.width=8, fig.height=5}
-# Reshape data for plotting
-plot_data <- oc_results %>%
-  select(pi1, pi2, Go, NoGo, Gray) %>%
-  pivot_longer(cols = c(Go, NoGo, Gray), 
-               names_to = "Decision", 
-               values_to = "Probability")
-
-# Create visualization
-ggplot(plot_data, aes(x = pi1, y = Probability, color = Decision, group = Decision)) +
-  geom_line(linewidth = 1.2) +
-  geom_point(size = 3) +
-  scale_color_manual(
-    values = c('Go' = '#2E8B57', 'Gray' = '#808080', 'NoGo' = '#DC143C'),
-    labels = c('Go', 'Gray', 'NoGo')
-  ) +
-  labs(
-    title = "Operating Characteristics for Binary Endpoint Trial",
-    subtitle = "Control response rate = 20%",
-    x = "True Treatment Response Rate",
-    y = "Decision Probability",
-    color = "Decision"
-  ) +
-  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
-  scale_x_continuous(labels = scales::percent) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    legend.position = "bottom"
-  )
-```
-
-## External Control Design
-
-### Incorporating Historical Data
-
-```{r external_design}
-# Calculate probability with external control data
-external_result <- pPPsinglebinary(
-  prob = 'posterior',
-  design = 'external',
+```{r binary_posterior}
+# Calculate posterior probability
+posterior_prob <- pPPsinglebinary(
+  prob = 'posterior', 
+  design = 'controlled', 
   theta0 = 0.15,
-  n1 = 20, n2 = 20,     # Current trial
-  y1 = 12, y2 = 6,      # Current outcomes
+  n1 = 12, n2 = 15, y1 = 7, y2 = 5, 
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   m1 = NULL, m2 = NULL,
-  ne1 = 30, ne2 = 30,   # Historical trial sizes
-  ye1 = 15, ye2 = 8,    # Historical outcomes
-  ae1 = 0.5, ae2 = 0.5  # Power prior parameters (50% borrowing)
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
 )
 
-cat("Posterior probability with external data:", round(external_result, 4))
+cat("Posterior probability:", round(posterior_prob, 4))
 ```
 
-### Sensitivity to Historical Data Borrowing
+## Continuous Endpoints
 
-```{r borrowing_sensitivity}
-# Test different levels of borrowing
-alpha_values <- seq(0, 1, by = 0.2)
+### Basic Example
 
-borrowing_results <- data.frame(
-  alpha = alpha_values,
-  probability = sapply(alpha_values, function(a) {
-    pPPsinglebinary(
-      prob = 'posterior', design = 'external', theta0 = 0.15,
-      n1 = 20, n2 = 20, y1 = 12, y2 = 6,
-      a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-      m1 = NULL, m2 = NULL,
-      ne1 = 30, ne2 = 30, ye1 = 15, ye2 = 8,
-      ae1 = a, ae2 = a
-    )
-  })
+```{r continuous_example}
+# Calculate decision probabilities for continuous endpoint  
+result_continuous <- pGNGsinglecontinuous(
+  nsim = 50,  # Small nsim for vignette speed
+  prob = 'posterior', 
+  design = 'controlled', 
+  prior = 'vague', 
+  CalcMethod = 'WS',  # Fast method for vignette
+  theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
+  nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
+  n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  mu1 = 4.5, mu2 = 2.0, sigma1 = 1.5, sigma2 = 1.3,
+  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  seed = 123
 )
 
-print(borrowing_results)
+print(result_continuous)
 ```
 
-```{r borrowing_plot, fig.width=7, fig.height=4}
-ggplot(borrowing_results, aes(x = alpha, y = probability)) +
-  geom_line(linewidth = 1.2, color = '#2E8B57') +
-  geom_point(size = 3, color = '#2E8B57') +
-  labs(
-    title = "Sensitivity to Historical Data Borrowing",
-    x = "Power Prior Parameter (α)",
-    y = "Posterior Probability",
-    subtitle = "α = 0: no borrowing, α = 1: full borrowing"
-  ) +
-  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold"))
-```
+### Comparing Calculation Methods
 
-## Sample Size Considerations
-
-### Power Analysis
-
-```{r power_analysis}
-# Evaluate Go probability across different sample sizes
-sample_sizes <- seq(10, 50, by = 10)
-
-power_results <- data.frame(
-  n = sample_sizes,
-  go_prob = sapply(sample_sizes, function(n) {
-    result <- pGNGsinglebinary(
-      prob = 'posterior', design = 'controlled',
-      theta.TV = 0.2, theta.MAV = 0.05, theta.NULL = NULL,
-      gamma1 = 0.8, gamma2 = 0.2,
-      pi1 = 0.5, pi2 = 0.3,  # Assume true effect of 0.2
-      n1 = n, n2 = n,
-      a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-      z = NULL, m1 = NULL, m2 = NULL,
-      ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
-    )
-    result$Go[1]
-  })
+```{r method_comparison}
+# Compare NI and WS methods
+prob_ni <- pPPsinglecontinuous(
+  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+  theta0 = 1, n1 = 12, n2 = 12, bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2
 )
 
-print(power_results)
+prob_ws <- pPPsinglecontinuous(
+  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
+  theta0 = 1, n1 = 12, n2 = 12, bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2
+)
+
+cat("NI method:", round(prob_ni, 4), "\n")
+cat("WS method:", round(prob_ws, 4), "\n")
+cat("Difference:", round(abs(prob_ni - prob_ws), 4), "\n")
 ```
 
-```{r power_plot, fig.width=7, fig.height=4}
-ggplot(power_results, aes(x = n, y = go_prob)) +
-  geom_line(linewidth = 1.2, color = '#2E8B57') +
-  geom_point(size = 3, color = '#2E8B57') +
-  geom_hline(yintercept = 0.8, linetype = "dashed", color = "red") +
-  annotate("text", x = 45, y = 0.85, label = "Target: 80%", color = "red") +
-  labs(
-    title = "Power Analysis: Sample Size vs Go Probability",
-    x = "Sample Size (per arm)",
-    y = "Go Probability",
-    subtitle = "True treatment effect = 20%"
-  ) +
-  scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
-  theme_minimal() +
-  theme(plot.title = element_text(face = "bold"))
+## Study Designs
+
+The package supports three study designs:
+
+1. **Controlled Design**: Standard two-arm randomized trial
+2. **Uncontrolled Design**: Single-arm with historical control
+3. **External Control Design**: Incorporating historical data through power priors
+
+### External Control Example
+
+```{r external_example}
+# Binary endpoint with external control data
+external_binary <- pPPsinglebinary(
+  prob = 'posterior', 
+  design = 'external', 
+  theta0 = 0.15,
+  n1 = 20, n2 = 20, y1 = 12, y2 = 8,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL,
+  ne1 = 15, ne2 = 25, ye1 = 9, ye2 = 10, ae1 = 0.5, ae2 = 0.5
+)
+
+cat("Posterior probability with external data:", round(external_binary, 4), "\n")
+
+# Continuous endpoint with external control data
+external_continuous <- pPPsinglecontinuous(
+  prob = 'posterior',
+  design = 'external',
+  prior = 'vague',
+  CalcMethod = 'WS',
+  theta0 = 1.5,
+  n1 = 20, n2 = 20,
+  bar.y1 = 5.5, bar.y2 = 3.2,
+  s1 = 2.1, s2 = 1.9,
+  ne1 = NULL, ne2 = 40,
+  alpha01 = NULL, alpha02 = 0.5,
+  bar.ye1 = NULL, bar.ye2 = 3.0,
+  se1 = NULL, se2 = 2.0
+)
+
+cat("Posterior probability with external control:", round(external_continuous, 4), "\n")
 ```
 
-## Practical Guidelines
+## Next Steps
 
-### Threshold Selection
+For more detailed examples and advanced usage:
 
-When designing a trial, consider:
-
-- **θ_TV (Target Value)**: Set based on clinically meaningful difference
-- **θ_MAV (Minimum Acceptable Value)**: Set based on smallest worthwhile effect
-- **γ₁ (Go threshold)**: Typically 0.8-0.9 for high confidence
-- **γ₂ (NoGo threshold)**: Typically 0.2-0.3 for early stopping
-
-### Prior Selection
-
-- **Weakly informative**: Beta(0.5, 0.5) - Jeffreys prior
-- **Uniform**: Beta(1, 1) - uniform prior
-- **Informative**: Beta(a, b) based on historical data or expert opinion
-
-### Design Selection
-
-1. **Controlled**: Standard two-arm trial (most common)
-2. **Uncontrolled**: Single-arm when historical control is well-established
-3. **External**: When incorporating historical data via power priors
-
-## Summary
-
-This vignette demonstrated:
-
-1. **Basic probability calculations** for binary endpoints
-2. **Go/NoGo/Gray decision framework** with customizable thresholds
-3. **Operating characteristics** evaluation across scenarios
-4. **External control design** with power priors
-5. **Sample size considerations** for trial planning
-
-The BayesianQDM package provides flexible tools for evidence-based decision making in clinical trials with binary endpoints.
+- See `vignette("binary-endpoints")` for comprehensive binary endpoint examples
+- See `vignette("continuous-endpoints")` for detailed continuous endpoint analysis
+- Visit the [package website](https://gosukehommaEX.github.io/BayesianQDM/) for additional resources
 
 ## References
 
-For more details on the statistical methods, see:
-
-- The main BayesianQDM vignette for framework overview
-- Function documentation for parameter specifications
-- The continuous endpoints vignette for analysis of continuous outcomes
+For theoretical background and methodology details, please refer to the function documentation and the other vignettes in this package.

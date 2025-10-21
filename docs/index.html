@@ -57,57 +57,37 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="bayesianqdm-">BayesianQDM <img src="reference/figures/badge-BayesianQDM.png" align="right" height="139" alt="BayesianQDM package logo"><a class="anchor" aria-label="anchor" href="#bayesianqdm-"></a>
+<div class="page-header"><h1 id="bayesianqdm-">BayesianQDM <img src="reference/figures/logo.png" align="right" height="139" alt=""><a class="anchor" aria-label="anchor" href="#bayesianqdm-"></a>
 </h1></div>
 <!-- badges: start -->
 
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p><code>BayesianQDM</code> is an R package that provides comprehensive methods for Bayesian quantitative decision-making in clinical trials. The package supports both binary and continuous endpoints with various study designs including controlled, uncontrolled, and external control designs.</p>
-<div class="section level3">
-<h3 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
-</h3>
-<ul>
-<li>
-<strong>Endpoint Types</strong>: Binary (response/non-response) and continuous (biomarker changes, scores)</li>
-<li>
-<strong>Study Designs</strong>: Controlled, uncontrolled, and external control designs</li>
-<li>
-<strong>Decision Framework</strong>: Go/NoGo/Gray zones for evidence-based decision making</li>
-<li>
-<strong>Calculation Methods</strong>: Multiple approaches optimized for accuracy and speed</li>
-<li>
-<strong>Prior Integration</strong>: Flexible prior specifications including efficient power priors for external data</li>
-</ul>
+<p>BayesianQDM provides a comprehensive framework for <strong>Bayesian Quantitative Decision-Making</strong> in clinical trials. The package enables researchers to make <strong>Go/NoGo/Gray</strong> decisions using posterior and predictive probabilities for both binary and continuous endpoints.</p>
 </div>
-<div class="section level3">
-<h3 id="decision-framework">Decision Framework<a class="anchor" aria-label="anchor" href="#decision-framework"></a>
-</h3>
-<p>The package implements a three-zone Bayesian decision framework:</p>
+<div class="section level2">
+<h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
+</h2>
 <ul>
-<li>
-<strong>Go</strong>: Sufficient evidence to proceed to next phase (high posterior probability of efficacy)</li>
-<li>
-<strong>NoGo</strong>: Insufficient evidence to proceed (low posterior probability of efficacy)<br>
-</li>
-<li>
-<strong>Gray</strong>: Inconclusive evidence (intermediate posterior probability requiring additional data)</li>
+<li>✅ <strong>Multiple Study Designs</strong>: Controlled, uncontrolled, and external control designs</li>
+<li>📊 <strong>Flexible Endpoints</strong>: Support for both binary and continuous outcomes</li>
+<li>🔢 <strong>Multiple Calculation Methods</strong>: For continuous endpoints (Numerical Integration, Monte Carlo, Welch-Satterthwaite)</li>
+<li>🎯 <strong>Three-Zone Decision Framework</strong>: Go/NoGo/Gray probability calculation</li>
+<li>📈 <strong>Power Priors</strong>: Incorporation of historical/external data</li>
 </ul>
-<p>For technical details about the methodology, please refer to Kang et al. (20XX).</p>
-</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="section level3">
-<h3 id="from-cran-when-available">From CRAN (when available)<a class="anchor" aria-label="anchor" href="#from-cran-when-available"></a>
+<h3 id="from-cran">From CRAN<a class="anchor" aria-label="anchor" href="#from-cran"></a>
 </h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BayesianQDM"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="development-version-from-github">Development version from GitHub<a class="anchor" aria-label="anchor" href="#development-version-from-github"></a>
+<h3 id="development-version">Development Version<a class="anchor" aria-label="anchor" href="#development-version"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
@@ -118,111 +98,57 @@
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
 </h2>
 <div class="section level3">
-<h3 id="binary-endpoints-example">Binary Endpoints Example<a class="anchor" aria-label="anchor" href="#binary-endpoints-example"></a>
+<h3 id="binary-endpoint-example">Binary Endpoint Example<a class="anchor" aria-label="anchor" href="#binary-endpoint-example"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gosukehommaEX.github.io/BayesianQDM/">BayesianQDM</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Calculate decision probabilities for binary endpoint</span></span>
-<span><span class="va">result_binary</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pGNGsinglebinary.html">pGNGsinglebinary</a></span><span class="op">(</span></span>
+<span><span class="co"># Calculate Go/NoGo/Gray probabilities for binary endpoint</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pGNGsinglebinary.html">pGNGsinglebinary</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
-<span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
-<span>  theta.TV <span class="op">=</span> <span class="fl">0.3</span>, </span>
-<span>  theta.MAV <span class="op">=</span> <span class="fl">0.1</span>, </span>
-<span>  theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma1 <span class="op">=</span> <span class="fl">0.8</span>, </span>
-<span>  gamma2 <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span><span class="op">)</span>, </span>
-<span>  pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">4</span><span class="op">)</span>, </span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>, </span>
-<span>  n2 <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, </span>
-<span>  a2 <span class="op">=</span> <span class="fl">0.5</span>, </span>
-<span>  b1 <span class="op">=</span> <span class="fl">0.5</span>, </span>
-<span>  b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  ne2 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  ye1 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  ye2 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  ae1 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  design <span class="op">=</span> <span class="st">'controlled'</span>,</span>
+<span>  theta.TV <span class="op">=</span> <span class="fl">0.3</span>, theta.MAV <span class="op">=</span> <span class="fl">0.1</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span><span class="op">)</span>, </span>
+<span>  pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>,</span>
+<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_binary</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Visualize results</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">result_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="va">result_binary</span>, </span>
-<span>                            cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">Go</span>, <span class="va">Gray</span>, <span class="va">NoGo</span><span class="op">)</span>, </span>
-<span>                            names_to <span class="op">=</span> <span class="st">"Decision"</span>, </span>
-<span>                            values_to <span class="op">=</span> <span class="st">"Probability"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">result_long</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pi1</span> <span class="op">-</span> <span class="va">pi2</span>, y <span class="op">=</span> <span class="va">Probability</span>, fill <span class="op">=</span> <span class="va">Decision</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>position <span class="op">=</span> <span class="st">"stack"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html" class="external-link">scale_fill_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Go"</span> <span class="op">=</span> <span class="st">"#2E7D32"</span>, <span class="st">"Gray"</span> <span class="op">=</span> <span class="st">"#BABABA"</span>, <span class="st">"NoGo"</span> <span class="op">=</span> <span class="st">"#D32F2F"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">'Decision Probabilities for Binary Endpoint'</span>,</span>
-<span>       x <span class="op">=</span> <span class="st">'Treatment Effect (π1 - π2)'</span>,</span>
-<span>       y <span class="op">=</span> <span class="st">'Probability'</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="continuous-endpoints-example">Continuous Endpoints Example<a class="anchor" aria-label="anchor" href="#continuous-endpoints-example"></a>
+<h3 id="continuous-endpoint-example">Continuous Endpoint Example<a class="anchor" aria-label="anchor" href="#continuous-endpoint-example"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Calculate decision probabilities for continuous endpoint  </span></span>
-<span><span class="va">result_continuous</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous</a></span><span class="op">(</span></span>
-<span>  nsim <span class="op">=</span> <span class="fl">100</span>,</span>
+<code class="sourceCode R"><span><span class="co"># Calculate Go/NoGo/Gray probabilities for continuous endpoint</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous</a></span><span class="op">(</span></span>
+<span>  nsim <span class="op">=</span> <span class="fl">100</span>, </span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
 <span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
 <span>  prior <span class="op">=</span> <span class="st">'vague'</span>, </span>
-<span>  CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
-<span>  theta.TV <span class="op">=</span> <span class="fl">1.5</span>, </span>
-<span>  theta.MAV <span class="op">=</span> <span class="fl">0.5</span>, </span>
-<span>  theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nMC <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  gamma1 <span class="op">=</span> <span class="fl">0.8</span>, </span>
-<span>  gamma2 <span class="op">=</span> <span class="fl">0.3</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">15</span>, </span>
-<span>  n2 <span class="op">=</span> <span class="fl">15</span>, </span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  kappa01 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  kappa02 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  nu01 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  nu02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mu01 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  mu02 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  sigma01 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  sigma02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mu1 <span class="op">=</span> <span class="fl">3.0</span>, </span>
-<span>  mu2 <span class="op">=</span> <span class="fl">1.2</span>, </span>
-<span>  sigma1 <span class="op">=</span> <span class="fl">1.5</span>, </span>
-<span>  sigma2 <span class="op">=</span> <span class="fl">1.5</span>,</span>
-<span>  r <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  ne2 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  alpha01 <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>  alpha02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  bar.ye1 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  bar.ye2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  se1 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  se2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  CalcMethod <span class="op">=</span> <span class="st">'NI'</span>,</span>
+<span>  theta.TV <span class="op">=</span> <span class="fl">1.5</span>, theta.MAV <span class="op">=</span> <span class="fl">0.5</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  nMC <span class="op">=</span> <span class="cn">NULL</span>, gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  kappa01 <span class="op">=</span> <span class="cn">NULL</span>, kappa02 <span class="op">=</span> <span class="cn">NULL</span>, nu01 <span class="op">=</span> <span class="cn">NULL</span>, nu02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu01 <span class="op">=</span> <span class="cn">NULL</span>, mu02 <span class="op">=</span> <span class="cn">NULL</span>, sigma01 <span class="op">=</span> <span class="cn">NULL</span>, sigma02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu1 <span class="op">=</span> <span class="fl">4.0</span>, mu2 <span class="op">=</span> <span class="fl">2.0</span>, sigma1 <span class="op">=</span> <span class="fl">1.5</span>, sigma2 <span class="op">=</span> <span class="fl">1.3</span>,</span>
+<span>  r <span class="op">=</span> <span class="cn">NULL</span>, ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, alpha01 <span class="op">=</span> <span class="cn">NULL</span>, alpha02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bar.ye1 <span class="op">=</span> <span class="cn">NULL</span>, bar.ye2 <span class="op">=</span> <span class="cn">NULL</span>, se1 <span class="op">=</span> <span class="cn">NULL</span>, se2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  seed <span class="op">=</span> <span class="fl">123</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_continuous</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <div class="section level3">
-<h3 id="id_-comprehensive-vignettes">📚 Comprehensive Vignettes<a class="anchor" aria-label="anchor" href="#id_-comprehensive-vignettes"></a>
+<h3 id="id_-vignettes">📚 Vignettes<a class="anchor" aria-label="anchor" href="#id_-vignettes"></a>
 </h3>
 <p>The package includes detailed vignettes with practical examples:</p>
 <ul>
@@ -327,7 +253,7 @@
 <div class="section level3">
 <h3 id="external-control-design">External Control Design<a class="anchor" aria-label="anchor" href="#external-control-design"></a>
 </h3>
-<p>Incorporating historical/external data through power priors for enhanced decision making.</p>
+<p>Incorporating historical/external data through power priors for enhanced decision making. For binary endpoints, use <code>ne1</code>, <code>ne2</code>, <code>ye1</code>, <code>ye2</code>, <code>ae1</code>, <code>ae2</code> parameters. For continuous endpoints, use <code>ne1</code>, <code>ne2</code>, <code>alpha01</code>, <code>alpha02</code>, <code>bar.ye1</code>, <code>bar.ye2</code>, <code>se1</code>, <code>se2</code> parameters.</p>
 </div>
 </div>
 <div class="section level2">
@@ -393,27 +319,30 @@
 </h3>
 <p>Standard two-arm randomized controlled trial.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, y1 <span class="op">=</span> <span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">8</span>,</span>
+<code class="sourceCode R"><span><span class="co"># Binary endpoint</span></span>
+<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
+<span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
+<span>  theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">15</span>, y1 <span class="op">=</span> <span class="fl">7</span>, y2 <span class="op">=</span> <span class="fl">5</span>, </span>
 <span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="uncontrolled-design-1">Uncontrolled Design<a class="anchor" aria-label="anchor" href="#uncontrolled-design-1"></a>
 </h3>
-<p>Single-arm study with historical control.</p>
+<p>Single-arm study with historical control assumption.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
-<span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'uncontrolled'</span>, theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
-<span>    n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, y1 <span class="op">=</span> <span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">3.5</span>,</span>
-<span>    a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>    m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
+<span>  design <span class="op">=</span> <span class="st">'uncontrolled'</span>, </span>
+<span>  theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, y1 <span class="op">=</span> <span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">3.5</span>,</span>
+<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -422,59 +351,20 @@
 <p>Incorporating historical data using power priors.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'external'</span>, theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
+<span>  design <span class="op">=</span> <span class="st">'external'</span>, </span>
+<span>  theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
 <span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, y1 <span class="op">=</span> <span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">8</span>,</span>
 <span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="fl">30</span>, ne2 <span class="op">=</span> <span class="fl">30</span>, ye1 <span class="op">=</span> <span class="fl">18</span>, ye2 <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  ae1 <span class="op">=</span> <span class="fl">0.5</span>, ae2 <span class="op">=</span> <span class="fl">0.5</span></span>
+<span>  ne1 <span class="op">=</span> <span class="fl">15</span>, ne2 <span class="op">=</span> <span class="fl">25</span>, ye1 <span class="op">=</span> <span class="fl">9</span>, ye2 <span class="op">=</span> <span class="fl">10</span>, ae1 <span class="op">=</span> <span class="fl">0.5</span>, ae2 <span class="op">=</span> <span class="fl">0.5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="best-practices">Best Practices<a class="anchor" aria-label="anchor" href="#best-practices"></a>
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div class="section level3">
-<h3 id="parameter-selection">Parameter Selection<a class="anchor" aria-label="anchor" href="#parameter-selection"></a>
-</h3>
-<ul>
-<li>
-<strong>Thresholds</strong>: Align with clinical meaningfulness (e.g., MCID)</li>
-<li>
-<strong>Decision criteria</strong>: Balance Type I/II errors with study objectives</li>
-<li>
-<strong>Priors</strong>: Document rationale and conduct sensitivity analyses</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
-</h3>
-<ul>
-<li>
-<strong>Operating characteristics</strong>: Evaluate across relevant scenarios</li>
-<li>
-<strong>Sensitivity analysis</strong>: Test robustness to assumptions</li>
-<li>
-<strong>Method comparison</strong>: Verify consistency across calculation approaches</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="reporting">Reporting<a class="anchor" aria-label="anchor" href="#reporting"></a>
-</h3>
-<ul>
-<li>
-<strong>Transparency</strong>: Report all inputs (priors, thresholds, methods)</li>
-<li>
-<strong>Uncertainty</strong>: Include credible intervals and sensitivity analyses</li>
-<li>
-<strong>Interpretation</strong>: Provide clinical context for decision probabilities</li>
-</ul>
-</div>
-</div>
-<div class="section level2">
-<h2 id="integration-with-r-ecosystem">Integration with R Ecosystem<a class="anchor" aria-label="anchor" href="#integration-with-r-ecosystem"></a>
-</h2>
-<p>The package integrates seamlessly with: - <strong>tidyverse</strong>: Data manipulation and visualization workflows - <strong>ggplot2</strong>: Creating publication-quality decision probability plots - <strong>knitr/rmarkdown</strong>: Reproducible reporting and documentation</p>
+<p>For theoretical background and methodology details, please refer to the package vignettes and function documentation.</p>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
@@ -485,27 +375,22 @@ Decision-Making Framework for Binary and Continuous Endpoints.
 R package version 0.1.0.</code></pre>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h2>
-<p>Kang et al. (20XX). [Title]. [Journal].</p>
-</div>
-<div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>This project is licensed under the MIT License - see the <a href="LICENSE.html">LICENSE.md</a> file for details.</p>
+<p>This package is licensed under GPL (&gt;= 3).</p>
 </div>
 <div class="section level2">
-<h2 id="support">Support<a class="anchor" aria-label="anchor" href="#support"></a>
+<h2 id="authors">Authors<a class="anchor" aria-label="anchor" href="#authors"></a>
 </h2>
 <ul>
-<li>
-<strong>Documentation</strong>: See package vignettes and function help</li>
-<li>
-<strong>Issues</strong>: Report bugs or request features on <a href="https://github.com/gosukehommaEX/BayesianQDM/issues" class="external-link">GitHub</a>
-</li>
-<li>
-<strong>Questions</strong>: Use GitHub Discussions for methodology questions</li>
+<li>Gosuke Homma</li>
+<li>Yusuke Yamaguchi</li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="issues-and-contributions">Issues and Contributions<a class="anchor" aria-label="anchor" href="#issues-and-contributions"></a>
+</h2>
+<p>To report bugs or request features, please visit our <a href="https://github.com/gosukehommaEX/BayesianQDM/issues" class="external-link">GitHub repository</a>.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

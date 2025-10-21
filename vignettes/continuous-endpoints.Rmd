@@ -48,147 +48,127 @@ The package provides three computational approaches:
 
 For this vignette, we focus on the fastest methods (NI and WS) to ensure reasonable build times.
 
-## Basic Usage
+## Basic Examples
 
 ### Posterior Probability
 
-```{r posterior_basic}
-# Calculate posterior probability from trial data
+```{r posterior_example}
+# Calculate posterior probability using NI method
 posterior_prob <- pPPsinglecontinuous(
-  prob = 'posterior',
-  design = 'controlled',
-  prior = 'vague',
+  prob = 'posterior', 
+  design = 'controlled', 
+  prior = 'vague', 
   CalcMethod = 'NI',
-  theta0 = 1.5,  # Minimum clinically meaningful difference
-  n1 = 25, n2 = 25,
-  bar.y1 = 5.2, bar.y2 = 3.5,  # Observed means
-  s1 = 2.1, s2 = 1.9           # Observed SDs
+  theta0 = 1.5,
+  n1 = 20, n2 = 20, 
+  bar.y1 = 5.2, bar.y2 = 3.0, 
+  s1 = 2.0, s2 = 1.8
 )
 
 cat("Posterior probability that treatment effect > 1.5:", round(posterior_prob, 4))
 ```
 
-### Posterior Predictive Probability
-
-```{r predictive_basic}
-# Calculate probability of future trial success
-predictive_prob <- pPPsinglecontinuous(
-  prob = 'predictive',
-  design = 'controlled',
-  prior = 'vague',
-  CalcMethod = 'WS',
-  theta0 = 1.0,
-  n1 = 25, n2 = 25,      # Current trial
-  m1 = 100, m2 = 100,    # Future trial
-  bar.y1 = 5.2, bar.y2 = 3.5,
-  s1 = 2.1, s2 = 1.9
-)
-
-cat("Probability of future trial success:", round(predictive_prob, 4))
-```
-
-## Comparison of Calculation Methods
-
-### Method Accuracy and Speed
+### Comparing Calculation Methods
 
 ```{r method_comparison}
 # Compare NI and WS methods
-cat("=== Method Comparison ===\n\n")
-
-# NI method (exact)
-time_ni <- system.time({
-  prob_ni <- pPPsinglecontinuous(
-    prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-    theta0 = 1.5, n1 = 20, n2 = 20, bar.y1 = 5, bar.y2 = 3, s1 = 2, s2 = 2
-  )
-})
-
-cat("NI method:\n")
-cat("  Probability:", round(prob_ni, 6), "\n")
-cat("  Time:", round(time_ni[3], 4), "seconds\n\n")
-
-# WS method (approximation)
-time_ws <- system.time({
-  prob_ws <- pPPsinglecontinuous(
-    prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
-    theta0 = 1.5, n1 = 20, n2 = 20, bar.y1 = 5, bar.y2 = 3, s1 = 2, s2 = 2
-  )
-})
-
-cat("WS method:\n")
-cat("  Probability:", round(prob_ws, 6), "\n")
-cat("  Time:", round(time_ws[3], 4), "seconds\n\n")
-
-cat("Difference:", round(abs(prob_ni - prob_ws), 6), "\n")
-cat("Speed-up:", round(time_ni[3] / time_ws[3], 2), "x\n")
-```
-
-## Go/NoGo/Gray Decision Making
-
-### Operating Characteristics
-
-```{r operating_characteristics}
-# Evaluate decision probabilities across different scenarios
-true_effects <- data.frame(
-  mu1 = c(3, 4, 5, 6, 7),
-  mu2 = 2
+prob_ni <- pPPsinglecontinuous(
+  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+  theta0 = 1.5, n1 = 15, n2 = 15, bar.y1 = 5, bar.y2 = 3, s1 = 2, s2 = 2
 )
 
-oc_results <- do.call(rbind, lapply(1:nrow(true_effects), function(i) {
-  pGNGsinglecontinuous(
-    nsim = 50,  # Increased for better estimates
-    prob = 'posterior',
-    design = 'controlled',
-    prior = 'vague',
-    CalcMethod = 'WS',
-    theta.TV = 2.0,   # Target value for Go
-    theta.MAV = 0.5,  # Minimum acceptable value for NoGo
-    theta.NULL = NULL,
-    nMC = NULL,
-    gamma1 = 0.8,     # Go threshold
-    gamma2 = 0.2,     # NoGo threshold
-    n1 = 30, n2 = 30,
-    m1 = NULL, m2 = NULL,
+prob_ws <- pPPsinglecontinuous(
+  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
+  theta0 = 1.5, n1 = 15, n2 = 15, bar.y1 = 5, bar.y2 = 3, s1 = 2, s2 = 2
+)
+
+cat("NI method:", round(prob_ni, 4), "\n")
+cat("WS method:", round(prob_ws, 4), "\n")
+cat("Difference:", round(abs(prob_ni - prob_ws), 6), "\n")
+```
+
+## Go/NoGo/Gray Decision Probabilities
+
+### Basic Usage
+
+```{r gng_example}
+# Calculate Go/NoGo/Gray probabilities
+result <- pGNGsinglecontinuous(
+  nsim = 50,  # Small nsim for vignette speed
+  prob = 'posterior', 
+  design = 'controlled', 
+  prior = 'vague', 
+  CalcMethod = 'WS',
+  theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
+  nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
+  n1 = 20, n2 = 20, m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  mu1 = 5.0, mu2 = 3.0, sigma1 = 2.0, sigma2 = 1.8,
+  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  seed = 123
+)
+
+print(result)
+```
+
+## Operating Characteristics
+
+### Evaluating Across Treatment Effects
+
+```{r oc_analysis}
+# Evaluate OC across different treatment effects
+mu1_values <- seq(3, 7, by = 1)
+
+oc_results <- do.call(rbind, lapply(mu1_values, function(m1) {
+  result <- pGNGsinglecontinuous(
+    nsim = 30,  # Reduced for vignette speed
+    prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
+    theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
+    nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
+    n1 = 30, n2 = 30, m1 = NULL, m2 = NULL,
     kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
     mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-    mu1 = true_effects$mu1[i],
-    mu2 = true_effects$mu2[i],
-    sigma1 = 2, sigma2 = 2,
+    mu1 = m1, mu2 = 3, sigma1 = 2, sigma2 = 2,
     r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
     bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-    seed = 123 + i
+    seed = 123
+  )
+  
+  data.frame(
+    mu1 = m1,
+    treatment_effect = m1 - 3,
+    go_prob = result$Go,
+    nogo_prob = result$NoGo,
+    gray_prob = result$Gray
   )
 }))
 
 print(oc_results)
 ```
 
-### Visualizing Decision Probabilities
+### Visualizing Operating Characteristics
 
-```{r decision_plot, fig.width=8, fig.height=5}
-# Calculate true treatment effect
-oc_results$true_effect <- oc_results$mu1 - oc_results$mu2
-
+```{r oc_plot, fig.width=8, fig.height=5}
 # Reshape for plotting
 plot_data <- oc_results %>%
-  select(true_effect, Go, NoGo, Gray) %>%
-  pivot_longer(cols = c(Go, NoGo, Gray), 
-               names_to = "Decision", 
-               values_to = "Probability")
+  pivot_longer(cols = c(go_prob, gray_prob, nogo_prob), 
+               names_to = "decision", 
+               values_to = "probability") %>%
+  mutate(Decision = case_when(
+    decision == "go_prob" ~ "Go",
+    decision == "gray_prob" ~ "Gray",
+    decision == "nogo_prob" ~ "NoGo"
+  ))
 
-# Create visualization
-ggplot(plot_data, aes(x = true_effect, y = Probability, color = Decision)) +
+ggplot(plot_data, aes(x = treatment_effect, y = probability, color = Decision, linetype = Decision)) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 3) +
-  scale_color_manual(
-    values = c('Go' = '#2E8B57', 'Gray' = '#808080', 'NoGo' = '#DC143C')
-  ) +
-  geom_vline(xintercept = 2.0, linetype = "dashed", alpha = 0.5, color = "blue") +
-  geom_vline(xintercept = 0.5, linetype = "dashed", alpha = 0.5, color = "red") +
-  annotate("text", x = 2.0, y = 0.95, label = "θ_TV", color = "blue") +
-  annotate("text", x = 0.5, y = 0.95, label = "θ_MAV", color = "red") +
+  scale_color_manual(values = c("Go" = "#2E8B57", "Gray" = "#DAA520", "NoGo" = "#DC143C")) +
+  scale_linetype_manual(values = c("Go" = "solid", "Gray" = "dashed", "NoGo" = "dotted")) +
   labs(
-    title = "Operating Characteristics for Continuous Endpoint Trial",
+    title = "Operating Characteristics: Decision Probabilities",
     subtitle = "Sample size = 30 per arm, σ = 2",
     x = "True Treatment Effect (μ₁ - μ₂)",
     y = "Decision Probability",
@@ -324,28 +304,24 @@ print(oc_results_n)
 ```{r power_plot, fig.width=8, fig.height=5}
 # Reshape for plotting
 power_plot_data <- oc_results_n %>%
-  pivot_longer(cols = c(go_prob, gray_prob, nogo_prob),
-               names_to = "Decision",
-               values_to = "Probability") %>%
-  mutate(Decision = recode(Decision,
-                           "go_prob" = "Go",
-                           "gray_prob" = "Gray",
-                           "nogo_prob" = "NoGo"))
+  pivot_longer(cols = c(go_prob, gray_prob, nogo_prob), 
+               names_to = "decision", 
+               values_to = "probability") %>%
+  mutate(Decision = case_when(
+    decision == "go_prob" ~ "Go",
+    decision == "gray_prob" ~ "Gray",
+    decision == "nogo_prob" ~ "NoGo"
+  ))
 
-ggplot(power_plot_data, aes(x = sample_size, y = Probability, color = Decision)) +
+ggplot(power_plot_data, aes(x = sample_size, y = probability, color = Decision)) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 3) +
-  scale_color_manual(
-    values = c('Go' = '#2E8B57', 'Gray' = '#808080', 'NoGo' = '#DC143C')
-  ) +
-  geom_hline(yintercept = 0.8, linetype = "dashed", color = "blue", alpha = 0.5) +
-  annotate("text", x = 45, y = 0.85, label = "Target: 80%", color = "blue") +
+  scale_color_manual(values = c("Go" = "#2E8B57", "Gray" = "#DAA520", "NoGo" = "#DC143C")) +
   labs(
-    title = "Power Analysis: Sample Size vs Decision Probabilities",
+    title = "Power Analysis: Sample Size vs Decision Probability",
     x = "Sample Size (per arm)",
     y = "Decision Probability",
-    color = "Decision",
-    subtitle = "Assuming true treatment effect = 2.0, σ = 2"
+    subtitle = "True treatment effect = 2.0, σ = 2"
   ) +
   scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
   theme_minimal() +
@@ -357,52 +333,49 @@ ggplot(power_plot_data, aes(x = sample_size, y = Probability, color = Decision))
 
 ## Practical Guidelines
 
-### Method Selection Guidelines
+### Method Selection
 
-Choose calculation methods based on your needs:
+**NI (Numerical Integration)**
+- Most accurate
+- Recommended for final analyses and regulatory submissions
+- Moderate computational time
 
-- **NI**: Use when exact results are required and computational time is not critical
-- **WS**: Use for quick approximations, especially with unequal variances
-- **MC**: Use when other methods fail or for sensitivity analysis
+**WS (Welch-Satterthwaite)**
+- Fast approximation
+- Good for exploratory analyses and simulations
+- Very close to NI results in most cases
 
-### Parameter Selection Guidelines
+**MC (Monte Carlo)**
+- Flexible but slowest
+- Use when other methods are not applicable
+- Requires careful selection of nMC (typically 10,000+)
 
-#### Threshold Selection
+### Design Selection
 
-- **θ_TV**: Clinically meaningful difference (e.g., 1.5 × minimal clinically important difference)
-- **θ_MAV**: Smallest worthwhile effect (e.g., 0.5 × minimal clinically important difference)
+1. **Controlled**: Standard two-arm trial with concurrent controls
+2. **Uncontrolled**: Single-arm when ethical/practical constraints prevent randomization
+3. **External**: When incorporating historical data can reduce sample size requirements
 
-#### Decision Criteria
+### Threshold Selection
 
-- **γ₁ (Go threshold)**: 0.8-0.9 for high confidence
-- **γ₂ (NoGo threshold)**: 0.2-0.3 for early stopping
-
-#### Prior Selection
-
-- **Vague priors**: When minimal prior information is available
-- **Conjugate priors**: For incorporating historical data or expert opinion
-- **Power priors**: For external control incorporation
+- **θ_TV (Target Value)**: Clinically meaningful difference
+- **θ_MAV (Minimum Acceptable Value)**: Smallest worthwhile effect
+- **γ₁ (Go threshold)**: 0.7-0.9 depending on risk tolerance
+- **γ₂ (NoGo threshold)**: 0.2-0.4 for early stopping
 
 ## Summary
 
 This vignette demonstrated:
 
 1. **Basic probability calculations** for continuous endpoints
-2. **Comparison of calculation methods** (NI vs WS)
-3. **Go/NoGo/Gray decision framework** with operating characteristics
-4. **Prior specification** (vague vs informative)
-5. **External control design** using power priors
-6. **Power analysis** for sample size determination
+2. **Method comparison** (NI, WS, MC)
+3. **Go/NoGo/Gray decision framework** implementation
+4. **Operating characteristics** evaluation
+5. **Prior specification** (vague vs informative)
+6. **External control design** with power priors
+7. **Sample size and power** considerations
 
-The BayesianQDM package for continuous endpoints provides:
-
-- Multiple calculation methods for different accuracy-speed trade-offs
-- Flexible prior specifications for incorporating existing knowledge
-- Comprehensive decision frameworks with customizable thresholds
-- Support for various designs including controlled, uncontrolled, and external control
-- Operating characteristics evaluation for trial planning
-
-This framework enables robust, evidence-based decision making in clinical trials with continuous endpoints while accounting for uncertainty and prior information.
+The BayesianQDM package provides flexible and rigorous tools for Bayesian decision-making in clinical trials with continuous endpoints.
 
 ## References
 
@@ -410,4 +383,4 @@ For more details on the statistical methods, see:
 
 - The main BayesianQDM vignette for framework overview
 - Function documentation for parameter specifications
-- The binary endpoints vignette for comparison with discrete outcomes
+- The binary endpoints vignette for analysis of discrete outcomes

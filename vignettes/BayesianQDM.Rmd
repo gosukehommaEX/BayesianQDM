@@ -122,33 +122,51 @@ The package supports three study designs:
 
 1. **Controlled Design**: Standard two-arm randomized trial
 2. **Uncontrolled Design**: Single-arm with historical control
-3. **External Control Design**: Incorporating historical data via power priors
+3. **External Control Design**: Incorporating historical data through power priors
 
-## Prior Distributions
+### External Control Example
 
-### Binary Endpoints
-- Beta priors for response probabilities
-- Default: Beta(0.5, 0.5) for Jeffreys prior
+```{r external_example}
+# Binary endpoint with external control data
+external_binary <- pPPsinglebinary(
+  prob = 'posterior', 
+  design = 'external', 
+  theta0 = 0.15,
+  n1 = 20, n2 = 20, y1 = 12, y2 = 8,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL,
+  ne1 = 15, ne2 = 25, ye1 = 9, ye2 = 10, ae1 = 0.5, ae2 = 0.5
+)
 
-### Continuous Endpoints
-- **Vague priors**: Non-informative approach
-- **Normal-Inverse-Chi-squared**: Conjugate priors for incorporating prior knowledge
+cat("Posterior probability with external data:", round(external_binary, 4), "\n")
 
-## Calculation Methods
+# Continuous endpoint with external control data
+external_continuous <- pPPsinglecontinuous(
+  prob = 'posterior',
+  design = 'external',
+  prior = 'vague',
+  CalcMethod = 'WS',
+  theta0 = 1.5,
+  n1 = 20, n2 = 20,
+  bar.y1 = 5.5, bar.y2 = 3.2,
+  s1 = 2.1, s2 = 1.9,
+  ne1 = NULL, ne2 = 40,
+  alpha01 = NULL, alpha02 = 0.5,
+  bar.ye1 = NULL, bar.ye2 = 3.0,
+  se1 = NULL, se2 = 2.0
+)
 
-For continuous endpoints, three methods are available:
+cat("Posterior probability with external control:", round(external_continuous, 4), "\n")
+```
 
-1. **NI (Numerical Integration)**: Exact calculation using convolution
-2. **WS (Welch-Satterthwaite)**: Fast approximation for unequal variances
-3. **MC (Monte Carlo)**: Simulation-based flexible approach
+## Next Steps
 
-## Summary
+For more detailed examples and advanced usage:
 
-The BayesianQDM package provides:
+- See `vignette("binary-endpoints")` for comprehensive binary endpoint examples
+- See `vignette("continuous-endpoints")` for detailed continuous endpoint analysis
+- Visit the [package website](https://gosukehommaEX.github.io/BayesianQDM/) for additional resources
 
-1. **Flexible decision frameworks** with customizable thresholds
-2. **Multiple calculation methods** balancing accuracy and speed
-3. **Support for various designs** including external data incorporation
-4. **Comprehensive probability calculations** for evidence-based decisions
+## References
 
-For more detailed examples, see the binary-endpoints and continuous-endpoints vignettes.
+For theoretical background and methodology details, please refer to the function documentation and the other vignettes in this package.

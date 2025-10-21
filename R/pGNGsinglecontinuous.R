@@ -60,10 +60,19 @@
 #' @param bar.ye2 A numeric value representing the external sample mean of group 2 (required if external control data available).
 #' @param se1 A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).
 #' @param se2 A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).
-#' @param Gray_inc_Miss A logical value representing that Miss probability is included into Gray probability if TRUE, not otherwise.
+#' @param error_if_Miss A logical value; if \code{TRUE} (default), the function stops
+#'        with an error when positive Miss probability is obtained, indicating poorly
+#'        chosen thresholds. If \code{FALSE}, the function proceeds and reports Miss
+#'        probability based on \code{Gray_inc_Miss} setting.
+#' @param Gray_inc_Miss A logical value; if \code{TRUE}, Miss probability is included
+#'        in Gray probability (Miss is not reported separately). If \code{FALSE}
+#'        (default), Miss probability is reported as a separate category. This parameter
+#'        is only active when \code{error_if_Miss = FALSE}.
 #' @param seed A numeric value representing the seed number for reproducible random number generation.
 #'
-#' @return A data frame containing the true means for both groups and the Go, NoGo, and Gray probabilities.
+#' @return A data frame containing the true means for both groups and the Go, NoGo, and
+#'         Gray probabilities. When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE},
+#'         Miss probability is also included as a separate column.
 #'
 #' @details
 #' The function performs Monte Carlo simulation to evaluate operating characteristics by:
@@ -80,15 +89,28 @@
 #'   \item Alpha parameters control the degree of borrowing (0 = no borrowing, 1 = full borrowing)
 #' }
 #'
-#' Decision rules:
+#' **Decision rules**:
 #' \itemize{
 #'   \item **Go**: P(treatment effect > threshold) ≥ γ₁
 #'   \item **NoGo**: P(treatment effect > threshold) ≤ γ₂
 #'   \item **Gray**: γ₂ < P(treatment effect > threshold) < γ₁
+#'   \item **Miss**: Both Go and NoGo criteria are met simultaneously (indicates
+#'                   poorly chosen thresholds)
+#' }
+#'
+#' **Handling Miss probability**:
+#' \itemize{
+#'   \item When \code{error_if_Miss = TRUE} (default): Function stops with error if
+#'         Miss probability > 0, prompting reconsideration of thresholds
+#'   \item When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = TRUE}: Miss
+#'         probability is added to Gray probability
+#'   \item When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE}: Miss
+#'         probability is reported as a separate category
 #' }
 #'
 #' @examples
 #' # Example 1: Controlled design with vague prior and NI method
+#' # (default: error_if_Miss = TRUE, Gray_inc_Miss = FALSE)
 #' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
 #'   theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
@@ -98,10 +120,11 @@
 #'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
 #'   mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 2
+#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 #' )
 #'
-#' # Example 2: External design with control data
+#' # Example 2: External design with control data using WS approximation
 #' \dontrun{
 #' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'WS',
@@ -112,7 +135,8 @@
 #'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
 #'   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
 #'   r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5,
-#'   bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1, seed = 4
+#'   bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1,
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 #' )
 #' }
 #'
@@ -126,10 +150,11 @@
 #'   mu01 = 3.5, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.5,
 #'   mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 3
+#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 #' )
 #'
-#' # Example 4: External design with predictive probability
+#' # Example 4: External design with predictive probability using MC method
 #' \dontrun{
 #' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
@@ -140,9 +165,38 @@
 #'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
 #'   mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
 #'   r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
-#'   bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0, seed = 5
+#'   bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0,
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 5
 #' )
 #' }
+#'
+#' # Example 5: Report Miss probability separately when thresholds may be suboptimal
+#' pGNGsinglecontinuous(
+#'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+#'   theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
+#'   nMC = NULL, gamma1 = 0.65, gamma2 = 0.55,
+#'   n1 = 10, n2 = 10, m1 = NULL, m2 = NULL,
+#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+#'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
+#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
+#' )
+#'
+#' # Example 6: Include Miss probability in Gray when error_if_Miss = FALSE
+#' pGNGsinglecontinuous(
+#'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+#'   theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
+#'   nMC = NULL, gamma1 = 0.65, gamma2 = 0.55,
+#'   n1 = 10, n2 = 10, m1 = NULL, m2 = NULL,
+#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+#'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
+#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 7
+#' )
 #'
 #' @importFrom stats rnorm
 #' @export
@@ -150,7 +204,8 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
                                  nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
                                  mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
                                  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-                                 bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, Gray_inc_Miss = FALSE, seed) {
+                                 bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+                                 error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed) {
 
   # Set seed for reproducibility
   set.seed(seed)
@@ -248,40 +303,61 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
 
   # Calculate Go, NoGo and Miss probabilities based on decision criteria
   GoNogoProb <- sapply(seq(3), function(j) {
-    # Create indicator matrix for Go (j=1) or NoGo (j=2) decisions
+    # Create indicator matrix for Go (j=1), NoGo (j=2), or Miss (j=3) decisions
     if(j == 1) {
+      # Go decision: high probability for Go threshold AND low probability for NoGo threshold
       I <- as.numeric((gPost[[1]] >= gamma1) & (gPost[[2]] < gamma2))
     } else if(j == 2) {
+      # NoGo decision: low probability for Go threshold AND high probability for NoGo threshold
       I <- as.numeric((gPost[[1]] < gamma1) & (gPost[[2]] >= gamma2))
     } else {
+      # Miss: both Go and NoGo criteria met simultaneously (should be rare)
       I <- as.numeric((gPost[[1]] >= gamma1) & (gPost[[2]] >= gamma2))
     }
     sum(I) / nsim
   })
 
-  # Check for positive Miss probabilities
-  if(sum(GoNogoProb[3]) > 0) {
-    stop('Because positive Miss probability(s) is obtained, re-consider appropriate threshold')
+  # Check for positive Miss probabilities (indicates inappropriate thresholds)
+  if(error_if_Miss) {
+    if(sum(GoNogoProb[3]) > 0) {
+      stop('Because positive Miss probability(s) is obtained, re-consider appropriate thresholds')
+    }
   }
 
+  # Calculate Miss probability (both Go and NoGo criteria met simultaneously)
+  Miss <- GoNogoProb[3]
+
   # Calculate Gray probability (complement of Go and NoGo)
-  GrayProb <- 1 - sum(GoNogoProb[-3])
   if(Gray_inc_Miss) {
-    GrayProb <- GrayProb + GoNogoProb[3]
+    # Include Miss in Gray probability
+    GrayProb <- 1 - sum(GoNogoProb[-3])
+  } else {
+    # Exclude Miss from Gray probability
+    GrayProb <- 1 - sum(GoNogoProb)
   }
 
   # Create results data frame
   if(design == 'uncontrolled') {
     # For uncontrolled design, only include mu1
     results <- data.frame(
-      mu1, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2], Miss = GoNogoProb[3]
+      mu1, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2]
     )
   } else {
     # For controlled and external designs, include both mu1 and mu2
     results <- data.frame(
-      mu1, mu2, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2], Miss = GoNogoProb[3]
+      mu1, mu2, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2]
     )
   }
+
+  # Add Miss column when error_if_Miss is FALSE and Gray_inc_Miss is FALSE
+  if(!error_if_Miss) {
+    if(!Gray_inc_Miss) {
+      results$Miss <- Miss
+    }
+  }
+
+  # Address floating point error
+  results[results < .Machine$double.eps ^ 0.25] <- 0
 
   return(results)
 }

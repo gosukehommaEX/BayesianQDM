@@ -30,6 +30,7 @@ pGNGsinglebinary(
   ye2,
   ae1,
   ae2,
+  error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE
 )
 }
@@ -116,12 +117,21 @@ of borrowing: 0 = no borrowing, 1 = full borrowing.}
 for group 2 (required if \code{design = 'external'}). Controls the degree
 of borrowing: 0 = no borrowing, 1 = full borrowing.}
 
-\item{Gray_inc_Miss}{A logical value; if TRUE, Miss probability is included in
-Gray probability. If FALSE, Miss probability is reported separately.}
+\item{error_if_Miss}{A logical value; if \code{TRUE} (default), the function stops
+with an error when positive Miss probability is obtained, indicating poorly
+chosen thresholds. If \code{FALSE}, the function proceeds and reports Miss
+probability based on \code{Gray_inc_Miss} setting.}
+
+\item{Gray_inc_Miss}{A logical value; if \code{TRUE}, Miss probability is included
+in Gray probability (Miss is not reported separately). If \code{FALSE}
+(default), Miss probability is reported as a separate category. This parameter
+is only active when \code{error_if_Miss = FALSE}.}
 }
 \value{
 A data frame containing the true response probabilities for both groups
-and the corresponding Go, NoGo, Gray, and Miss probabilities.
+and the corresponding Go, NoGo, and Gray probabilities. When
+\code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE}, Miss
+probability is also included as a separate column.
 }
 \description{
 This function calculates the Go, NoGo, and Gray probabilities for binary outcome
@@ -151,6 +161,16 @@ P(treatment effect > threshold | data) in lower tail ≥ γ₂
 poorly chosen thresholds)
 }
 
+\strong{Handling Miss probability}:
+\itemize{
+\item When \code{error_if_Miss = TRUE} (default): Function stops with error if
+Miss probability > 0, prompting reconsideration of thresholds
+\item When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = TRUE}: Miss
+probability is added to Gray probability
+\item When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE}: Miss
+probability is reported as a separate category
+}
+
 The function can be used for:
 \itemize{
 \item \strong{Controlled design}: Two-arm randomized trial
@@ -159,7 +179,8 @@ The function can be used for:
 }
 }
 \examples{
-# Calculate Go/NoGo/Gray probabilities using posterior probability for controlled design
+# Example 1: Calculate Go/NoGo/Gray probabilities using posterior probability
+# for controlled design (default: error_if_Miss = TRUE)
 pGNGsinglebinary(
   prob = 'posterior', design = 'controlled',
   theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
@@ -167,10 +188,11 @@ pGNGsinglebinary(
   pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
   n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
-# Calculate Go/NoGo/Gray probabilities using posterior predictive probability
+# Example 2: Calculate Go/NoGo/Gray probabilities using posterior predictive probability
 pGNGsinglebinary(
   prob = 'predictive', design = 'controlled',
   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0,
@@ -178,7 +200,32 @@ pGNGsinglebinary(
   pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
   n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = 30, m2 = 30,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+# Example 3: Report Miss probability separately when thresholds may be suboptimal
+pGNGsinglebinary(
+  prob = 'posterior', design = 'controlled',
+  theta.TV = 0.3, theta.MAV = 0.25, theta.NULL = NULL,
+  gamma1 = 0.7, gamma2 = 0.6,
+  pi1 = c(0.4, 0.6), pi2 = rep(0.3, 2),
+  n1 = 10, n2 = 10, a1 = 1, a2 = 1, b1 = 1, b2 = 1,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
+)
+
+# Example 4: Include Miss probability in Gray when error_if_Miss = FALSE
+pGNGsinglebinary(
+  prob = 'posterior', design = 'controlled',
+  theta.TV = 0.3, theta.MAV = 0.25, theta.NULL = NULL,
+  gamma1 = 0.7, gamma2 = 0.6,
+  pi1 = c(0.4, 0.6), pi2 = rep(0.3, 2),
+  n1 = 10, n2 = 10, a1 = 1, a2 = 1, b1 = 1, b2 = 1,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = FALSE, Gray_inc_Miss = TRUE
 )
 
 }

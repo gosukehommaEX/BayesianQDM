@@ -117,10 +117,10 @@ probability)</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_binary</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   pi1 pi2         Go      Gray      NoGo Miss</span></span>
-<span><span class="co">#&gt; 1 0.3 0.2 0.01578194 0.1810868 0.8031312    0</span></span>
-<span><span class="co">#&gt; 2 0.5 0.2 0.21141006 0.4500322 0.3385577    0</span></span>
-<span><span class="co">#&gt; 3 0.7 0.2 0.67440950 0.2761393 0.0494512    0</span></span></code></pre></div>
+<span><span class="co">#&gt;   pi1 pi2         Go      Gray      NoGo</span></span>
+<span><span class="co">#&gt; 1 0.3 0.2 0.01578194 0.1810868 0.8031312</span></span>
+<span><span class="co">#&gt; 2 0.5 0.2 0.21141006 0.4500322 0.3385577</span></span>
+<span><span class="co">#&gt; 3 0.7 0.2 0.67440950 0.2761393 0.0494512</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="posterior-probability">Posterior Probability<a class="anchor" aria-label="anchor" href="#posterior-probability"></a>
@@ -167,8 +167,8 @@ probability)</li>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result_continuous</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   mu1 mu2   Go Gray NoGo Miss</span></span>
-<span><span class="co">#&gt; 1 4.5   2 0.82 0.18    0    0</span></span></code></pre></div>
+<span><span class="co">#&gt;   mu1 mu2   Go Gray NoGo</span></span>
+<span><span class="co">#&gt; 1 4.5   2 0.82 0.18    0</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="comparing-calculation-methods">Comparing Calculation Methods<a class="anchor" aria-label="anchor" href="#comparing-calculation-methods"></a>
@@ -206,68 +206,64 @@ trial</li>
 control</li>
 <li>
 <strong>External Control Design</strong>: Incorporating historical
-data via power priors</li>
+data through power priors</li>
 </ol>
+<div class="section level3">
+<h3 id="external-control-example">External Control Example<a class="anchor" aria-label="anchor" href="#external-control-example"></a>
+</h3>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Binary endpoint with external control data</span></span>
+<span><span class="va">external_binary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
+<span>  design <span class="op">=</span> <span class="st">'external'</span>, </span>
+<span>  theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, y1 <span class="op">=</span> <span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne1 <span class="op">=</span> <span class="fl">15</span>, ne2 <span class="op">=</span> <span class="fl">25</span>, ye1 <span class="op">=</span> <span class="fl">9</span>, ye2 <span class="op">=</span> <span class="fl">10</span>, ae1 <span class="op">=</span> <span class="fl">0.5</span>, ae2 <span class="op">=</span> <span class="fl">0.5</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Posterior probability with external data:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">external_binary</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Posterior probability with external data: 0.3579</span></span>
+<span></span>
+<span><span class="co"># Continuous endpoint with external control data</span></span>
+<span><span class="va">external_continuous</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pPPsinglecontinuous.html">pPPsinglecontinuous</a></span><span class="op">(</span></span>
+<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>,</span>
+<span>  design <span class="op">=</span> <span class="st">'external'</span>,</span>
+<span>  prior <span class="op">=</span> <span class="st">'vague'</span>,</span>
+<span>  CalcMethod <span class="op">=</span> <span class="st">'WS'</span>,</span>
+<span>  theta0 <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  bar.y1 <span class="op">=</span> <span class="fl">5.5</span>, bar.y2 <span class="op">=</span> <span class="fl">3.2</span>,</span>
+<span>  s1 <span class="op">=</span> <span class="fl">2.1</span>, s2 <span class="op">=</span> <span class="fl">1.9</span>,</span>
+<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="fl">40</span>,</span>
+<span>  alpha01 <span class="op">=</span> <span class="cn">NULL</span>, alpha02 <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  bar.ye1 <span class="op">=</span> <span class="cn">NULL</span>, bar.ye2 <span class="op">=</span> <span class="fl">3.0</span>,</span>
+<span>  se1 <span class="op">=</span> <span class="cn">NULL</span>, se2 <span class="op">=</span> <span class="fl">2.0</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Posterior probability with external control:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">external_continuous</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Posterior probability with external control: 0.0581</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
-<h2 id="prior-distributions">Prior Distributions<a class="anchor" aria-label="anchor" href="#prior-distributions"></a>
+<h2 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h2>
-<div class="section level3">
-<h3 id="binary-endpoints-1">Binary Endpoints<a class="anchor" aria-label="anchor" href="#binary-endpoints-1"></a>
-</h3>
+<p>For more detailed examples and advanced usage:</p>
 <ul>
-<li>Beta priors for response probabilities</li>
-<li>Default: Beta(0.5, 0.5) for Jeffreys prior</li>
+<li>See <code><a href="../articles/binary-endpoints.html">vignette("binary-endpoints")</a></code> for comprehensive
+binary endpoint examples</li>
+<li>See <code><a href="../articles/continuous-endpoints.html">vignette("continuous-endpoints")</a></code> for detailed
+continuous endpoint analysis</li>
+<li>Visit the <a href="https://gosukehommaEX.github.io/BayesianQDM/">package website</a>
+for additional resources</li>
 </ul>
 </div>
-<div class="section level3">
-<h3 id="continuous-endpoints-1">Continuous Endpoints<a class="anchor" aria-label="anchor" href="#continuous-endpoints-1"></a>
-</h3>
-<ul>
-<li>
-<strong>Vague priors</strong>: Non-informative approach</li>
-<li>
-<strong>Normal-Inverse-Chi-squared</strong>: Conjugate priors for
-incorporating prior knowledge</li>
-</ul>
-</div>
-</div>
 <div class="section level2">
-<h2 id="calculation-methods">Calculation Methods<a class="anchor" aria-label="anchor" href="#calculation-methods"></a>
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>For continuous endpoints, three methods are available:</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong>NI (Numerical Integration)</strong>: Exact calculation using
-convolution</li>
-<li>
-<strong>WS (Welch-Satterthwaite)</strong>: Fast approximation for
-unequal variances</li>
-<li>
-<strong>MC (Monte Carlo)</strong>: Simulation-based flexible
-approach</li>
-</ol>
-</div>
-<div class="section level2">
-<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
-</h2>
-<p>The BayesianQDM package provides:</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong>Flexible decision frameworks</strong> with customizable
-thresholds</li>
-<li>
-<strong>Multiple calculation methods</strong> balancing accuracy and
-speed</li>
-<li>
-<strong>Support for various designs</strong> including external data
-incorporation</li>
-<li>
-<strong>Comprehensive probability calculations</strong> for
-evidence-based decisions</li>
-</ol>
-<p>For more detailed examples, see the binary-endpoints and
-continuous-endpoints vignettes.</p>
+<p>For theoretical background and methodology details, please refer to
+the function documentation and the other vignettes in this package.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

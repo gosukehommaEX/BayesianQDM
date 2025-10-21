@@ -41,6 +41,7 @@ pGNGsinglecontinuous(
   bar.ye2 = NULL,
   se1 = NULL,
   se2 = NULL,
+  error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE,
   seed
 )
@@ -136,12 +137,22 @@ the external data (can be NULL if no external control data).}
 
 \item{se2}{A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).}
 
-\item{Gray_inc_Miss}{A logical value representing that Miss probability is included into Gray probability if TRUE, not otherwise.}
+\item{error_if_Miss}{A logical value; if \code{TRUE} (default), the function stops
+with an error when positive Miss probability is obtained, indicating poorly
+chosen thresholds. If \code{FALSE}, the function proceeds and reports Miss
+probability based on \code{Gray_inc_Miss} setting.}
+
+\item{Gray_inc_Miss}{A logical value; if \code{TRUE}, Miss probability is included
+in Gray probability (Miss is not reported separately). If \code{FALSE}
+(default), Miss probability is reported as a separate category. This parameter
+is only active when \code{error_if_Miss = FALSE}.}
 
 \item{seed}{A numeric value representing the seed number for reproducible random number generation.}
 }
 \value{
-A data frame containing the true means for both groups and the Go, NoGo, and Gray probabilities.
+A data frame containing the true means for both groups and the Go, NoGo, and
+Gray probabilities. When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE},
+Miss probability is also included as a separate column.
 }
 \description{
 This function computes the Go, NoGo, and Gray probabilities for continuous outcome clinical trials
@@ -164,15 +175,28 @@ For external control designs, power priors are incorporated using exact conjugat
 \item Alpha parameters control the degree of borrowing (0 = no borrowing, 1 = full borrowing)
 }
 
-Decision rules:
+\strong{Decision rules}:
 \itemize{
 \item \strong{Go}: P(treatment effect > threshold) ≥ γ₁
 \item \strong{NoGo}: P(treatment effect > threshold) ≤ γ₂
 \item \strong{Gray}: γ₂ < P(treatment effect > threshold) < γ₁
+\item \strong{Miss}: Both Go and NoGo criteria are met simultaneously (indicates
+poorly chosen thresholds)
+}
+
+\strong{Handling Miss probability}:
+\itemize{
+\item When \code{error_if_Miss = TRUE} (default): Function stops with error if
+Miss probability > 0, prompting reconsideration of thresholds
+\item When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = TRUE}: Miss
+probability is added to Gray probability
+\item When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE}: Miss
+probability is reported as a separate category
 }
 }
 \examples{
 # Example 1: Controlled design with vague prior and NI method
+# (default: error_if_Miss = TRUE, Gray_inc_Miss = FALSE)
 pGNGsinglecontinuous(
   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
   theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
@@ -182,10 +206,11 @@ pGNGsinglecontinuous(
   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
   mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 2
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 )
 
-# Example 2: External design with control data
+# Example 2: External design with control data using WS approximation
 \dontrun{
 pGNGsinglecontinuous(
   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'WS',
@@ -196,7 +221,8 @@ pGNGsinglecontinuous(
   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
   r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5,
-  bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1, seed = 4
+  bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 )
 }
 
@@ -210,10 +236,11 @@ pGNGsinglecontinuous(
   mu01 = 3.5, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.5,
   mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 3
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 )
 
-# Example 4: External design with predictive probability
+# Example 4: External design with predictive probability using MC method
 \dontrun{
 pGNGsinglecontinuous(
   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
@@ -224,8 +251,37 @@ pGNGsinglecontinuous(
   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
   mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
   r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
-  bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0, seed = 5
+  bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0,
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 5
 )
 }
+
+# Example 5: Report Miss probability separately when thresholds may be suboptimal
+pGNGsinglecontinuous(
+  nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+  theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
+  nMC = NULL, gamma1 = 0.65, gamma2 = 0.55,
+  n1 = 10, n2 = 10, m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
+  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
+)
+
+# Example 6: Include Miss probability in Gray when error_if_Miss = FALSE
+pGNGsinglecontinuous(
+  nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+  theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
+  nMC = NULL, gamma1 = 0.65, gamma2 = 0.55,
+  n1 = 10, n2 = 10, m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
+  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 7
+)
 
 }
