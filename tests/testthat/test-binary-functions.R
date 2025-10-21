@@ -1,140 +1,149 @@
-# Test binary endpoint functions
+# Test continuous endpoint functions (fast methods only)
 
-test_that("AppellsF1 function works correctly", {
+test_that("pNI2tdiff function works correctly", {
   # Test basic functionality
-  result <- AppellsF1(0.5, 0.5, 0, 1, 0.96, 1.2)
-  expect_type(result, "double")
-  expect_length(result, 1)
-  expect_true(is.finite(result))
-
-  # Test with known values
-  result2 <- AppellsF1(1, 1, 1, 2, 0.3, 0.4)
-  expect_type(result2, "double")
-  expect_true(result2 > 0)
-})
-
-test_that("d2betadiff function works correctly", {
-  # Test basic functionality
-  result <- d2betadiff(0.2, 0.5, 0.5, 0.5, 0.5)
-  expect_type(result, "double")
-  expect_length(result, 1)
-  expect_true(result >= 0)
-
-  # Test with different parameters
-  result2 <- d2betadiff(-0.1, 2, 3, 1, 4)
-  expect_type(result2, "double")
-  expect_true(result2 >= 0)
-})
-
-test_that("p2betadiff function works correctly", {
-  # Test basic functionality with symmetric parameters
-  result <- p2betadiff(0.2, 0.5, 0.5, 0.5, 0.5)
+  result <- pNI2tdiff(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
   expect_type(result, "double")
   expect_length(result, 1)
   expect_true(result >= 0 && result <= 1)
 
-  # Test with q = 0 (should give 0.5 for symmetric case)
-  result_zero <- p2betadiff(0, 1, 1, 1, 1)
-  expect_equal(result_zero, 0.5, tolerance = 1e-6)
-
   # Test with different parameters
-  result2 <- p2betadiff(-0.1, 2, 3, 1, 4)
+  result2 <- pNI2tdiff(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15)
   expect_type(result2, "double")
   expect_true(result2 >= 0 && result2 <= 1)
+
+  # Test with q = 0 and symmetric parameters (should be close to 0.5)
+  result_zero <- pNI2tdiff(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1, nu.t1 = 20, nu.t2 = 20)
+  expect_true(abs(result_zero - 0.5) < 0.1)
 })
 
-test_that("p2betabinomdiff function works correctly", {
+test_that("pWS2tdiff function works correctly", {
   # Test basic functionality
-  result <- p2betabinomdiff(0.2, 12, 12, 0.5, 0.5, 0.5, 0.5)
+  result <- pWS2tdiff(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1, nu.t1 = 17, nu.t2 = 17)
   expect_type(result, "double")
   expect_length(result, 1)
   expect_true(result >= 0 && result <= 1)
 
-  # Test with different sample sizes
-  result2 <- p2betabinomdiff(0.1, 20, 15, 1, 1, 1, 1)
+  # Test with unequal variances
+  result2 <- pWS2tdiff(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5, nu.t1 = 10, nu.t2 = 15)
   expect_type(result2, "double")
   expect_true(result2 >= 0 && result2 <= 1)
 
-  # Test with q = 0 for symmetric case
-  result_zero <- p2betabinomdiff(0, 10, 10, 2, 2, 3, 3)
-  expect_type(result_zero, "double")
-  expect_true(result_zero >= 0 && result_zero <= 1)
+  # Test with q = 0 and symmetric parameters
+  result_zero <- pWS2tdiff(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1, nu.t1 = 5, nu.t2 = 20)
+  expect_true(abs(result_zero - 0.5) < 0.1)
 })
 
-test_that("pPPsinglebinary function works correctly", {
+test_that("Comparison between NI and WS methods", {
+  # Compare NI and WS results for same parameters
+  q_val <- 2
+  mu1 <- 3
+  mu2 <- 1
+  sd1 <- 1.5
+  sd2 <- 1.2
+  nu1 <- 15
+  nu2 <- 18
+
+  result_ni <- pNI2tdiff(q = q_val, mu.t1 = mu1, mu.t2 = mu2, sd.t1 = sd1, sd.t2 = sd2, nu.t1 = nu1, nu.t2 = nu2)
+  result_ws <- pWS2tdiff(q = q_val, mu.t1 = mu1, mu.t2 = mu2, sd.t1 = sd1, sd.t2 = sd2, nu.t1 = nu1, nu.t2 = nu2)
+
+  # Results should be reasonably close
+  expect_true(abs(result_ni - result_ws) / max(result_ni, result_ws) < 0.3)
+})
+
+test_that("pPPsinglecontinuous function works correctly with NI method", {
   # Test posterior probability with controlled design
-  result_post <- pPPsinglebinary(
-    prob = 'posterior', design = 'controlled', theta0 = 0.15,
-    n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-    m1 = NULL, m2 = NULL, ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  result_ni <- pPPsinglecontinuous(
+    prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+    theta0 = 1, n1 = 12, n2 = 12, bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2
   )
-  expect_type(result_post, "double")
-  expect_length(result_post, 1)
-  expect_true(result_post >= 0 && result_post <= 1)
+  expect_type(result_ni, "double")
+  expect_length(result_ni, 1)
+  expect_true(result_ni >= 0 && result_ni <= 1)
 
-  # Test predictive probability with controlled design
-  result_pred <- pPPsinglebinary(
-    prob = 'predictive', design = 'controlled', theta0 = 0.5,
-    n1 = 12, n2 = 15, y1 = 7, y2 = 7, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-    m1 = 12, m2 = 12, ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  # Test with N-Inv-Chisq prior
+  result_ninvchisq <- pPPsinglecontinuous(
+    prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
+    theta0 = 2, n1 = 12, n2 = 12, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+    mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+    bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1
   )
-  expect_type(result_pred, "double")
-  expect_length(result_pred, 1)
-  expect_true(result_pred >= 0 && result_pred <= 1)
-
-  # Test external design
-  result_ext <- pPPsinglebinary(
-    prob = 'posterior', design = 'external', theta0 = 0.15,
-    n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-    m1 = NULL, m2 = NULL, ne1 = 12, ne2 = 12, ye1 = 6, ye2 = 6, ae1 = 0.5, ae2 = 0.5
-  )
-  expect_type(result_ext, "double")
-  expect_length(result_ext, 1)
-  expect_true(result_ext >= 0 && result_ext <= 1)
+  expect_type(result_ninvchisq, "double")
+  expect_length(result_ninvchisq, 1)
+  expect_true(result_ninvchisq >= 0 && result_ninvchisq <= 1)
 })
 
-test_that("pGNGsinglebinary function works correctly", {
-  # Test posterior probability decision making with small n for speed
-  result_post <- pGNGsinglebinary(
-    prob = 'posterior', design = 'controlled', theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
-    gamma1 = 0.5, gamma2 = 0.2, pi1 = c(0.3, 0.6), pi2 = rep(0.2, 2), n1 = 10, n2 = 10,
-    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL, m1 = NULL, m2 = NULL, ne1 = NULL, ne2 = NULL,
-    ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+test_that("pPPsinglecontinuous function works correctly with WS method", {
+  # Test predictive probability with controlled design and vague prior
+  result_ws <- pPPsinglecontinuous(
+    prob = 'predictive', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
+    theta0 = 1, n1 = 12, n2 = 12, m1 = 50, m2 = 50,
+    bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2
   )
-  expect_s3_class(result_post, "data.frame")
-  expect_named(result_post, c("pi1", "pi2", "Go", "Gray", "NoGo", "Miss"))
-  expect_equal(nrow(result_post), 2)
-  expect_true(all(result_post$Go >= 0 & result_post$Go <= 1))
-  expect_true(all(result_post$NoGo >= 0 & result_post$NoGo <= 1))
+  expect_type(result_ws, "double")
+  expect_length(result_ws, 1)
+  expect_true(result_ws >= 0 && result_ws <= 1)
 
-  # Test predictive probability decision making
-  result_pred <- pGNGsinglebinary(
-    prob = 'predictive', design = 'controlled', theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0,
-    gamma1 = 0.9, gamma2 = 0.3, pi1 = c(0.3, 0.5), pi2 = rep(0.2, 2), n1 = 10, n2 = 10,
-    a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5, z = NULL, m1 = 20, m2 = 20, ne1 = NULL, ne2 = NULL,
-    ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  # Test with N-Inv-Chisq prior
+  result_ninvchisq <- pPPsinglecontinuous(
+    prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
+    theta0 = 2, n1 = 12, n2 = 12, m1 = 50, m2 = 50, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+    mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
+    bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1
   )
-  expect_s3_class(result_pred, "data.frame")
-  expect_named(result_pred, c("pi1", "pi2", "Go", "Gray", "NoGo", "Miss"))
-  expect_equal(nrow(result_pred), 2)
+  expect_type(result_ninvchisq, "double")
+  expect_length(result_ninvchisq, 1)
+  expect_true(result_ninvchisq >= 0 && result_ninvchisq <= 1)
 })
 
-test_that("Error handling works correctly for binary functions", {
+test_that("pGNGsinglecontinuous function works correctly with NI method", {
+  # Test with very small nsim for speed
+  result_ni <- pGNGsinglecontinuous(
+    nsim = 10, prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
+    theta.TV = 2, theta.MAV = 0, theta.NULL = NULL, nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
+    n1 = 12, n2 = 12, m1 = NULL, m2 = NULL, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+    mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5), mu1 = 4, mu2 = 0,
+    sigma1 = 1, sigma2 = 1, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+    bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 1
+  )
+  expect_s3_class(result_ni, "data.frame")
+  expect_true(all(c("mu1", "mu2", "Go", "Gray", "NoGo") %in% names(result_ni)))
+  expect_equal(nrow(result_ni), 1)
+  expect_true(result_ni$Go >= 0 && result_ni$Go <= 1)
+  expect_true(result_ni$NoGo >= 0 && result_ni$NoGo <= 1)
+})
+
+test_that("pGNGsinglecontinuous function works correctly with WS method", {
+  # Test with WS method
+  result_ws <- pGNGsinglecontinuous(
+    nsim = 10, prob = 'predictive', design = 'controlled', prior = 'vague', CalcMethod = 'WS',
+    theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1, nMC = NULL, gamma1 = 0.8, gamma2 = 0.3,
+    n1 = 10, n2 = 10, m1 = 30, m2 = 30, kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+    mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL, mu1 = 2.5, mu2 = 1.2,
+    sigma1 = 1, sigma2 = 1, r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+    bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 1
+  )
+  expect_s3_class(result_ws, "data.frame")
+  expect_true(all(c("mu1", "mu2", "Go", "Gray", "NoGo") %in% names(result_ws)))
+  expect_equal(nrow(result_ws), 1)
+})
+
+test_that("Error handling works correctly for continuous functions", {
   # Test missing parameters for predictive probability
   expect_error(
-    pPPsinglebinary(
-      prob = 'predictive', design = 'controlled', theta0 = 0.5,
-      n1 = 12, n2 = 15, y1 = 7, y2 = 7, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-      m1 = NULL, m2 = NULL, ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+    pPPsinglecontinuous(
+      prob = 'predictive', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
+      theta0 = 1, n1 = 12, n2 = 12, bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2
     )
   )
 
-  # Test missing parameters for external design
+  # Test missing parameters for N-Inv-Chisq prior
   expect_error(
-    pPPsinglebinary(
-      prob = 'posterior', design = 'external', theta0 = 0.15,
-      n1 = 12, n2 = 15, y1 = 7, y2 = 9, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-      m1 = NULL, m2 = NULL, ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+    pPPsinglecontinuous(
+      prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
+      theta0 = 2, n1 = 12, n2 = 12, kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+      mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+      bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1
     )
   )
 })

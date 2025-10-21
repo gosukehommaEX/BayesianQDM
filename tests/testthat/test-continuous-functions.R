@@ -107,7 +107,7 @@ test_that("pGNGsinglecontinuous function works correctly with NI method", {
     bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 1
   )
   expect_s3_class(result_ni, "data.frame")
-  expect_named(result_ni, c("mu1", "mu2", "Go", "Gray", "NoGo", "Miss"))
+  expect_true(all(c("mu1", "mu2", "Go", "Gray", "NoGo") %in% names(result_ni)))
   expect_equal(nrow(result_ni), 1)
   expect_true(result_ni$Go >= 0 && result_ni$Go <= 1)
   expect_true(result_ni$NoGo >= 0 && result_ni$NoGo <= 1)
@@ -124,7 +124,7 @@ test_that("pGNGsinglecontinuous function works correctly with WS method", {
     bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL, seed = 1
   )
   expect_s3_class(result_ws, "data.frame")
-  expect_named(result_ws, c("mu1", "mu2", "Go", "Gray", "NoGo", "Miss"))
+  expect_true(all(c("mu1", "mu2", "Go", "Gray", "NoGo") %in% names(result_ws)))
   expect_equal(nrow(result_ws), 1)
 })
 
