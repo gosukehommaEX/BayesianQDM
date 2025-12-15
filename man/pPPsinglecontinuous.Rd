@@ -2,7 +2,8 @@
 % Please edit documentation in R/pPPsinglecontinuous.R
 \name{pPPsinglecontinuous}
 \alias{pPPsinglecontinuous}
-\title{Calculate Bayesian Posterior Probability or Bayesian Posterior Predictive Probability for a Clinical Trial When Outcome is Continuous}
+\title{Calculate Bayesian Posterior Probability or Posterior Predictive Probability
+for a Clinical Trial with a Single Continuous Endpoint}
 \usage{
 pPPsinglecontinuous(
   prob = "posterior",
@@ -40,98 +41,133 @@ pPPsinglecontinuous(
 )
 }
 \arguments{
-\item{prob}{A character string specifying the type of probability to use
-(\code{prob = 'posterior'} or \code{prob = 'predictive'}).}
+\item{prob}{A character string specifying the type of probability to calculate.
+Options are \code{'posterior'} for posterior probability or \code{'predictive'}
+for posterior predictive probability.}
 
-\item{design}{A character string specifying the type of trial design
-(\code{design = 'controlled'}, \code{design = 'uncontrolled'}, or \code{design = 'external'}).}
+\item{design}{A character string specifying the type of trial design. Options are
+\code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
+for single-arm studies, or \code{'external'} for designs incorporating external data.}
 
-\item{prior}{A character string specifying the prior distribution
-(\code{prior = 'N-Inv-Chisq'} or \code{prior = 'vague'}).}
+\item{prior}{A character string specifying the prior distribution type. Options are
+\code{'vague'} for Jeffreys prior or \code{'N-Inv-Chisq'} for Normal-Inverse-Chi-squared
+conjugate prior.}
 
-\item{CalcMethod}{A character string specifying the calculation method
-(\code{CalcMethod = 'NI'} for numerical integration, \code{CalcMethod = 'MC'} for Monte Carlo method,
-or \code{CalcMethod = 'WS'} for Welch-Satterthwaite approximation).}
+\item{CalcMethod}{A character string specifying the calculation method. Options are
+\code{'NI'} for numerical integration, \code{'MC'} for Monte Carlo simulation,
+or \code{'WS'} for Welch-Satterthwaite approximation.}
 
-\item{theta0}{A numeric value representing the pre-specified threshold value.}
+\item{theta0}{A numeric value representing the pre-specified threshold value for
+the treatment effect (difference in means).}
 
-\item{nMC}{A positive integer representing the number of iterations for Monte Carlo simulation
-(required if \code{CalcMethod = 'MC'}).}
+\item{nMC}{A positive integer representing the number of Monte Carlo samples
+(required if \code{CalcMethod = 'MC'}, otherwise set to NULL).}
 
-\item{n1}{A positive integer representing the number of patients in group 1 for the PoC trial.}
+\item{n1}{A positive integer representing the number of patients in group 1
+(treatment) for the proof-of-concept (PoC) trial.}
 
-\item{n2}{A positive integer representing the number of patients in group 2 for the PoC trial.}
+\item{n2}{A positive integer representing the number of patients in group 2.
+For \code{design = 'controlled'} or \code{'external'}: sample size of the
+control group. For \code{design = 'uncontrolled'}: set equal to n1
+(not actually used in calculations, but required for consistency).}
 
-\item{m1}{A positive integer representing the number of patients in group 1 for the future trial data.}
+\item{m1}{A positive integer representing the number of patients in group 1 for
+the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).}
 
-\item{m2}{A positive integer representing the number of patients in group 2 for the future trial data.}
+\item{m2}{A positive integer representing the number of patients in group 2 for
+the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).}
 
-\item{kappa01}{A positive numeric value representing the prior precision parameter related to the mean
-for conjugate prior of Normal-Inverse-Chi-squared in group 1.}
+\item{kappa01}{A positive numeric value representing the prior precision parameter
+for group 1 (required if \code{prior = 'N-Inv-Chisq'}, otherwise set to NULL).}
 
-\item{kappa02}{A positive numeric value representing the prior precision parameter related to the mean
-for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
+\item{kappa02}{A positive numeric value representing the prior precision parameter
+for group 2 (required if \code{prior = 'N-Inv-Chisq'} and \code{design = 'controlled'},
+otherwise set to NULL).}
 
-\item{nu01}{A positive numeric value representing the prior degrees of freedom related to the variance
-for conjugate prior of Normal-Inverse-Chi-squared in group 1.}
+\item{nu01}{A positive numeric value representing the prior degrees of freedom
+for group 1 (required if \code{prior = 'N-Inv-Chisq'}, otherwise set to NULL).}
 
-\item{nu02}{A positive numeric value representing the prior degrees of freedom related to the variance
-for conjugate prior of Normal-Inverse-Chi-squared in group 2.}
+\item{nu02}{A positive numeric value representing the prior degrees of freedom
+for group 2 (required if \code{prior = 'N-Inv-Chisq'} and \code{design = 'controlled'},
+otherwise set to NULL).}
 
-\item{mu01}{A numeric value representing the prior mean value of outcomes in group 1 for the PoC trial.}
+\item{mu01}{A numeric value representing the prior mean for group 1
+(required if \code{prior = 'N-Inv-Chisq'}, otherwise set to NULL).}
 
-\item{mu02}{A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.}
+\item{mu02}{A numeric value representing the prior mean or hypothetical control mean.
+For \code{design = 'controlled'} with \code{prior = 'N-Inv-Chisq'}: prior mean
+for group 2. For \code{design = 'uncontrolled'}: hypothetical control mean
+based on historical data or prior knowledge (required for uncontrolled design).
+Otherwise set to NULL.}
 
-\item{sigma01}{A positive numeric value representing the prior standard deviation of the outcomes for group 1.}
+\item{sigma01}{A positive numeric value representing the prior standard deviation
+for group 1 (required if \code{prior = 'N-Inv-Chisq'}, otherwise set to NULL).}
 
-\item{sigma02}{A positive numeric value representing the prior standard deviation of the outcomes for group 2.}
+\item{sigma02}{A positive numeric value representing the prior standard deviation
+for group 2 (required if \code{prior = 'N-Inv-Chisq'} and \code{design = 'controlled'},
+otherwise set to NULL).}
 
-\item{bar.y1}{A numeric value representing the sample mean of group 1.}
+\item{bar.y1}{A numeric value representing the sample mean for group 1.}
 
-\item{bar.y2}{A numeric value representing the sample mean of group 2.}
+\item{bar.y2}{A numeric value representing the sample mean for group 2
+(required if \code{design = 'controlled'} or \code{'external'}, otherwise set to NULL).}
 
-\item{s1}{A positive numeric value representing the sample standard deviation of group 1.}
+\item{s1}{A positive numeric value representing the sample standard deviation for group 1.}
 
-\item{s2}{A positive numeric value representing the sample standard deviation of group 2.}
+\item{s2}{A positive numeric value representing the sample standard deviation for group 2
+(required if \code{design = 'controlled'} or \code{'external'}, otherwise set to NULL).}
 
-\item{r}{A positive numeric value representing the ratio of the hypothesized values
-for the null hypotheses (required if \code{design = 'uncontrolled'}).}
+\item{r}{A positive numeric value representing the variance scaling factor for
+hypothetical control. For \code{design = 'uncontrolled'}: specifies how the
+variance of the hypothetical control relates to the treatment variance
+(e.g., r = 1 means equal variances). Set to NULL for controlled or external designs.}
 
 \item{ne1}{A positive integer representing the number of patients in group 1 for
-the external data (required if external treatment data available).}
+the external data (required if \code{design = 'external'} and external treatment
+data used, otherwise set to NULL).}
 
 \item{ne2}{A positive integer representing the number of patients in group 2 for
-the external data (required if external control data available).}
+the external data (required if \code{design = 'external'} and external control
+data used, otherwise set to NULL).}
 
-\item{alpha01}{A numeric value in \code{[0, 1]}: representing the scale parameter (power prior) for group 1
-(required if external treatment data available). Controls the degree of borrowing:
-0 = no borrowing, 1 = full borrowing.}
+\item{alpha01}{A numeric value in (0, 1] representing the power prior scale parameter
+for group 1 (required if \code{design = 'external'} and external treatment data
+used, otherwise set to NULL). Controls the degree of borrowing.}
 
-\item{alpha02}{A numeric value in \code{[0, 1]} representing the scale parameter (power prior) for group 2
-(required if external control data available). Controls the degree of borrowing:
-0 = no borrowing, 1 = full borrowing.}
+\item{alpha02}{A numeric value in (0, 1] representing the power prior scale parameter
+for group 2 (required if \code{design = 'external'} and external control data
+used, otherwise set to NULL). Controls the degree of borrowing.}
 
-\item{bar.ye1}{A numeric value representing the external sample mean of group 1 (required if external treatment data available).}
+\item{bar.ye1}{A numeric value representing the sample mean for external group 1
+(required if \code{design = 'external'} and external treatment data used,
+otherwise set to NULL).}
 
-\item{bar.ye2}{A numeric value representing the external sample mean of group 2 (required if external control data available).}
+\item{bar.ye2}{A numeric value representing the sample mean for external group 2
+(required if \code{design = 'external'} and external control data used,
+otherwise set to NULL).}
 
-\item{se1}{A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).}
+\item{se1}{A positive numeric value representing the sample standard deviation for
+external group 1 (required if \code{design = 'external'} and external treatment
+data used, otherwise set to NULL).}
 
-\item{se2}{A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).}
+\item{se2}{A positive numeric value representing the sample standard deviation for
+external group 2 (required if \code{design = 'external'} and external control
+data used, otherwise set to NULL).}
 
-\item{lower.tail}{logical; if TRUE (default), probabilities are P(theta <= theta0), otherwise, P(theta > theta0)}
+\item{lower.tail}{A logical value; if TRUE (default), probabilities are
+P(treatment effect ≤ theta0), otherwise P(treatment effect > theta0).}
 }
 \value{
-A numeric vector representing the Bayesian posterior probability or Bayesian posterior
-predictive probability. The function can handle vectorized inputs.
+A numeric value in \code{[0, 1]} representing the Bayesian posterior probability
+or posterior predictive probability that the treatment effect exceeds
+(or is below) the threshold theta0.
 }
 \description{
-This function computes Bayesian posterior probability or posterior predictive probability
-for continuous outcome clinical trials. The function supports controlled, uncontrolled, and
-external control designs with Normal-Inverse-Chi-squared or vague priors, using three calculation
-methods: numerical integration, Monte Carlo simulation, and Welch-Satterthwaite approximation.
-For external control designs, power priors are incorporated using exact conjugate representation
-as Normal-Inverse-Chi-squared distributions, enabling closed-form computation without MCMC sampling.
+This function computes Bayesian posterior probability or posterior predictive
+probability for continuous outcome clinical trials. The function supports
+controlled, uncontrolled, and external control designs, with Normal-Inverse-Chi-squared
+conjugate priors or vague priors. External data can be incorporated through
+power priors.
 }
 \details{
 The function can obtain:
@@ -143,6 +179,18 @@ The function can obtain:
 Prior distribution of mean and variance of outcomes for each treatment group (k=1,2) can be either
 (1) Normal-Inverse-Chi-squared or (2) Vague. The posterior distribution or posterior predictive
 distribution of outcome for each treatment group follows a t-distribution.
+
+\strong{Design-specific handling}:
+\itemize{
+\item \strong{Controlled design}: Uses observed control data (bar.y2, s2, n2) directly
+\item \strong{Uncontrolled design}: Uses hypothetical control specified by \code{mu02}
+(hypothetical mean) and \code{r} (variance scaling factor). The treatment
+variance is scaled by r to obtain the hypothetical control variance.
+Parameters bar.y2, s2 should be set to NULL.
+\item \strong{External design}: Incorporates external data through power priors with
+exact conjugate representation. For vague prior, the effective posterior is
+computed using sufficient statistics from both current and external data.
+}
 
 For controlled and uncontrolled designs, three calculation methods are available:
 \itemize{
@@ -167,44 +215,58 @@ The external design supports:
 }
 }
 \examples{
-# Example 1: Numerical Integration (NI) method with N-Inv-Chisq prior
+# Example 1: Controlled design with posterior probability
 pPPsinglecontinuous(
   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-  theta0 = 2, n1 = 12, n2 = 12, kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+  theta0 = 2, n1 = 12, n2 = 12,
+  kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
   mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-  bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1, lower.tail = FALSE
+  bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1,
+  m1 = NULL, m2 = NULL, r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  lower.tail = FALSE
 )
 
-# Example 2: Monte Carlo (MC) method with vague prior
+# Example 2: Uncontrolled design with hypothetical control
+# mu02 = 1.5 is the hypothetical control mean
+# r = 1.2 means hypothetical control variance is 1.2 times treatment variance
 pPPsinglecontinuous(
-  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MC',
-  theta0 = 1, nMC = 10000, n1 = 12, n2 = 12,
-  bar.y1 = 3, bar.y2 = 1, s1 = 1.5, s2 = 1.2, lower.tail = FALSE
+  prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'WS',
+  theta0 = 1.5, n1 = 15, n2 = 15,
+  bar.y1 = 3.5, bar.y2 = NULL, s1 = 1.2, s2 = NULL,
+  mu02 = 1.5, r = 1.2,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, sigma01 = NULL, sigma02 = NULL,
+  m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  lower.tail = FALSE
 )
 
-# Example 3: Welch-Satterthwaite (WS) approximation with N-Inv-Chisq prior
+# Example 3: Posterior predictive probability for controlled design
 pPPsinglecontinuous(
   prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
   theta0 = 0.5, n1 = 15, n2 = 15, m1 = 100, m2 = 100,
-  kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4, mu01 = 2, mu02 = 2,
-  sigma01 = 2, sigma02 = 2, bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6, lower.tail = FALSE
+  kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
+  mu01 = 2, mu02 = 2, sigma01 = 2, sigma02 = 2,
+  bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6,
+  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  lower.tail = FALSE
 )
 
-# Example 4: External control design with power prior (NI method)
+# Example 4: External control design with power prior
 pPPsinglecontinuous(
   prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
-  theta0 = 1.5, n1 = 12, n2 = 12, bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-  ne2 = 20, alpha02 = 0.5, bar.ye2 = 1.8, se2 = 1.0, lower.tail = FALSE
-)
-
-# Example 5: External design with both treatment and control data
-pPPsinglecontinuous(
-  prob = 'posterior', design = 'external', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
-  theta0 = 1.0, n1 = 15, n2 = 15, bar.y1 = 3.5, bar.y2 = 2.0, s1 = 1.3, s2 = 1.1,
-  kappa01 = 2, kappa02 = 2, nu01 = 3, nu02 = 3, mu01 = 3, mu02 = 2,
-  sigma01 = 1.5, sigma02 = 1.5,
-  ne1 = 25, ne2 = 25, alpha01 = 0.7, alpha02 = 0.7,
-  bar.ye1 = 3.2, bar.ye2 = 1.9, se1 = 1.4, se2 = 1.2, lower.tail = FALSE
+  theta0 = 1.5, n1 = 12, n2 = 12,
+  bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
+  ne2 = 20, alpha02 = 0.5, bar.ye2 = 1.8, se2 = 1.0,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  m1 = NULL, m2 = NULL, r = NULL,
+  ne1 = NULL, alpha01 = NULL, bar.ye1 = NULL, se1 = NULL,
+  lower.tail = FALSE
 )
 
 }

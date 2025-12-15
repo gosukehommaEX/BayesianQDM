@@ -1,65 +1,101 @@
-#' Calculate the Go, NoGo and Gray Probabilities for a Clinical Trial When Outcome is Continuous Under the Bayesian Framework Using Two Metrics
+#' Calculate Go, NoGo, and Gray Probabilities for a Clinical Trial with a Single Continuous Endpoint
+#' Under the Bayesian Framework Using Two Metrics
 #'
-#' @description
-#' This function computes the Go, NoGo, and Gray probabilities for continuous outcome clinical trials
-#' using the Bayesian framework. The function supports controlled, uncontrolled, and external control designs with
-#' multiple calculation methods including numerical integration, Monte Carlo simulation, and Welch-Satterthwaite approximation.
-#' For external control designs, power priors are incorporated using exact conjugate representation.
+#' This function calculates the Go, NoGo, and Gray probabilities for continuous outcome
+#' clinical trials using the Bayesian framework. The function evaluates operating
+#' characteristics by computing the probability of making each type of decision
+#' (Go, NoGo, or Gray) across different true mean values through Monte Carlo simulation.
+#' The function supports controlled, uncontrolled, and external control designs.
 #'
-#' @param nsim A positive integer representing the number of iterations for calculating posterior/posterior predictive probability.
-#' @param prob A character string specifying the type of probability to use
-#'        (\code{prob = 'posterior'} or \code{prob = 'predictive'}).
-#' @param design A character string specifying the type of trial design
-#'        (\code{design = 'controlled'}, \code{design = 'uncontrolled'}, or \code{design = 'external'}).
-#' @param prior A character string specifying the prior distribution
-#'        (\code{prior = 'N-Inv-Chisq'} or \code{prior = 'vague'}).
-#' @param CalcMethod A character string specifying the calculation method
-#'        (\code{CalcMethod = 'NI'} for numerical integration, \code{CalcMethod = 'MC'} for Monte Carlo method,
-#'        or \code{CalcMethod = 'WS'} for Welch-Satterthwaite approximation).
-#' @param theta.TV A numeric value representing the pre-specified threshold value for calculating
-#'        Go probability when \code{prob = 'posterior'}.
-#' @param theta.MAV A numeric value representing the pre-specified threshold value for calculating
-#'        NoGo probability when \code{prob = 'posterior'}.
-#' @param theta.NULL A numeric value representing the pre-specified threshold value for calculating
-#'        Go probability when \code{prob = 'predictive'}.
-#' @param nMC A positive integer representing the number of iterations for Monte Carlo simulation
-#'        (required if \code{CalcMethod = 'MC'}).
-#' @param gamma1 A numeric value between 0 and 1 representing the minimum probability to declare success.
-#' @param gamma2 A numeric value between 0 and 1 representing the futility threshold.
-#' @param n1 A positive integer representing the number of patients in group 1 for the proof-of-concept (PoC) trial.
-#' @param n2 A positive integer representing the number of patients in group 2 for the PoC trial.
-#' @param m1 A positive integer representing the number of patients in group 1 for the future trial data.
-#' @param m2 A positive integer representing the number of patients in group 2 for the future trial data.
-#' @param kappa01 A positive numeric value representing the prior precision parameter related to the mean
-#'        for conjugate prior of Normal-Inverse-Chi-squared in group 1.
-#' @param kappa02 A positive numeric value representing the prior precision parameter related to the mean
-#'        for conjugate prior of Normal-Inverse-Chi-squared in group 2.
-#' @param nu01 A positive numeric value representing the prior degrees of freedom related to the variance
-#'        for conjugate prior of Normal-Inverse-Chi-squared in group 1.
-#' @param nu02 A positive numeric value representing the prior degrees of freedom related to the variance
-#'        for conjugate prior of Normal-Inverse-Chi-squared in group 2.
-#' @param mu01 A numeric value representing the prior mean value of outcomes in group 1 for the PoC trial.
-#' @param mu02 A numeric value representing the prior mean value of outcomes in group 2 for the PoC trial.
-#' @param sigma01 A positive numeric value representing the prior standard deviation of the outcomes for group 1.
-#' @param sigma02 A positive numeric value representing the prior standard deviation of the outcomes for group 2.
-#' @param mu1 A numeric value representing the true mean of outcomes in group 1 for the PoC trial.
-#' @param mu2 A numeric value representing the true mean of outcomes in group 2 for the PoC trial.
-#' @param sigma1 A positive numeric value representing the true standard deviation of outcomes in group 1.
-#' @param sigma2 A positive numeric value representing the true standard deviation of outcomes in group 2.
-#' @param r A positive numeric value representing the ratio of the hypothesized values
-#'        for the null hypotheses (required if \code{design = 'uncontrolled'}).
+#' @param nsim A positive integer representing the number of Monte Carlo simulations
+#'        for evaluating operating characteristics.
+#' @param prob A character string specifying the type of probability to use for
+#'        decision-making. Options are \code{'posterior'} for posterior probability
+#'        or \code{'predictive'} for posterior predictive probability.
+#' @param design A character string specifying the type of trial design. Options are
+#'        \code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
+#'        for single-arm studies with informative priors, or \code{'external'} for
+#'        designs incorporating external data through power priors.
+#' @param prior A character string specifying the prior distribution to use.
+#'        Options are \code{'vague'} for a vague prior or \code{'N-Inv-Chisq'} for
+#'        a Normal-Inverse-Chi-squared prior.
+#' @param CalcMethod A character string specifying the calculation method for
+#'        computing probabilities. Options are \code{'NI'} for numerical integration,
+#'        \code{'MC'} for Monte Carlo simulation, or \code{'WS'} for the
+#'        Welch-Satterthwaite approximation.
+#' @param theta.TV A numeric value representing the target value threshold for
+#'        calculating Go probability when \code{prob = 'posterior'}. This represents
+#'        the minimum clinically meaningful treatment effect.
+#' @param theta.MAV A numeric value representing the minimum acceptable value threshold
+#'        for calculating NoGo probability when \code{prob = 'posterior'}. This represents
+#'        the minimum effect size below which the treatment is not worth pursuing.
+#' @param theta.NULL A numeric value representing the null hypothesis value for
+#'        calculating Go/NoGo probabilities when \code{prob = 'predictive'}.
+#' @param nMC A positive integer representing the number of Monte Carlo samples for
+#'        probability calculation when \code{CalcMethod = 'MC'} (required if
+#'        \code{CalcMethod = 'MC'}).
+#' @param gamma1 A numeric value in (0, 1) representing the threshold for Go decision.
+#'        If P(treatment effect > threshold | data) ≥ gamma1, the decision is Go.
+#' @param gamma2 A numeric value in (0, 1) representing the threshold for NoGo decision.
+#'        If P(treatment effect > threshold | data) ≤ gamma2, the decision is NoGo.
+#'        Must satisfy gamma2 < gamma1.
+#' @param n1 A positive integer representing the number of patients in group 1
+#'        (treatment) for the proof-of-concept (PoC) trial.
+#' @param n2 A positive integer representing the number of patients in group 2
+#'        (control) for the PoC trial. For uncontrolled design, this represents
+#'        the effective sample size of the historical control (encoded in the prior).
+#' @param m1 A positive integer representing the number of patients in group 1 for
+#'        the future trial (required if \code{prob = 'predictive'}).
+#' @param m2 A positive integer representing the number of patients in group 2 for
+#'        the future trial (required if \code{prob = 'predictive'}).
+#' @param kappa01 A positive numeric value representing the prior sample size parameter
+#'        for group 1 when \code{prior = 'N-Inv-Chisq'}.
+#' @param kappa02 A positive numeric value representing the prior sample size parameter
+#'        for group 2 when \code{prior = 'N-Inv-Chisq'}.
+#' @param nu01 A positive numeric value representing the prior degrees of freedom
+#'        for group 1 when \code{prior = 'N-Inv-Chisq'}.
+#' @param nu02 A positive numeric value representing the prior degrees of freedom
+#'        for group 2 when \code{prior = 'N-Inv-Chisq'}.
+#' @param mu01 A numeric value representing the prior mean for group 1 when
+#'        \code{prior = 'N-Inv-Chisq'}.
+#' @param mu02 A numeric value representing the prior mean for group 2 when
+#'        \code{prior = 'N-Inv-Chisq'}.
+#' @param sigma01 A positive numeric value representing the prior scale parameter
+#'        for group 1 when \code{prior = 'N-Inv-Chisq'}.
+#' @param sigma02 A positive numeric value representing the prior scale parameter
+#'        for group 2 when \code{prior = 'N-Inv-Chisq'}.
+#' @param mu1 A numeric value representing the true mean for group 1 in the simulation.
+#' @param mu2 A numeric value representing the true mean for group 2 in the simulation.
+#'        For uncontrolled design, this represents the historical control mean.
+#' @param sigma1 A positive numeric value representing the true standard deviation
+#'        for group 1 in the simulation.
+#' @param sigma2 A positive numeric value representing the true standard deviation
+#'        for group 2 in the simulation. For uncontrolled design, this represents
+#'        the historical control standard deviation.
+#' @param r A positive numeric value representing the variance scaling factor that allows
+#'        the scale of hypothetical control to be different from treatment. Specifically,
+#'        \code{sd.control = sqrt(r) * sd.treatment}. Required if \code{design = 'uncontrolled'}.
+#'        When \code{r = 1}, the control and treatment have the same variance scale.
 #' @param ne1 A positive integer representing the number of patients in group 1 for
-#'        the external data (can be NULL if no external treatment data).
+#'        the external data. Required if \code{design = 'external'} and external
+#'        treatment data are available.
 #' @param ne2 A positive integer representing the number of patients in group 2 for
-#'        the external data (can be NULL if no external control data).
-#' @param alpha01 A positive numeric value representing the scale parameter (power prior) for group 1
-#'        (required if external design, can be NULL if no external treatment data).
-#' @param alpha02 A positive numeric value representing the scale parameter (power prior) for group 2
-#'        (required if external design, can be NULL if no external control data).
-#' @param bar.ye1 A numeric value representing the external sample mean of group 1 (required if external treatment data available).
-#' @param bar.ye2 A numeric value representing the external sample mean of group 2 (required if external control data available).
-#' @param se1 A positive numeric value representing the external sample standard deviation of group 1 (required if external treatment data available).
-#' @param se2 A positive numeric value representing the external sample standard deviation of group 2 (required if external control data available).
+#'        the external data. Required if \code{design = 'external'} and external
+#'        control data are available.
+#' @param alpha01 A numeric value in (0, 1] representing the power prior scale parameter
+#'        for group 1. Controls the degree of borrowing from external treatment data:
+#'        0 = no borrowing, 1 = full borrowing. Required if \code{ne1} is specified.
+#' @param alpha02 A numeric value in (0, 1] representing the power prior scale parameter
+#'        for group 2. Controls the degree of borrowing from external control data:
+#'        0 = no borrowing, 1 = full borrowing. Required if \code{ne2} is specified.
+#' @param bar.ye1 A numeric value representing the sample mean of the external data
+#'        for group 1. Required if \code{ne1} is specified.
+#' @param bar.ye2 A numeric value representing the sample mean of the external data
+#'        for group 2. Required if \code{ne2} is specified.
+#' @param se1 A positive numeric value representing the sample standard deviation
+#'        of the external data for group 1. Required if \code{ne1} is specified.
+#' @param se2 A positive numeric value representing the sample standard deviation
+#'        of the external data for group 2. Required if \code{ne2} is specified.
 #' @param error_if_Miss A logical value; if \code{TRUE} (default), the function stops
 #'        with an error when positive Miss probability is obtained, indicating poorly
 #'        chosen thresholds. If \code{FALSE}, the function proceeds and reports Miss
@@ -72,7 +108,8 @@
 #'
 #' @return A data frame containing the true means for both groups and the Go, NoGo, and
 #'         Gray probabilities. When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE},
-#'         Miss probability is also included as a separate column.
+#'         Miss probability is also included as a separate column. For uncontrolled design,
+#'         only mu1 is included (not mu2).
 #'
 #' @details
 #' The function performs Monte Carlo simulation to evaluate operating characteristics by:
@@ -108,6 +145,13 @@
 #'         probability is reported as a separate category
 #' }
 #'
+#' The function can be used for:
+#' \itemize{
+#'   \item **Controlled design**: Two-arm randomized trial
+#'   \item **Uncontrolled design**: Single-arm trial with informative priors (historical control)
+#'   \item **External design**: Incorporating historical data through power priors
+#' }
+#'
 #' @examples
 #' # Example 1: Controlled design with vague prior and NI method
 #' # (default: error_if_Miss = TRUE, Gray_inc_Miss = FALSE)
@@ -124,7 +168,21 @@
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 #' )
 #'
-#' # Example 2: External design with control data using WS approximation
+#' # Example 2: Uncontrolled design with informative prior
+#' pGNGsinglecontinuous(
+#'   nsim = 100, prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
+#'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
+#'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
+#'   n1 = 20, n2 = 20, m1 = NULL, m2 = NULL,
+#'   kappa01 = 2, kappa02 = 20, nu01 = 5, nu02 = 20,
+#'   mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.2,
+#'   mu1 = 3.5, mu2 = 1.5, sigma1 = 1.3, sigma2 = 1.2,
+#'   r = 1, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
+#' )
+#'
+#' # Example 3: External design with control data using WS approximation
 #' \dontrun{
 #' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'WS',
@@ -140,7 +198,7 @@
 #' )
 #' }
 #'
-#' # Example 3: Controlled design with predictive probability
+#' # Example 4: Controlled design with predictive probability
 #' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
 #'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 2.0,
@@ -151,10 +209,10 @@
 #'   mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5
 #' )
 #'
-#' # Example 4: External design with predictive probability using MC method
+#' # Example 5: External design with predictive probability using MC method
 #' \dontrun{
 #' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
@@ -166,11 +224,11 @@
 #'   mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
 #'   r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
 #'   bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 5
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 #' )
 #' }
 #'
-#' # Example 5: Report Miss probability separately when thresholds may be suboptimal
+#' # Example 6: Report Miss probability separately when thresholds may be suboptimal
 #' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
 #'   theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
@@ -181,10 +239,10 @@
 #'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 7
 #' )
 #'
-#' # Example 6: Include Miss probability in Gray when error_if_Miss = FALSE
+#' # Example 7: Include Miss probability in Gray when error_if_Miss = FALSE
 #' pGNGsinglecontinuous(
 #'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
 #'   theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
@@ -195,7 +253,7 @@
 #'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 7
+#'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 8
 #' )
 #'
 #' @importFrom stats rnorm
@@ -236,6 +294,11 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
     stop("m1 and m2 must be specified for predictive probability")
   }
 
+  # Validate uncontrolled design parameters
+  if (design == "uncontrolled" && is.null(r)) {
+    stop("For uncontrolled design, r (variance scaling factor) must be specified")
+  }
+
   # Validate external design parameters
   if (design == "external") {
     if (is.null(ne1) && is.null(ne2)) {
@@ -271,7 +334,8 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
     # Calculate sample standard deviation for group 2
     s2 <- sqrt(rowSums((y2 - bar.y2) ^ 2) / (n2 - 1))
   } else if(design == 'uncontrolled') {
-    # For uncontrolled design, set bar.y2 and s2 to NULL
+    # For uncontrolled design, group 2 data comes from informative prior (historical control)
+    # No data generation needed - historical control encoded in prior parameters
     bar.y2 <- NULL
     s2 <- NULL
   }

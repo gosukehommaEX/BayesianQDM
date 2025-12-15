@@ -53,7 +53,8 @@ for calculating NoGo probability when \code{prob = 'posterior'}. This represents
 the futility threshold.}
 
 \item{theta.NULL}{A numeric value representing the null hypothesis threshold for
-calculating Go/NoGo probabilities when \code{prob = 'predictive'}.}
+calculating Go/NoGo probabilities when \code{prob = 'predictive'}.
+Set to NULL if \code{prob = 'posterior'}.}
 
 \item{gamma1}{A numeric value in (0, 1) representing the minimum probability
 threshold to declare success (Go decision). Typically set to values like
@@ -73,59 +74,62 @@ for group 2 (control) under which to evaluate operating characteristics.}
 the proof-of-concept (PoC) trial.}
 
 \item{n2}{A positive integer representing the number of patients in group 2 for
-the PoC trial.}
+the PoC trial (used for controlled and external designs, also required for
+uncontrolled design for consistency).}
 
 \item{a1}{A positive numeric value representing the first shape parameter (α)
-of the prior beta distribution for group 1.}
+of the prior beta distribution for group 1 (treatment).}
 
 \item{a2}{A positive numeric value representing the first shape parameter (α)
-of the prior beta distribution for group 2.}
+of the prior beta distribution for group 2 (control or hypothetical control).}
 
 \item{b1}{A positive numeric value representing the second shape parameter (β)
-of the prior beta distribution for group 1.}
+of the prior beta distribution for group 1 (treatment).}
 
 \item{b2}{A positive numeric value representing the second shape parameter (β)
-of the prior beta distribution for group 2.}
+of the prior beta distribution for group 2 (control or hypothetical control).}
 
-\item{z}{A non-negative integer representing the hypothetical observed number
-of responders in group 2 for an uncontrolled design (required if
-\code{design = 'uncontrolled'}).}
+\item{z}{A non-negative integer representing the hypothetical control responder count
+(required if \code{design = 'uncontrolled'}, otherwise set to NULL).
+This specifies the expected number of responders in a hypothetical control
+group based on historical data or prior knowledge. This is mathematically
+equivalent to y2 in pPPsinglebinary() for uncontrolled design.}
 
 \item{m1}{A positive integer representing the number of patients in group 1 for
-the future trial (required if \code{prob = 'predictive'}).}
+the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).}
 
 \item{m2}{A positive integer representing the number of patients in group 2 for
-the future trial (required if \code{prob = 'predictive'}).}
+the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).}
 
 \item{ne1}{A positive integer representing the number of patients in group 1 for
-the external data (required if \code{design = 'external'}).}
+the external data (required if \code{design = 'external'}, otherwise set to NULL).}
 
 \item{ne2}{A positive integer representing the number of patients in group 2 for
-the external data (required if \code{design = 'external'}).}
+the external data (required if \code{design = 'external'}, otherwise set to NULL).}
 
 \item{ye1}{A non-negative integer representing the observed number of responders
-in group 1 for the external data (required if \code{design = 'external'}).}
+in group 1 for the external data (required if \code{design = 'external'},
+otherwise set to NULL).}
 
 \item{ye2}{A non-negative integer representing the observed number of responders
-in group 2 for the external data (required if \code{design = 'external'}).}
+in group 2 for the external data (required if \code{design = 'external'},
+otherwise set to NULL).}
 
 \item{ae1}{A numeric value in (0, 1] representing the power prior scale parameter
-for group 1 (required if \code{design = 'external'}). Controls the degree
-of borrowing: 0 = no borrowing, 1 = full borrowing.}
+for group 1 (required if \code{design = 'external'}, otherwise set to NULL).
+Controls the degree of borrowing: 0 = no borrowing, 1 = full borrowing.}
 
 \item{ae2}{A numeric value in (0, 1] representing the power prior scale parameter
-for group 2 (required if \code{design = 'external'}). Controls the degree
-of borrowing: 0 = no borrowing, 1 = full borrowing.}
+for group 2 (required if \code{design = 'external'}, otherwise set to NULL).
+Controls the degree of borrowing: 0 = no borrowing, 1 = full borrowing.}
 
-\item{error_if_Miss}{A logical value; if \code{TRUE} (default), the function stops
-with an error when positive Miss probability is obtained, indicating poorly
-chosen thresholds. If \code{FALSE}, the function proceeds and reports Miss
-probability based on \code{Gray_inc_Miss} setting.}
+\item{error_if_Miss}{A logical value; if TRUE (default), the function stops with
+an error if Miss probability > 0 (indicating poorly chosen thresholds).
+If FALSE, continues execution and reports Miss probability.}
 
-\item{Gray_inc_Miss}{A logical value; if \code{TRUE}, Miss probability is included
-in Gray probability (Miss is not reported separately). If \code{FALSE}
-(default), Miss probability is reported as a separate category. This parameter
-is only active when \code{error_if_Miss = FALSE}.}
+\item{Gray_inc_Miss}{A logical value; if TRUE, Miss probability is added to Gray
+probability. If FALSE (default), Miss probability is reported as a separate
+category. This parameter is only active when \code{error_if_Miss = FALSE}.}
 }
 \value{
 A data frame containing the true response probabilities for both groups
@@ -161,6 +165,18 @@ P(treatment effect > threshold | data) in lower tail ≥ γ₂
 poorly chosen thresholds)
 }
 
+\strong{Design-specific handling}:
+\itemize{
+\item \strong{Controlled design}: Evaluates all possible outcomes (y1, y2) where
+y1 ∈ {0,...,n1} and y2 ∈ {0,...,n2}
+\item \strong{Uncontrolled design}: Uses hypothetical control specified by \code{z}.
+Evaluates outcomes (y1, z) where y1 ∈ {0,...,n1} and y2 is fixed at z.
+The parameter z represents the expected responder count in a hypothetical
+control group.
+\item \strong{External design}: Incorporates external data through power priors for
+both treatment and control groups
+}
+
 \strong{Handling Miss probability}:
 \itemize{
 \item When \code{error_if_Miss = TRUE} (default): Function stops with error if
@@ -179,53 +195,44 @@ The function can be used for:
 }
 }
 \examples{
-# Example 1: Calculate Go/NoGo/Gray probabilities using posterior probability
-# for controlled design (default: error_if_Miss = TRUE)
+# Example 1: Controlled design with posterior probability
 pGNGsinglebinary(
   prob = 'posterior', design = 'controlled',
   theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
   gamma1 = 0.8, gamma2 = 0.2,
   pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
-  n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  n1 = 12, n2 = 12,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = NULL, m2 = NULL,
   ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
-# Example 2: Calculate Go/NoGo/Gray probabilities using posterior predictive probability
+# Example 2: Uncontrolled design with hypothetical control
+# z = 5 means we expect 5 responders in hypothetical control (n2 = 15)
+pGNGsinglebinary(
+  prob = 'posterior', design = 'uncontrolled',
+  theta.TV = 0.30, theta.MAV = 0.15, theta.NULL = NULL,
+  gamma1 = 0.75, gamma2 = 0.25,
+  pi1 = c(0.3, 0.5, 0.7), pi2 = rep(0.33, 3),
+  n1 = 15, n2 = 15,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = 5, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+# Example 3: Posterior predictive probability for controlled design
 pGNGsinglebinary(
   prob = 'predictive', design = 'controlled',
   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0,
   gamma1 = 0.9, gamma2 = 0.3,
   pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
-  n1 = 12, n2 = 12, a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  n1 = 12, n2 = 12,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = 30, m2 = 30,
   ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
-)
-
-# Example 3: Report Miss probability separately when thresholds may be suboptimal
-pGNGsinglebinary(
-  prob = 'posterior', design = 'controlled',
-  theta.TV = 0.3, theta.MAV = 0.25, theta.NULL = NULL,
-  gamma1 = 0.7, gamma2 = 0.6,
-  pi1 = c(0.4, 0.6), pi2 = rep(0.3, 2),
-  n1 = 10, n2 = 10, a1 = 1, a2 = 1, b1 = 1, b2 = 1,
-  z = NULL, m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
-  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
-)
-
-# Example 4: Include Miss probability in Gray when error_if_Miss = FALSE
-pGNGsinglebinary(
-  prob = 'posterior', design = 'controlled',
-  theta.TV = 0.3, theta.MAV = 0.25, theta.NULL = NULL,
-  gamma1 = 0.7, gamma2 = 0.6,
-  pi1 = c(0.4, 0.6), pi2 = rep(0.3, 2),
-  n1 = 10, n2 = 10, a1 = 1, a2 = 1, b1 = 1, b2 = 1,
-  z = NULL, m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
-  error_if_Miss = FALSE, Gray_inc_Miss = TRUE
 )
 
 }
