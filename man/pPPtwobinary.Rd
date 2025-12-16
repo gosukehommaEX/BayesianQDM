@@ -12,8 +12,6 @@ pPPtwobinary(
   theta.MAV1,
   theta.TV2,
   theta.MAV2,
-  n1,
-  n2,
   x1_00,
   x1_01,
   x1_10,
@@ -66,14 +64,6 @@ Endpoint 2. This defines the upper boundary for the "Gray" region.}
 \item{theta.MAV2}{A numeric value representing the minimum acceptable value (MAV)
 threshold for Endpoint 2. This defines the lower boundary for the "Gray" region.}
 
-\item{n1}{A positive integer representing the number of patients in group 1
-(treatment) for the proof-of-concept (PoC) trial.}
-
-\item{n2}{A positive integer representing the number of patients in group 2.
-For \code{design = 'controlled'} or \code{'external'}: sample size of the
-control group. For \code{design = 'uncontrolled'}: this parameter is not used
-(can be set to NULL or any value).}
-
 \item{x1_00}{A non-negative integer representing the count of (0,0) responses
 in group 1 for the PoC trial (Endpoint 1 = 0, Endpoint 2 = 0).}
 
@@ -103,24 +93,24 @@ For \code{design = 'uncontrolled'}: hypothetical control response count.}
 For \code{design = 'controlled'} or \code{'external'}: observed control data.
 For \code{design = 'uncontrolled'}: hypothetical control response count.}
 
-\item{a1_00}{A positive numeric value for the Dirichlet prior parameter Î±_1,00.}
+\item{a1_00}{A positive numeric value for the Dirichlet prior parameter α1_00.}
 
-\item{a1_01}{A positive numeric value for the Dirichlet prior parameter Î±_1,01.}
+\item{a1_01}{A positive numeric value for the Dirichlet prior parameter α1_01.}
 
-\item{a1_10}{A positive numeric value for the Dirichlet prior parameter Î±_1,10.}
+\item{a1_10}{A positive numeric value for the Dirichlet prior parameter α1_10.}
 
-\item{a1_11}{A positive numeric value for the Dirichlet prior parameter Î±_1,11.}
+\item{a1_11}{A positive numeric value for the Dirichlet prior parameter α1_11.}
 
-\item{a2_00}{A positive numeric value for the Dirichlet prior parameter α_2,00.
+\item{a2_00}{A positive numeric value for the Dirichlet prior parameter α2_00.
 For \code{design = 'uncontrolled'}: typically set equal to a1_00.}
 
-\item{a2_01}{A positive numeric value for the Dirichlet prior parameter α_2,01.
+\item{a2_01}{A positive numeric value for the Dirichlet prior parameter α2_01.
 For \code{design = 'uncontrolled'}: typically set equal to a1_01.}
 
-\item{a2_10}{A positive numeric value for the Dirichlet prior parameter α_2,10.
+\item{a2_10}{A positive numeric value for the Dirichlet prior parameter α2_10.
 For \code{design = 'uncontrolled'}: typically set equal to a1_10.}
 
-\item{a2_11}{A positive numeric value for the Dirichlet prior parameter α_2,11.
+\item{a2_11}{A positive numeric value for the Dirichlet prior parameter α2_11.
 For \code{design = 'uncontrolled'}: typically set equal to a1_11.}
 
 \item{m1}{A positive integer representing the number of patients in group 1 for
@@ -168,18 +158,18 @@ more accurate estimates but require more computation time.}
 \value{
 A named numeric vector of length 9 containing the posterior or posterior
 predictive probabilities for each of the nine decision regions (R1, ..., R9).
-The regions are defined by the treatment effects θ_1 = π_t1 - π_c1 and
-θ_2 = π_t2 - π_c2 relative to the thresholds:
+The regions are defined by the treatment effects θ1 = π11 - π21 and
+θ2 = π12 - π22 relative to the thresholds:
 \itemize{
-\item R1: θ_1 > TV1 AND θ_2 > TV2 (both endpoints exceed target)
-\item R2: θ_1 > TV1 AND TV2 ≥ θ_2 > MAV2
-\item R3: θ_1 > TV1 AND θ_2 ≤ MAV2
-\item R4: TV1 ≥ θ_1 > MAV1 AND θ_2 > TV2
-\item R5: TV1 ≥ θ_1 > MAV1 AND TV2 ≥ θ_2 > MAV2 (both in Gray zone)
-\item R6: TV1 ≥ θ_1 > MAV1 AND θ_2 ≤ MAV2
-\item R7: θ_1 ≤ MAV1 AND θ_2 > TV2
-\item R8: θ_1 ≤ MAV1 AND TV2 ≥ θ_2 > MAV2
-\item R9: θ_1 ≤ MAV1 AND θ_2 ≤ MAV2 (both endpoints below minimum)
+\item R1: θ1 > TV1 AND θ2 > TV2 (both endpoints exceed target)
+\item R2: θ1 > TV1 AND TV2 ≥ θ2 > MAV2
+\item R3: θ1 > TV1 AND θ2 ≤ MAV2
+\item R4: TV1 ≥ θ1 > MAV1 AND θ2 > TV2
+\item R5: TV1 ≥ θ1 > MAV1 AND TV2 ≥ θ2 > MAV2 (both in Gray zone)
+\item R6: TV1 ≥ θ1 > MAV1 AND θ2 ≤ MAV2
+\item R7: θ1 ≤ MAV1 AND θ2 > TV2
+\item R8: θ1 ≤ MAV1 AND TV2 ≥ θ2 > MAV2
+\item R9: θ1 ≤ MAV1 AND θ2 ≤ MAV2 (both endpoints below minimum)
 }
 }
 \description{
@@ -195,12 +185,12 @@ The function computes probabilities based on Dirichlet-multinomial conjugate ana
 \itemize{
 \item \strong{Data structure}: Two binary endpoints (y_k1, y_k2) are aggregated into
 four response categories: (0,0), (0,1), (1,0), and (1,1)
-\item \strong{Prior}: p_k ~ Dirichlet(α_k,00, α_k,01, α_k,10, α_k,11)
-\item \strong{Posterior}: p_k | x_k ~ Dirichlet(α_k,00 + x_k,00, α_k,01 + x_k,01,
-α_k,10 + x_k,10, α_k,11 + x_k,11)
-\item \strong{Treatment effects}: θ_1 = π_t1 - π_c1, θ_2 = π_t2 - π_c2, where
-π_k1 = p_k,10 + p_k,11 (marginal probability for Endpoint 1),
-π_k2 = p_k,01 + p_k,11 (marginal probability for Endpoint 2)
+\item \strong{Prior}: p_k ~ Dirichlet(αk_00, αk_01, αk_10, αk_11)
+\item \strong{Posterior}: p_k | x_k ~ Dirichlet(αk_00 + xk_00, αk_01 + xk_01,
+αk_10 + xk_10, αk_11 + xk_11)
+\item \strong{Treatment effects}: θ1 = π11 - π21, θ2 = π12 - π22, where
+πk1 = pk_10 + pk_11 (marginal probability for Endpoint 1),
+πk2 = pk_01 + pk_11 (marginal probability for Endpoint 2)
 }
 
 \strong{Note on correlation}: The two endpoints are correlated within each arm because
@@ -209,12 +199,12 @@ Dirichlet distribution and Monte Carlo sampling.
 
 For \strong{external control designs}, power priors are used to incorporate historical
 data. The effective prior becomes:
-Dirichlet(α_k,00 + ae_k × xe_k,00, α_k,01 + ae_k × xe_k,01,
-α_k,10 + ae_k × xe_k,10, α_k,11 + ae_k × xe_k,11)
+Dirichlet(αk_00 + aek × xek_00, αk_01 + aek × xek_01,
+αk_10 + aek × xek_10, αk_11 + aek × xek_11)
 
 \strong{Posterior predictive distribution}:
-x̃_k | x_k ~ Dirichlet-Multinomial(m_k, α_k,00 + x_k,00, α_k,01 + x_k,01,
-α_k,10 + x_k,10, α_k,11 + x_k,11)
+tilde.x_k | x_k ~ Dirichlet-Multinomial(mk, αk_00 + xk_00, αk_01 + xk_01,
+αk_10 + xk_10, αk_11 + xk_11)
 
 \strong{Monte Carlo estimation}: Due to the correlation between endpoints and the
 complexity of the joint distribution, probabilities are estimated using Monte
@@ -226,7 +216,6 @@ pPPtwobinary(
   prob = 'posterior', design = 'controlled',
   theta.TV1 = 0.20, theta.MAV1 = 0.10,
   theta.TV2 = 0.20, theta.MAV2 = 0.10,
-  n1 = 20, n2 = 20,
   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
   x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
@@ -243,7 +232,6 @@ pPPtwobinary(
   prob = 'predictive', design = 'controlled',
   theta.TV1 = 0.15, theta.MAV1 = 0.15,
   theta.TV2 = 0.15, theta.MAV2 = 0.15,
-  n1 = 15, n2 = 15,
   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
   x2_00 = 6, x2_01 = 3, x2_10 = 4, x2_11 = 2,
   a1_00 = 1, a1_01 = 1, a1_10 = 1, a1_11 = 1,
@@ -260,7 +248,6 @@ pPPtwobinary(
   prob = 'posterior', design = 'external',
   theta.TV1 = 0.15, theta.MAV1 = 0.08,
   theta.TV2 = 0.15, theta.MAV2 = 0.08,
-  n1 = 15, n2 = 15,
   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
   x2_00 = 5, x2_01 = 3, x2_10 = 4, x2_11 = 3,
   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
@@ -278,7 +265,6 @@ pPPtwobinary(
   prob = 'posterior', design = 'uncontrolled',
   theta.TV1 = 0.20, theta.MAV1 = 0.10,
   theta.TV2 = 0.20, theta.MAV2 = 0.10,
-  n1 = 20, n2 = 20,
   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
   x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,  # Hypothetical control counts
   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
@@ -296,7 +282,6 @@ result <- pPPtwobinary(
   prob = 'posterior', design = 'controlled',
   theta.TV1 = 0.20, theta.MAV1 = 0.10,
   theta.TV2 = 0.20, theta.MAV2 = 0.10,
-  n1 = 25, n2 = 25,
   x1_00 = 4, x1_01 = 3, x1_10 = 5, x1_11 = 13,
   x2_00 = 10, x2_01 = 5, x2_10 = 7, x2_11 = 3,
   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,

@@ -94,5 +94,7 @@ rdirichlet <- function(n, alpha) {
   row_sums <- rowSums(gamma_samples)
   dirichlet_samples <- gamma_samples / row_sums
 
+  if(n == 1) dirichlet_samples <- c(dirichlet_samples)
+
   return(dirichlet_samples)
 }
