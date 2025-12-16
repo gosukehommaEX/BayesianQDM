@@ -241,8 +241,8 @@ pPPtwobinary(
 # Example 2: Posterior predictive probability for controlled design
 pPPtwobinary(
   prob = 'predictive', design = 'controlled',
-  theta.TV1 = 0.15, theta.MAV1 = 0.05,
-  theta.TV2 = 0.15, theta.MAV2 = 0.05,
+  theta.TV1 = 0.15, theta.MAV1 = 0.15,
+  theta.TV2 = 0.15, theta.MAV2 = 0.15,
   n1 = 15, n2 = 15,
   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
   x2_00 = 6, x2_01 = 3, x2_10 = 4, x2_11 = 2,

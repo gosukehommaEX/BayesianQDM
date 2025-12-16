@@ -158,8 +158,8 @@
 #' # Example 2: Posterior predictive probability for controlled design
 #' pPPtwobinary(
 #'   prob = 'predictive', design = 'controlled',
-#'   theta.TV1 = 0.15, theta.MAV1 = 0.05,
-#'   theta.TV2 = 0.15, theta.MAV2 = 0.05,
+#'   theta.TV1 = 0.15, theta.MAV1 = 0.15,
+#'   theta.TV2 = 0.15, theta.MAV2 = 0.15,
 #'   n1 = 15, n2 = 15,
 #'   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
 #'   x2_00 = 6, x2_01 = 3, x2_10 = 4, x2_11 = 2,
@@ -259,11 +259,20 @@ pPPtwobinary <- function(prob = 'posterior', design = 'controlled',
   }
 
   # Validate threshold ordering
-  if(theta.TV1 <= theta.MAV1) {
-    stop("theta.TV1 must be greater than theta.MAV1")
-  }
-  if(theta.TV2 <= theta.MAV2) {
-    stop("theta.TV2 must be greater than theta.MAV2")
+  if(prob == 'posterior') {
+    if(theta.TV1 <= theta.MAV1) {
+      stop("theta.TV1 must be greater than theta.MAV1")
+    }
+    if(theta.TV2 <= theta.MAV2) {
+      stop("theta.TV2 must be greater than theta.MAV2")
+    }
+  } else if(prob =='predictive') {
+    if(theta.TV1 != theta.MAV1) {
+      stop("theta.TV1 must be same to the theta.MAV1")
+    }
+    if(theta.TV2 != theta.MAV2) {
+      stop("theta.TV2 must be same to the theta.MAV2")
+    }
   }
 
   # Validate parameter sets for posterior predictive probability
@@ -390,23 +399,38 @@ pPPtwobinary <- function(prob = 'posterior', design = 'controlled',
     theta2 <- pi1_2_pred - pi2_2_pred
   }
 
-  # Calculate region indices (1-9) based on treatment effects and thresholds
-  # Region index for Endpoint 1
-  R1 <- 1 * (theta1 > theta.TV1) +
-    2 * ((theta.TV1 >= theta1) & (theta1 > theta.MAV1)) +
-    3 * (theta.MAV1 >= theta1)
+  if(prob == 'posterior') {
+    # Calculate region indices (1-9) based on treatment effects and thresholds
+    # Region index for Endpoint 1
+    R1 <- 1 * (theta1 > theta.TV1) +
+      2 * ((theta.TV1 >= theta1) & (theta1 > theta.MAV1)) +
+      3 * (theta.MAV1 >= theta1)
 
-  # Region index for Endpoint 2
-  R2 <- 1 * (theta2 > theta.TV2) +
-    2 * ((theta.TV2 >= theta2) & (theta2 > theta.MAV2)) +
-    3 * (theta.MAV2 >= theta2)
+    # Region index for Endpoint 2
+    R2 <- 1 * (theta2 > theta.TV2) +
+      2 * ((theta.TV2 >= theta2) & (theta2 > theta.MAV2)) +
+      3 * (theta.MAV2 >= theta2)
 
-  # Combined region index (1-9)
-  R <- (R1 - 1) * 3 + R2
+    # Combined region index (1-9)
+    R <- (R1 - 1) * 3 + R2
 
-  # Calculate region probabilities Pr(R_l | D)
-  Pr_R <- tabulate(R, nbins = 9) / nMC
-  names(Pr_R) <- paste0("R", 1:9)
+    # Calculate region probabilities Pr(R_l | D)
+    Pr_R <- tabulate(R, nbins = 9) / nMC
+    names(Pr_R) <- paste0("R", 1:9)
+  } else if(prob =='predictive') {
+    # Region index for Endpoint 1
+    R1 <- 1 * (theta1 > theta.TV1) + 2 * (theta.MAV1 >= theta1)
+
+    # Region index for Endpoint 2
+    R2 <- 1 * (theta2 > theta.TV2) + 2 * (theta.MAV2 >= theta2)
+
+    # Combined region index (1-4)
+    R <- (R1 - 1) * 2 + R2
+
+    # Calculate region probabilities Pr(R_l | D)
+    Pr_R <- tabulate(R, nbins = 4) / nMC
+    names(Pr_R) <- paste0("R", 1:4)
+  }
 
   return(Pr_R)
 }
