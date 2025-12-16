@@ -51,8 +51,8 @@ Options are \code{'posterior'} for posterior probability or \code{'predictive'}
 for posterior predictive probability.}
 
 \item{design}{A character string specifying the type of trial design. Options are
-\code{'controlled'} for randomized controlled trials or \code{'external'}
-for designs incorporating external data.}
+\code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
+for single-arm studies, or \code{'external'} for designs incorporating external data.}
 
 \item{theta.TV1}{A numeric value representing the target value (TV) threshold for
 Endpoint 1. This defines the upper boundary for the "Gray" region.}
@@ -69,8 +69,10 @@ threshold for Endpoint 2. This defines the lower boundary for the "Gray" region.
 \item{n1}{A positive integer representing the number of patients in group 1
 (treatment) for the proof-of-concept (PoC) trial.}
 
-\item{n2}{A positive integer representing the number of patients in group 2
-(control) for the PoC trial.}
+\item{n2}{A positive integer representing the number of patients in group 2.
+For \code{design = 'controlled'} or \code{'external'}: sample size of the
+control group. For \code{design = 'uncontrolled'}: this parameter is not used
+(can be set to NULL or any value).}
 
 \item{x1_00}{A non-negative integer representing the count of (0,0) responses
 in group 1 for the PoC trial (Endpoint 1 = 0, Endpoint 2 = 0).}
@@ -84,33 +86,42 @@ in group 1 for the PoC trial (Endpoint 1 = 1, Endpoint 2 = 0).}
 \item{x1_11}{A non-negative integer representing the count of (1,1) responses
 in group 1 for the PoC trial (Endpoint 1 = 1, Endpoint 2 = 1).}
 
-\item{x2_00}{A non-negative integer representing the count of (0,0) responses
-in group 2 for the PoC trial.}
+\item{x2_00}{A non-negative integer representing the count of (0,0) responses in group 2.
+For \code{design = 'controlled'} or \code{'external'}: observed control data.
+For \code{design = 'uncontrolled'}: hypothetical control response count based on
+historical data or prior knowledge.}
 
-\item{x2_01}{A non-negative integer representing the count of (0,1) responses
-in group 2 for the PoC trial.}
+\item{x2_01}{A non-negative integer representing the count of (0,1) responses in group 2.
+For \code{design = 'controlled'} or \code{'external'}: observed control data.
+For \code{design = 'uncontrolled'}: hypothetical control response count.}
 
-\item{x2_10}{A non-negative integer representing the count of (1,0) responses
-in group 2 for the PoC trial.}
+\item{x2_10}{A non-negative integer representing the count of (1,0) responses in group 2.
+For \code{design = 'controlled'} or \code{'external'}: observed control data.
+For \code{design = 'uncontrolled'}: hypothetical control response count.}
 
-\item{x2_11}{A non-negative integer representing the count of (1,1) responses
-in group 2 for the PoC trial.}
+\item{x2_11}{A non-negative integer representing the count of (1,1) responses in group 2.
+For \code{design = 'controlled'} or \code{'external'}: observed control data.
+For \code{design = 'uncontrolled'}: hypothetical control response count.}
 
-\item{a1_00}{A positive numeric value for the Dirichlet prior parameter α_1,00.}
+\item{a1_00}{A positive numeric value for the Dirichlet prior parameter Î±_1,00.}
 
-\item{a1_01}{A positive numeric value for the Dirichlet prior parameter α_1,01.}
+\item{a1_01}{A positive numeric value for the Dirichlet prior parameter Î±_1,01.}
 
-\item{a1_10}{A positive numeric value for the Dirichlet prior parameter α_1,10.}
+\item{a1_10}{A positive numeric value for the Dirichlet prior parameter Î±_1,10.}
 
-\item{a1_11}{A positive numeric value for the Dirichlet prior parameter α_1,11.}
+\item{a1_11}{A positive numeric value for the Dirichlet prior parameter Î±_1,11.}
 
-\item{a2_00}{A positive numeric value for the Dirichlet prior parameter α_2,00.}
+\item{a2_00}{A positive numeric value for the Dirichlet prior parameter α_2,00.
+For \code{design = 'uncontrolled'}: typically set equal to a1_00.}
 
-\item{a2_01}{A positive numeric value for the Dirichlet prior parameter α_2,01.}
+\item{a2_01}{A positive numeric value for the Dirichlet prior parameter α_2,01.
+For \code{design = 'uncontrolled'}: typically set equal to a1_01.}
 
-\item{a2_10}{A positive numeric value for the Dirichlet prior parameter α_2,10.}
+\item{a2_10}{A positive numeric value for the Dirichlet prior parameter α_2,10.
+For \code{design = 'uncontrolled'}: typically set equal to a1_10.}
 
-\item{a2_11}{A positive numeric value for the Dirichlet prior parameter α_2,11.}
+\item{a2_11}{A positive numeric value for the Dirichlet prior parameter α_2,11.
+For \code{design = 'uncontrolled'}: typically set equal to a1_11.}
 
 \item{m1}{A positive integer representing the number of patients in group 1 for
 the future trial (required if \code{prob = 'predictive'}).}
@@ -261,7 +272,25 @@ pPPtwobinary(
   nMC = 10000
 )
 
-# Example 4: Visualizing the 9 regions
+# Example 4: Uncontrolled design (single-arm study)
+# Use hypothetical control data with same priors as treatment
+pPPtwobinary(
+  prob = 'posterior', design = 'uncontrolled',
+  theta.TV1 = 0.20, theta.MAV1 = 0.10,
+  theta.TV2 = 0.20, theta.MAV2 = 0.10,
+  n1 = 20, n2 = 20,
+  x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
+  x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,  # Hypothetical control counts
+  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
+  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,  # Same as a1_xx
+  m1 = NULL, m2 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 10000
+)
+
+# Example 5: Visualizing the 9 regions
 \dontrun{
 result <- pPPtwobinary(
   prob = 'posterior', design = 'controlled',

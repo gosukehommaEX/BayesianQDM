@@ -103,7 +103,7 @@
 #' )
 #'
 #' # Example 2: Uncontrolled design - using hypothetical control
-#' # y2 = 3 represents expected responders in hypothetical control (n2 = 15)
+#' # y2 = 3 represents expected responders in hypothetical control (n2 = 20)
 #' pPPsinglebinary(
 #'   prob = 'posterior', design = 'uncontrolled', theta0 = 0.20,
 #'   n1 = 20, n2 = 20, y1 = 12, y2 = 3,
