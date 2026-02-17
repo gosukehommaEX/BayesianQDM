@@ -21,8 +21,8 @@
 #'        a Normal-Inverse-Chi-squared prior.
 #' @param CalcMethod A character string specifying the calculation method for
 #'        computing probabilities. Options are \code{'NI'} for numerical integration,
-#'        \code{'MC'} for Monte Carlo simulation, or \code{'WS'} for the
-#'        Welch-Satterthwaite approximation.
+#'        \code{'MC'} for Monte Carlo simulation, or \code{'MM'} for the
+#'        Moment-Matching approximation.
 #' @param theta.TV A numeric value representing the target value threshold for
 #'        calculating Go probability when \code{prob = 'posterior'}. This represents
 #'        the minimum clinically meaningful treatment effect.
@@ -35,9 +35,9 @@
 #'        probability calculation when \code{CalcMethod = 'MC'} (required if
 #'        \code{CalcMethod = 'MC'}).
 #' @param gamma1 A numeric value in (0, 1) representing the threshold for Go decision.
-#'        If P(treatment effect > threshold | data) ≥ gamma1, the decision is Go.
+#'        If P(treatment effect > threshold | data) >= gamma1, the decision is Go.
 #' @param gamma2 A numeric value in (0, 1) representing the threshold for NoGo decision.
-#'        If P(treatment effect > threshold | data) ≤ gamma2, the decision is NoGo.
+#'        If P(treatment effect > threshold | data) <= gamma2, the decision is NoGo.
 #'        Must satisfy gamma2 < gamma1.
 #' @param n1 A positive integer representing the number of patients in group 1
 #'        (treatment) for the proof-of-concept (PoC) trial.
@@ -119,6 +119,12 @@
 #'   \item Classifying each trial as Go, NoGo, or Gray based on decision thresholds
 #' }
 #'
+#' Posterior parameter calculations (mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) are
+#' fully vectorized over the nsim simulated datasets. pPPsinglecontinuous is called
+#' twice (once per threshold), with each call receiving vectors of length nsim and
+#' returning a vector of nsim probabilities - no inner loop over simulation replicates
+#' is required.
+#'
 #' For external control designs, power priors are incorporated using exact conjugate representation:
 #' \itemize{
 #'   \item Power priors for normal data are mathematically equivalent to Normal-Inverse-Chi-squared distributions
@@ -128,9 +134,9 @@
 #'
 #' **Decision rules**:
 #' \itemize{
-#'   \item **Go**: P(treatment effect > threshold) ≥ γ₁
-#'   \item **NoGo**: P(treatment effect > threshold) ≤ γ₂
-#'   \item **Gray**: γ₂ < P(treatment effect > threshold) < γ₁
+#'   \item **Go**: P(treatment effect > threshold) >= gamma1
+#'   \item **NoGo**: P(treatment effect > threshold) <= gamma2
+#'   \item **Gray**: gamma2 < P(treatment effect > threshold) < gamma1
 #'   \item **Miss**: Both Go and NoGo criteria are met simultaneously (indicates
 #'                   poorly chosen thresholds)
 #' }
@@ -182,10 +188,10 @@
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 #' )
 #'
-#' # Example 3: External design with control data using WS approximation
+#' # Example 3: External design with control data using MM approximation
 #' \dontrun{
 #' pGNGsinglecontinuous(
-#'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'WS',
+#'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'MM',
 #'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
 #'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
 #'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
@@ -281,8 +287,8 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
     stop("prior must be either 'vague' or 'N-Inv-Chisq'")
   }
 
-  if (!CalcMethod %in% c("NI", "MC", "WS")) {
-    stop("CalcMethod must be 'NI', 'MC', or 'WS'")
+  if (!CalcMethod %in% c("NI", "MC", "MM")) {
+    stop("CalcMethod must be 'NI', 'MC', or 'MM'")
   }
 
   # Validate required parameters for each method
@@ -315,84 +321,90 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
   # Set seed number for reproducible results
   set.seed(seed)
 
-  # Generate random numbers of outcomes for group 1 in PoC study
+  # Generate nsim x n1 matrix of random outcomes for group 1 in PoC study
   y1 <- matrix(rnorm(nsim * n1, mu1, sigma1), nrow = nsim)
 
-  # Calculate sample mean for group 1
+  # Calculate sample mean and SD for group 1 (vectors of length nsim)
   bar.y1 <- rowSums(y1) / n1
+  s1     <- sqrt(rowSums((y1 - bar.y1) ^ 2) / (n1 - 1))
 
-  # Calculate sample standard deviation for group 1
-  s1 <- sqrt(rowSums((y1 - bar.y1) ^ 2) / (n1 - 1))
-
-  if(design == 'controlled' | design == 'external') {
-    # Generate random numbers of outcomes for group 2 in PoC study
+  if (design == 'controlled' | design == 'external') {
+    # Generate nsim x n2 matrix of random outcomes for group 2 in PoC study
     y2 <- matrix(rnorm(nsim * n2, mu2, sigma2), nrow = nsim)
 
-    # Calculate sample mean for group 2
+    # Calculate sample mean and SD for group 2 (vectors of length nsim)
     bar.y2 <- rowSums(y2) / n2
-
-    # Calculate sample standard deviation for group 2
-    s2 <- sqrt(rowSums((y2 - bar.y2) ^ 2) / (n2 - 1))
-  } else if(design == 'uncontrolled') {
-    # For uncontrolled design, group 2 data comes from informative prior (historical control)
-    # No data generation needed - historical control encoded in prior parameters
+    s2     <- sqrt(rowSums((y2 - bar.y2) ^ 2) / (n2 - 1))
+  } else if (design == 'uncontrolled') {
+    # For uncontrolled design: no group 2 data generated
     bar.y2 <- NULL
-    s2 <- NULL
+    s2     <- NULL
   }
 
-  # External data are provided as fixed historical sample statistics
-  # No data generation needed - these are already observed historical values
+  # External data are fixed historical sample statistics (no generation needed)
 
-  # Initialize vectors to store Go and NoGo probabilities
-  if(prob == 'posterior') {
-    # Define thresholds: theta.TV for Go, theta.MAV for NoGo
-    theta_values <- c(theta.TV, theta.MAV)
+  # Set threshold values based on probability type
+  if (prob == 'posterior') {
+    theta0_Go   <- theta.TV
+    theta0_NoGo <- theta.MAV
   } else {
-    # For predictive probability, use theta.NULL (single threshold)
-    theta_values <- c(theta.NULL, theta.NULL)
+    theta0_Go   <- theta.NULL
+    theta0_NoGo <- theta.NULL
   }
 
-  # Calculate posterior/posterior predictive probabilities for each threshold
-  gPost <- lapply(seq_along(theta_values), function(i) {
-    pPPsinglecontinuous(
-      prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
-      theta0 = theta_values[i], nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
-      kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
-      mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
-      bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2,
-      r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
-      bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2, lower.tail = c(FALSE, TRUE)[i]
-    )
-  })
+  # Calculate posterior/predictive probabilities for Go and NoGo thresholds.
+  # pPPsinglecontinuous now accepts vectors for bar.y1, s1, bar.y2, s2 and returns
+  # a vector of length nsim - no loop over simulation replicates is needed.
+  gPost_Go <- pPPsinglecontinuous(
+    prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
+    theta0 = theta0_Go, nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
+    kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
+    mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
+    bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2,
+    r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
+    bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2,
+    lower.tail = FALSE
+  )
 
-  # Calculate Go, NoGo and Miss probabilities based on decision criteria
-  GoNogoProb <- sapply(seq(3), function(j) {
-    # Create indicator matrix for Go (j=1), NoGo (j=2), or Miss (j=3) decisions
-    if(j == 1) {
-      # Go decision: high probability for Go threshold AND low probability for NoGo threshold
-      I <- as.numeric((gPost[[1]] >= gamma1) & (gPost[[2]] < gamma2))
-    } else if(j == 2) {
-      # NoGo decision: low probability for Go threshold AND high probability for NoGo threshold
-      I <- as.numeric((gPost[[1]] < gamma1) & (gPost[[2]] >= gamma2))
-    } else {
-      # Miss: both Go and NoGo criteria met simultaneously (should be rare)
-      I <- as.numeric((gPost[[1]] >= gamma1) & (gPost[[2]] >= gamma2))
-    }
-    sum(I) / nsim
-  })
+  gPost_NoGo <- pPPsinglecontinuous(
+    prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
+    theta0 = theta0_NoGo, nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
+    kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
+    mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
+    bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2,
+    r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
+    bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2,
+    lower.tail = TRUE
+  )
+
+  # Calculate Go, NoGo, and Miss probabilities (vectorized logical operations)
+  # These definitions match the original algorithm exactly:
+  #   Go:   gPost_Go >= gamma1  AND  gPost_NoGo < gamma2   (Go but not NoGo)
+  #   NoGo: gPost_Go < gamma1   AND  gPost_NoGo >= gamma2  (NoGo but not Go)
+  #   Miss: gPost_Go >= gamma1  AND  gPost_NoGo >= gamma2  (both criteria met)
+  # Go, NoGo, Gray, and Miss are mutually exclusive and sum to 1.
+  probs_Go   <- (gPost_Go >= gamma1) & (gPost_NoGo <  gamma2)
+  probs_NoGo <- (gPost_Go <  gamma1) & (gPost_NoGo >= gamma2)
+  probs_Miss <- (gPost_Go >= gamma1) & (gPost_NoGo >= gamma2)
+
+  GoNogoProb <- c(
+    mean(probs_Go),
+    mean(probs_NoGo),
+    mean(probs_Miss)
+  )
 
   # Check for positive Miss probabilities (indicates inappropriate thresholds)
-  if(error_if_Miss) {
-    if(sum(GoNogoProb[3]) > 0) {
+  if (error_if_Miss) {
+    if (GoNogoProb[3] > 0) {
       stop('Because positive Miss probability(s) is obtained, re-consider appropriate thresholds')
     }
   }
 
-  # Calculate Miss probability (both Go and NoGo criteria met simultaneously)
+  # Calculate Miss probability
   Miss <- GoNogoProb[3]
 
   # Calculate Gray probability (complement of Go and NoGo)
-  if(Gray_inc_Miss) {
+  if (Gray_inc_Miss) {
     # Include Miss in Gray probability
     GrayProb <- 1 - sum(GoNogoProb[-3])
   } else {
@@ -401,7 +413,7 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
   }
 
   # Create results data frame
-  if(design == 'uncontrolled') {
+  if (design == 'uncontrolled') {
     # For uncontrolled design, only include mu1
     results <- data.frame(
       mu1, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2]
@@ -414,8 +426,8 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
   }
 
   # Add Miss column when error_if_Miss is FALSE and Gray_inc_Miss is FALSE
-  if(!error_if_Miss) {
-    if(!Gray_inc_Miss) {
+  if (!error_if_Miss) {
+    if (!Gray_inc_Miss) {
       results$Miss <- Miss
     }
   }
@@ -423,5 +435,88 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
   # Address floating point error
   results[results < .Machine$double.eps ^ 0.25] <- 0
 
+  # Attach metadata as attributes for use in print()
+  attr(results, 'prob')       <- prob
+  attr(results, 'design')     <- design
+  attr(results, 'prior')      <- prior
+  attr(results, 'CalcMethod') <- CalcMethod
+  attr(results, 'nsim')       <- nsim
+  attr(results, 'gamma1')     <- gamma1
+  attr(results, 'gamma2')     <- gamma2
+  if(prob == 'posterior') {
+    attr(results, 'theta.TV')  <- theta.TV
+    attr(results, 'theta.MAV') <- theta.MAV
+  } else {
+    attr(results, 'theta.NULL') <- theta.NULL
+  }
+
+  # Assign S3 class
+  class(results) <- c('pGNGsinglecontinuous', 'data.frame')
+
   return(results)
+}
+
+#' Print Method for pGNGsinglecontinuous Objects
+#'
+#' Displays a formatted summary of Go/NoGo/Gray decision probabilities
+#' for continuous endpoint results returned by \code{\link{pGNGsinglecontinuous}}.
+#'
+#' @param x An object of class \code{pGNGsinglecontinuous}.
+#' @param digits A positive integer specifying the number of decimal places
+#'        for probability values. Default is 4.
+#' @param ... Further arguments passed to or from other methods (ignored).
+#'
+#' @return Invisibly returns \code{x}.
+#'
+#' @export
+print.pGNGsinglecontinuous <- function(x, digits = 4, ...) {
+  # Extract metadata from attributes
+  prob       <- attr(x, 'prob')
+  design     <- attr(x, 'design')
+  prior      <- attr(x, 'prior')
+  CalcMethod <- attr(x, 'CalcMethod')
+  nsim       <- attr(x, 'nsim')
+  gamma1     <- attr(x, 'gamma1')
+  gamma2     <- attr(x, 'gamma2')
+
+  # Build threshold string based on probability type
+  if(prob == 'posterior') {
+    theta_str <- sprintf('TV = %s, MAV = %s',
+                         attr(x, 'theta.TV'), attr(x, 'theta.MAV'))
+  } else {
+    theta_str <- sprintf('NULL = %s', attr(x, 'theta.NULL'))
+  }
+
+  # Build calculation method label
+  method_label <- switch(CalcMethod,
+                         'NI' = 'Numerical Integration (NI)',
+                         'MC' = 'Monte Carlo (MC)',
+                         'MM' = 'Moment-Matching (MM)'
+  )
+
+  # Print header
+  cat('Go/NoGo/Gray Decision Probabilities (Single Continuous Endpoint)\n')
+  cat(strrep('-', 60), '\n')
+  cat(sprintf('  Probability type : %s\n', prob))
+  cat(sprintf('  Design           : %s\n', design))
+  cat(sprintf('  Prior            : %s\n', prior))
+  cat(sprintf('  Method           : %s\n', method_label))
+  cat(sprintf('  Simulations      : %s\n', nsim))
+  cat(sprintf('  Threshold(s)     : %s\n', theta_str))
+  cat(sprintf('  Go  threshold    : gamma1 = %s\n', gamma1))
+  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', gamma2))
+  cat(strrep('-', 60), '\n')
+
+  # Format numeric columns (probability columns only, not mu1/mu2)
+  prob_cols <- names(x)[!names(x) %in% c('mu1', 'mu2')]
+  x_print <- x
+  x_print[prob_cols] <- lapply(x[prob_cols], function(col) {
+    formatC(col, digits = digits, format = 'f')
+  })
+
+  # Print table without row names (call print.data.frame explicitly to avoid recursion)
+  print.data.frame(x_print, row.names = FALSE, quote = FALSE)
+  cat(strrep('-', 60), '\n')
+
+  invisible(x)
 }

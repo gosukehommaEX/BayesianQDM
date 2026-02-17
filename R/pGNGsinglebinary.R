@@ -33,24 +33,24 @@
 #'        for group 1 (treatment) under which to evaluate operating characteristics.
 #' @param pi2 A numeric value or vector representing the true response probability(s)
 #'        for group 2 (control) under which to evaluate operating characteristics.
+#'        For uncontrolled design, this parameter is not used.
 #' @param n1 A positive integer representing the number of patients in group 1 for
 #'        the proof-of-concept (PoC) trial.
 #' @param n2 A positive integer representing the number of patients in group 2 for
 #'        the PoC trial (used for controlled and external designs, also required for
 #'        uncontrolled design for consistency).
-#' @param a1 A positive numeric value representing the first shape parameter (α)
+#' @param a1 A positive numeric value representing the first shape parameter (alpha)
 #'        of the prior beta distribution for group 1 (treatment).
-#' @param a2 A positive numeric value representing the first shape parameter (α)
+#' @param a2 A positive numeric value representing the first shape parameter (alpha)
 #'        of the prior beta distribution for group 2 (control or hypothetical control).
-#' @param b1 A positive numeric value representing the second shape parameter (β)
+#' @param b1 A positive numeric value representing the second shape parameter (beta)
 #'        of the prior beta distribution for group 1 (treatment).
-#' @param b2 A positive numeric value representing the second shape parameter (β)
+#' @param b2 A positive numeric value representing the second shape parameter (beta)
 #'        of the prior beta distribution for group 2 (control or hypothetical control).
 #' @param z A non-negative integer representing the hypothetical control responder count
 #'        (required if \code{design = 'uncontrolled'}, otherwise set to NULL).
 #'        This specifies the expected number of responders in a hypothetical control
-#'        group based on historical data or prior knowledge. This is mathematically
-#'        equivalent to y2 in pPPsinglebinary() for uncontrolled design.
+#'        group based on historical data or prior knowledge.
 #' @param m1 A positive integer representing the number of patients in group 1 for
 #'        the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).
 #' @param m2 A positive integer representing the number of patients in group 2 for
@@ -95,11 +95,9 @@
 #'
 #' **Decision rules**:
 #' \itemize{
-#'   \item **Go**: P(treatment effect > threshold | data) ≥ γ₁ AND
-#'                 P(treatment effect > threshold | data) in lower tail < γ₂
-#'   \item **NoGo**: P(treatment effect > threshold | data) < γ₁ AND
-#'                   P(treatment effect > threshold | data) in lower tail ≥ γ₂
-#'   \item **Gray**: Neither Go nor NoGo criteria are met (γ₂ < probability < γ₁)
+#'   \item **Go**: P(treatment effect > theta.TV | data) >= gamma1
+#'   \item **NoGo**: P(treatment effect > theta.MAV | data) <= gamma2
+#'   \item **Gray**: Neither Go nor NoGo criteria are met
 #'   \item **Miss**: Both Go and NoGo criteria are met simultaneously (indicates
 #'                   poorly chosen thresholds)
 #' }
@@ -107,9 +105,9 @@
 #' **Design-specific handling**:
 #' \itemize{
 #'   \item **Controlled design**: Evaluates all possible outcomes (y1, y2) where
-#'         y1 ∈ {0,...,n1} and y2 ∈ {0,...,n2}
-#'   \item **Uncontrolled design**: Uses hypothetical control specified by \code{z}.
-#'         Evaluates outcomes (y1, z) where y1 ∈ {0,...,n1} and y2 is fixed at z.
+#'         y1 in {0,...,n1} and y2 in {0,...,n2}
+#'   \item **Uncontrolled design**: Uses hypothetical control specified by z.
+#'         Evaluates outcomes (y1, z) where y1 in {0,...,n1} and y2 is fixed at z.
 #'         The parameter z represents the expected responder count in a hypothetical
 #'         control group.
 #'   \item **External design**: Incorporates external data through power priors for
@@ -174,6 +172,32 @@
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 #' )
 #'
+#' # Example 4: External design with power prior (50 percent borrowing)
+#' pGNGsinglebinary(
+#'   prob = 'posterior', design = 'external',
+#'   theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
+#'   gamma1 = 0.8, gamma2 = 0.2,
+#'   pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
+#'   n1 = 12, n2 = 12,
+#'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+#'   z = NULL, m1 = NULL, m2 = NULL,
+#'   ne1 = 15, ne2 = 15, ye1 = 6, ye2 = 4, ae1 = 0.5, ae2 = 0.5,
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#' )
+#'
+#' # Example 5: External design with strong borrowing (100 percent)
+#' pGNGsinglebinary(
+#'   prob = 'posterior', design = 'external',
+#'   theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
+#'   gamma1 = 0.8, gamma2 = 0.2,
+#'   pi1 = c(0.3, 0.5, 0.7), pi2 = rep(0.3, 3),
+#'   n1 = 15, n2 = 15,
+#'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+#'   z = NULL, m1 = NULL, m2 = NULL,
+#'   ne1 = 20, ne2 = 20, ye1 = 10, ye2 = 8, ae1 = 1.0, ae2 = 1.0,
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#' )
+#'
 #' @importFrom stats dbinom
 #' @export
 pGNGsinglebinary <- function(prob = 'posterior', design = 'controlled',
@@ -227,50 +251,113 @@ pGNGsinglebinary <- function(prob = 'posterior', design = 'controlled',
     Y2 <- 0:n2
   }
 
-  # Calculate posterior/predictive probabilities for each threshold
-  # gPost[[1]]: probability for Go threshold (theta.TV or theta.NULL)
-  # gPost[[2]]: probability for NoGo threshold (theta.MAV or theta.NULL)
-  gPost <- lapply(seq(length(theta0)), function(i) {
-    sapply(Y1, function(y1) {
-      sapply(Y2, function(y2) {
-        pPPsinglebinary(
-          prob, design, theta0[i],
-          n1, n2, y1, y2, a1, a2, b1, b2,
-          m1, m2, ne1, ne2, ye1, ye2, ae1, ae2, c(FALSE, TRUE)[i]
-        )
-      })
-    })
-  })
+  # Create all combinations of (y1, y2) outcomes
+  if(design == 'uncontrolled') {
+    # For uncontrolled design: y2 is fixed at z
+    all_y1 <- Y1
+    all_y2 <- rep(z, length(Y1))
+  } else {
+    # For controlled/external: create all combinations
+    grid <- expand.grid(y1 = Y1, y2 = Y2)
+    all_y1 <- grid$y1
+    all_y2 <- grid$y2
+  }
 
-  # Calculate Go, NoGo, and Miss probabilities based on decision criteria
-  GoNogoProb <- matrix(
-    sapply(seq(3), function(j) {
+  # Calculate posterior/predictive probabilities for each (y1, y2) combination
+  # for both Go and NoGo thresholds using vectorized function.
+  # The if/else block is used only to switch the z argument.
+  if(design == 'uncontrolled') {
+    # For uncontrolled design, pass z parameter
+    gPost_Go <- pPPsinglebinary(
+      prob = prob, design = design, theta0 = theta0[1],
+      n1 = n1, n2 = n2, y1 = all_y1, y2 = all_y2,
+      a1 = a1, a2 = a2, b1 = b1, b2 = b2,
+      m1 = m1, m2 = m2, z = z,
+      ne1 = ne1, ne2 = ne2, ye1 = ye1, ye2 = ye2, ae1 = ae1, ae2 = ae2,
+      lower.tail = FALSE
+    )
 
-      # Create indicator matrix for each decision type
-      if(j == 1) {
-        # Go decision: high probability for Go threshold AND low probability for NoGo threshold
-        I <- matrix((gPost[[1]] >= gamma1) & (gPost[[2]] < gamma2), nrow = length(Y2))
-      } else if(j == 2) {
-        # NoGo decision: low probability for Go threshold AND high probability for NoGo threshold
-        I <- matrix((gPost[[1]] < gamma1) & (gPost[[2]] >= gamma2), nrow = length(Y2))
-      } else {
-        # Miss: both Go and NoGo criteria met simultaneously (should be rare)
-        I <- matrix((gPost[[1]] >= gamma1) & (gPost[[2]] >= gamma2), nrow = length(Y2))
-      }
+    gPost_NoGo <- pPPsinglebinary(
+      prob = prob, design = design, theta0 = theta0[2],
+      n1 = n1, n2 = n2, y1 = all_y1, y2 = all_y2,
+      a1 = a1, a2 = a2, b1 = b1, b2 = b2,
+      m1 = m1, m2 = m2, z = z,
+      ne1 = ne1, ne2 = ne2, ye1 = ye1, ye2 = ye2, ae1 = ae1, ae2 = ae2,
+      lower.tail = TRUE
+    )
+  } else {
+    # For controlled and external designs, z is not needed
+    gPost_Go <- pPPsinglebinary(
+      prob = prob, design = design, theta0 = theta0[1],
+      n1 = n1, n2 = n2, y1 = all_y1, y2 = all_y2,
+      a1 = a1, a2 = a2, b1 = b1, b2 = b2,
+      m1 = m1, m2 = m2, z = NULL,
+      ne1 = ne1, ne2 = ne2, ye1 = ye1, ye2 = ye2, ae1 = ae1, ae2 = ae2,
+      lower.tail = FALSE
+    )
 
-      if(design == 'uncontrolled') {
-        # For uncontrolled design: sum over group 1 outcomes only (y2 is fixed at z)
-        colSums(outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)))
-      } else {
-        # For controlled/external design: sum over both group outcomes
-        diag(crossprod(
-          outer(col(I)[I] - 1, pi1, FUN = function(X, Y) dbinom(X, n1, Y)),
-          outer(row(I)[I] - 1, pi2, FUN = function(X, Y) dbinom(X, n2, Y))
-        ))
-      }
-    }),
-    ncol = 3
-  )
+    gPost_NoGo <- pPPsinglebinary(
+      prob = prob, design = design, theta0 = theta0[2],
+      n1 = n1, n2 = n2, y1 = all_y1, y2 = all_y2,
+      a1 = a1, a2 = a2, b1 = b1, b2 = b2,
+      m1 = m1, m2 = m2, z = NULL,
+      ne1 = ne1, ne2 = ne2, ye1 = ye1, ye2 = ye2, ae1 = ae1, ae2 = ae2,
+      lower.tail = TRUE
+    )
+  }
+
+  # Ensure pi1 and pi2 are vectors
+  pi1 <- as.numeric(pi1)
+  pi2 <- as.numeric(pi2)
+
+  # Validate that pi1 and pi2 have the same length for controlled/external designs
+  if(design != 'uncontrolled') {
+    if(length(pi1) != length(pi2)) {
+      stop('pi1 and pi2 must have the same length')
+    }
+  }
+
+  n_scenarios <- length(pi1)
+
+  # Initialize result matrix for Go, NoGo, Miss probabilities
+  GoNogoProb <- matrix(0, nrow = n_scenarios, ncol = 3)
+
+  # Calculate decision probabilities for each pi1 scenario
+  for(scenario in seq_len(n_scenarios)) {
+    if(design == 'uncontrolled') {
+      # For uncontrolled design: sum over group 1 outcomes only (y2 is fixed at z)
+      # Go, NoGo, Gray, and Miss are mutually exclusive and sum to 1:
+      #   Go:   gPost_Go >= gamma1  AND  gPost_NoGo < gamma2   (Go but not NoGo)
+      #   NoGo: gPost_Go < gamma1   AND  gPost_NoGo >= gamma2  (NoGo but not Go)
+      #   Miss: gPost_Go >= gamma1  AND  gPost_NoGo >= gamma2  (both criteria met)
+      probs_Go   <- (gPost_Go >= gamma1) & (gPost_NoGo <  gamma2)
+      probs_NoGo <- (gPost_Go <  gamma1) & (gPost_NoGo >= gamma2)
+      probs_Miss <- (gPost_Go >= gamma1) & (gPost_NoGo >= gamma2)
+
+      y1_values <- seq_along(Y1) - 1  # y1 values from 0 to n1
+      binom_weights <- dbinom(y1_values, n1, pi1[scenario])
+
+      GoNogoProb[scenario, 1] <- sum(probs_Go   * binom_weights)
+      GoNogoProb[scenario, 2] <- sum(probs_NoGo * binom_weights)
+      GoNogoProb[scenario, 3] <- sum(probs_Miss * binom_weights)
+    } else {
+      # For controlled/external design: sum over both group outcomes
+      # Go, NoGo, Gray, and Miss are mutually exclusive and sum to 1:
+      #   Go:   gPost_Go >= gamma1  AND  gPost_NoGo < gamma2   (Go but not NoGo)
+      #   NoGo: gPost_Go < gamma1   AND  gPost_NoGo >= gamma2  (NoGo but not Go)
+      #   Miss: gPost_Go >= gamma1  AND  gPost_NoGo >= gamma2  (both criteria met)
+      probs_Go   <- (gPost_Go >= gamma1) & (gPost_NoGo <  gamma2)
+      probs_NoGo <- (gPost_Go <  gamma1) & (gPost_NoGo >= gamma2)
+      probs_Miss <- (gPost_Go >= gamma1) & (gPost_NoGo >= gamma2)
+
+      # Weight outcomes by their probability under true response rates
+      weights <- dbinom(all_y1, n1, pi1[scenario]) * dbinom(all_y2, n2, pi2[scenario])
+
+      GoNogoProb[scenario, 1] <- sum(probs_Go   * weights)
+      GoNogoProb[scenario, 2] <- sum(probs_NoGo * weights)
+      GoNogoProb[scenario, 3] <- sum(probs_Miss * weights)
+    }
+  }
 
   # Check for positive Miss probabilities (indicates inappropriate thresholds)
   if(error_if_Miss) {
@@ -278,9 +365,6 @@ pGNGsinglebinary <- function(prob = 'posterior', design = 'controlled',
       stop('Because positive Miss probability(s) is obtained, re-consider appropriate thresholds')
     }
   }
-
-  # Calculate Miss probability (both Go and NoGo criteria met simultaneously)
-  Miss <- GoNogoProb[, 3, drop = FALSE]
 
   # Calculate Gray probability (complement of Go and NoGo)
   if(Gray_inc_Miss) {
@@ -292,22 +376,100 @@ pGNGsinglebinary <- function(prob = 'posterior', design = 'controlled',
   }
 
   # Prepare results data frame
-  results <- data.frame(
-    pi1, pi2,
-    Go = GoNogoProb[, 1],
-    Gray = GrayProb,
-    NoGo = GoNogoProb[, 2]
-  )
+  if(design == 'uncontrolled') {
+    # For uncontrolled design, pi2 is not meaningful (z defines the control group)
+    results <- data.frame(
+      pi1,
+      Go   = GoNogoProb[, 1],
+      Gray = GrayProb,
+      NoGo = GoNogoProb[, 2]
+    )
+  } else {
+    # For controlled and external designs, include pi2
+    results <- data.frame(
+      pi1, pi2,
+      Go   = GoNogoProb[, 1],
+      Gray = GrayProb,
+      NoGo = GoNogoProb[, 2]
+    )
+  }
 
   # Add Miss column when error_if_Miss is FALSE and Gray_inc_Miss is FALSE
   if(!error_if_Miss) {
     if(!Gray_inc_Miss) {
-      results$Miss <- Miss
+      results$Miss <- GoNogoProb[, 3]
     }
   }
 
   # Address floating point error
   results[results < .Machine$double.eps ^ 0.25] <- 0
 
+  # Attach metadata as attributes for use in print()
+  attr(results, 'prob')    <- prob
+  attr(results, 'design')  <- design
+  attr(results, 'gamma1')  <- gamma1
+  attr(results, 'gamma2')  <- gamma2
+  if(prob == 'posterior') {
+    attr(results, 'theta.TV')  <- theta.TV
+    attr(results, 'theta.MAV') <- theta.MAV
+  } else {
+    attr(results, 'theta.NULL') <- theta.NULL
+  }
+
+  # Assign S3 class
+  class(results) <- c('pGNGsinglebinary', 'data.frame')
+
   return(results)
+}
+
+#' Print Method for pGNGsinglebinary Objects
+#'
+#' Displays a formatted summary of Go/NoGo/Gray decision probabilities
+#' for binary endpoint results returned by \code{\link{pGNGsinglebinary}}.
+#'
+#' @param x An object of class \code{pGNGsinglebinary}.
+#' @param digits A positive integer specifying the number of decimal places
+#'        for probability values. Default is 4.
+#' @param ... Further arguments passed to or from other methods (ignored).
+#'
+#' @return Invisibly returns \code{x}.
+#'
+#' @export
+print.pGNGsinglebinary <- function(x, digits = 4, ...) {
+  # Extract metadata from attributes
+  prob    <- attr(x, 'prob')
+  design  <- attr(x, 'design')
+  gamma1  <- attr(x, 'gamma1')
+  gamma2  <- attr(x, 'gamma2')
+
+  # Build threshold string based on probability type
+  if(prob == 'posterior') {
+    theta_str <- sprintf('TV = %s, MAV = %s',
+                         attr(x, 'theta.TV'), attr(x, 'theta.MAV'))
+  } else {
+    theta_str <- sprintf('NULL = %s', attr(x, 'theta.NULL'))
+  }
+
+  # Print header
+  cat('Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)\n')
+  cat(strrep('-', 60), '\n')
+  cat(sprintf('  Probability type : %s\n', prob))
+  cat(sprintf('  Design           : %s\n', design))
+  cat(sprintf('  Threshold(s)     : %s\n', theta_str))
+  cat(sprintf('  Go  threshold    : gamma1 = %s\n', gamma1))
+  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', gamma2))
+  cat(strrep('-', 60), '\n')
+
+  # Format numeric columns (probability columns only, not pi1/pi2)
+  prob_cols <- names(x)[!names(x) %in% c('pi1', 'pi2')]
+  x_print <- x
+  x_print[prob_cols] <- lapply(x[prob_cols], function(col) {
+    formatC(col, digits = digits, format = 'f')
+  })
+
+  # Print table without row names (call print.data.frame explicitly to avoid recursion)
+  print.data.frame(x_print, row.names = FALSE, quote = FALSE)
+  cat(strrep('-', 60), '\n')
+
+  invisible(x)
 }

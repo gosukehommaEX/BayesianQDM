@@ -5,7 +5,8 @@
 #' probability for continuous outcome clinical trials. The function supports
 #' controlled, uncontrolled, and external control designs, with Normal-Inverse-Chi-squared
 #' conjugate priors or vague priors. External data can be incorporated through
-#' power priors.
+#' power priors. Vector inputs for bar.y1, s1, bar.y2, and s2 are supported for
+#' efficient batch processing (e.g., across simulation replicates).
 #'
 #' @param prob A character string specifying the type of probability to calculate.
 #'        Options are \code{'posterior'} for posterior probability or \code{'predictive'}
@@ -18,7 +19,7 @@
 #'        conjugate prior.
 #' @param CalcMethod A character string specifying the calculation method. Options are
 #'        \code{'NI'} for numerical integration, \code{'MC'} for Monte Carlo simulation,
-#'        or \code{'WS'} for Welch-Satterthwaite approximation.
+#'        or \code{'MM'} for Moment-Matching approximation.
 #' @param theta0 A numeric value representing the pre-specified threshold value for
 #'        the treatment effect (difference in means).
 #' @param nMC A positive integer representing the number of Monte Carlo samples
@@ -55,12 +56,16 @@
 #' @param sigma02 A positive numeric value representing the prior standard deviation
 #'        for group 2 (required if \code{prior = 'N-Inv-Chisq'} and \code{design = 'controlled'},
 #'        otherwise set to NULL).
-#' @param bar.y1 A numeric value representing the sample mean for group 1.
-#' @param bar.y2 A numeric value representing the sample mean for group 2
+#' @param bar.y1 A numeric value or vector representing the sample mean for group 1.
+#'        When a vector of length nsim is provided, all posterior parameters are computed
+#'        simultaneously for all replicates.
+#' @param bar.y2 A numeric value or vector representing the sample mean for group 2
 #'        (required if \code{design = 'controlled'} or \code{'external'}, otherwise set to NULL).
-#' @param s1 A positive numeric value representing the sample standard deviation for group 1.
-#' @param s2 A positive numeric value representing the sample standard deviation for group 2
-#'        (required if \code{design = 'controlled'} or \code{'external'}, otherwise set to NULL).
+#' @param s1 A positive numeric value or vector representing the sample standard deviation
+#'        for group 1.
+#' @param s2 A positive numeric value or vector representing the sample standard deviation
+#'        for group 2 (required if \code{design = 'controlled'} or \code{'external'},
+#'        otherwise set to NULL).
 #' @param r A positive numeric value representing the variance scaling factor for
 #'        hypothetical control. For \code{design = 'uncontrolled'}: specifies how the
 #'        variance of the hypothetical control relates to the treatment variance
@@ -90,11 +95,12 @@
 #'        external group 2 (required if \code{design = 'external'} and external control
 #'        data used, otherwise set to NULL).
 #' @param lower.tail A logical value; if TRUE (default), probabilities are
-#'        P(treatment effect ≤ theta0), otherwise P(treatment effect > theta0).
+#'        P(treatment effect <= theta0), otherwise P(treatment effect > theta0).
 #'
-#' @return A numeric value in \code{[0, 1]} representing the Bayesian posterior probability
-#'         or posterior predictive probability that the treatment effect exceeds
-#'         (or is below) the threshold theta0.
+#' @return A numeric value or vector in \code{[0, 1]} representing the Bayesian posterior
+#'         probability or posterior predictive probability that the treatment effect exceeds
+#'         (or is below) the threshold theta0. If bar.y1, s1, bar.y2, or s2 are vectors,
+#'         returns a vector of the same length.
 #'
 #' @details
 #' The function can obtain:
@@ -106,6 +112,12 @@
 #' Prior distribution of mean and variance of outcomes for each treatment group (k=1,2) can be either
 #' (1) Normal-Inverse-Chi-squared or (2) Vague. The posterior distribution or posterior predictive
 #' distribution of outcome for each treatment group follows a t-distribution.
+#'
+#' All posterior parameter calculations (mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) are
+#' performed using vectorized arithmetic, so bar.y1, s1, bar.y2, and s2 can be vectors
+#' of length nsim. The resulting parameter vectors are passed directly to pNI2tdiff,
+#' pMC2tdiff, or pMM2tdiff, which also support vector inputs, eliminating the need
+#' for an outer loop over simulation replicates.
 #'
 #' **Design-specific handling**:
 #' \itemize{
@@ -123,7 +135,7 @@
 #' \itemize{
 #'   \item NI: Numerical integration method for exact computation
 #'   \item MC: Monte Carlo simulation for flexible approximation
-#'   \item WS: Welch-Satterthwaite approximation for computational efficiency
+#'   \item MM: Moment-Matching approximation for computational efficiency
 #' }
 #'
 #' For external control designs, power priors are incorporated using exact conjugate representation:
@@ -159,7 +171,7 @@
 #' # mu02 = 1.5 is the hypothetical control mean
 #' # r = 1.2 means hypothetical control variance is 1.2 times treatment variance
 #' pPPsinglecontinuous(
-#'   prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'WS',
+#'   prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MM',
 #'   theta0 = 1.5, n1 = 15, n2 = 15,
 #'   bar.y1 = 3.5, bar.y2 = NULL, s1 = 1.2, s2 = NULL,
 #'   mu02 = 1.5, r = 1.2,
@@ -173,7 +185,7 @@
 #'
 #' # Example 3: Posterior predictive probability for controlled design
 #' pPPsinglecontinuous(
-#'   prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
+#'   prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MM',
 #'   theta0 = 0.5, n1 = 15, n2 = 15, m1 = 100, m2 = 100,
 #'   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
 #'   mu01 = 2, mu02 = 2, sigma01 = 2, sigma02 = 2,
@@ -193,6 +205,24 @@
 #'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
 #'   m1 = NULL, m2 = NULL, r = NULL,
 #'   ne1 = NULL, alpha01 = NULL, bar.ye1 = NULL, se1 = NULL,
+#'   lower.tail = FALSE
+#' )
+#'
+#' # Example 5: Vectorized usage across simulation replicates
+#' set.seed(1)
+#' bar.y1_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
+#' s1_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
+#' bar.y2_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
+#' s2_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
+#' pPPsinglecontinuous(
+#'   prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MM',
+#'   theta0 = 1.5, n1 = 12, n2 = 12,
+#'   bar.y1 = bar.y1_vec, bar.y2 = bar.y2_vec, s1 = s1_vec, s2 = s2_vec,
+#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+#'   m1 = NULL, m2 = NULL, r = NULL,
+#'   ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
 #'   lower.tail = FALSE
 #' )
 #'
@@ -216,8 +246,8 @@ pPPsinglecontinuous <- function(prob = "posterior", design = "controlled", prior
     stop("prior must be either 'vague' or 'N-Inv-Chisq'")
   }
 
-  if (!CalcMethod %in% c("NI", "MC", "WS")) {
-    stop("CalcMethod must be 'NI', 'MC', or 'WS'")
+  if (!CalcMethod %in% c("NI", "MC", "MM")) {
+    stop("CalcMethod must be 'NI', 'MC', or 'MM'")
   }
 
   # Validate required parameters for each method
@@ -252,51 +282,47 @@ pPPsinglecontinuous <- function(prob = "posterior", design = "controlled", prior
     }
   }
 
-  # For external design with vague prior, use special handling
+  # ---------------------------------------------------------------------------
+  # Compute posterior t-distribution parameters (vectorized over bar.y1, s1,
+  # bar.y2, s2 - all arithmetic below operates element-wise on vectors)
+  # ---------------------------------------------------------------------------
+
   if (design == 'external' && prior == 'vague') {
-    # Group 1 (Treatment) - Apply power prior if external data available
+
+    # --- External design with vague prior ---
+    # Group 1 (Treatment): apply power prior if external data available
     if (!is.null(ne1) && !is.null(alpha01)) {
-      # Posterior parameters with power prior for treatment
-      mu.t1 <- (alpha01 * ne1 * bar.ye1 + n1 * bar.y1) / (alpha01 * ne1 + n1)
+      mu.t1         <- (alpha01 * ne1 * bar.ye1 + n1 * bar.y1) / (alpha01 * ne1 + n1)
       kappa.star.n1 <- alpha01 * ne1 + n1
-      nu.t1 <- alpha01 * ne1 + n1 - 1
-      sigma2.star.n1 <- '/'(
-        '+'(
-          alpha01 * (ne1 - 1) * se1 ^ 2 + (n1 - 1) * s1 ^ 2,
-          (alpha01 * ne1 * n1 * (bar.ye1 - bar.y1) ^ 2) / (alpha01 * ne1 + n1)
-        ),
-        alpha01 * ne1 + n1
-      )
+      nu.t1         <- alpha01 * ne1 + n1 - 1
+      sigma2.star.n1 <- (alpha01 * (ne1 - 1) * se1 ^ 2 + (n1 - 1) * s1 ^ 2 +
+                           (alpha01 * ne1 * n1 * (bar.ye1 - bar.y1) ^ 2) / (alpha01 * ne1 + n1)) /
+        (alpha01 * ne1 + n1)
     } else {
       # No external treatment data - use vague prior
-      mu.t1 <- bar.y1
+      mu.t1         <- bar.y1
       kappa.star.n1 <- n1
-      nu.t1 <- n1 - 1
+      nu.t1         <- n1 - 1
       sigma2.star.n1 <- s1 ^ 2
     }
 
-    # Group 2 (Control) - Apply power prior if external data available
+    # Group 2 (Control): apply power prior if external data available
     if (!is.null(ne2) && !is.null(alpha02)) {
-      # Posterior parameters with power prior for control
-      mu.t2 <- (alpha02 * ne2 * bar.ye2 + n2 * bar.y2) / (alpha02 * ne2 + n2)
+      mu.t2         <- (alpha02 * ne2 * bar.ye2 + n2 * bar.y2) / (alpha02 * ne2 + n2)
       kappa.star.n2 <- alpha02 * ne2 + n2
-      nu.t2 <- alpha02 * ne2 + n2 - 1
-      sigma2.star.n2 <- '/'(
-        '+'(
-          alpha02 * (ne2 - 1) * se2 ^ 2 + (n2 - 1) * s2 ^ 2,
-          (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) / (alpha02 * ne2 + n2)
-        ),
-        alpha02 * ne2 + n2
-      )
+      nu.t2         <- alpha02 * ne2 + n2 - 1
+      sigma2.star.n2 <- (alpha02 * (ne2 - 1) * se2 ^ 2 + (n2 - 1) * s2 ^ 2 +
+                           (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) / (alpha02 * ne2 + n2)) /
+        (alpha02 * ne2 + n2)
     } else {
       # No external control data - use vague prior
-      mu.t2 <- bar.y2
+      mu.t2         <- bar.y2
       kappa.star.n2 <- n2
-      nu.t2 <- n2 - 1
+      nu.t2         <- n2 - 1
       sigma2.star.n2 <- s2 ^ 2
     }
 
-    # Calculate standard deviations of t-distributions based on probability type
+    # Scale parameters depend on probability type
     if (prob == 'posterior') {
       sd.t1 <- sqrt(sigma2.star.n1 / kappa.star.n1)
       sd.t2 <- sqrt(sigma2.star.n2 / kappa.star.n2)
@@ -304,117 +330,114 @@ pPPsinglecontinuous <- function(prob = "posterior", design = "controlled", prior
       sd.t1 <- sqrt((1 + 1 / kappa.star.n1) * sigma2.star.n1 / m1)
       sd.t2 <- sqrt((1 + 1 / kappa.star.n2) * sigma2.star.n2 / m2)
     }
+
   } else {
-    # For controlled and uncontrolled designs
-    if(!is.null(prior) && prior == 'N-Inv-Chisq') {
-      # Calculate updated precision parameters
+
+    # --- Controlled or uncontrolled designs (vague or N-Inv-Chisq prior) ---
+    if (!is.null(prior) && prior == 'N-Inv-Chisq') {
+
+      # Updated precision parameters
       kappa.n1 <- kappa01 + n1
       kappa.n2 <- kappa02 + n2
 
-      # Calculate updated degrees of freedom
+      # Updated degrees of freedom
       nu.t1 <- nu01 + n1
-      if(design == 'controlled') {
+      if (design == 'controlled') {
         nu.t2 <- nu02 + n2
-      } else if(design == 'uncontrolled') {
-        # For uncontrolled: use same df as treatment
+      } else if (design == 'uncontrolled') {
         nu.t2 <- nu.t1
       }
 
-      # Calculate posterior means of t-distributions
+      # Posterior means
       mu.t1 <- (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
-      if(design == 'controlled') {
+      if (design == 'controlled') {
         mu.t2 <- (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
-      } else if(design == 'uncontrolled') {
-        # For uncontrolled: use hypothetical control mean
+      } else if (design == 'uncontrolled') {
         mu.t2 <- mu02
       }
 
-      # Calculate posterior variance for group 1
-      var.n1 <- '+'(
-        nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2,
-        n1 * kappa01 * (mu01 - bar.y1) ^ 2 / (kappa01 + n1)
-      ) / nu.t1
+      # Posterior variance for group 1 (vectorized over bar.y1, s1)
+      var.n1 <- (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 +
+                   n1 * kappa01 * (mu01 - bar.y1) ^ 2 / (kappa01 + n1)) / nu.t1
 
-      # Calculate posterior variance for group 2 (controlled design only)
-      if(design == 'controlled') {
-        var.n2 <- '+'(
-          nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2,
+      # Posterior variance for group 2
+      if (design == 'controlled') {
+        # Vectorized over bar.y2, s2
+        var.n2 <- nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 +
           n2 * kappa02 * (mu02 - bar.y2) ^ 2 / (kappa02 + n2)
-        )
-      } else if(design == 'uncontrolled') {
+      } else if (design == 'uncontrolled') {
         var.n2 <- NULL
       }
 
-      # Calculate standard deviations of t-distributions based on probability type
-      if(prob == 'posterior') {
+      # Scale parameters depend on probability type
+      if (prob == 'posterior') {
         sd.t1 <- sqrt(var.n1 / kappa.n1)
-        if(design == 'controlled') {
+        if (design == 'controlled') {
           sd.t2 <- sqrt(var.n2 / kappa.n2)
-        } else if(design == 'uncontrolled') {
-          # For uncontrolled: scale treatment sd by r
+        } else if (design == 'uncontrolled') {
           sd.t2 <- sqrt(r) * sd.t1
         }
-      } else if(prob == 'predictive') {
+      } else if (prob == 'predictive') {
         sd.t1 <- sqrt((1 + 1 / kappa.n1) * var.n1 / m1)
-        if(design == 'controlled') {
+        if (design == 'controlled') {
           sd.t2 <- sqrt((1 + 1 / kappa.n2) * var.n2 / m2)
-        } else if(design == 'uncontrolled') {
-          # For uncontrolled: scale treatment sd by r
+        } else if (design == 'uncontrolled') {
           sd.t2 <- sqrt(r) * sd.t1
         }
       }
-    } else if(!is.null(prior) && prior == 'vague') {
-      # Calculate degrees of freedom for vague priors
+
+    } else if (!is.null(prior) && prior == 'vague') {
+
+      # Degrees of freedom
       nu.t1 <- n1 - 1
-      if(design == 'controlled') {
+      if (design == 'controlled') {
         nu.t2 <- n2 - 1
-      } else if(design == 'uncontrolled') {
-        # For uncontrolled: use same df as treatment
+      } else if (design == 'uncontrolled') {
         nu.t2 <- nu.t1
       }
 
-      # Set means of t-distributions to sample means
+      # Posterior means (vectorized over bar.y1, bar.y2)
       mu.t1 <- bar.y1
-      if(design == 'controlled') {
+      if (design == 'controlled') {
         mu.t2 <- bar.y2
-      } else if(design == 'uncontrolled') {
-        # For uncontrolled: use hypothetical control mean
+      } else if (design == 'uncontrolled') {
         mu.t2 <- mu02
       }
 
-      # Calculate standard deviations of t-distributions based on probability type
-      if(prob == 'posterior') {
+      # Scale parameters depend on probability type (vectorized over s1, s2)
+      if (prob == 'posterior') {
         sd.t1 <- sqrt(s1 ^ 2 / n1)
-        if(design == 'controlled') {
+        if (design == 'controlled') {
           sd.t2 <- sqrt(s2 ^ 2 / n2)
-        } else if(design == 'uncontrolled') {
-          # For uncontrolled: scale treatment sd by r
+        } else if (design == 'uncontrolled') {
           sd.t2 <- sqrt(r) * sd.t1
         }
-      } else if(prob == 'predictive') {
+      } else if (prob == 'predictive') {
         sd.t1 <- sqrt((1 + 1 / n1) * s1 ^ 2 / m1)
-        if(design == 'controlled') {
+        if (design == 'controlled') {
           sd.t2 <- sqrt((1 + 1 / n2) * s2 ^ 2 / m2)
-        } else if(design == 'uncontrolled') {
-          # For uncontrolled: scale treatment sd by r
+        } else if (design == 'uncontrolled') {
           sd.t2 <- sqrt(r) * sd.t1
         }
       }
     }
   }
 
-  # Calculate the probability of below or exceeding θ₀ using the specified method
-  # All three designs (controlled, uncontrolled, external) use the same calculation
-  if(CalcMethod == 'NI') {
+  # ---------------------------------------------------------------------------
+  # Calculate probability using the specified method.
+  # mu.t1, mu.t2, sd.t1, sd.t2 are now vectors of length nsim when called
+  # from pGNGsinglecontinuous, so each method receives the full vector and
+  # returns a vector of the same length - no outer loop is needed.
+  # ---------------------------------------------------------------------------
+  if (CalcMethod == 'NI') {
     results <- pNI2tdiff(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
-  } else if(CalcMethod == 'MC') {
+  } else if (CalcMethod == 'MC') {
     results <- pMC2tdiff(nMC, theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
-  } else if(CalcMethod == 'WS') {
-    results <- pWS2tdiff(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
+  } else if (CalcMethod == 'MM') {
+    results <- pMM2tdiff(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
   } else {
     stop("Invalid CalcMethod.")
   }
 
-  # Return results
   return(results)
 }
