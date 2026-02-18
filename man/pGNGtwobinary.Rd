@@ -2,26 +2,24 @@
 % Please edit documentation in R/pGNGtwobinary.R
 \name{pGNGtwobinary}
 \alias{pGNGtwobinary}
-\title{Calculate Go, NoGo, and Gray Probabilities for a Clinical Trial with Two Binary Endpoints
-Under the Bayesian Framework}
+\title{Go/NoGo/Gray Decision Probabilities for a Clinical Trial with Two Binary
+Endpoints}
 \usage{
 pGNGtwobinary(
-  nsim = 10000,
   prob = "posterior",
   design = "controlled",
-  theta.TV1,
-  theta.MAV1,
-  theta.TV2,
-  theta.MAV2,
-  theta.NULL1 = NULL,
-  theta.NULL2 = NULL,
-  gammaG1 = NULL,
-  gammaN1 = NULL,
-  gammaG2 = NULL,
-  gammaN2 = NULL,
-  decision_criteria = 1,
-  pi1,
-  pi2,
+  GoRegions,
+  NoGoRegions,
+  gamma1,
+  gamma2,
+  pi_t1,
+  pi_t2,
+  rho_t,
+  pi_c1,
+  pi_c2,
+  rho_c,
+  n1,
+  n2,
   a1_00,
   a1_01,
   a1_10,
@@ -30,11 +28,18 @@ pGNGtwobinary(
   a2_01,
   a2_10,
   a2_11,
-  n1,
-  n2,
   m1 = NULL,
   m2 = NULL,
-  z = NULL,
+  theta.TV1 = NULL,
+  theta.MAV1 = NULL,
+  theta.TV2 = NULL,
+  theta.MAV2 = NULL,
+  theta.NULL1 = NULL,
+  theta.NULL2 = NULL,
+  z00 = NULL,
+  z01 = NULL,
+  z10 = NULL,
+  z11 = NULL,
   xe1_00 = NULL,
   xe1_01 = NULL,
   xe1_10 = NULL,
@@ -45,413 +50,465 @@ pGNGtwobinary(
   xe2_11 = NULL,
   ae1 = NULL,
   ae2 = NULL,
-  Go1_regions = NULL,
-  NoGo1_regions = NULL,
-  Go2_regions = NULL,
-  NoGo2_regions = NULL,
+  nMC = 10000L,
   error_if_Miss = TRUE,
-  Gray_inc_Miss = TRUE,
-  nMC = 10000,
-  seed = NULL
+  Gray_inc_Miss = FALSE
 )
 }
 \arguments{
-\item{nsim}{A positive integer representing the number of simulation iterations
-to estimate Go/NoGo/Gray probabilities. Default is 10000.}
+\item{prob}{A character string specifying the probability type for
+decision-making.  Must be \code{'posterior'} or
+\code{'predictive'}.}
 
-\item{prob}{A character string specifying the type of probability to use for
-decision-making. Options are \code{'posterior'} for posterior probability
-or \code{'predictive'} for posterior predictive probability.}
+\item{design}{A character string specifying the trial design.  Must be
+\code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.}
 
-\item{design}{A character string specifying the type of trial design. Options are
-\code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
-for single-arm studies, or \code{'external'} for designs incorporating
-external data.}
+\item{GoRegions}{An integer vector specifying which of the nine posterior
+regions (R1--R9) or four predictive regions (R1--R4) constitute a
+Go decision.  For \code{prob = 'posterior'}, valid values are
+integers in 1--9; for \code{prob = 'predictive'}, in 1--4.
+A common choice is \code{GoRegions = 1} (both endpoints exceed TV
+or NULL for posterior/predictive, respectively).}
 
-\item{theta.TV1}{A numeric value representing the target value threshold for
-Endpoint 1 when \code{prob = 'posterior'}. This defines the upper boundary
-for the "Gray" region.}
+\item{NoGoRegions}{An integer vector specifying which regions constitute a
+NoGo decision.  A common choice is \code{NoGoRegions = 9} (both
+endpoints below MAV) for posterior, or \code{NoGoRegions = 4} for
+predictive.  Must be disjoint from \code{GoRegions}.}
 
-\item{theta.MAV1}{A numeric value representing the minimum acceptable value threshold
-for Endpoint 1 when \code{prob = 'posterior'}. This defines the lower boundary
-for the "Gray" region.}
+\item{gamma1}{A numeric scalar in \code{(0, 1)} giving the minimum
+posterior/predictive probability required for a Go decision.}
 
-\item{theta.TV2}{A numeric value representing the target value threshold for
-Endpoint 2 when \code{prob = 'posterior'}. This defines the upper boundary
-for the "Gray" region.}
+\item{gamma2}{A numeric scalar in \code{(0, 1)} giving the minimum
+posterior/predictive probability required for a NoGo decision.
+Unlike single-endpoint designs, \code{gamma2} may be greater than,
+equal to, or less than \code{gamma1}, because the Go and NoGo
+regions are structurally asymmetric (e.g., Go = R1 only vs
+NoGo = R9 only) and their calibrated thresholds are independent.}
 
-\item{theta.MAV2}{A numeric value representing the minimum acceptable value threshold
-for Endpoint 2 when \code{prob = 'posterior'}. This defines the lower boundary
-for the "Gray" region.}
+\item{pi_t1}{A numeric vector of true treatment response probabilities
+for Endpoint 1.  Each element must be in \code{(0, 1)}.}
 
-\item{theta.NULL1}{A numeric value representing the null hypothesis threshold for
-Endpoint 1 when \code{prob = 'predictive'}. Required when \code{prob = 'predictive'},
-set to NULL if \code{prob = 'posterior'}.}
+\item{pi_t2}{A numeric vector of true treatment response probabilities
+for Endpoint 2.  Must have the same length as \code{pi_t1}.}
 
-\item{theta.NULL2}{A numeric value representing the null hypothesis threshold for
-Endpoint 2 when \code{prob = 'predictive'}. Required when \code{prob = 'predictive'},
-set to NULL if \code{prob = 'posterior'}.}
+\item{rho_t}{A numeric vector of true within-treatment-arm correlations
+between Endpoint 1 and Endpoint 2.  Must have the same length as
+\code{pi_t1}.  Each element must be within the feasible range
+for the corresponding \code{(pi_t1, pi_t2)} pair (checked via
+\code{\link{getJointBinary}}).}
 
-\item{gammaG1}{A numeric value in (0, 1) representing the Go threshold for Endpoint 1.
-Must satisfy gammaG1 > gammaN1. Typically set to 0.7-0.9.}
+\item{pi_c1}{A numeric vector of true control response probabilities for
+Endpoint 1.  For \code{design = 'uncontrolled'}, this parameter
+is not used in probability calculations but must still be supplied;
+it is retained in the output for reference.  Must have the same
+length as \code{pi_t1}.}
 
-\item{gammaN1}{A numeric value in (0, 1) representing the NoGo threshold for Endpoint 1.
-Must satisfy gammaN1 < gammaG1. Typically set to 0.2-0.4.}
+\item{pi_c2}{A numeric vector of true control response probabilities for
+Endpoint 2.  For \code{design = 'uncontrolled'}, see note for
+\code{pi_c1}.  Must have the same length as \code{pi_t1}.}
 
-\item{gammaG2}{A numeric value in (0, 1) representing the Go threshold for Endpoint 2.
-Must satisfy gammaG2 > gammaN2. Typically set to 0.7-0.9.}
+\item{rho_c}{A numeric vector of true within-control-arm correlations.
+For \code{design = 'uncontrolled'}, not used in probability
+calculations.  Must have the same length as \code{pi_t1}.}
 
-\item{gammaN2}{A numeric value in (0, 1) representing the NoGo threshold for Endpoint 2.
-Must satisfy gammaN2 < gammaG2. Typically set to 0.2-0.4.}
+\item{n1}{A positive integer giving the number of patients in group 1
+(treatment) in the proof-of-concept (PoC) trial.}
 
-\item{decision_criteria}{An integer (1, 2, 3, or 4) specifying the decision rule:
-\itemize{
-\item \strong{1}: Equations (4)-(5) - Go if BOTH endpoints meet criteria (AND),
-NoGo if BOTH endpoints meet criteria (AND)
-\item \strong{2}: Equations (6)-(7) - Go if BOTH endpoints meet criteria (AND),
-NoGo if EITHER endpoint meets criteria (OR)
-\item \strong{3}: Equations (8)-(9) - Go if EITHER endpoint meets criteria (OR),
-NoGo if BOTH endpoints meet criteria (AND)
-\item \strong{4}: Equations (10)-(11) - Go if EITHER endpoint meets criteria (OR),
-NoGo if EITHER endpoint meets criteria (OR)
-}}
+\item{n2}{A positive integer giving the number of patients in group 2
+(control) in the PoC trial.}
 
-\item{pi1}{A numeric vector of length 4 representing the true joint response
-probabilities for group 1 (treatment). Elements correspond to (0,0), (0,1),
-(1,0), (1,1) for (Endpoint1, Endpoint2). Must sum to 1.}
+\item{a1_00}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,0) response pattern in group 1.}
 
-\item{pi2}{A numeric vector of length 4 representing the true joint response
-probabilities for group 2 (control). Elements correspond to (0,0), (0,1),
-(1,0), (1,1) for (Endpoint1, Endpoint2). Must sum to 1.}
+\item{a1_01}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,1) response pattern in group 1.}
 
-\item{a1_00}{A positive numeric value representing the Dirichlet prior parameter
-for response pattern (0,0) in group 1.}
+\item{a1_10}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,0) response pattern in group 1.}
 
-\item{a1_01}{A positive numeric value representing the Dirichlet prior parameter
-for response pattern (0,1) in group 1.}
+\item{a1_11}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,1) response pattern in group 1.}
 
-\item{a1_10}{A positive numeric value representing the Dirichlet prior parameter
-for response pattern (1,0) in group 1.}
+\item{a2_00}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,0) response pattern in group 2.  For
+\code{design = 'uncontrolled'}, serves as a hyperparameter of
+the hypothetical control distribution.}
 
-\item{a1_11}{A positive numeric value representing the Dirichlet prior parameter
-for response pattern (1,1) in group 1.}
+\item{a2_01}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,1) response pattern in group 2.}
 
-\item{a2_00}{A positive numeric value representing the Dirichlet prior parameter
-for response pattern (0,0) in group 2.}
+\item{a2_10}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,0) response pattern in group 2.}
 
-\item{a2_01}{A positive numeric value representing the Dirichlet prior parameter
-for response pattern (0,1) in group 2.}
+\item{a2_11}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,1) response pattern in group 2.}
 
-\item{a2_10}{A positive numeric value representing the Dirichlet prior parameter
-for response pattern (1,0) in group 2.}
+\item{m1}{A positive integer giving the future sample size for group 1.
+Required when \code{prob = 'predictive'}; otherwise set to
+\code{NULL}.}
 
-\item{a2_11}{A positive numeric value representing the Dirichlet prior parameter
-for response pattern (1,1) in group 2.}
+\item{m2}{A positive integer giving the future sample size for group 2.
+Required when \code{prob = 'predictive'}; otherwise set to
+\code{NULL}.}
 
-\item{n1}{A positive integer representing the number of patients in group 1 for
-the proof-of-concept (PoC) trial.}
+\item{theta.TV1}{A numeric scalar giving the TV threshold for Endpoint 1.
+Required when \code{prob = 'posterior'}; otherwise set to
+\code{NULL}.}
 
-\item{n2}{A positive integer representing the number of patients in group 2 for
-the PoC trial.}
+\item{theta.MAV1}{A numeric scalar giving the MAV threshold for Endpoint
+1.  Required when \code{prob = 'posterior'}; otherwise set to
+\code{NULL}.}
 
-\item{m1}{A positive integer representing the future sample size for group 1 in
-the Phase III trial. Required when \code{prob = 'predictive'}, NULL otherwise.}
+\item{theta.TV2}{A numeric scalar giving the TV threshold for Endpoint 2.
+Required when \code{prob = 'posterior'}; otherwise set to
+\code{NULL}.}
 
-\item{m2}{A positive integer representing the future sample size for group 2 in
-the Phase III trial. Required when \code{prob = 'predictive'}, NULL otherwise.}
+\item{theta.MAV2}{A numeric scalar giving the MAV threshold for Endpoint
+2.  Required when \code{prob = 'posterior'}; otherwise set to
+\code{NULL}.}
 
-\item{z}{A numeric vector of length 4 representing the hypothetical control response
-counts for \code{design = 'uncontrolled'}. Elements correspond to (0,0), (0,1),
-(1,0), (1,1) for (Endpoint1, Endpoint2). Must sum to n2. This specifies the
-expected number of responses in each category for a hypothetical control group
-based on historical data or prior knowledge. Set to NULL for controlled and
-external designs.}
+\item{theta.NULL1}{A numeric scalar giving the null hypothesis threshold
+for Endpoint 1.  Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{xe1_00}{A non-negative integer representing external control data count for
-response pattern (0,0) in group 1. Used when \code{design = 'external'}.}
+\item{theta.NULL2}{A numeric scalar giving the null hypothesis threshold
+for Endpoint 2.  Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{xe1_01}{A non-negative integer representing external control data count for
-response pattern (0,1) in group 1. Used when \code{design = 'external'}.}
+\item{z00}{A non-negative integer giving the hypothetical control count
+for pattern (0,0).  Required when \code{design = 'uncontrolled'};
+otherwise set to \code{NULL}.}
 
-\item{xe1_10}{A non-negative integer representing external control data count for
-response pattern (1,0) in group 1. Used when \code{design = 'external'}.}
+\item{z01}{A non-negative integer giving the hypothetical control count
+for pattern (0,1).  Required when \code{design = 'uncontrolled'};
+otherwise set to \code{NULL}.}
 
-\item{xe1_11}{A non-negative integer representing external control data count for
-response pattern (1,1) in group 1. Used when \code{design = 'external'}.}
+\item{z10}{A non-negative integer giving the hypothetical control count
+for pattern (1,0).  Required when \code{design = 'uncontrolled'};
+otherwise set to \code{NULL}.}
 
-\item{xe2_00}{A non-negative integer representing external control data count for
-response pattern (0,0) in group 2. Used when \code{design = 'external'}.}
+\item{z11}{A non-negative integer giving the hypothetical control count
+for pattern (1,1).  Required when \code{design = 'uncontrolled'};
+otherwise set to \code{NULL}.}
 
-\item{xe2_01}{A non-negative integer representing external control data count for
-response pattern (0,1) in group 2. Used when \code{design = 'external'}.}
+\item{xe1_00}{A non-negative integer giving the external group 1 count
+for pattern (0,0).  Required when \code{design = 'external'} and
+external treatment data are used; otherwise \code{NULL}.}
 
-\item{xe2_10}{A non-negative integer representing external control data count for
-response pattern (1,0) in group 2. Used when \code{design = 'external'}.}
+\item{xe1_01}{A non-negative integer; see \code{xe1_00}.}
 
-\item{xe2_11}{A non-negative integer representing external control data count for
-response pattern (1,1) in group 2. Used when \code{design = 'external'}.}
+\item{xe1_10}{A non-negative integer; see \code{xe1_00}.}
 
-\item{ae1}{A numeric value in [0, 1] representing the power prior parameter for
-external data in group 1. Used when \code{design = 'external'}.}
+\item{xe1_11}{A non-negative integer; see \code{xe1_00}.}
 
-\item{ae2}{A numeric value in [0, 1] representing the power prior parameter for
-external data in group 2. Used when \code{design = 'external'}.}
+\item{xe2_00}{A non-negative integer giving the external group 2 count
+for pattern (0,0).  Required when \code{design = 'external'} and
+external control data are used; otherwise \code{NULL}.}
 
-\item{Go1_regions}{A numeric vector specifying which regions count as Go regions
-for Endpoint 1. For \code{prob = 'posterior'}: values should be between 1-9.
-For \code{prob = 'predictive'}: values should be between 1-4.
-Default is \code{c(1,2,3)} for posterior or \code{c(1,2)} for predictive.}
+\item{xe2_01}{A non-negative integer; see \code{xe2_00}.}
 
-\item{NoGo1_regions}{A numeric vector specifying which regions count as NoGo regions
-for Endpoint 1. For \code{prob = 'posterior'}: values should be between 1-9.
-For \code{prob = 'predictive'}: values should be between 1-4.
-Default is \code{c(7,8,9)} for posterior or \code{c(3,4)} for predictive.}
+\item{xe2_10}{A non-negative integer; see \code{xe2_00}.}
 
-\item{Go2_regions}{A numeric vector specifying which regions count as Go regions
-for Endpoint 2. For \code{prob = 'posterior'}: values should be between 1-9.
-For \code{prob = 'predictive'}: values should be between 1-4.
-Default is \code{c(1,4,7)} for posterior or \code{c(1,3)} for predictive.}
+\item{xe2_11}{A non-negative integer; see \code{xe2_00}.}
 
-\item{NoGo2_regions}{A numeric vector specifying which regions count as NoGo regions
-for Endpoint 2. For \code{prob = 'posterior'}: values should be between 1-9.
-For \code{prob = 'predictive'}: values should be between 1-4.
-Default is \code{c(3,6,9)} for posterior or \code{c(2,4)} for predictive.}
+\item{ae1}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for group 1.  Required when external treatment data are
+used; otherwise \code{NULL}.}
 
-\item{error_if_Miss}{A logical value indicating whether to stop with an error if
-positive Miss probability is detected. Default is TRUE.}
+\item{ae2}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for group 2.  Required when external control data are
+used; otherwise \code{NULL}.}
 
-\item{Gray_inc_Miss}{A logical value indicating whether to include Miss probability
-in Gray probability calculation. Default is TRUE.}
+\item{nMC}{A positive integer giving the number of Monte Carlo draws
+used inside \code{\link{pPPtwobinary}} for each count combination.
+Default is \code{10000}.}
 
-\item{nMC}{A positive integer representing the number of Monte Carlo samples for
-probability estimation within each simulation iteration. Default is 10000.}
+\item{error_if_Miss}{A logical scalar; if \code{TRUE} (default), the
+function stops with an error if the Miss probability is positive,
+prompting reconsideration of the thresholds.}
 
-\item{seed}{An integer value for random number generator seed to ensure reproducibility.
-If NULL (default), no seed is set.}
+\item{Gray_inc_Miss}{A logical scalar; if \code{TRUE}, the Miss
+probability is added to Gray.  If \code{FALSE} (default), Miss is
+reported separately.  Active only when
+\code{error_if_Miss = FALSE}.}
 }
 \value{
-A data frame containing the following columns:
+A data frame with one row per scenario and columns:
 \describe{
-\item{pi1_00, pi1_01, pi1_10, pi1_11}{The true joint probabilities for group 1}
-\item{pi2_00, pi2_01, pi2_10, pi2_11}{The true joint probabilities for group 2}
-\item{Go}{The probability of making a Go decision}
-\item{Gray}{The probability of making a Gray (inconclusive) decision}
-\item{NoGo}{The probability of making a NoGo decision}
-\item{Miss}{(Optional) The probability where both Go and NoGo criteria are met
-simultaneously. Included when \code{error_if_Miss = FALSE} and
-\code{Gray_inc_Miss = FALSE}}
+\item{pi_t1}{True treatment response probability for Endpoint 1.}
+\item{pi_t2}{True treatment response probability for Endpoint 2.}
+\item{rho_t}{True within-arm correlation in the treatment arm.}
+\item{pi_c1}{True control response probability for Endpoint 1
+(omitted when \code{design = 'uncontrolled'}).}
+\item{pi_c2}{True control response probability for Endpoint 2
+(omitted when \code{design = 'uncontrolled'}).}
+\item{rho_c}{True within-arm correlation in the control arm
+(omitted when \code{design = 'uncontrolled'}).}
+\item{Go}{Probability of making a Go decision.}
+\item{Gray}{Probability of making a Gray (inconclusive) decision.}
+\item{NoGo}{Probability of making a NoGo decision.}
+\item{Miss}{Probability where Go and NoGo criteria are simultaneously
+met.  Included when \code{error_if_Miss = FALSE} and
+\code{Gray_inc_Miss = FALSE}.}
 }
+The returned object has S3 class \code{pGNGtwobinary} with an associated
+\code{print} method.
 }
 \description{
-This function calculates the Go, NoGo, and Gray probabilities for clinical trials
-with two binary endpoints using the Bayesian framework. The function evaluates
-operating characteristics by computing the probability of making each type of
-decision (Go, NoGo, or Gray) across different true response rates. The function
-supports controlled, uncontrolled, and external control designs. Decision criteria
-can be based on joint probabilities across the nine regions defined by target values
-(TV) and minimum acceptable values (MAV) for both endpoints.
+Evaluates operating characteristics (Go, NoGo, Gray probabilities) for
+clinical trials with two binary endpoints under the Bayesian framework.
+The function supports controlled, uncontrolled, and external-control designs,
+and uses both posterior probability and posterior predictive probability
+criteria.
 }
 \details{
-The function simulates clinical trial data from multinomial distributions with
-specified true response probabilities, then calculates posterior or posterior
-predictive probabilities for each simulated dataset using \code{pPPtwobinary()}.
+Computation proceeds in two stages for efficiency.  In Stage 1, posterior
+or predictive probabilities are precomputed for every possible multinomial
+count combination \eqn{(x_t, x_c)}.  In Stage 2, operating characteristics
+for each scenario are obtained by weighting the Stage 1 decisions by their
+multinomial probabilities under the true parameters, avoiding repeated Monte
+Carlo sampling per scenario.
 
-\strong{Decision Regions for Posterior Probability (9 regions)}:
-The nine regions are defined by TV and MAV thresholds for both endpoints
-(column-major order: Endpoint 2 varies fastest):
-\tabular{lccc}{
-\tab \strong{th1 > TV1} \tab \strong{TV1 >= th1 > MAV1} \tab \strong{MAV1 >= th1} \cr
-\strong{th2 > TV2}         \tab Region 1 \tab Region 4 \tab Region 7 \cr
-\strong{TV2 >= th2 > MAV2} \tab Region 2 \tab Region 5 \tab Region 8 \cr
-\strong{MAV2 >= th2}       \tab Region 3 \tab Region 6 \tab Region 9
-}
+\strong{Two-stage computation.}
 
-\strong{Decision Regions for Predictive Probability (4 regions)}:
-The four regions are defined by the null hypothesis thresholds
-(column-major order: Endpoint 2 varies fastest):
-\tabular{lcc}{
-\tab \strong{th1 > NULL1} \tab \strong{NULL1 >= th1} \cr
-\strong{th2 > NULL2} \tab Region 1 \tab Region 3 \cr
-\strong{NULL2 >= th2} \tab Region 2 \tab Region 4
-}
+Stage 1 (precomputation): All possible multinomial count combinations
+\eqn{(x_t, x_c)} are enumerated using \code{\link{allCountsBinary}}.
+For each combination, \code{\link{pPPtwobinary}} computes the Go and NoGo
+posterior/predictive probabilities via Monte Carlo, yielding matrices
+\code{PrGo[i, j]} and \code{PrNoGo[i, j]}.  This stage is independent of
+the true scenario parameters.
 
-\strong{Decision Criteria} (corresponding to Documentation.pdf equations):
-\itemize{
-\item \strong{Criteria 1} - Equations (4)-(5): AND/AND decision
-\itemize{
-\item Go: Pr(Endpoint1 success) >= gammaG1 AND Pr(Endpoint2 success) >= gammaG2
-\item NoGo: Pr(Endpoint1 failure) >= gammaN1 AND Pr(Endpoint2 failure) >= gammaN2
-}
-\item \strong{Criteria 2} - Equations (6)-(7): AND/OR decision
-\itemize{
-\item Go: Pr(Endpoint1 success) >= gammaG1 AND Pr(Endpoint2 success) >= gammaG2
-\item NoGo: Pr(Endpoint1 failure) >= gammaN1 OR Pr(Endpoint2 failure) >= gammaN2
-}
-\item \strong{Criteria 3} - Equations (8)-(9): OR/AND decision
-\itemize{
-\item Go: Pr(Endpoint1 success) >= gammaG1 OR Pr(Endpoint2 success) >= gammaG2
-\item NoGo: Pr(Endpoint1 failure) >= gammaN1 AND Pr(Endpoint2 failure) >= gammaN2
-}
-\item \strong{Criteria 4} - Equations (10)-(11): OR/OR decision
-\itemize{
-\item Go: Pr(Endpoint1 success) >= gammaG1 OR Pr(Endpoint2 success) >= gammaG2
-\item NoGo: Pr(Endpoint1 failure) >= gammaN1 OR Pr(Endpoint2 failure) >= gammaN2
-}
-}
+Stage 2 (scenario evaluation): For each scenario
+\eqn{(\pi_{t1}, \pi_{t2}, \rho_t, \pi_{c1}, \pi_{c2}, \rho_c)},
+\code{\link{getJointBinary}} converts the marginal rates and correlation
+into the four-cell probability vector \eqn{p_k}.  The multinomial
+probability mass function weights the Stage 1 decisions:
+\deqn{\Pr(\mathrm{Go} \mid \Theta) = \sum_{i,j}
+      \mathbf{1}(\mathrm{Go}_{ij}) \cdot
+      P(x_{t,i} \mid n_1, p_t) \cdot P(x_{c,j} \mid n_2, p_c),}
+where \eqn{\mathbf{1}(\mathrm{Go}_{ij})} is the Go indicator from Stage 1.
+Stage 2 requires no additional Monte Carlo and is fast even for large
+scenario grids.
 
-\strong{Gray Decision}: Made when neither Go nor NoGo criteria are met (the complement).
-
-\strong{Miss Decision}: Occurs when both Go and NoGo criteria are met simultaneously,
-which should be rare with appropriate threshold selection.
+\strong{Decision categories.}
+\itemize{
+\item \strong{Go}: sum of Go region probabilities \eqn{\ge \gamma_1}
+AND sum of NoGo region probabilities \eqn{< \gamma_2}.
+\item \strong{NoGo}: sum of Go region probabilities \eqn{< \gamma_1}
+AND sum of NoGo region probabilities \eqn{\ge \gamma_2}.
+\item \strong{Miss}: both Go and NoGo criteria satisfied simultaneously.
+\item \strong{Gray}: neither Go nor NoGo criterion satisfied.
+}
 }
 \examples{
-# Example 1: Decision criteria 1 - Equations (4)-(5): AND/AND decision
-result1 <- pGNGtwobinary(
-  nsim = 1000, prob = 'posterior', design = 'controlled',
-  theta.TV1 = 0.20, theta.MAV1 = 0.10,
-  theta.TV2 = 0.20, theta.MAV2 = 0.10,
+# Example 1: Posterior probability, controlled design (rho = 0)
+# Corresponds to Table 3(a) of the reference with independent endpoints.
+pGNGtwobinary(
+  prob        = 'posterior',
+  design      = 'controlled',
+  GoRegions   = 1L,
+  NoGoRegions = 9L,
+  gamma1      = 0.27,
+  gamma2      = 0.36,
+  pi_t1       = c(0.15, 0.25, 0.30, 0.40),
+  pi_t2       = c(0.20, 0.30, 0.35, 0.45),
+  rho_t       = rep(0.0, 4),
+  pi_c1       = rep(0.15, 4),
+  pi_c2       = rep(0.20, 4),
+  rho_c       = rep(0.0, 4),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1   = 0.15, theta.MAV1 = 0.10,
+  theta.TV2   = 0.15, theta.MAV2 = 0.10,
   theta.NULL1 = NULL, theta.NULL2 = NULL,
-  gammaG1 = 0.80, gammaN1 = 0.20,
-  gammaG2 = 0.80, gammaN2 = 0.20,
-  decision_criteria = 1,
-  pi1 = c(0.25, 0.20, 0.20, 0.35),
-  pi2 = c(0.40, 0.25, 0.25, 0.10),
-  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
-  nMC = 10000, seed = 123
+  nMC = 100,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
-print(result1)
 
-# Example 2: Decision criteria 2 - Equations (6)-(7): AND/OR decision
-result2 <- pGNGtwobinary(
-  nsim = 1000, prob = 'posterior', design = 'controlled',
-  theta.TV1 = 0.20, theta.MAV1 = 0.10,
-  theta.TV2 = 0.20, theta.MAV2 = 0.10,
+# Example 2: Posterior probability, controlled design (rho > 0)
+# Explores the impact of positive within-arm endpoint correlation.
+pGNGtwobinary(
+  prob        = 'posterior',
+  design      = 'controlled',
+  GoRegions   = 1L,
+  NoGoRegions = 9L,
+  gamma1      = 0.52,
+  gamma2      = 0.52,
+  pi_t1       = c(0.15, 0.25, 0.30, 0.40),
+  pi_t2       = c(0.20, 0.30, 0.35, 0.45),
+  rho_t       = rep(0.6, 4),
+  pi_c1       = rep(0.15, 4),
+  pi_c2       = rep(0.20, 4),
+  rho_c       = rep(0.6, 4),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1   = 0.15, theta.MAV1 = 0.10,
+  theta.TV2   = 0.15, theta.MAV2 = 0.10,
   theta.NULL1 = NULL, theta.NULL2 = NULL,
-  gammaG1 = 0.70, gammaN1 = 0.30,
-  gammaG2 = 0.70, gammaN2 = 0.30,
-  decision_criteria = 2,
-  pi1 = c(0.25, 0.20, 0.20, 0.35),
-  pi2 = c(0.40, 0.25, 0.25, 0.10),
-  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
-  nMC = 10000, seed = 124
+  nMC = 100,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
-print(result2)
 
-# Example 3: Decision criteria 3 - Equations (8)-(9): OR/AND decision
-result3 <- pGNGtwobinary(
-  nsim = 1000, prob = 'posterior', design = 'controlled',
-  theta.TV1 = 0.20, theta.MAV1 = 0.10,
-  theta.TV2 = 0.20, theta.MAV2 = 0.10,
+# Example 3: Posterior probability, uncontrolled design
+# Hypothetical control specified via prior (a2_*) and pseudo-counts (z*).
+pGNGtwobinary(
+  prob        = 'posterior',
+  design      = 'uncontrolled',
+  GoRegions   = 1L,
+  NoGoRegions = 9L,
+  gamma1      = 0.27,
+  gamma2      = 0.36,
+  pi_t1       = c(0.15, 0.30, 0.40),
+  pi_t2       = c(0.20, 0.35, 0.45),
+  rho_t       = rep(0.0, 3),
+  pi_c1       = rep(0.15, 3),
+  pi_c2       = rep(0.20, 3),
+  rho_c       = rep(0.0, 3),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1   = 0.15, theta.MAV1 = 0.10,
+  theta.TV2   = 0.15, theta.MAV2 = 0.10,
   theta.NULL1 = NULL, theta.NULL2 = NULL,
-  gammaG1 = 0.75, gammaN1 = 0.25,
-  gammaG2 = 0.75, gammaN2 = 0.25,
-  decision_criteria = 3,
-  pi1 = c(0.25, 0.20, 0.20, 0.35),
-  pi2 = c(0.40, 0.25, 0.25, 0.10),
-  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+  z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
-  nMC = 10000, seed = 125
+  nMC = 100,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
-print(result3)
 
-# Example 4: Decision criteria 4 - Equations (10)-(11): OR/OR decision
-result4 <- pGNGtwobinary(
-  nsim = 500, prob = 'posterior', design = 'controlled',
-  theta.TV1 = 0.15, theta.MAV1 = 0.08,
-  theta.TV2 = 0.15, theta.MAV2 = 0.08,
+# Example 4: Posterior probability, external control design
+# External control data incorporated via power prior (ae2 = 0.5).
+pGNGtwobinary(
+  prob        = 'posterior',
+  design      = 'external',
+  GoRegions   = 1L,
+  NoGoRegions = 9L,
+  gamma1      = 0.27,
+  gamma2      = 0.36,
+  pi_t1       = c(0.15, 0.25, 0.30, 0.40),
+  pi_t2       = c(0.20, 0.30, 0.35, 0.45),
+  rho_t       = rep(0.0, 4),
+  pi_c1       = rep(0.15, 4),
+  pi_c2       = rep(0.20, 4),
+  rho_c       = rep(0.0, 4),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1   = 0.15, theta.MAV1 = 0.10,
+  theta.TV2   = 0.15, theta.MAV2 = 0.10,
   theta.NULL1 = NULL, theta.NULL2 = NULL,
-  gammaG1 = 0.80, gammaN1 = 0.20,
-  gammaG2 = 0.80, gammaN2 = 0.20,
-  decision_criteria = 4,
-  pi1 = c(0.30, 0.18, 0.18, 0.34),
-  pi2 = c(0.45, 0.22, 0.22, 0.11),
-  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = 4L,  xe2_01 = 2L,  xe2_10 = 3L,  xe2_11 = 1L,
+  ae1 = NULL, ae2 = 0.5,
+  nMC = 100,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+# Example 5: Predictive probability, controlled design
+# Future trial has m1 = m2 = 30 patients per arm.
+pGNGtwobinary(
+  prob        = 'predictive',
+  design      = 'controlled',
+  GoRegions   = 1L,
+  NoGoRegions = 4L,
+  gamma1      = 0.60,
+  gamma2      = 0.80,
+  pi_t1       = c(0.15, 0.25, 0.30, 0.40),
+  pi_t2       = c(0.20, 0.30, 0.35, 0.45),
+  rho_t       = rep(0.0, 4),
+  pi_c1       = rep(0.15, 4),
+  pi_c2       = rep(0.20, 4),
+  rho_c       = rep(0.0, 4),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = 30L, m2 = 30L,
+  theta.TV1   = NULL, theta.MAV1 = NULL,
+  theta.TV2   = NULL, theta.MAV2 = NULL,
+  theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
-  error_if_Miss = FALSE, Gray_inc_Miss = FALSE,
-  nMC = 10000, seed = 126
+  nMC = 100,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
-print(result4)
 
-# Example 5: Posterior predictive probability with decision criteria 1
-result5 <- pGNGtwobinary(
-  nsim = 1000, prob = 'predictive', design = 'controlled',
-  theta.TV1 = 0.15, theta.MAV1 = 0.15,
-  theta.TV2 = 0.15, theta.MAV2 = 0.15,
-  theta.NULL1 = 0.15, theta.NULL2 = 0.15,
-  gammaG1 = 0.75, gammaN1 = 0.25,
-  gammaG2 = 0.75, gammaN2 = 0.25,
-  decision_criteria = 1,
-  pi1 = c(0.30, 0.15, 0.15, 0.40),
-  pi2 = c(0.45, 0.20, 0.20, 0.15),
-  a1_00 = 1, a1_01 = 1, a1_10 = 1, a1_11 = 1,
-  a2_00 = 1, a2_01 = 1, a2_10 = 1, a2_11 = 1,
-  n1 = 20, n2 = 20, m1 = 50, m2 = 50,
+# Example 6: Predictive probability, uncontrolled design
+# Hypothetical control specified via pseudo-counts; future trial m1 = m2 = 30.
+pGNGtwobinary(
+  prob        = 'predictive',
+  design      = 'uncontrolled',
+  GoRegions   = 1L,
+  NoGoRegions = 4L,
+  gamma1      = 0.60,
+  gamma2      = 0.80,
+  pi_t1       = c(0.15, 0.30, 0.40),
+  pi_t2       = c(0.20, 0.35, 0.45),
+  rho_t       = rep(0.0, 3),
+  pi_c1       = rep(0.15, 3),
+  pi_c2       = rep(0.20, 3),
+  rho_c       = rep(0.0, 3),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = 30L, m2 = 30L,
+  theta.TV1   = NULL, theta.MAV1 = NULL,
+  theta.TV2   = NULL, theta.MAV2 = NULL,
+  theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+  z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
-  nMC = 10000, seed = 127
+  nMC = 100,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
-print(result5)
 
-# Example 6: External control design with decision criteria 2
-result6 <- pGNGtwobinary(
-  nsim = 500, prob = 'posterior', design = 'external',
-  theta.TV1 = 0.15, theta.MAV1 = 0.08,
-  theta.TV2 = 0.15, theta.MAV2 = 0.08,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  gammaG1 = 0.80, gammaN1 = 0.20,
-  gammaG2 = 0.80, gammaN2 = 0.20,
-  decision_criteria = 2,
-  pi1 = c(0.30, 0.18, 0.18, 0.34),
-  pi2 = c(0.45, 0.22, 0.22, 0.11),
-  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
-  xe1_00 = 5, xe1_01 = 3, xe1_10 = 3, xe1_11 = 9,
-  xe2_00 = 10, xe2_01 = 5, xe2_10 = 5, xe2_11 = 5,
-  ae1 = 0.5, ae2 = 0.5,
-  nMC = 10000, seed = 128
-)
-print(result6)
-
-# Example 7: Uncontrolled design with hypothetical control and decision criteria 3
-result7 <- pGNGtwobinary(
-  nsim = 1000, prob = 'posterior', design = 'uncontrolled',
-  theta.TV1 = 0.20, theta.MAV1 = 0.10,
-  theta.TV2 = 0.20, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  gammaG1 = 0.80, gammaN1 = 0.20,
-  gammaG2 = 0.80, gammaN2 = 0.20,
-  decision_criteria = 3,
-  pi1 = c(0.25, 0.20, 0.20, 0.35),
-  pi2 = c(0.40, 0.25, 0.25, 0.10),  # Not used for uncontrolled
-  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-  n1 = 20, n2 = 20, m1 = NULL, m2 = NULL,
-  z = c(8, 5, 5, 2),  # Hypothetical control: 8 for (0,0), 5 for (0,1), etc.
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+# Example 7: Predictive probability, external control design
+# External treatment data incorporated via power prior (ae1 = 0.5).
+pGNGtwobinary(
+  prob        = 'predictive',
+  design      = 'external',
+  GoRegions   = 1L,
+  NoGoRegions = 4L,
+  gamma1      = 0.60,
+  gamma2      = 0.80,
+  pi_t1       = c(0.15, 0.25, 0.30, 0.40),
+  pi_t2       = c(0.20, 0.30, 0.35, 0.45),
+  rho_t       = rep(0.0, 4),
+  pi_c1       = rep(0.15, 4),
+  pi_c2       = rep(0.20, 4),
+  rho_c       = rep(0.0, 4),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = 30L, m2 = 30L,
+  theta.TV1   = NULL, theta.MAV1 = NULL,
+  theta.TV2   = NULL, theta.MAV2 = NULL,
+  theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = 3L, xe1_01 = 2L, xe1_10 = 3L, xe1_11 = 2L,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
-  nMC = 10000, seed = 129
+  ae1 = 0.5, ae2 = NULL,
+  nMC = 100,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
-print(result7)
 
 }
