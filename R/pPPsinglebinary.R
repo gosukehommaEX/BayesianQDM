@@ -1,100 +1,96 @@
-#' Calculate Bayesian Posterior Probability or Posterior Predictive Probability
-#' for a Clinical Trial with a Single Binary Endpoint
+#' Bayesian Posterior or Posterior Predictive Probability for a Single Binary Endpoint
 #'
-#' This function computes Bayesian posterior probability or posterior predictive
-#' probability for binary outcome clinical trials. The function supports controlled,
-#' uncontrolled, and external control designs, using beta-binomial conjugate priors.
-#' External data can be incorporated through power priors. This function supports
-#' vector inputs for y1 and y2 parameters for efficient batch processing.
+#' Computes the Bayesian posterior probability or posterior predictive probability
+#' for binary-outcome clinical trials under a beta-binomial conjugate model.
+#' The function supports controlled, uncontrolled, and external-control designs,
+#' with optional incorporation of external data through power priors.
+#' Vector inputs for \code{y1} and \code{y2} are supported for efficient batch
+#' processing (e.g., across all possible trial outcomes in
+#' \code{\link{pGNGsinglebinary}}).
 #'
-#' @param prob A character string specifying the type of probability to calculate.
-#'        Options are \code{'posterior'} for posterior probability or \code{'predictive'}
-#'        for posterior predictive probability.
-#' @param design A character string specifying the type of trial design. Options are
-#'        \code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
-#'        for single-arm studies, or \code{'external'} for designs incorporating external data.
-#' @param theta0 A numeric value representing the pre-specified threshold value for
-#'        the treatment effect (difference in response rates).
-#' @param n1 A positive integer representing the number of patients in group 1
-#'        (treatment) for the proof-of-concept (PoC) trial.
-#' @param n2 A positive integer representing the number of patients in group 2.
-#'        For \code{design = 'controlled'} or \code{'external'}: sample size of the
-#'        control group. For \code{design = 'uncontrolled'}: hypothetical control
-#'        sample size (typically set equal to n1).
-#' @param y1 A non-negative integer or vector of integers representing the observed
-#'        number of responders in group 1 for the PoC trial (must satisfy 0 <= y1 <= n1).
-#' @param y2 A non-negative integer or vector of integers representing the number
-#'        of responders in group 2. For \code{design = 'controlled'} or \code{'external'}:
-#'        observed number of responders in the control group (must satisfy 0 <= y2 <= n2).
-#'        For \code{design = 'uncontrolled'}: set to NULL and use z parameter instead.
-#'        If vectors, must have the same length as y1.
-#' @param a1 A positive numeric value representing the first shape parameter (alpha)
-#'        of the prior beta distribution for group 1.
-#' @param a2 A positive numeric value representing the first shape parameter (alpha)
-#'        of the prior beta distribution for group 2 (control or hypothetical control).
-#' @param b1 A positive numeric value representing the second shape parameter (beta)
-#'        of the prior beta distribution for group 1.
-#' @param b2 A positive numeric value representing the second shape parameter (beta)
-#'        of the prior beta distribution for group 2 (control or hypothetical control).
-#' @param m1 A positive integer representing the number of patients in group 1 for
-#'        the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).
-#' @param m2 A positive integer representing the number of patients in group 2 for
-#'        the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).
-#' @param z A non-negative integer representing the hypothetical control responder count
-#'        (required if \code{design = 'uncontrolled'}, otherwise set to NULL).
-#'        This specifies the expected number of responders in a hypothetical control
-#'        group based on historical data or prior knowledge. When used, y2 should be NULL.
-#' @param ne1 A positive integer representing the number of patients in group 1 for
-#'        the external data (required if \code{design = 'external'}, otherwise set to NULL).
-#' @param ne2 A positive integer representing the number of patients in group 2 for
-#'        the external data (required if \code{design = 'external'}, otherwise set to NULL).
-#' @param ye1 A non-negative integer representing the observed number of responders
-#'        in group 1 for the external data (required if \code{design = 'external'},
-#'        otherwise set to NULL).
-#' @param ye2 A non-negative integer representing the observed number of responders
-#'        in group 2 for the external data (required if \code{design = 'external'},
-#'        otherwise set to NULL).
-#' @param ae1 A numeric value in (0, 1] representing the power prior scale parameter
-#'        for group 1 (required if \code{design = 'external'}, otherwise set to NULL).
-#'        Controls the degree of borrowing: 0 = no borrowing, 1 = full borrowing.
-#' @param ae2 A numeric value in (0, 1] representing the power prior scale parameter
-#'        for group 2 (required if \code{design = 'external'}, otherwise set to NULL).
-#'        Controls the degree of borrowing: 0 = no borrowing, 1 = full borrowing.
-#' @param lower.tail A logical value; if TRUE (default), probabilities are
-#'        P(treatment effect <= theta0), otherwise P(treatment effect > theta0).
+#' @param prob A character string specifying the probability type.
+#'        Must be \code{'posterior'} or \code{'predictive'}.
+#' @param design A character string specifying the trial design.
+#'        Must be \code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.
+#' @param theta0 A numeric scalar in \code{(-1, 1)} giving the pre-specified
+#'        threshold for the treatment effect (difference in response rates).
+#' @param n1 A positive integer giving the number of patients in group 1
+#'        (treatment) in the proof-of-concept (PoC) trial.
+#' @param n2 A positive integer giving the number of patients in group 2 in the
+#'        PoC trial. For \code{design = 'uncontrolled'}, this is the hypothetical
+#'        control sample size (required for consistency with other designs).
+#' @param y1 A non-negative integer or integer vector giving the observed number
+#'        of responders in group 1 (must satisfy \code{0 <= y1 <= n1}).
+#' @param y2 A non-negative integer or integer vector giving the number of
+#'        responders in group 2 (must satisfy \code{0 <= y2 <= n2}).
+#'        Set to \code{NULL} for \code{design = 'uncontrolled'} and use \code{z}
+#'        instead. When provided as a vector, must have the same length as
+#'        \code{y1}.
+#' @param a1 A positive numeric scalar giving the first shape parameter (alpha)
+#'        of the prior Beta distribution for group 1.
+#' @param a2 A positive numeric scalar giving the first shape parameter (alpha)
+#'        of the prior Beta distribution for group 2.
+#' @param b1 A positive numeric scalar giving the second shape parameter (beta)
+#'        of the prior Beta distribution for group 1.
+#' @param b2 A positive numeric scalar giving the second shape parameter (beta)
+#'        of the prior Beta distribution for group 2.
+#' @param m1 A positive integer giving the number of patients in group 1 for
+#'        the future trial. Required when \code{prob = 'predictive'};
+#'        otherwise set to \code{NULL}.
+#' @param m2 A positive integer giving the number of patients in group 2 for
+#'        the future trial. Required when \code{prob = 'predictive'};
+#'        otherwise set to \code{NULL}.
+#' @param z A non-negative integer giving the hypothetical number of responders
+#'        in the control group. Required when \code{design = 'uncontrolled'};
+#'        otherwise set to \code{NULL}. When used, \code{y2} should be
+#'        \code{NULL}.
+#' @param ne1 A positive integer giving the number of patients in group 1 of
+#'        the external data set. Required when \code{design = 'external'} and
+#'        external treatment data are available; otherwise set to \code{NULL}.
+#' @param ne2 A positive integer giving the number of patients in group 2 of
+#'        the external data set. Required when \code{design = 'external'} and
+#'        external control data are available; otherwise set to \code{NULL}.
+#' @param ye1 A non-negative integer giving the number of responders in group 1
+#'        of the external data set. Required when \code{design = 'external'};
+#'        otherwise set to \code{NULL}.
+#' @param ye2 A non-negative integer giving the number of responders in group 2
+#'        of the external data set. Required when \code{design = 'external'};
+#'        otherwise set to \code{NULL}.
+#' @param ae1 A numeric scalar in \code{(0, 1]} giving the power prior weight
+#'        for group 1. Controls the degree of borrowing: 1 = full borrowing.
+#'        Required when \code{design = 'external'}; otherwise set to \code{NULL}.
+#' @param ae2 A numeric scalar in \code{(0, 1]} giving the power prior weight
+#'        for group 2. Required when \code{design = 'external'};
+#'        otherwise set to \code{NULL}.
+#' @param lower.tail A logical scalar; if \code{TRUE} (default), the function
+#'        returns \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
+#'        \eqn{P(\mathrm{effect} > \theta_0)}.
 #'
-#' @return A numeric value or vector in \code{[0, 1]} representing the Bayesian posterior
-#'         probability or posterior predictive probability that the treatment effect
-#'         exceeds (or is below) the threshold theta0. If y1 and y2 are vectors,
-#'         returns a vector of the same length.
+#' @return A numeric scalar or vector in \code{[0, 1]}.  When \code{y1} and
+#'         \code{y2} are vectors of length \eqn{n}, a vector of length \eqn{n}
+#'         is returned.
 #'
 #' @details
-#' The function computes probabilities based on beta-binomial conjugate analysis:
+#' Posterior shape parameters are computed from the beta-binomial conjugate model:
 #' \itemize{
-#'   \item **Prior**: The proportion of responders (response_j) for each group (j = 1, 2)
-#'         follows a beta distribution: response_j ~ Beta(aj, bj)
-#'   \item **Posterior**: After observing data, the posterior distribution is also
-#'         beta: response_j | yj ~ Beta(aj + yj, bj + nj - yj)
-#'   \item **Posterior predictive**: The predictive distribution of future trial
-#'         data follows a beta-binomial distribution
+#'   \item Prior: \eqn{\pi_j \sim \mathrm{Beta}(a_j,\, b_j)}.
+#'   \item Posterior: \eqn{\pi_j \mid y_j \sim
+#'         \mathrm{Beta}(a_j + y_j,\; b_j + n_j - y_j)}.
 #' }
 #'
-#' **Design-specific handling**:
-#' \itemize{
-#'   \item **Controlled design**: Uses observed control data (y2, n2) directly
-#'   \item **Uncontrolled design**: Uses hypothetical control value z. The calculation
-#'         treats z as the expected number of responders in a hypothetical control group
-#'         with sample size n2. Parameter y2 should be NULL when using uncontrolled design.
-#'   \item **External design**: Incorporates external data through power priors.
-#'         The effective prior becomes Beta(aj + aej times yej, bj + aej times (nej - yej)),
-#'         where aej controls the degree of borrowing.
-#' }
+#' For \code{design = 'external'}, external data are incorporated through the
+#' power prior, which inflates the prior by the weighted external sufficient
+#' statistics:
+#' \deqn{(\alpha_j^*, \beta_j^*) =
+#'   (a_j + ae_j \cdot ye_j,\; b_j + ae_j \cdot (ne_j - ye_j)).}
 #'
-#' **Probability types**:
-#' \itemize{
-#'   \item **Posterior probability**: P(response1 - response2 > theta0 | current data)
-#'   \item **Posterior predictive probability**: P(future trial success | current data)
-#' }
+#' For \code{design = 'uncontrolled'}, the hypothetical control value \code{z}
+#' is used in place of \code{y2}, and \code{n2} acts as the hypothetical control
+#' sample size.
+#'
+#' The final probability is obtained by calling \code{\link{p2betadiff}} for
+#' \code{prob = 'posterior'} or \code{\link{p2betabinomdiff}} for
+#' \code{prob = 'predictive'}, applied element-wise via \code{mapply}.
 #'
 #' @examples
 #' # Example 1: Controlled design - posterior probability (scalar)
@@ -107,7 +103,7 @@
 #'   lower.tail = FALSE
 #' )
 #'
-#' # Example 2: Vector input for y1 and y2
+#' # Example 2: Controlled design - vectorised over outcomes
 #' pPPsinglebinary(
 #'   prob = 'posterior', design = 'controlled', theta0 = 0.15,
 #'   n1 = 12, n2 = 15, y1 = c(5, 6, 7, 8), y2 = c(3, 4, 5, 6),
@@ -117,7 +113,7 @@
 #'   lower.tail = FALSE
 #' )
 #'
-#' # Example 3: Uncontrolled design - using hypothetical control with z parameter
+#' # Example 3: Uncontrolled design - hypothetical control via z
 #' pPPsinglebinary(
 #'   prob = 'posterior', design = 'uncontrolled', theta0 = 0.20,
 #'   n1 = 20, n2 = 20, y1 = 12, y2 = NULL,
@@ -127,7 +123,7 @@
 #'   lower.tail = FALSE
 #' )
 #'
-#' # Example 4: Posterior predictive probability for controlled design
+#' # Example 4: Controlled design - posterior predictive probability
 #' pPPsinglebinary(
 #'   prob = 'predictive', design = 'controlled', theta0 = 0.10,
 #'   n1 = 12, n2 = 15, y1 = 7, y2 = 5,
@@ -137,7 +133,7 @@
 #'   lower.tail = FALSE
 #' )
 #'
-#' # Example 5: External design with power prior (50 percent borrowing for control)
+#' # Example 5: External design - power prior with 50 percent borrowing
 #' pPPsinglebinary(
 #'   prob = 'posterior', design = 'external', theta0 = 0.15,
 #'   n1 = 12, n2 = 15, y1 = 7, y2 = 9,
@@ -151,68 +147,153 @@
 #' @export
 pPPsinglebinary <- function(prob = 'posterior', design = 'controlled', theta0,
                             n1, n2, y1, y2, a1, a2, b1, b2,
-                            m1, m2, z = NULL, ne1, ne2, ye1, ye2, ae1, ae2, lower.tail = TRUE) {
-  # Validate parameter sets for posterior predictive probability
-  if((prob == 'predictive') & (sum(sapply(list(m1, m2), is.null)) > 0)) {
-    stop('If you calculate posterior predictive probability, m1 and m2 must be non-null')
+                            m1, m2, z = NULL,
+                            ne1, ne2, ye1, ye2, ae1, ae2,
+                            lower.tail = TRUE) {
+
+  # --- Input validation ---
+  if (!is.character(prob) || length(prob) != 1L ||
+      !prob %in% c('posterior', 'predictive')) {
+    stop("'prob' must be either 'posterior' or 'predictive'")
   }
 
-  # Validate parameter sets for external design
-  if((design == 'external') & (sum(sapply(list(ne1, ne2, ye1, ye2, ae1, ae2), is.null)) > 0)) {
-    stop('If you use external data, ne1, ne2, ye1, ye2, ae1, and ae2 must be non-null')
+  if (!is.character(design) || length(design) != 1L ||
+      !design %in% c('controlled', 'uncontrolled', 'external')) {
+    stop("'design' must be 'controlled', 'uncontrolled', or 'external'")
   }
 
-  # Validate parameter sets for uncontrolled design
-  if((design == 'uncontrolled') & (is.null(z))) {
-    stop('If you consider uncontrolled design, z (hypothetical control responder count) must be non-null')
+  if (!is.numeric(theta0) || length(theta0) != 1L || is.na(theta0) ||
+      theta0 <= -1 || theta0 >= 1) {
+    stop("'theta0' must be a single numeric value in (-1, 1)")
   }
 
-  # Ensure y1 is a numeric vector
+  if (!is.numeric(n1) || length(n1) != 1L || is.na(n1) ||
+      n1 != floor(n1) || n1 < 1L) {
+    stop("'n1' must be a single positive integer")
+  }
+
+  if (!is.numeric(n2) || length(n2) != 1L || is.na(n2) ||
+      n2 != floor(n2) || n2 < 1L) {
+    stop("'n2' must be a single positive integer")
+  }
+
+  for (nm in c("a1", "a2", "b1", "b2")) {
+    val <- get(nm)
+    if (!is.numeric(val) || length(val) != 1L || is.na(val) || val <= 0) {
+      stop(paste0("'", nm, "' must be a single positive numeric value"))
+    }
+  }
+
+  if (!is.logical(lower.tail) || length(lower.tail) != 1L || is.na(lower.tail)) {
+    stop("'lower.tail' must be a single logical value (TRUE or FALSE)")
+  }
+
+  # Validate prob-specific parameters
+  if (prob == 'predictive') {
+    if (is.null(m1) || is.null(m2)) {
+      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
+    }
+    if (!is.numeric(m1) || length(m1) != 1L || is.na(m1) ||
+        m1 != floor(m1) || m1 < 1L) {
+      stop("'m1' must be a single positive integer")
+    }
+    if (!is.numeric(m2) || length(m2) != 1L || is.na(m2) ||
+        m2 != floor(m2) || m2 < 1L) {
+      stop("'m2' must be a single positive integer")
+    }
+  }
+
+  # Validate design-specific parameters
+  if (design == 'uncontrolled') {
+    if (is.null(z)) {
+      stop("'z' must be non-NULL when design = 'uncontrolled'")
+    }
+    if (!is.numeric(z) || length(z) != 1L || is.na(z) ||
+        z != floor(z) || z < 0L || z > n2) {
+      stop("'z' must be a single non-negative integer not exceeding n2")
+    }
+  }
+
+  if (design == 'external') {
+    if (any(sapply(list(ne1, ne2, ye1, ye2, ae1, ae2), is.null))) {
+      stop("'ne1', 'ne2', 'ye1', 'ye2', 'ae1', and 'ae2' must all be non-NULL when design = 'external'")
+    }
+    for (nm in c("ne1", "ne2")) {
+      val <- get(nm)
+      if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
+          val != floor(val) || val < 1L) {
+        stop(paste0("'", nm, "' must be a single positive integer"))
+      }
+    }
+    for (nm in c("ye1", "ye2")) {
+      val  <- get(nm)
+      ne_v <- if (nm == "ye1") ne1 else ne2
+      if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
+          val != floor(val) || val < 0L || val > ne_v) {
+        stop(paste0("'", nm, "' must be a single non-negative integer not exceeding the corresponding ne"))
+      }
+    }
+    for (nm in c("ae1", "ae2")) {
+      val <- get(nm)
+      if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
+          val <= 0 || val > 1) {
+        stop(paste0("'", nm, "' must be a single numeric value in (0, 1]"))
+      }
+    }
+  }
+
+  # --- Coerce y1 to a numeric vector ---
   y1 <- as.numeric(y1)
 
-  # Resolve y2: for uncontrolled design, replicate z to match length of y1
-  if(is.null(y2)) {
-    if(design == 'uncontrolled' & !is.null(z)) {
+  if (any(is.na(y1)) || any(y1 < 0) || any(y1 > n1) ||
+      any(y1 != floor(y1))) {
+    stop("All elements of 'y1' must be non-negative integers not exceeding n1")
+  }
+
+  # --- Resolve y2: fixed at z for uncontrolled design ---
+  if (is.null(y2)) {
+    if (design == 'uncontrolled') {
       y2 <- rep(z, length(y1))
     } else {
-      stop('y2 must be provided or z must be non-null for uncontrolled design')
+      stop("'y2' must be provided for controlled and external designs")
     }
   }
   y2 <- as.numeric(y2)
 
-  # Validate that y1 and y2 have the same length
-  if(length(y1) != length(y2)) {
-    stop('y1 and y2 must have the same length')
+  if (any(is.na(y2)) || any(y2 < 0) || any(y2 > n2) ||
+      any(y2 != floor(y2))) {
+    stop("All elements of 'y2' must be non-negative integers not exceeding n2")
   }
 
-  # Compute posterior shape parameters for all (y1, y2) pairs simultaneously
-  # (vectorized over the full input vectors - no loop required)
-  if(design == 'external') {
-    # Incorporate external data through power priors
+  if (length(y1) != length(y2)) {
+    stop("'y1' and 'y2' must have the same length")
+  }
+
+  # --- Compute posterior shape parameters (vectorised) ---
+  if (design == 'external') {
+    # Power prior: augment the prior with weighted external sufficient statistics
     s11 <- y1 + a1 + ae1 * ye1
     s21 <- n1 - y1 + b1 + ae1 * (ne1 - ye1)
     s12 <- y2 + a2 + ae2 * ye2
     s22 <- n2 - y2 + b2 + ae2 * (ne2 - ye2)
   } else {
-    # Controlled or uncontrolled design (y2 already set to z for uncontrolled)
+    # Controlled or uncontrolled (y2 already set to z for uncontrolled)
     s11 <- y1 + a1
     s21 <- n1 - y1 + b1
     s12 <- y2 + a2
     s22 <- n2 - y2 + b2
   }
 
-  # Calculate probabilities using mapply to apply scalar functions across all pairs
-  if(prob == 'posterior') {
-    # Posterior probability P(response1 - response2 > theta0 | data)
-    # p2betadiff requires scalar parameters, so mapply is used
+  # --- Compute probabilities element-wise via mapply ---
+  if (prob == 'posterior') {
+    # P(pi1 - pi2 > theta0 | data) using Beta posterior distributions
     results <- mapply(
       p2betadiff,
       alpha1 = s11, alpha2 = s12, beta1 = s21, beta2 = s22,
       MoreArgs = list(q = theta0, lower.tail = lower.tail)
     )
-  } else if(prob == 'predictive') {
-    # Posterior predictive probability P(future trial success | current data)
-    # p2betabinomdiff requires scalar parameters, so mapply is used
+  } else {
+    # P(future trial success | data) using Beta-Binomial predictive distributions
     results <- mapply(
       p2betabinomdiff,
       alpha1 = s11, alpha2 = s12, beta1 = s21, beta2 = s22,

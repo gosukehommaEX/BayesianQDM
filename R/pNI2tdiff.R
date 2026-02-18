@@ -1,123 +1,136 @@
 #' Cumulative Distribution Function of the Difference of Two t-Distributed Variables
 #' by Numerical Integration
 #'
-#' This function calculates the cumulative distribution function (CDF) of the difference
-#' between two independent t-distributed random variables using exact numerical integration
-#' via convolution. This method provides the most accurate results (within numerical
-#' precision) compared to approximation methods. Specifically, it computes P(T1 - T2 <= q)
-#' or P(T1 - T2 > q) where T1 and T2 follow t-distributions with potentially different
-#' location, scale, and degrees of freedom parameters.
+#' Calculates the cumulative distribution function (CDF) of the difference between
+#' two independent non-standardised t-distributed random variables using exact
+#' numerical integration via convolution. Specifically, computes
+#' \eqn{P(T_1 - T_2 \le q)} or \eqn{P(T_1 - T_2 > q)}, where
+#' \eqn{T_i \sim t(\mu_i, \sigma_i^2, \nu_i)}.
 #'
-#' @param q A numeric value representing the quantile threshold.
-#' @param mu.t1 A numeric value or vector representing the location parameter (mu) of the
+#' @param q A numeric scalar representing the quantile threshold.
+#' @param mu.t1 A numeric scalar or vector giving the location parameter of the
 #'        first t-distribution.
-#' @param mu.t2 A numeric value or vector representing the location parameter (mu) of the
+#' @param mu.t2 A numeric scalar or vector giving the location parameter of the
 #'        second t-distribution.
-#' @param sd.t1 A positive numeric value or vector representing the scale parameter (sigma)
-#'        of the first t-distribution.
-#' @param sd.t2 A positive numeric value or vector representing the scale parameter (sigma)
-#'        of the second t-distribution.
-#' @param nu.t1 A positive numeric value representing the degrees of freedom (nu) of
-#'        the first t-distribution. Must be > 2 for finite variance.
-#' @param nu.t2 A positive numeric value representing the degrees of freedom (nu) of
-#'        the second t-distribution. Must be > 2 for finite variance.
-#' @param lower.tail A logical value; if TRUE (default), probabilities are P(T1 - T2 <= q),
-#'        otherwise P(T1 - T2 > q).
+#' @param sd.t1 A positive numeric scalar or vector giving the scale parameter of
+#'        the first t-distribution.
+#' @param sd.t2 A positive numeric scalar or vector giving the scale parameter of
+#'        the second t-distribution.
+#' @param nu.t1 A numeric scalar giving the degrees of freedom of the first
+#'        t-distribution. Must be greater than 2 for finite variance.
+#' @param nu.t2 A numeric scalar giving the degrees of freedom of the second
+#'        t-distribution. Must be greater than 2 for finite variance.
+#' @param lower.tail A logical scalar; if \code{TRUE} (default), the function
+#'        returns \eqn{P(T_1 - T_2 \le q)}, otherwise \eqn{P(T_1 - T_2 > q)}.
 #'
-#' @return A numeric value or vector in \code{[0, 1]} representing the cumulative probability
-#'         that the difference between the two t-distributed variables is below
-#'         (if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile q.
-#'         If mu.t1, mu.t2, sd.t1, or sd.t2 are vectors, returns a vector of the same length.
+#' @return A numeric scalar or vector in \code{[0, 1]}.  When \code{mu.t1},
+#'         \code{mu.t2}, \code{sd.t1}, or \code{sd.t2} are vectors of length
+#'         \eqn{n}, a vector of length \eqn{n} is returned.
 #'
 #' @details
-#' This function uses the exact convolution approach to compute the distribution of the
-#' difference between two t-distributed variables. The method involves:
-#' \itemize{
-#'   \item Using the convolution formula:
-#'         P(T_1 - T_2 > q) = integral from -infinity to infinity of f_1(x) * F_2(x - q) dx
-#'   \item Where f_1(x) is the probability density function (PDF) of the first
-#'         t-distribution
-#'   \item And F_2(x - q) is the cumulative distribution function (CDF) of the
-#'         second t-distribution evaluated at (x - q)
-#'   \item Adaptive integration bounds based on the distribution characteristics
-#'         (approximately plus/minus 8 standard deviations from the mean)
-#'   \item High-precision numerical integration with relative tolerance 1e-6 and
-#'         absolute tolerance 1e-8
-#' }
+#' The upper-tail probability is obtained via the convolution formula:
+#' \deqn{P(T_1 - T_2 > q)
+#'   = \int_{-\infty}^{\infty} f_1(x)\, F_2(x - q)\, dx}
+#' where \eqn{f_1} is the density of \eqn{T_1} and \eqn{F_2} is the CDF of
+#' \eqn{T_2}. Integration bounds are set to \eqn{\mu_1 \pm 8\sigma^*_1}, where
+#' \eqn{\sigma^*_1 = \sigma_1 \sqrt{(\nu_1 + 1)/(\nu_1 - 2)}} is the standard
+#' deviation of \eqn{T_1}. Relative and absolute tolerances are \code{1e-6} and
+#' \code{1e-8}, respectively.
 #'
-#' When mu.t1, mu.t2, sd.t1, or sd.t2 are vectors, mapply is used to apply the
-#' scalar integration function across all parameter sets efficiently.
+#' When the input parameters are vectors, \code{mapply} applies the scalar
+#' integration function across all parameter sets.
 #'
-#' **Advantages**:
+#' Advantages:
 #' \itemize{
-#'   \item Provides exact results within numerical precision
-#'   \item Handles arbitrary combinations of parameters
-#'   \item No approximations required
+#'   \item Exact within numerical precision.
+#'   \item Handles arbitrary parameter combinations.
 #' }
-#'
-#' **Computational considerations**:
-#' \itemize{
-#'   \item More computationally intensive than approximation methods
-#'         (e.g., Welch-Satterthwaite)
-#'   \item Recommended for final analyses where accuracy is critical
-#'   \item For exploratory analyses, consider using faster approximation methods
-#' }
+#' Computational note: this method is substantially slower than the
+#' Moment-Matching approximation (\code{\link{pMM2tdiff}}) because it calls
+#' \code{integrate()} once per parameter set. For large-scale simulation
+#' (many parameter sets), prefer \code{CalcMethod = 'MM'} in
+#' \code{\link{pGNGsinglecontinuous}}.
 #'
 #' @examples
-#' # Calculate P(t1 - t2 > 3) for equal parameters
+#' # P(T1 - T2 > 3) with equal parameters
 #' pNI2tdiff(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1,
-#'          nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
+#'           nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
 #'
-#' # Calculate P(t1 - t2 > 1) for unequal variances
+#' # P(T1 - T2 > 1) with unequal variances
 #' pNI2tdiff(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5,
-#'          nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
+#'           nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
 #'
-#' # Calculate P(t1 - t2 > 0) for different degrees of freedom
+#' # P(T1 - T2 > 0) with different degrees of freedom
 #' pNI2tdiff(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-#'          nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
+#'           nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 #'
-#' # Calculate lower tail probability P(t1 - t2 <= 2)
+#' # Lower tail: P(T1 - T2 <= 2)
 #' pNI2tdiff(q = 2, mu.t1 = 3, mu.t2 = 0, sd.t1 = 1.5, sd.t2 = 1.2,
-#'          nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
+#'           nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
 #'
-#' # Vectorized usage: calculate for multiple parameter sets simultaneously
+#' # Vectorised usage
 #' pNI2tdiff(q = 1, mu.t1 = c(2, 3, 4), mu.t2 = c(0, 1, 2),
-#'          sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
-#'          nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
+#'           sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
+#'           nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
 #'
-#' @importFrom stats dt pt integrate
+#' @importFrom stats dt integrate pt
 #' @export
-pNI2tdiff <- function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE) {
+pNI2tdiff <- function(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2,
+                      lower.tail = TRUE) {
 
-  # Define scalar integration function for a single parameter set
-  .integrate_one <- function(mu1, mu2, sd1, sd2) {
-    # Adaptive integration bounds: center +/- 8 * spread of the first distribution
-    spread1 <- sd1 * sqrt((nu.t1 + 1) / (nu.t1 - 2))
-
-    integrate(
-      function(x) {
-        # PDF of the first t-distribution at x
-        f1 <- dt((x - mu1) / sd1, df = nu.t1) / sd1
-
-        # CDF of the second t-distribution evaluated at (x - q)
-        F2 <- pt(((x - q) - mu2) / sd2, df = nu.t2)
-
-        f1 * F2
-      },
-      lower = mu1 - 8 * spread1,
-      upper = mu1 + 8 * spread1,
-      rel.tol = 1e-6,
-      abs.tol = 1e-8
-    )[['value']]
+  # --- Input validation ---
+  if (!is.numeric(q) || length(q) != 1L || is.na(q)) {
+    stop("'q' must be a single numeric value")
   }
 
-  # Apply integration across all parameter sets using mapply
-  # For scalar inputs, mapply reduces to a single call (no overhead)
-  results <- mapply(.integrate_one, mu1 = mu.t1, mu2 = mu.t2, sd1 = sd.t1, sd2 = sd.t2)
+  for (nm in c("mu.t1", "mu.t2", "sd.t1", "sd.t2")) {
+    val <- get(nm)
+    if (!is.numeric(val) || length(val) < 1L || any(is.na(val))) {
+      stop(paste0("'", nm, "' must be a numeric scalar or vector with no missing values"))
+    }
+  }
+
+  if (any(sd.t1 <= 0)) stop("'sd.t1' must contain only positive values")
+  if (any(sd.t2 <= 0)) stop("'sd.t2' must contain only positive values")
+
+  if (!is.numeric(nu.t1) || length(nu.t1) != 1L || is.na(nu.t1) || nu.t1 <= 2) {
+    stop("'nu.t1' must be a single numeric value greater than 2")
+  }
+
+  if (!is.numeric(nu.t2) || length(nu.t2) != 1L || is.na(nu.t2) || nu.t2 <= 2) {
+    stop("'nu.t2' must be a single numeric value greater than 2")
+  }
+
+  if (!is.logical(lower.tail) || length(lower.tail) != 1L || is.na(lower.tail)) {
+    stop("'lower.tail' must be a single logical value (TRUE or FALSE)")
+  }
+
+  # --- Scalar integration function for one parameter set ---
+  .integrate_one <- function(mu1, mu2, sd1, sd2) {
+    # Integration bounds: mu1 +/- 8 * SD(T1)
+    spread1 <- sd1 * sqrt((nu.t1 + 1) / (nu.t1 - 2))
+    integrate(
+      function(x) {
+        # PDF of T1 evaluated at x
+        f1 <- dt((x - mu1) / sd1, df = nu.t1) / sd1
+        # CDF of T2 evaluated at x - q
+        F2 <- pt(((x - q) - mu2) / sd2, df = nu.t2)
+        f1 * F2
+      },
+      lower   = mu1 - 8 * spread1,
+      upper   = mu1 + 8 * spread1,
+      rel.tol = 1e-6,
+      abs.tol = 1e-8
+    )[["value"]]
+  }
+
+  # --- Apply integration across all parameter sets ---
+  results <- mapply(.integrate_one,
+                    mu1 = mu.t1, mu2 = mu.t2, sd1 = sd.t1, sd2 = sd.t2)
 
   # Convert to lower tail if requested:
-  #   lower.tail = TRUE  -> return P(T1 - T2 <= q) = 1 - P(T1 - T2 > q)
-  #   lower.tail = FALSE -> return P(T1 - T2 > q)
+  #   lower.tail = TRUE  -> P(T1 - T2 <= q) = 1 - P(T1 - T2 > q)
+  #   lower.tail = FALSE -> P(T1 - T2 > q)
   results <- lower.tail + c(1, -1)[lower.tail + 1] * results
 
   return(results)

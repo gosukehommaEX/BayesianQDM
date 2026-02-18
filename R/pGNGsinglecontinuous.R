@@ -171,7 +171,7 @@
 #'   mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 #' )
 #'
 #' # Example 2: Uncontrolled design with informative prior
@@ -185,7 +185,7 @@
 #'   mu1 = 3.5, mu2 = 1.5, sigma1 = 1.3, sigma2 = 1.2,
 #'   r = 1, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 #' )
 #'
 #' # Example 3: External design with control data using MM approximation
@@ -200,7 +200,7 @@
 #'   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
 #'   r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5,
 #'   bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 #' )
 #' }
 #'
@@ -215,7 +215,7 @@
 #'   mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5
 #' )
 #'
 #' # Example 5: External design with predictive probability using MC method
@@ -230,7 +230,7 @@
 #'   mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
 #'   r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
 #'   bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 5
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 #' )
 #' }
 #'
@@ -245,7 +245,7 @@
 #'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 7
 #' )
 #'
 #' # Example 7: Include Miss probability in Gray when error_if_Miss = FALSE
@@ -259,7 +259,7 @@
 #'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 7
+#'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 8
 #' )
 #'
 #' @importFrom stats rnorm
@@ -271,70 +271,178 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
                                  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
                                  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed) {
 
-  # Set seed for reproducibility
-  set.seed(seed)
-
-  # Check parameter sets
-  if (!prob %in% c("posterior", "predictive")) {
-    stop("prob must be either 'posterior' or 'predictive'")
+  # --- Input validation ---
+  if (!is.character(prob) || length(prob) != 1L ||
+      !prob %in% c("posterior", "predictive")) {
+    stop("'prob' must be either 'posterior' or 'predictive'")
   }
 
-  if (!design %in% c("controlled", "uncontrolled", "external")) {
-    stop("design must be 'controlled', 'uncontrolled', or 'external'")
+  if (!is.character(design) || length(design) != 1L ||
+      !design %in% c("controlled", "uncontrolled", "external")) {
+    stop("'design' must be 'controlled', 'uncontrolled', or 'external'")
   }
 
-  if (!prior %in% c("vague", "N-Inv-Chisq")) {
-    stop("prior must be either 'vague' or 'N-Inv-Chisq'")
+  if (!is.character(prior) || length(prior) != 1L ||
+      !prior %in% c("vague", "N-Inv-Chisq")) {
+    stop("'prior' must be either 'vague' or 'N-Inv-Chisq'")
   }
 
-  if (!CalcMethod %in% c("NI", "MC", "MM")) {
-    stop("CalcMethod must be 'NI', 'MC', or 'MM'")
+  if (!is.character(CalcMethod) || length(CalcMethod) != 1L ||
+      !CalcMethod %in% c("NI", "MC", "MM")) {
+    stop("'CalcMethod' must be 'NI', 'MC', or 'MM'")
   }
 
-  # Validate required parameters for each method
-  if (CalcMethod == "MC" && is.null(nMC)) {
-    stop("nMC must be specified for Monte Carlo method")
+  if (!is.numeric(nsim) || length(nsim) != 1L || is.na(nsim) ||
+      nsim != floor(nsim) || nsim < 1L) {
+    stop("'nsim' must be a single positive integer")
   }
 
-  if (prob == "predictive" && (missing(m1) || missing(m2))) {
-    stop("m1 and m2 must be specified for predictive probability")
+  for (nm in c("n1", "n2")) {
+    val <- get(nm)
+    if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
+        val != floor(val) || val < 1L) {
+      stop(paste0("'", nm, "' must be a single positive integer"))
+    }
   }
 
-  # Validate uncontrolled design parameters
-  if (design == "uncontrolled" && is.null(r)) {
-    stop("For uncontrolled design, r (variance scaling factor) must be specified")
+  if (!is.numeric(gamma1) || length(gamma1) != 1L || is.na(gamma1) ||
+      gamma1 <= 0 || gamma1 >= 1) {
+    stop("'gamma1' must be a single numeric value in (0, 1)")
   }
 
-  # Validate external design parameters
+  if (!is.numeric(gamma2) || length(gamma2) != 1L || is.na(gamma2) ||
+      gamma2 <= 0 || gamma2 >= 1) {
+    stop("'gamma2' must be a single numeric value in (0, 1)")
+  }
+
+  if (gamma2 >= gamma1) {
+    stop("'gamma2' must be strictly less than 'gamma1'")
+  }
+
+  if (!is.numeric(sigma1) || length(sigma1) != 1L || is.na(sigma1) || sigma1 <= 0) {
+    stop("'sigma1' must be a single positive numeric value")
+  }
+
+  if (!is.logical(error_if_Miss) || length(error_if_Miss) != 1L || is.na(error_if_Miss)) {
+    stop("'error_if_Miss' must be a single logical value (TRUE or FALSE)")
+  }
+
+  if (!is.logical(Gray_inc_Miss) || length(Gray_inc_Miss) != 1L || is.na(Gray_inc_Miss)) {
+    stop("'Gray_inc_Miss' must be a single logical value (TRUE or FALSE)")
+  }
+
+  # Validate CalcMethod-specific parameter
+  if (CalcMethod == "MC") {
+    if (is.null(nMC)) {
+      stop("'nMC' must be non-NULL when CalcMethod = 'MC'")
+    }
+    if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
+        nMC != floor(nMC) || nMC < 1L) {
+      stop("'nMC' must be a single positive integer")
+    }
+  }
+
+  # Validate prob-specific parameters
+  if (prob == "posterior") {
+    if (is.null(theta.TV) || is.null(theta.MAV)) {
+      stop("'theta.TV' and 'theta.MAV' must be non-NULL when prob = 'posterior'")
+    }
+    if (!is.numeric(theta.TV) || length(theta.TV) != 1L || is.na(theta.TV)) {
+      stop("'theta.TV' must be a single numeric value")
+    }
+    if (!is.numeric(theta.MAV) || length(theta.MAV) != 1L || is.na(theta.MAV)) {
+      stop("'theta.MAV' must be a single numeric value")
+    }
+    if (theta.TV <= theta.MAV) {
+      stop("'theta.TV' must be strictly greater than 'theta.MAV'")
+    }
+  } else {
+    if (is.null(theta.NULL)) {
+      stop("'theta.NULL' must be non-NULL when prob = 'predictive'")
+    }
+    if (!is.numeric(theta.NULL) || length(theta.NULL) != 1L || is.na(theta.NULL)) {
+      stop("'theta.NULL' must be a single numeric value")
+    }
+    if (is.null(m1) || is.null(m2)) {
+      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
+    }
+    if (!is.numeric(m1) || length(m1) != 1L || is.na(m1) ||
+        m1 != floor(m1) || m1 < 1L) {
+      stop("'m1' must be a single positive integer")
+    }
+    if (!is.numeric(m2) || length(m2) != 1L || is.na(m2) ||
+        m2 != floor(m2) || m2 < 1L) {
+      stop("'m2' must be a single positive integer")
+    }
+  }
+
+  # Validate design-specific parameters
+  if (design == "uncontrolled") {
+    if (is.null(r)) {
+      stop("'r' (variance scaling factor) must be non-NULL when design = 'uncontrolled'")
+    }
+    if (!is.numeric(r) || length(r) != 1L || is.na(r) || r <= 0) {
+      stop("'r' must be a single positive numeric value")
+    }
+    if (!is.numeric(sigma2) || length(sigma2) != 1L || is.na(sigma2) || sigma2 <= 0) {
+      stop("'sigma2' must be a single positive numeric value")
+    }
+  }
+
   if (design == "external") {
     if (is.null(ne1) && is.null(ne2)) {
-      stop("For external design, at least one of ne1 or ne2 must be specified")
+      stop("For design = 'external', at least one of 'ne1' or 'ne2' must be non-NULL")
     }
-    if (!is.null(ne1) && (is.null(alpha01) || is.null(bar.ye1) || is.null(se1))) {
-      stop("For external treatment data, alpha01, bar.ye1, and se1 must be specified")
+    if (!is.null(ne1)) {
+      if (is.null(alpha01) || is.null(bar.ye1) || is.null(se1)) {
+        stop("'alpha01', 'bar.ye1', and 'se1' must all be non-NULL when 'ne1' is provided")
+      }
+      if (!is.numeric(ne1) || length(ne1) != 1L || is.na(ne1) ||
+          ne1 != floor(ne1) || ne1 < 1L) {
+        stop("'ne1' must be a single positive integer")
+      }
+      if (!is.numeric(alpha01) || length(alpha01) != 1L || is.na(alpha01) ||
+          alpha01 <= 0 || alpha01 > 1) {
+        stop("'alpha01' must be a single numeric value in (0, 1]")
+      }
     }
-    if (!is.null(ne2) && (is.null(alpha02) || is.null(bar.ye2) || is.null(se2))) {
-      stop("For external control data, alpha02, bar.ye2, and se2 must be specified")
+    if (!is.null(ne2)) {
+      if (is.null(alpha02) || is.null(bar.ye2) || is.null(se2)) {
+        stop("'alpha02', 'bar.ye2', and 'se2' must all be non-NULL when 'ne2' is provided")
+      }
+      if (!is.numeric(ne2) || length(ne2) != 1L || is.na(ne2) ||
+          ne2 != floor(ne2) || ne2 < 1L) {
+        stop("'ne2' must be a single positive integer")
+      }
+      if (!is.numeric(alpha02) || length(alpha02) != 1L || is.na(alpha02) ||
+          alpha02 <= 0 || alpha02 > 1) {
+        stop("'alpha02' must be a single numeric value in (0, 1]")
+      }
     }
   }
 
-  # Set seed number for reproducible results
+  # Validate mu1 (true treatment mean vector)
+  if (!is.numeric(mu1) || length(mu1) < 1L || any(is.na(mu1))) {
+    stop("'mu1' must be a numeric scalar or vector with no missing values")
+  }
+
+  # Set seed for reproducible results
   set.seed(seed)
 
-  # Generate nsim x n1 matrix of random outcomes for group 1 in PoC study
-  y1 <- matrix(rnorm(nsim * n1, mu1, sigma1), nrow = nsim)
-
-  # Calculate sample mean and SD for group 1 (vectors of length nsim)
-  bar.y1 <- rowSums(y1) / n1
-  s1     <- sqrt(rowSums((y1 - bar.y1) ^ 2) / (n1 - 1))
+  # Generate nsim x n1 matrix of standardized residuals for group 1 (mean=0, sd=sigma1).
+  # Shared across all mu1 scenarios: bar.y1[scenario] = rowMeans(Z1) + mu1[scenario],
+  # and s1 is independent of mu1, so it is computed once and reused.
+  Z1 <- matrix(rnorm(nsim * n1, mean = 0, sd = sigma1), nrow = nsim)
+  Z1_rowmean <- rowSums(Z1) / n1
+  s1 <- sqrt(rowSums((Z1 - Z1_rowmean) ^ 2) / (n1 - 1))
 
   if (design == 'controlled' | design == 'external') {
-    # Generate nsim x n2 matrix of random outcomes for group 2 in PoC study
-    y2 <- matrix(rnorm(nsim * n2, mu2, sigma2), nrow = nsim)
-
-    # Calculate sample mean and SD for group 2 (vectors of length nsim)
-    bar.y2 <- rowSums(y2) / n2
-    s2     <- sqrt(rowSums((y2 - bar.y2) ^ 2) / (n2 - 1))
+    # Generate nsim x n2 matrix of standardized residuals for group 2 (mean=0, sd=sigma2).
+    # mu2 is fixed to a single value, so bar.y2 and s2 are computed once.
+    Z2 <- matrix(rnorm(nsim * n2, mean = 0, sd = sigma2), nrow = nsim)
+    Z2_rowmean <- rowSums(Z2) / n2
+    bar.y2 <- Z2_rowmean + mu2
+    s2     <- sqrt(rowSums((Z2 - Z2_rowmean) ^ 2) / (n2 - 1))
   } else if (design == 'uncontrolled') {
     # For uncontrolled design: no group 2 data generated
     bar.y2 <- NULL
@@ -342,6 +450,10 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
   }
 
   # External data are fixed historical sample statistics (no generation needed)
+
+  # Ensure mu1 is a numeric vector to support multiple scenarios
+  mu1 <- as.numeric(mu1)
+  n_scenarios <- length(mu1)
 
   # Set threshold values based on probability type
   if (prob == 'posterior') {
@@ -352,88 +464,100 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
     theta0_NoGo <- theta.NULL
   }
 
-  # Calculate posterior/predictive probabilities for Go and NoGo thresholds.
-  # pPPsinglecontinuous now accepts vectors for bar.y1, s1, bar.y2, s2 and returns
-  # a vector of length nsim - no loop over simulation replicates is needed.
-  gPost_Go <- pPPsinglecontinuous(
+  # Expand bar.y1 and s1 across all mu1 scenarios into a single vector of
+  # length nsim * n_scenarios. For bar.y1, shift each scenario's block by mu1[i].
+  # s1 is independent of mu1 so it is simply replicated.
+  bar.y1_all <- rep(Z1_rowmean, times = n_scenarios) + rep(mu1, each = nsim)
+  s1_all     <- rep(s1, times = n_scenarios)
+
+  if (design == 'controlled' | design == 'external') {
+    bar.y2_all <- rep(bar.y2, times = n_scenarios)
+    s2_all     <- rep(s2,     times = n_scenarios)
+  } else {
+    bar.y2_all <- NULL
+    s2_all     <- NULL
+  }
+
+  # Call pPPsinglecontinuous once with the expanded vectors.
+  # Returns a vector of length nsim * n_scenarios.
+  gPost_Go_all <- pPPsinglecontinuous(
     prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
     theta0 = theta0_Go, nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
     kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
     mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
-    bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2,
+    bar.y1 = bar.y1_all, bar.y2 = bar.y2_all, s1 = s1_all, s2 = s2_all,
     r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
     bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2,
     lower.tail = FALSE
   )
 
-  gPost_NoGo <- pPPsinglecontinuous(
+  gPost_NoGo_all <- pPPsinglecontinuous(
     prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
     theta0 = theta0_NoGo, nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
     kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
     mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
-    bar.y1 = bar.y1, bar.y2 = bar.y2, s1 = s1, s2 = s2,
+    bar.y1 = bar.y1_all, bar.y2 = bar.y2_all, s1 = s1_all, s2 = s2_all,
     r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
     bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2,
     lower.tail = TRUE
   )
 
-  # Calculate Go, NoGo, and Miss probabilities (vectorized logical operations)
-  # These definitions match the original algorithm exactly:
-  #   Go:   gPost_Go >= gamma1  AND  gPost_NoGo < gamma2   (Go but not NoGo)
-  #   NoGo: gPost_Go < gamma1   AND  gPost_NoGo >= gamma2  (NoGo but not Go)
-  #   Miss: gPost_Go >= gamma1  AND  gPost_NoGo >= gamma2  (both criteria met)
-  # Go, NoGo, Gray, and Miss are mutually exclusive and sum to 1.
-  probs_Go   <- (gPost_Go >= gamma1) & (gPost_NoGo <  gamma2)
-  probs_NoGo <- (gPost_Go <  gamma1) & (gPost_NoGo >= gamma2)
-  probs_Miss <- (gPost_Go >= gamma1) & (gPost_NoGo >= gamma2)
+  # Reshape results into nsim x n_scenarios matrices and compute decision
+  # probabilities per scenario using colMeans (no R-level loop needed).
+  probs_Go_mat   <- matrix((gPost_Go_all >= gamma1) & (gPost_NoGo_all <  gamma2),
+                           nrow = nsim)
+  probs_NoGo_mat <- matrix((gPost_Go_all <  gamma1) & (gPost_NoGo_all >= gamma2),
+                           nrow = nsim)
+  probs_Miss_mat <- matrix((gPost_Go_all >= gamma1) & (gPost_NoGo_all >= gamma2),
+                           nrow = nsim)
 
-  GoNogoProb <- c(
-    mean(probs_Go),
-    mean(probs_NoGo),
-    mean(probs_Miss)
-  )
+  GoNogoProb <- cbind(
+    colMeans(probs_Go_mat),
+    colMeans(probs_NoGo_mat),
+    colMeans(probs_Miss_mat)
+  )  # n_scenarios x 3 matrix
 
   # Check for positive Miss probabilities (indicates inappropriate thresholds)
   if (error_if_Miss) {
-    if (GoNogoProb[3] > 0) {
-      stop('Because positive Miss probability(s) is obtained, re-consider appropriate thresholds')
+    if (any(GoNogoProb[, 3] > 0)) {
+      stop("Positive Miss probability detected. Please re-consider the chosen thresholds.")
     }
   }
 
-  # Calculate Miss probability
-  Miss <- GoNogoProb[3]
-
-  # Calculate Gray probability (complement of Go and NoGo)
+  # Calculate Gray probability for each scenario (complement of Go and NoGo)
   if (Gray_inc_Miss) {
     # Include Miss in Gray probability
-    GrayProb <- 1 - sum(GoNogoProb[-3])
+    GrayProb <- 1 - rowSums(GoNogoProb[, -3, drop = FALSE])
   } else {
     # Exclude Miss from Gray probability
-    GrayProb <- 1 - sum(GoNogoProb)
+    GrayProb <- 1 - rowSums(GoNogoProb)
   }
 
   # Create results data frame
   if (design == 'uncontrolled') {
     # For uncontrolled design, only include mu1
     results <- data.frame(
-      mu1, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2]
+      mu1, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]
     )
   } else {
     # For controlled and external designs, include both mu1 and mu2
     results <- data.frame(
-      mu1, mu2, Go = GoNogoProb[1], Gray = GrayProb, NoGo = GoNogoProb[2]
+      mu1, mu2, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]
     )
   }
 
   # Add Miss column when error_if_Miss is FALSE and Gray_inc_Miss is FALSE
   if (!error_if_Miss) {
     if (!Gray_inc_Miss) {
-      results$Miss <- Miss
+      results$Miss <- GoNogoProb[, 3]
     }
   }
 
-  # Address floating point error
-  results[results < .Machine$double.eps ^ 0.25] <- 0
+  # Address floating point error (apply only to probability columns, not mu1/mu2)
+  prob_cols <- names(results)[!names(results) %in% c('mu1', 'mu2')]
+  results[prob_cols] <- lapply(results[prob_cols], function(col) {
+    ifelse(col < .Machine$double.eps ^ 0.25, 0, col)
+  })
 
   # Attach metadata as attributes for use in print()
   attr(results, 'prob')          <- prob
@@ -563,13 +687,11 @@ print.pGNGsinglecontinuous <- function(x, digits = 4, ...) {
   cat(sprintf('  Go  threshold    : gamma1 = %s\n', fmt(gamma1)))
   cat(sprintf('  NoGo threshold   : gamma2 = %s\n', fmt(gamma2)))
   cat(sprintf('  Sample size      : n1 = %s, n2 = %s\n', fmt(n1), fmt(n2)))
-  # True parameters: mu2/sigma2 shown only for non-uncontrolled designs
+  # True parameters: sigma only (mu1/mu2 are shown in the result table)
   if(design == 'uncontrolled') {
-    cat(sprintf('  True parameters  : mu1 = %s, sigma1 = %s\n',
-                fmt(x$mu1[1]), fmt(sigma1)))
+    cat(sprintf('  True parameters  : sigma1 = %s\n', fmt(sigma1)))
   } else {
-    cat(sprintf('  True parameters  : mu1 = %s, mu2 = %s, sigma1 = %s, sigma2 = %s\n',
-                fmt(x$mu1[1]), fmt(x$mu2[1]), fmt(sigma1), fmt(sigma2)))
+    cat(sprintf('  True parameters  : sigma1 = %s, sigma2 = %s\n', fmt(sigma1), fmt(sigma2)))
   }
   # Prior parameters: always shown; N-Inv-Chisq shows hyperparameters
   if(prior == 'vague') {
