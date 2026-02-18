@@ -2,8 +2,7 @@
 % Please edit documentation in R/pPPsinglebinary.R
 \name{pPPsinglebinary}
 \alias{pPPsinglebinary}
-\title{Calculate Bayesian Posterior Probability or Posterior Predictive Probability
-for a Clinical Trial with a Single Binary Endpoint}
+\title{Bayesian Posterior or Posterior Predictive Probability for a Single Binary Endpoint}
 \usage{
 pPPsinglebinary(
   prob = "posterior",
@@ -30,122 +29,119 @@ pPPsinglebinary(
 )
 }
 \arguments{
-\item{prob}{A character string specifying the type of probability to calculate.
-Options are \code{'posterior'} for posterior probability or \code{'predictive'}
-for posterior predictive probability.}
+\item{prob}{A character string specifying the probability type.
+Must be \code{'posterior'} or \code{'predictive'}.}
 
-\item{design}{A character string specifying the type of trial design. Options are
-\code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
-for single-arm studies, or \code{'external'} for designs incorporating external data.}
+\item{design}{A character string specifying the trial design.
+Must be \code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.}
 
-\item{theta0}{A numeric value representing the pre-specified threshold value for
-the treatment effect (difference in response rates).}
+\item{theta0}{A numeric scalar in \code{(-1, 1)} giving the pre-specified
+threshold for the treatment effect (difference in response rates).}
 
-\item{n1}{A positive integer representing the number of patients in group 1
-(treatment) for the proof-of-concept (PoC) trial.}
+\item{n1}{A positive integer giving the number of patients in group 1
+(treatment) in the proof-of-concept (PoC) trial.}
 
-\item{n2}{A positive integer representing the number of patients in group 2.
-For \code{design = 'controlled'} or \code{'external'}: sample size of the
-control group. For \code{design = 'uncontrolled'}: hypothetical control
-sample size (typically set equal to n1).}
+\item{n2}{A positive integer giving the number of patients in group 2 in the
+PoC trial. For \code{design = 'uncontrolled'}, this is the hypothetical
+control sample size (required for consistency with other designs).}
 
-\item{y1}{A non-negative integer or vector of integers representing the observed
-number of responders in group 1 for the PoC trial (must satisfy 0 <= y1 <= n1).}
+\item{y1}{A non-negative integer or integer vector giving the observed number
+of responders in group 1 (must satisfy \code{0 <= y1 <= n1}).}
 
-\item{y2}{A non-negative integer or vector of integers representing the number
-of responders in group 2. For \code{design = 'controlled'} or \code{'external'}:
-observed number of responders in the control group (must satisfy 0 <= y2 <= n2).
-For \code{design = 'uncontrolled'}: set to NULL and use z parameter instead.
-If vectors, must have the same length as y1.}
+\item{y2}{A non-negative integer or integer vector giving the number of
+responders in group 2 (must satisfy \code{0 <= y2 <= n2}).
+Set to \code{NULL} for \code{design = 'uncontrolled'} and use \code{z}
+instead. When provided as a vector, must have the same length as
+\code{y1}.}
 
-\item{a1}{A positive numeric value representing the first shape parameter (alpha)
-of the prior beta distribution for group 1.}
+\item{a1}{A positive numeric scalar giving the first shape parameter (alpha)
+of the prior Beta distribution for group 1.}
 
-\item{a2}{A positive numeric value representing the first shape parameter (alpha)
-of the prior beta distribution for group 2 (control or hypothetical control).}
+\item{a2}{A positive numeric scalar giving the first shape parameter (alpha)
+of the prior Beta distribution for group 2.}
 
-\item{b1}{A positive numeric value representing the second shape parameter (beta)
-of the prior beta distribution for group 1.}
+\item{b1}{A positive numeric scalar giving the second shape parameter (beta)
+of the prior Beta distribution for group 1.}
 
-\item{b2}{A positive numeric value representing the second shape parameter (beta)
-of the prior beta distribution for group 2 (control or hypothetical control).}
+\item{b2}{A positive numeric scalar giving the second shape parameter (beta)
+of the prior Beta distribution for group 2.}
 
-\item{m1}{A positive integer representing the number of patients in group 1 for
-the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).}
+\item{m1}{A positive integer giving the number of patients in group 1 for
+the future trial. Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{m2}{A positive integer representing the number of patients in group 2 for
-the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).}
+\item{m2}{A positive integer giving the number of patients in group 2 for
+the future trial. Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{z}{A non-negative integer representing the hypothetical control responder count
-(required if \code{design = 'uncontrolled'}, otherwise set to NULL).
-This specifies the expected number of responders in a hypothetical control
-group based on historical data or prior knowledge. When used, y2 should be NULL.}
+\item{z}{A non-negative integer giving the hypothetical number of responders
+in the control group. Required when \code{design = 'uncontrolled'};
+otherwise set to \code{NULL}. When used, \code{y2} should be
+\code{NULL}.}
 
-\item{ne1}{A positive integer representing the number of patients in group 1 for
-the external data (required if \code{design = 'external'}, otherwise set to NULL).}
+\item{ne1}{A positive integer giving the number of patients in group 1 of
+the external data set. Required when \code{design = 'external'} and
+external treatment data are available; otherwise set to \code{NULL}.}
 
-\item{ne2}{A positive integer representing the number of patients in group 2 for
-the external data (required if \code{design = 'external'}, otherwise set to NULL).}
+\item{ne2}{A positive integer giving the number of patients in group 2 of
+the external data set. Required when \code{design = 'external'} and
+external control data are available; otherwise set to \code{NULL}.}
 
-\item{ye1}{A non-negative integer representing the observed number of responders
-in group 1 for the external data (required if \code{design = 'external'},
-otherwise set to NULL).}
+\item{ye1}{A non-negative integer giving the number of responders in group 1
+of the external data set. Required when \code{design = 'external'};
+otherwise set to \code{NULL}.}
 
-\item{ye2}{A non-negative integer representing the observed number of responders
-in group 2 for the external data (required if \code{design = 'external'},
-otherwise set to NULL).}
+\item{ye2}{A non-negative integer giving the number of responders in group 2
+of the external data set. Required when \code{design = 'external'};
+otherwise set to \code{NULL}.}
 
-\item{ae1}{A numeric value in (0, 1] representing the power prior scale parameter
-for group 1 (required if \code{design = 'external'}, otherwise set to NULL).
-Controls the degree of borrowing: 0 = no borrowing, 1 = full borrowing.}
+\item{ae1}{A numeric scalar in \code{(0, 1]} giving the power prior weight
+for group 1. Controls the degree of borrowing: 1 = full borrowing.
+Required when \code{design = 'external'}; otherwise set to \code{NULL}.}
 
-\item{ae2}{A numeric value in (0, 1] representing the power prior scale parameter
-for group 2 (required if \code{design = 'external'}, otherwise set to NULL).
-Controls the degree of borrowing: 0 = no borrowing, 1 = full borrowing.}
+\item{ae2}{A numeric scalar in \code{(0, 1]} giving the power prior weight
+for group 2. Required when \code{design = 'external'};
+otherwise set to \code{NULL}.}
 
-\item{lower.tail}{A logical value; if TRUE (default), probabilities are
-P(treatment effect <= theta0), otherwise P(treatment effect > theta0).}
+\item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
+returns \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
+\eqn{P(\mathrm{effect} > \theta_0)}.}
 }
 \value{
-A numeric value or vector in \code{[0, 1]} representing the Bayesian posterior
-probability or posterior predictive probability that the treatment effect
-exceeds (or is below) the threshold theta0. If y1 and y2 are vectors,
-returns a vector of the same length.
+A numeric scalar or vector in \code{[0, 1]}.  When \code{y1} and
+\code{y2} are vectors of length \eqn{n}, a vector of length \eqn{n}
+is returned.
 }
 \description{
-This function computes Bayesian posterior probability or posterior predictive
-probability for binary outcome clinical trials. The function supports controlled,
-uncontrolled, and external control designs, using beta-binomial conjugate priors.
-External data can be incorporated through power priors. This function supports
-vector inputs for y1 and y2 parameters for efficient batch processing.
+Computes the Bayesian posterior probability or posterior predictive probability
+for binary-outcome clinical trials under a beta-binomial conjugate model.
+The function supports controlled, uncontrolled, and external-control designs,
+with optional incorporation of external data through power priors.
+Vector inputs for \code{y1} and \code{y2} are supported for efficient batch
+processing (e.g., across all possible trial outcomes in
+\code{\link{pGNGsinglebinary}}).
 }
 \details{
-The function computes probabilities based on beta-binomial conjugate analysis:
+Posterior shape parameters are computed from the beta-binomial conjugate model:
 \itemize{
-\item \strong{Prior}: The proportion of responders (response_j) for each group (j = 1, 2)
-follows a beta distribution: response_j ~ Beta(aj, bj)
-\item \strong{Posterior}: After observing data, the posterior distribution is also
-beta: response_j | yj ~ Beta(aj + yj, bj + nj - yj)
-\item \strong{Posterior predictive}: The predictive distribution of future trial
-data follows a beta-binomial distribution
+\item Prior: \eqn{\pi_j \sim \mathrm{Beta}(a_j,\, b_j)}.
+\item Posterior: \eqn{\pi_j \mid y_j \sim
+        \mathrm{Beta}(a_j + y_j,\; b_j + n_j - y_j)}.
 }
 
-\strong{Design-specific handling}:
-\itemize{
-\item \strong{Controlled design}: Uses observed control data (y2, n2) directly
-\item \strong{Uncontrolled design}: Uses hypothetical control value z. The calculation
-treats z as the expected number of responders in a hypothetical control group
-with sample size n2. Parameter y2 should be NULL when using uncontrolled design.
-\item \strong{External design}: Incorporates external data through power priors.
-The effective prior becomes Beta(aj + aej times yej, bj + aej times (nej - yej)),
-where aej controls the degree of borrowing.
-}
+For \code{design = 'external'}, external data are incorporated through the
+power prior, which inflates the prior by the weighted external sufficient
+statistics:
+\deqn{(\alpha_j^*, \beta_j^*) =
+  (a_j + ae_j \cdot ye_j,\; b_j + ae_j \cdot (ne_j - ye_j)).}
 
-\strong{Probability types}:
-\itemize{
-\item \strong{Posterior probability}: P(response1 - response2 > theta0 | current data)
-\item \strong{Posterior predictive probability}: P(future trial success | current data)
-}
+For \code{design = 'uncontrolled'}, the hypothetical control value \code{z}
+is used in place of \code{y2}, and \code{n2} acts as the hypothetical control
+sample size.
+
+The final probability is obtained by calling \code{\link{p2betadiff}} for
+\code{prob = 'posterior'} or \code{\link{p2betabinomdiff}} for
+\code{prob = 'predictive'}, applied element-wise via \code{mapply}.
 }
 \examples{
 # Example 1: Controlled design - posterior probability (scalar)
@@ -158,7 +154,7 @@ pPPsinglebinary(
   lower.tail = FALSE
 )
 
-# Example 2: Vector input for y1 and y2
+# Example 2: Controlled design - vectorised over outcomes
 pPPsinglebinary(
   prob = 'posterior', design = 'controlled', theta0 = 0.15,
   n1 = 12, n2 = 15, y1 = c(5, 6, 7, 8), y2 = c(3, 4, 5, 6),
@@ -168,7 +164,7 @@ pPPsinglebinary(
   lower.tail = FALSE
 )
 
-# Example 3: Uncontrolled design - using hypothetical control with z parameter
+# Example 3: Uncontrolled design - hypothetical control via z
 pPPsinglebinary(
   prob = 'posterior', design = 'uncontrolled', theta0 = 0.20,
   n1 = 20, n2 = 20, y1 = 12, y2 = NULL,
@@ -178,7 +174,7 @@ pPPsinglebinary(
   lower.tail = FALSE
 )
 
-# Example 4: Posterior predictive probability for controlled design
+# Example 4: Controlled design - posterior predictive probability
 pPPsinglebinary(
   prob = 'predictive', design = 'controlled', theta0 = 0.10,
   n1 = 12, n2 = 15, y1 = 7, y2 = 5,
@@ -188,7 +184,7 @@ pPPsinglebinary(
   lower.tail = FALSE
 )
 
-# Example 5: External design with power prior (50 percent borrowing for control)
+# Example 5: External design - power prior with 50 percent borrowing
 pPPsinglebinary(
   prob = 'posterior', design = 'external', theta0 = 0.15,
   n1 = 12, n2 = 15, y1 = 7, y2 = 9,

@@ -3,99 +3,83 @@
 \name{pMM2tdiff}
 \alias{pMM2tdiff}
 \title{Cumulative Distribution Function of the Difference of Two t-Distributed Variables
-Using the Moment-Matching Approximation}
+by the Moment-Matching Approximation}
 \usage{
 pMM2tdiff(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE)
 }
 \arguments{
-\item{q}{A numeric value representing the quantile threshold.}
+\item{q}{A numeric scalar representing the quantile threshold.}
 
-\item{mu.t1}{A numeric value representing the location parameter of the first
-t-distribution.}
-
-\item{mu.t2}{A numeric value representing the location parameter of the second
-t-distribution.}
-
-\item{sd.t1}{A positive numeric value representing the scale parameter of the
+\item{mu.t1}{A numeric scalar or vector giving the location parameter of the
 first t-distribution.}
 
-\item{sd.t2}{A positive numeric value representing the scale parameter of the
+\item{mu.t2}{A numeric scalar or vector giving the location parameter of the
 second t-distribution.}
 
-\item{nu.t1}{A positive numeric value representing the degrees of freedom of
-the first t-distribution. Must be > 2 for finite variance.}
+\item{sd.t1}{A positive numeric scalar or vector giving the scale parameter of
+the first t-distribution.}
 
-\item{nu.t2}{A positive numeric value representing the degrees of freedom of
-the second t-distribution. Must be > 2 for finite variance.}
+\item{sd.t2}{A positive numeric scalar or vector giving the scale parameter of
+the second t-distribution.}
 
-\item{lower.tail}{A logical value; if TRUE (default), probabilities are P(T1 - T2 <= q),
-otherwise P(T1 - T2 > q).}
+\item{nu.t1}{A numeric scalar giving the degrees of freedom of the first
+t-distribution. Must be greater than 4 for the MM approximation.}
+
+\item{nu.t2}{A numeric scalar giving the degrees of freedom of the second
+t-distribution. Must be greater than 4 for the MM approximation.}
+
+\item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
+returns \eqn{P(T_1 - T_2 \le q)}, otherwise \eqn{P(T_1 - T_2 > q)}.}
 }
 \value{
-A numeric value in \code{[0, 1]} representing the cumulative probability that the
-difference between the two t-distributed variables is below (if lower.tail = TRUE)
-or exceeds (if lower.tail = FALSE) the quantile q.
+A numeric scalar or vector in \code{[0, 1]}.  When \code{mu.t1},
+\code{mu.t2}, \code{sd.t1}, or \code{sd.t2} are vectors of length
+\eqn{n}, a vector of length \eqn{n} is returned.
 }
 \description{
-This function calculates the cumulative distribution function (CDF) of the difference
-between two independent t-distributed random variables using the Moment-Matching Approximation.
-This method provides a fast and reasonably accurate approximation,
-particularly useful for unequal variances and degrees of freedom. Specifically,
-it computes P(T1 - T2 <= q) or P(T1 - T2 > q) where T1 and T2 follow t-distributions
-with potentially different parameters.
+Calculates the cumulative distribution function (CDF) of the difference between
+two independent non-standardised t-distributed random variables using the
+Moment-Matching (MM) approximation. Specifically, computes
+\eqn{P(T_1 - T_2 \le q)} or \eqn{P(T_1 - T_2 > q)}, where
+\eqn{T_i \sim t(\mu_i, \sigma_i^2, \nu_i)}.
 }
 \details{
-For two independent non-standardized t-distributed random variables:
+The difference \eqn{Z = T_1 - T_2} is approximated by a single t-distribution
+\eqn{Z \approx t(\mu^*, {\sigma^*}^2, \nu^*)} whose parameters are determined
+by matching the first two even moments of \eqn{Z}:
 \itemize{
-\item X1 ~ t(mu.t1, sd.t1^2, nu.t1)
-\item X2 ~ t(mu.t2, sd.t2^2, nu.t2)
-}
-The difference Z = X1 - X2 is approximated as: Z ~ t(mu.t1 - mu.t2, sigma_star^2, nu_star)
-where the effective parameters are computed through moment matching:
-\itemize{
-\item sigma_star is derived from the second moment matching
-\item nu_star is derived from the fourth moment matching
-}
-The method requires nu.t1 > 4 and nu.t2 > 4 for the existence of fourth moments. The approximation
-quality improves as degrees of freedom increase and approaches exactness as
-nu approaches infinity (normal limit).
-
-\strong{Advantages}:
-\itemize{
-\item Computationally fast and efficient
-\item Works well for unequal variances and degrees of freedom
-\item Provides good approximation in most practical scenarios
-\item Particularly accurate when degrees of freedom are not too small
+\item \eqn{\mu^* = \mu_1 - \mu_2}
+\item \eqn{{\sigma^*}^2 = (\mathrm{Var}_1 + \mathrm{Var}_2)(\nu^* - 2)/\nu^*},
+where \eqn{\mathrm{Var}_i = \sigma_i^2 \nu_i / (\nu_i - 2)}.
+\item \eqn{\nu^*} is obtained from the fourth-moment equation.
 }
 
-\strong{Computational considerations}:
-\itemize{
-\item Much faster than numerical integration methods
-\item Suitable for exploratory analyses and large-scale simulations
-\item For final analyses requiring highest accuracy, consider using
-numerical integration (pNI2tdiff)
-}
+The approximation requires \eqn{\nu_1 > 4} and \eqn{\nu_2 > 4} for finite
+fourth moments. It is exact in the normal limit (\eqn{\nu \to \infty}) and
+works well in practice when \eqn{\nu > 10}. Because it reduces to a single
+call to \code{pt()}, it is orders of magnitude faster than the numerical
+integration method (\code{\link{pNI2tdiff}}) and fully vectorised.
 }
 \examples{
-# Calculate P(t1 - t2 > 3) for equal parameters
+# P(T1 - T2 > 3) with equal parameters
 pMM2tdiff(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1,
-         nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
+          nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
 
-# Calculate P(t1 - t2 > 1) for unequal variances
+# P(T1 - T2 > 1) with unequal variances
 pMM2tdiff(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5,
-         nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
+          nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
 
-# Calculate P(t1 - t2 > 0) for different degrees of freedom
+# P(T1 - T2 > 0) with different degrees of freedom
 pMM2tdiff(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-         nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
+          nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 
-# Calculate lower tail probability P(t1 - t2 <= 2)
+# Lower tail: P(T1 - T2 <= 2)
 pMM2tdiff(q = 2, mu.t1 = 3, mu.t2 = 0, sd.t1 = 1.5, sd.t2 = 1.2,
-         nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
+          nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
 
-# Vectorized usage: calculate for multiple parameter sets simultaneously
+# Vectorised usage
 pMM2tdiff(q = 1, mu.t1 = c(2, 3, 4), mu.t2 = c(0, 1, 2),
-         sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
-         nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
+          sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
+          nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
 
 }

@@ -258,7 +258,7 @@ pGNGsinglecontinuous(
   mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 )
 
 # Example 2: Uncontrolled design with informative prior
@@ -272,7 +272,7 @@ pGNGsinglecontinuous(
   mu1 = 3.5, mu2 = 1.5, sigma1 = 1.3, sigma2 = 1.2,
   r = 1, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 )
 
 # Example 3: External design with control data using MM approximation
@@ -287,7 +287,7 @@ pGNGsinglecontinuous(
   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
   r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5,
   bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 )
 }
 
@@ -302,7 +302,7 @@ pGNGsinglecontinuous(
   mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5
 )
 
 # Example 5: External design with predictive probability using MC method
@@ -317,7 +317,7 @@ pGNGsinglecontinuous(
   mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
   r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
   bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0,
-  error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 5
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 )
 }
 
@@ -332,7 +332,7 @@ pGNGsinglecontinuous(
   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-  error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 7
 )
 
 # Example 7: Include Miss probability in Gray when error_if_Miss = FALSE
@@ -346,7 +346,7 @@ pGNGsinglecontinuous(
   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-  error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 7
+  error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 8
 )
 
 }

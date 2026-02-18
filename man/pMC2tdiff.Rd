@@ -8,113 +8,87 @@ by Monte Carlo Simulation}
 pMC2tdiff(nMC, q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE)
 }
 \arguments{
-\item{nMC}{A positive integer representing the number of Monte Carlo iterations for
-simulation. Typical values range from 10,000 (for quick estimates) to 100,000+
-(for high precision). Larger values yield more accurate results but require
-more computational time.}
+\item{nMC}{A positive integer giving the number of Monte Carlo draws. Typical
+values range from 10,000 (quick estimates) to 100,000 or more (high
+precision). Larger values reduce Monte Carlo error at the cost of
+computation time.}
 
-\item{q}{A numeric value representing the quantile threshold.}
+\item{q}{A numeric scalar representing the quantile threshold.}
 
-\item{mu.t1}{A numeric value or vector representing the location parameter (mu) of the
+\item{mu.t1}{A numeric scalar or vector giving the location parameter of the
 first t-distribution.}
 
-\item{mu.t2}{A numeric value or vector representing the location parameter (mu) of the
+\item{mu.t2}{A numeric scalar or vector giving the location parameter of the
 second t-distribution.}
 
-\item{sd.t1}{A positive numeric value or vector representing the scale parameter (sigma)
-of the first t-distribution.}
+\item{sd.t1}{A positive numeric scalar or vector giving the scale parameter of
+the first t-distribution.}
 
-\item{sd.t2}{A positive numeric value or vector representing the scale parameter (sigma)
-of the second t-distribution.}
+\item{sd.t2}{A positive numeric scalar or vector giving the scale parameter of
+the second t-distribution.}
 
-\item{nu.t1}{A positive numeric value representing the degrees of freedom (nu) of
-the first t-distribution. Must be > 2 for finite variance.}
+\item{nu.t1}{A numeric scalar giving the degrees of freedom of the first
+t-distribution. Must be greater than 2 for finite variance.}
 
-\item{nu.t2}{A positive numeric value representing the degrees of freedom (nu) of
-the second t-distribution. Must be > 2 for finite variance.}
+\item{nu.t2}{A numeric scalar giving the degrees of freedom of the second
+t-distribution. Must be greater than 2 for finite variance.}
 
-\item{lower.tail}{A logical value; if TRUE (default), probabilities are P(T1 - T2 <= q),
-otherwise P(T1 - T2 > q).}
+\item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
+returns \eqn{P(T_1 - T_2 \le q)}, otherwise \eqn{P(T_1 - T_2 > q)}.}
 }
 \value{
-A numeric value or vector in \code{[0, 1]} representing the estimated cumulative
-probability that the difference between the two t-distributed variables is below
-(if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile q.
-If mu.t1, mu.t2, sd.t1, or sd.t2 are vectors of length n, returns a vector of
-length n. The estimate is subject to Monte Carlo error that decreases as
-sqrt(1/nMC).
+A numeric scalar or vector in \code{[0, 1]}.  When \code{mu.t1},
+\code{mu.t2}, \code{sd.t1}, or \code{sd.t2} are vectors of length
+\eqn{n}, a vector of length \eqn{n} is returned.
 }
 \description{
-This function calculates the cumulative distribution function (CDF) of the difference
-between two independent t-distributed random variables using Monte Carlo simulation.
-This method provides a flexible approach that can handle any combination of parameters,
-with accuracy improving as the number of simulations increases. Specifically, it computes
-P(T1 - T2 <= q) or P(T1 - T2 > q) where T1 and T2 follow t-distributions with potentially
-different location, scale, and degrees of freedom parameters.
+Calculates the cumulative distribution function (CDF) of the difference between
+two independent non-standardised t-distributed random variables using Monte Carlo
+simulation. Specifically, computes \eqn{P(T_1 - T_2 \le q)} or
+\eqn{P(T_1 - T_2 > q)}, where \eqn{T_i \sim t(\mu_i, \sigma_i^2, \nu_i)}.
 }
 \details{
-This function uses Monte Carlo simulation to approximate the distribution of the
-difference between two t-distributed variables. The algorithm consists of:
-\itemize{
-\item \strong{Step 1}: Generate an nMC x n matrix of random samples from the first
-t-distribution T1 ~ t(nu_1), then scale each column by sd.t1\link{i} and shift
-by mu.t1\link{i} simultaneously
-\item \strong{Step 2}: Generate an nMC x n matrix of random samples from the second
-t-distribution T2 ~ t(nu_2), then scale and shift similarly
-\item \strong{Step 3}: Compute the difference matrix D = T1 - T2
-\item \strong{Step 4}: Calculate the empirical probability as the column-wise proportion
-of differences that satisfy the condition (D > q or D <= q)
+The algorithm proceeds as follows:
+\enumerate{
+\item Generate an \code{nMC x n} matrix of standard t draws for \eqn{T_1}
+(\eqn{\nu_1} degrees of freedom), then scale and shift each column
+by \code{sd.t1[i]} and \code{mu.t1[i]}.
+\item Repeat for \eqn{T_2} with \eqn{\nu_2} degrees of freedom.
+\item Compute the \code{nMC x n} difference matrix \eqn{D = T_1 - T_2}.
+\item Return \code{colMeans(D > q)} as the estimated \eqn{P(T_1 - T_2 > q)}
+for each parameter set.
 }
 
-When mu.t1, mu.t2, sd.t1, or sd.t2 are vectors of length n, all n parameter sets are
-processed simultaneously using matrix operations instead of a loop, which is
-substantially faster for large n (e.g., n = nsim in pGNGsinglecontinuous).
+All operations are matrix-based (no R-level loop over parameter sets), so
+performance scales well with \eqn{n}. However, note that the matrix size is
+\code{nMC x n}, so memory usage grows linearly with both \code{nMC} and
+\eqn{n}. When \eqn{n} is large (e.g., \code{nsim x n_scenarios} in
+\code{\link{pGNGsinglecontinuous}}), memory requirements can become prohibitive;
+in such cases prefer \code{CalcMethod = 'MM'}.
 
-\strong{Monte Carlo error}:
-\itemize{
-\item The standard error of the estimate is approximately sqrt(p(1-p)/nMC),
-where p is the true probability
-\item For a probability near 0.5, the standard error is roughly 0.5/sqrt(nMC)
-\item For nMC = 10,000: SE approximately 0.005 (plus/minus 0.01 with 95 percent confidence)
-\item For nMC = 100,000: SE approximately 0.0016 (plus/minus 0.003 with 95 percent confidence)
-}
-
-\strong{Advantages}:
-\itemize{
-\item Highly flexible - works with any parameter combination
-\item Easy to understand and implement
-\item Naturally handles complex scenarios
-\item Provides approximate confidence intervals via bootstrap
-}
-
-\strong{Computational considerations}:
-\itemize{
-\item Computational time scales linearly with nMC
-\item Suitable for moderate precision requirements
-\item For highest precision, consider numerical integration (pNI2tdiff)
-\item Results are stochastic - different runs yield slightly different estimates
-}
+Monte Carlo error is approximately \eqn{\sqrt{p(1-p)/\mathrm{nMC}}};
+near \eqn{p = 0.5} this is roughly \eqn{0.5/\sqrt{\mathrm{nMC}}}.
 }
 \examples{
-# Calculate P(t1 - t2 > 3) for equal parameters
+# P(T1 - T2 > 3) with equal parameters
 pMC2tdiff(nMC = 1e5, q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1,
-         nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
+          nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
 
-# Calculate P(t1 - t2 > 1) for unequal variances
+# P(T1 - T2 > 1) with unequal variances
 pMC2tdiff(nMC = 1e5, q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5,
-         nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
+          nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
 
-# Calculate P(t1 - t2 > 0) for different degrees of freedom
+# P(T1 - T2 > 0) with different degrees of freedom
 pMC2tdiff(nMC = 1e5, q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-         nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
+          nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 
-# Calculate lower tail probability P(t1 - t2 <= 2)
+# Lower tail: P(T1 - T2 <= 2)
 pMC2tdiff(nMC = 1e5, q = 2, mu.t1 = 3, mu.t2 = 0, sd.t1 = 1.5, sd.t2 = 1.2,
-         nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
+          nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
 
-# Vectorized usage: calculate for multiple parameter sets simultaneously
+# Vectorised usage
 pMC2tdiff(nMC = 1e5, q = 1, mu.t1 = c(2, 3, 4), mu.t2 = c(0, 1, 2),
-         sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
-         nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
+          sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
+          nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
 
 }

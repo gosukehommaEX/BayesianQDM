@@ -8,97 +8,85 @@ by Numerical Integration}
 pNI2tdiff(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE)
 }
 \arguments{
-\item{q}{A numeric value representing the quantile threshold.}
+\item{q}{A numeric scalar representing the quantile threshold.}
 
-\item{mu.t1}{A numeric value or vector representing the location parameter (mu) of the
+\item{mu.t1}{A numeric scalar or vector giving the location parameter of the
 first t-distribution.}
 
-\item{mu.t2}{A numeric value or vector representing the location parameter (mu) of the
+\item{mu.t2}{A numeric scalar or vector giving the location parameter of the
 second t-distribution.}
 
-\item{sd.t1}{A positive numeric value or vector representing the scale parameter (sigma)
-of the first t-distribution.}
+\item{sd.t1}{A positive numeric scalar or vector giving the scale parameter of
+the first t-distribution.}
 
-\item{sd.t2}{A positive numeric value or vector representing the scale parameter (sigma)
-of the second t-distribution.}
+\item{sd.t2}{A positive numeric scalar or vector giving the scale parameter of
+the second t-distribution.}
 
-\item{nu.t1}{A positive numeric value representing the degrees of freedom (nu) of
-the first t-distribution. Must be > 2 for finite variance.}
+\item{nu.t1}{A numeric scalar giving the degrees of freedom of the first
+t-distribution. Must be greater than 2 for finite variance.}
 
-\item{nu.t2}{A positive numeric value representing the degrees of freedom (nu) of
-the second t-distribution. Must be > 2 for finite variance.}
+\item{nu.t2}{A numeric scalar giving the degrees of freedom of the second
+t-distribution. Must be greater than 2 for finite variance.}
 
-\item{lower.tail}{A logical value; if TRUE (default), probabilities are P(T1 - T2 <= q),
-otherwise P(T1 - T2 > q).}
+\item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
+returns \eqn{P(T_1 - T_2 \le q)}, otherwise \eqn{P(T_1 - T_2 > q)}.}
 }
 \value{
-A numeric value or vector in \code{[0, 1]} representing the cumulative probability
-that the difference between the two t-distributed variables is below
-(if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile q.
-If mu.t1, mu.t2, sd.t1, or sd.t2 are vectors, returns a vector of the same length.
+A numeric scalar or vector in \code{[0, 1]}.  When \code{mu.t1},
+\code{mu.t2}, \code{sd.t1}, or \code{sd.t2} are vectors of length
+\eqn{n}, a vector of length \eqn{n} is returned.
 }
 \description{
-This function calculates the cumulative distribution function (CDF) of the difference
-between two independent t-distributed random variables using exact numerical integration
-via convolution. This method provides the most accurate results (within numerical
-precision) compared to approximation methods. Specifically, it computes P(T1 - T2 <= q)
-or P(T1 - T2 > q) where T1 and T2 follow t-distributions with potentially different
-location, scale, and degrees of freedom parameters.
+Calculates the cumulative distribution function (CDF) of the difference between
+two independent non-standardised t-distributed random variables using exact
+numerical integration via convolution. Specifically, computes
+\eqn{P(T_1 - T_2 \le q)} or \eqn{P(T_1 - T_2 > q)}, where
+\eqn{T_i \sim t(\mu_i, \sigma_i^2, \nu_i)}.
 }
 \details{
-This function uses the exact convolution approach to compute the distribution of the
-difference between two t-distributed variables. The method involves:
-\itemize{
-\item Using the convolution formula:
-P(T_1 - T_2 > q) = integral from -infinity to infinity of f_1(x) * F_2(x - q) dx
-\item Where f_1(x) is the probability density function (PDF) of the first
-t-distribution
-\item And F_2(x - q) is the cumulative distribution function (CDF) of the
-second t-distribution evaluated at (x - q)
-\item Adaptive integration bounds based on the distribution characteristics
-(approximately plus/minus 8 standard deviations from the mean)
-\item High-precision numerical integration with relative tolerance 1e-6 and
-absolute tolerance 1e-8
-}
+The upper-tail probability is obtained via the convolution formula:
+\deqn{P(T_1 - T_2 > q)
+  = \int_{-\infty}^{\infty} f_1(x)\, F_2(x - q)\, dx}
+where \eqn{f_1} is the density of \eqn{T_1} and \eqn{F_2} is the CDF of
+\eqn{T_2}. Integration bounds are set to \eqn{\mu_1 \pm 8\sigma^*_1}, where
+\eqn{\sigma^*_1 = \sigma_1 \sqrt{(\nu_1 + 1)/(\nu_1 - 2)}} is the standard
+deviation of \eqn{T_1}. Relative and absolute tolerances are \code{1e-6} and
+\code{1e-8}, respectively.
 
-When mu.t1, mu.t2, sd.t1, or sd.t2 are vectors, mapply is used to apply the
-scalar integration function across all parameter sets efficiently.
+When the input parameters are vectors, \code{mapply} applies the scalar
+integration function across all parameter sets.
 
-\strong{Advantages}:
+Advantages:
 \itemize{
-\item Provides exact results within numerical precision
-\item Handles arbitrary combinations of parameters
-\item No approximations required
+\item Exact within numerical precision.
+\item Handles arbitrary parameter combinations.
 }
-
-\strong{Computational considerations}:
-\itemize{
-\item More computationally intensive than approximation methods
-(e.g., Welch-Satterthwaite)
-\item Recommended for final analyses where accuracy is critical
-\item For exploratory analyses, consider using faster approximation methods
-}
+Computational note: this method is substantially slower than the
+Moment-Matching approximation (\code{\link{pMM2tdiff}}) because it calls
+\code{integrate()} once per parameter set. For large-scale simulation
+(many parameter sets), prefer \code{CalcMethod = 'MM'} in
+\code{\link{pGNGsinglecontinuous}}.
 }
 \examples{
-# Calculate P(t1 - t2 > 3) for equal parameters
+# P(T1 - T2 > 3) with equal parameters
 pNI2tdiff(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1,
-         nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
+          nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
 
-# Calculate P(t1 - t2 > 1) for unequal variances
+# P(T1 - T2 > 1) with unequal variances
 pNI2tdiff(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5,
-         nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
+          nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
 
-# Calculate P(t1 - t2 > 0) for different degrees of freedom
+# P(T1 - T2 > 0) with different degrees of freedom
 pNI2tdiff(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-         nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
+          nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 
-# Calculate lower tail probability P(t1 - t2 <= 2)
+# Lower tail: P(T1 - T2 <= 2)
 pNI2tdiff(q = 2, mu.t1 = 3, mu.t2 = 0, sd.t1 = 1.5, sd.t2 = 1.2,
-         nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
+          nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
 
-# Vectorized usage: calculate for multiple parameter sets simultaneously
+# Vectorised usage
 pNI2tdiff(q = 1, mu.t1 = c(2, 3, 4), mu.t2 = c(0, 1, 2),
-         sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
-         nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
+          sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
+          nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
 
 }
