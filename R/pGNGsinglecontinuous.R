@@ -171,7 +171,7 @@
 #'   mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1
 #' )
 #'
 #' # Example 2: Uncontrolled design with informative prior
@@ -185,7 +185,7 @@
 #'   mu1 = 3.5, mu2 = 1.5, sigma1 = 1.3, sigma2 = 1.2,
 #'   r = 1, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 #' )
 #'
 #' # Example 3: External design with control data using MM approximation
@@ -200,7 +200,7 @@
 #'   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
 #'   r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5,
 #'   bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 #' )
 #' }
 #'
@@ -215,7 +215,7 @@
 #'   mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 #' )
 #'
 #' # Example 5: External design with predictive probability using MC method
@@ -230,7 +230,7 @@
 #'   mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
 #'   r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
 #'   bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 5
 #' )
 #' }
 #'
@@ -245,7 +245,7 @@
 #'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 7
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 #' )
 #'
 #' # Example 7: Include Miss probability in Gray when error_if_Miss = FALSE
@@ -259,7 +259,7 @@
 #'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
 #'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 8
+#'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 7
 #' )
 #'
 #' @importFrom stats rnorm
@@ -436,19 +436,43 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
   results[results < .Machine$double.eps ^ 0.25] <- 0
 
   # Attach metadata as attributes for use in print()
-  attr(results, 'prob')       <- prob
-  attr(results, 'design')     <- design
-  attr(results, 'prior')      <- prior
-  attr(results, 'CalcMethod') <- CalcMethod
-  attr(results, 'nsim')       <- nsim
-  attr(results, 'gamma1')     <- gamma1
-  attr(results, 'gamma2')     <- gamma2
-  if(prob == 'posterior') {
-    attr(results, 'theta.TV')  <- theta.TV
-    attr(results, 'theta.MAV') <- theta.MAV
-  } else {
-    attr(results, 'theta.NULL') <- theta.NULL
-  }
+  attr(results, 'prob')          <- prob
+  attr(results, 'design')        <- design
+  attr(results, 'prior')         <- prior
+  attr(results, 'CalcMethod')    <- CalcMethod
+  attr(results, 'nsim')          <- nsim
+  attr(results, 'nMC')           <- nMC
+  attr(results, 'theta.TV')      <- theta.TV
+  attr(results, 'theta.MAV')     <- theta.MAV
+  attr(results, 'theta.NULL')    <- theta.NULL
+  attr(results, 'gamma1')        <- gamma1
+  attr(results, 'gamma2')        <- gamma2
+  attr(results, 'n1')            <- n1
+  attr(results, 'n2')            <- n2
+  attr(results, 'sigma1')        <- sigma1
+  attr(results, 'sigma2')        <- sigma2
+  attr(results, 'r')             <- r
+  attr(results, 'm1')            <- m1
+  attr(results, 'm2')            <- m2
+  attr(results, 'kappa01')       <- kappa01
+  attr(results, 'kappa02')       <- kappa02
+  attr(results, 'nu01')          <- nu01
+  attr(results, 'nu02')          <- nu02
+  attr(results, 'mu01')          <- mu01
+  attr(results, 'mu02')          <- mu02
+  attr(results, 'sigma01')       <- sigma01
+  attr(results, 'sigma02')       <- sigma02
+  attr(results, 'ne1')           <- ne1
+  attr(results, 'ne2')           <- ne2
+  attr(results, 'alpha01')       <- alpha01
+  attr(results, 'alpha02')       <- alpha02
+  attr(results, 'bar.ye1')       <- bar.ye1
+  attr(results, 'bar.ye2')       <- bar.ye2
+  attr(results, 'se1')           <- se1
+  attr(results, 'se2')           <- se2
+  attr(results, 'error_if_Miss') <- error_if_Miss
+  attr(results, 'Gray_inc_Miss') <- Gray_inc_Miss
+  attr(results, 'seed')          <- seed
 
   # Assign S3 class
   class(results) <- c('pGNGsinglecontinuous', 'data.frame')
@@ -470,41 +494,106 @@ pGNGsinglecontinuous <- function(nsim, prob, design, prior, CalcMethod, theta.TV
 #'
 #' @export
 print.pGNGsinglecontinuous <- function(x, digits = 4, ...) {
+  # Helper to format a value as string (NULL -> "NULL")
+  fmt <- function(v) if(is.null(v)) 'NULL' else as.character(v)
+
   # Extract metadata from attributes
-  prob       <- attr(x, 'prob')
-  design     <- attr(x, 'design')
-  prior      <- attr(x, 'prior')
-  CalcMethod <- attr(x, 'CalcMethod')
-  nsim       <- attr(x, 'nsim')
-  gamma1     <- attr(x, 'gamma1')
-  gamma2     <- attr(x, 'gamma2')
+  prob          <- attr(x, 'prob')
+  design        <- attr(x, 'design')
+  prior         <- attr(x, 'prior')
+  CalcMethod    <- attr(x, 'CalcMethod')
+  nsim          <- attr(x, 'nsim')
+  nMC           <- attr(x, 'nMC')
+  gamma1        <- attr(x, 'gamma1')
+  gamma2        <- attr(x, 'gamma2')
+  n1            <- attr(x, 'n1')
+  n2            <- attr(x, 'n2')
+  sigma1        <- attr(x, 'sigma1')
+  sigma2        <- attr(x, 'sigma2')
+  r             <- attr(x, 'r')
+  m1            <- attr(x, 'm1')
+  m2            <- attr(x, 'm2')
+  kappa01       <- attr(x, 'kappa01')
+  kappa02       <- attr(x, 'kappa02')
+  nu01          <- attr(x, 'nu01')
+  nu02          <- attr(x, 'nu02')
+  mu01          <- attr(x, 'mu01')
+  mu02          <- attr(x, 'mu02')
+  sigma01       <- attr(x, 'sigma01')
+  sigma02       <- attr(x, 'sigma02')
+  ne1           <- attr(x, 'ne1')
+  ne2           <- attr(x, 'ne2')
+  alpha01       <- attr(x, 'alpha01')
+  alpha02       <- attr(x, 'alpha02')
+  bar.ye1       <- attr(x, 'bar.ye1')
+  bar.ye2       <- attr(x, 'bar.ye2')
+  se1           <- attr(x, 'se1')
+  se2           <- attr(x, 'se2')
+  error_if_Miss <- attr(x, 'error_if_Miss')
+  Gray_inc_Miss <- attr(x, 'Gray_inc_Miss')
+  seed          <- attr(x, 'seed')
 
   # Build threshold string based on probability type
   if(prob == 'posterior') {
     theta_str <- sprintf('TV = %s, MAV = %s',
-                         attr(x, 'theta.TV'), attr(x, 'theta.MAV'))
+                         fmt(attr(x, 'theta.TV')), fmt(attr(x, 'theta.MAV')))
   } else {
-    theta_str <- sprintf('NULL = %s', attr(x, 'theta.NULL'))
+    theta_str <- sprintf('NULL = %s', fmt(attr(x, 'theta.NULL')))
   }
 
-  # Build calculation method label
+  # Build calculation method label (include nMC if CalcMethod = 'MC')
   method_label <- switch(CalcMethod,
                          'NI' = 'Numerical Integration (NI)',
-                         'MC' = 'Monte Carlo (MC)',
+                         'MC' = sprintf('Monte Carlo (MC), nMC = %s', fmt(nMC)),
                          'MM' = 'Moment-Matching (MM)'
   )
+
+  # Prior label: vague or N-Inv-Chisq
+  prior_label <- if(prior == 'vague') 'Prior (vague)    ' else 'Prior (N-Inv-X2) '
 
   # Print header
   cat('Go/NoGo/Gray Decision Probabilities (Single Continuous Endpoint)\n')
   cat(strrep('-', 60), '\n')
-  cat(sprintf('  Probability type : %s\n', prob))
-  cat(sprintf('  Design           : %s\n', design))
-  cat(sprintf('  Prior            : %s\n', prior))
-  cat(sprintf('  Method           : %s\n', method_label))
-  cat(sprintf('  Simulations      : %s\n', nsim))
-  cat(sprintf('  Threshold(s)     : %s\n', theta_str))
-  cat(sprintf('  Go  threshold    : gamma1 = %s\n', gamma1))
-  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', gamma2))
+  cat(sprintf('  Probability type : %s\n',   prob))
+  cat(sprintf('  Design           : %s\n',   design))
+  cat(sprintf('  Method           : %s\n',   method_label))
+  cat(sprintf('  Simulations      : %s\n',   fmt(nsim)))
+  cat(sprintf('  Seed             : %s\n',   fmt(seed)))
+  cat(sprintf('  Threshold(s)     : %s\n',   theta_str))
+  cat(sprintf('  Go  threshold    : gamma1 = %s\n', fmt(gamma1)))
+  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', fmt(gamma2)))
+  cat(sprintf('  Sample size      : n1 = %s, n2 = %s\n', fmt(n1), fmt(n2)))
+  # True parameters: mu2/sigma2 shown only for non-uncontrolled designs
+  if(design == 'uncontrolled') {
+    cat(sprintf('  True parameters  : mu1 = %s, sigma1 = %s\n',
+                fmt(x$mu1[1]), fmt(sigma1)))
+  } else {
+    cat(sprintf('  True parameters  : mu1 = %s, mu2 = %s, sigma1 = %s, sigma2 = %s\n',
+                fmt(x$mu1[1]), fmt(x$mu2[1]), fmt(sigma1), fmt(sigma2)))
+  }
+  # Prior parameters: always shown; N-Inv-Chisq shows hyperparameters
+  if(prior == 'vague') {
+    cat(sprintf('  %s: (no hyperparameters)\n', prior_label))
+  } else {
+    cat(sprintf('  %s: kappa01 = %s, kappa02 = %s, nu01 = %s, nu02 = %s\n',
+                prior_label, fmt(kappa01), fmt(kappa02), fmt(nu01), fmt(nu02)))
+    cat(sprintf('                     mu01 = %s, mu02 = %s, sigma01 = %s, sigma02 = %s\n',
+                fmt(mu01), fmt(mu02), fmt(sigma01), fmt(sigma02)))
+  }
+  if(design == 'uncontrolled') {
+    cat(sprintf('  Uncontrolled     : r = %s\n', fmt(r)))
+  }
+  if(prob == 'predictive') {
+    cat(sprintf('  Future trial     : m1 = %s, m2 = %s\n', fmt(m1), fmt(m2)))
+  }
+  if(design == 'external') {
+    cat(sprintf('  External data    : ne1 = %s, ne2 = %s, alpha01 = %s, alpha02 = %s\n',
+                fmt(ne1), fmt(ne2), fmt(alpha01), fmt(alpha02)))
+    cat(sprintf('                     bar.ye1 = %s, bar.ye2 = %s, se1 = %s, se2 = %s\n',
+                fmt(bar.ye1), fmt(bar.ye2), fmt(se1), fmt(se2)))
+  }
+  cat(sprintf('  Miss handling    : error_if_Miss = %s, Gray_inc_Miss = %s\n',
+              fmt(error_if_Miss), fmt(Gray_inc_Miss)))
   cat(strrep('-', 60), '\n')
 
   # Format numeric columns (probability columns only, not mu1/mu2)

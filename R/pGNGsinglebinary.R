@@ -405,16 +405,30 @@ pGNGsinglebinary <- function(prob = 'posterior', design = 'controlled',
   results[results < .Machine$double.eps ^ 0.25] <- 0
 
   # Attach metadata as attributes for use in print()
-  attr(results, 'prob')    <- prob
-  attr(results, 'design')  <- design
-  attr(results, 'gamma1')  <- gamma1
-  attr(results, 'gamma2')  <- gamma2
-  if(prob == 'posterior') {
-    attr(results, 'theta.TV')  <- theta.TV
-    attr(results, 'theta.MAV') <- theta.MAV
-  } else {
-    attr(results, 'theta.NULL') <- theta.NULL
-  }
+  attr(results, 'prob')          <- prob
+  attr(results, 'design')        <- design
+  attr(results, 'theta.TV')      <- theta.TV
+  attr(results, 'theta.MAV')     <- theta.MAV
+  attr(results, 'theta.NULL')    <- theta.NULL
+  attr(results, 'gamma1')        <- gamma1
+  attr(results, 'gamma2')        <- gamma2
+  attr(results, 'n1')            <- n1
+  attr(results, 'n2')            <- n2
+  attr(results, 'a1')            <- a1
+  attr(results, 'a2')            <- a2
+  attr(results, 'b1')            <- b1
+  attr(results, 'b2')            <- b2
+  attr(results, 'z')             <- z
+  attr(results, 'm1')            <- m1
+  attr(results, 'm2')            <- m2
+  attr(results, 'ne1')           <- ne1
+  attr(results, 'ne2')           <- ne2
+  attr(results, 'ye1')           <- ye1
+  attr(results, 'ye2')           <- ye2
+  attr(results, 'ae1')           <- ae1
+  attr(results, 'ae2')           <- ae2
+  attr(results, 'error_if_Miss') <- error_if_Miss
+  attr(results, 'Gray_inc_Miss') <- Gray_inc_Miss
 
   # Assign S3 class
   class(results) <- c('pGNGsinglebinary', 'data.frame')
@@ -436,28 +450,66 @@ pGNGsinglebinary <- function(prob = 'posterior', design = 'controlled',
 #'
 #' @export
 print.pGNGsinglebinary <- function(x, digits = 4, ...) {
+  # Helper to format a value as string (NULL -> "NULL")
+  fmt <- function(v) if(is.null(v)) 'NULL' else as.character(v)
+
   # Extract metadata from attributes
-  prob    <- attr(x, 'prob')
-  design  <- attr(x, 'design')
-  gamma1  <- attr(x, 'gamma1')
-  gamma2  <- attr(x, 'gamma2')
+  prob          <- attr(x, 'prob')
+  design        <- attr(x, 'design')
+  gamma1        <- attr(x, 'gamma1')
+  gamma2        <- attr(x, 'gamma2')
+  n1            <- attr(x, 'n1')
+  n2            <- attr(x, 'n2')
+  a1            <- attr(x, 'a1')
+  a2            <- attr(x, 'a2')
+  b1            <- attr(x, 'b1')
+  b2            <- attr(x, 'b2')
+  z             <- attr(x, 'z')
+  m1            <- attr(x, 'm1')
+  m2            <- attr(x, 'm2')
+  ne1           <- attr(x, 'ne1')
+  ne2           <- attr(x, 'ne2')
+  ye1           <- attr(x, 'ye1')
+  ye2           <- attr(x, 'ye2')
+  ae1           <- attr(x, 'ae1')
+  ae2           <- attr(x, 'ae2')
+  error_if_Miss <- attr(x, 'error_if_Miss')
+  Gray_inc_Miss <- attr(x, 'Gray_inc_Miss')
 
   # Build threshold string based on probability type
   if(prob == 'posterior') {
     theta_str <- sprintf('TV = %s, MAV = %s',
-                         attr(x, 'theta.TV'), attr(x, 'theta.MAV'))
+                         fmt(attr(x, 'theta.TV')), fmt(attr(x, 'theta.MAV')))
   } else {
-    theta_str <- sprintf('NULL = %s', attr(x, 'theta.NULL'))
+    theta_str <- sprintf('NULL = %s', fmt(attr(x, 'theta.NULL')))
   }
+
+  # Prior label depends on probability type
+  prior_label <- if(prob == 'posterior') 'Prior (Beta)     ' else 'Prior (Beta-bin) '
 
   # Print header
   cat('Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)\n')
   cat(strrep('-', 60), '\n')
-  cat(sprintf('  Probability type : %s\n', prob))
-  cat(sprintf('  Design           : %s\n', design))
-  cat(sprintf('  Threshold(s)     : %s\n', theta_str))
-  cat(sprintf('  Go  threshold    : gamma1 = %s\n', gamma1))
-  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', gamma2))
+  cat(sprintf('  Probability type : %s\n',   prob))
+  cat(sprintf('  Design           : %s\n',   design))
+  cat(sprintf('  Threshold(s)     : %s\n',   theta_str))
+  cat(sprintf('  Go  threshold    : gamma1 = %s\n', fmt(gamma1)))
+  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', fmt(gamma2)))
+  cat(sprintf('  Sample size      : n1 = %s, n2 = %s\n', fmt(n1), fmt(n2)))
+  cat(sprintf('  %s: a1 = %s, a2 = %s, b1 = %s, b2 = %s\n',
+              prior_label, fmt(a1), fmt(a2), fmt(b1), fmt(b2)))
+  if(design == 'uncontrolled') {
+    cat(sprintf('  Uncontrolled     : z = %s\n', fmt(z)))
+  }
+  if(prob == 'predictive') {
+    cat(sprintf('  Future trial     : m1 = %s, m2 = %s\n', fmt(m1), fmt(m2)))
+  }
+  if(design == 'external') {
+    cat(sprintf('  External data    : ne1 = %s, ne2 = %s, ye1 = %s, ye2 = %s, ae1 = %s, ae2 = %s\n',
+                fmt(ne1), fmt(ne2), fmt(ye1), fmt(ye2), fmt(ae1), fmt(ae2)))
+  }
+  cat(sprintf('  Miss handling    : error_if_Miss = %s, Gray_inc_Miss = %s\n',
+              fmt(error_if_Miss), fmt(Gray_inc_Miss)))
   cat(strrep('-', 60), '\n')
 
   # Format numeric columns (probability columns only, not pi1/pi2)
