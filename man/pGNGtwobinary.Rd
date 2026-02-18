@@ -257,22 +257,22 @@ specified true response probabilities, then calculates posterior or posterior
 predictive probabilities for each simulated dataset using \code{pPPtwobinary()}.
 
 \strong{Decision Regions for Posterior Probability (9 regions)}:
-The nine regions are defined by the thresholds for both endpoints as follows
-(regions numbered 1-9 in column-major order):
+The nine regions are defined by TV and MAV thresholds for both endpoints
+(column-major order: Endpoint 2 varies fastest):
 \tabular{lccc}{
-\tab \strong{θ1 > TV1} \tab \strong{TV1 ≥ θ1 > MAV1} \tab \strong{MAV1 ≥ θ1} \cr
-\strong{θ2 > TV2} \tab Region 1 \tab Region 4 \tab Region 7 \cr
-\strong{TV2 ≥ θ2 > MAV2} \tab Region 2 \tab Region 5 \tab Region 8 \cr
-\strong{MAV2 ≥ θ2} \tab Region 3 \tab Region 6 \tab Region 9
+\tab \strong{th1 > TV1} \tab \strong{TV1 >= th1 > MAV1} \tab \strong{MAV1 >= th1} \cr
+\strong{th2 > TV2}         \tab Region 1 \tab Region 4 \tab Region 7 \cr
+\strong{TV2 >= th2 > MAV2} \tab Region 2 \tab Region 5 \tab Region 8 \cr
+\strong{MAV2 >= th2}       \tab Region 3 \tab Region 6 \tab Region 9
 }
 
 \strong{Decision Regions for Predictive Probability (4 regions)}:
-The four regions are defined by the NULL hypothesis thresholds for both endpoints
-(regions numbered 1-4 in column-major order):
+The four regions are defined by the null hypothesis thresholds
+(column-major order: Endpoint 2 varies fastest):
 \tabular{lcc}{
-\tab \strong{θ1 > NULL1} \tab \strong{NULL1 ≥ θ1} \cr
-\strong{θ2 > NULL2} \tab Region 1 \tab Region 3 \cr
-\strong{NULL2 ≥ θ2} \tab Region 2 \tab Region 4
+\tab \strong{th1 > NULL1} \tab \strong{NULL1 >= th1} \cr
+\strong{th2 > NULL2} \tab Region 1 \tab Region 3 \cr
+\strong{NULL2 >= th2} \tab Region 2 \tab Region 4
 }
 
 \strong{Decision Criteria} (corresponding to Documentation.pdf equations):

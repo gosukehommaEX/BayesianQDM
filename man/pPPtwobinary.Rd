@@ -2,8 +2,8 @@
 % Please edit documentation in R/pPPtwobinary.R
 \name{pPPtwobinary}
 \alias{pPPtwobinary}
-\title{Calculate Bayesian Posterior Probability or Posterior Predictive Probability
-for a Clinical Trial with Two Binary Endpoints}
+\title{Bayesian Posterior or Posterior Predictive Probability for a Clinical Trial
+with Two Binary Endpoints}
 \usage{
 pPPtwobinary(
   prob = "posterior",
@@ -30,185 +30,185 @@ pPPtwobinary(
   a2_11,
   m1,
   m2,
-  xe1_00,
-  xe1_01,
-  xe1_10,
-  xe1_11,
-  xe2_00,
-  xe2_01,
-  xe2_10,
-  xe2_11,
-  ae1,
-  ae2,
+  xe1_00 = NULL,
+  xe1_01 = NULL,
+  xe1_10 = NULL,
+  xe1_11 = NULL,
+  xe2_00 = NULL,
+  xe2_01 = NULL,
+  xe2_10 = NULL,
+  xe2_11 = NULL,
+  ae1 = NULL,
+  ae2 = NULL,
   nMC = 10000
 )
 }
 \arguments{
-\item{prob}{A character string specifying the type of probability to calculate.
-Options are \code{'posterior'} for posterior probability or \code{'predictive'}
-for posterior predictive probability.}
+\item{prob}{A character string specifying the probability type.
+Must be \code{'posterior'} or \code{'predictive'}.}
 
-\item{design}{A character string specifying the type of trial design. Options are
-\code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
-for single-arm studies, or \code{'external'} for designs incorporating external data.}
+\item{design}{A character string specifying the trial design.
+Must be \code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.}
 
-\item{theta.TV1}{A numeric value representing the target value (TV) threshold for
-Endpoint 1. This defines the upper boundary for the "Gray" region.}
+\item{theta.TV1}{A numeric scalar giving the target value (TV) threshold for
+Endpoint 1 (upper boundary of the Gray region).}
 
-\item{theta.MAV1}{A numeric value representing the minimum acceptable value (MAV)
-threshold for Endpoint 1. This defines the lower boundary for the "Gray" region.}
+\item{theta.MAV1}{A numeric scalar giving the minimum acceptable value (MAV)
+threshold for Endpoint 1 (lower boundary of the Gray region).
+For \code{prob = 'posterior'}, must satisfy \code{theta.TV1 > theta.MAV1}.
+For \code{prob = 'predictive'}, must equal \code{theta.TV1}.}
 
-\item{theta.TV2}{A numeric value representing the target value (TV) threshold for
-Endpoint 2. This defines the upper boundary for the "Gray" region.}
+\item{theta.TV2}{A numeric scalar giving the target value (TV) threshold for
+Endpoint 2.}
 
-\item{theta.MAV2}{A numeric value representing the minimum acceptable value (MAV)
-threshold for Endpoint 2. This defines the lower boundary for the "Gray" region.}
+\item{theta.MAV2}{A numeric scalar giving the minimum acceptable value (MAV)
+threshold for Endpoint 2.
+For \code{prob = 'posterior'}, must satisfy \code{theta.TV2 > theta.MAV2}.
+For \code{prob = 'predictive'}, must equal \code{theta.TV2}.}
 
-\item{x1_00}{A non-negative integer representing the count of (0,0) responses
-in group 1 for the PoC trial (Endpoint 1 = 0, Endpoint 2 = 0).}
+\item{x1_00}{A non-negative integer giving the count of (0,0) responses in
+group 1 (Endpoint 1 = 0, Endpoint 2 = 0).}
 
-\item{x1_01}{A non-negative integer representing the count of (0,1) responses
-in group 1 for the PoC trial (Endpoint 1 = 0, Endpoint 2 = 1).}
+\item{x1_01}{A non-negative integer giving the count of (0,1) responses in
+group 1 (Endpoint 1 = 0, Endpoint 2 = 1).}
 
-\item{x1_10}{A non-negative integer representing the count of (1,0) responses
-in group 1 for the PoC trial (Endpoint 1 = 1, Endpoint 2 = 0).}
+\item{x1_10}{A non-negative integer giving the count of (1,0) responses in
+group 1 (Endpoint 1 = 1, Endpoint 2 = 0).}
 
-\item{x1_11}{A non-negative integer representing the count of (1,1) responses
-in group 1 for the PoC trial (Endpoint 1 = 1, Endpoint 2 = 1).}
+\item{x1_11}{A non-negative integer giving the count of (1,1) responses in
+group 1 (Endpoint 1 = 1, Endpoint 2 = 1).}
 
-\item{x2_00}{A non-negative integer representing the count of (0,0) responses in group 2.
-For \code{design = 'controlled'} or \code{'external'}: observed control data.
-For \code{design = 'uncontrolled'}: hypothetical control response count based on
-historical data or prior knowledge.}
+\item{x2_00}{A non-negative integer giving the count of (0,0) responses in
+group 2. For \code{design = 'uncontrolled'}, these are hypothetical
+control counts.}
 
-\item{x2_01}{A non-negative integer representing the count of (0,1) responses in group 2.
-For \code{design = 'controlled'} or \code{'external'}: observed control data.
-For \code{design = 'uncontrolled'}: hypothetical control response count.}
+\item{x2_01}{A non-negative integer giving the count of (0,1) responses in
+group 2.}
 
-\item{x2_10}{A non-negative integer representing the count of (1,0) responses in group 2.
-For \code{design = 'controlled'} or \code{'external'}: observed control data.
-For \code{design = 'uncontrolled'}: hypothetical control response count.}
+\item{x2_10}{A non-negative integer giving the count of (1,0) responses in
+group 2.}
 
-\item{x2_11}{A non-negative integer representing the count of (1,1) responses in group 2.
-For \code{design = 'controlled'} or \code{'external'}: observed control data.
-For \code{design = 'uncontrolled'}: hypothetical control response count.}
+\item{x2_11}{A non-negative integer giving the count of (1,1) responses in
+group 2.}
 
-\item{a1_00}{A positive numeric value for the Dirichlet prior parameter α1_00.}
+\item{a1_00}{A positive numeric scalar giving the Dirichlet prior parameter
+for the (0,0) response pattern in group 1.}
 
-\item{a1_01}{A positive numeric value for the Dirichlet prior parameter α1_01.}
+\item{a1_01}{A positive numeric scalar giving the Dirichlet prior parameter
+for the (0,1) response pattern in group 1.}
 
-\item{a1_10}{A positive numeric value for the Dirichlet prior parameter α1_10.}
+\item{a1_10}{A positive numeric scalar giving the Dirichlet prior parameter
+for the (1,0) response pattern in group 1.}
 
-\item{a1_11}{A positive numeric value for the Dirichlet prior parameter α1_11.}
+\item{a1_11}{A positive numeric scalar giving the Dirichlet prior parameter
+for the (1,1) response pattern in group 1.}
 
-\item{a2_00}{A positive numeric value for the Dirichlet prior parameter α2_00.
-For \code{design = 'uncontrolled'}: typically set equal to a1_00.}
+\item{a2_00}{A positive numeric scalar giving the Dirichlet prior parameter
+for the (0,0) response pattern in group 2.}
 
-\item{a2_01}{A positive numeric value for the Dirichlet prior parameter α2_01.
-For \code{design = 'uncontrolled'}: typically set equal to a1_01.}
+\item{a2_01}{A positive numeric scalar giving the Dirichlet prior parameter
+for the (0,1) response pattern in group 2.}
 
-\item{a2_10}{A positive numeric value for the Dirichlet prior parameter α2_10.
-For \code{design = 'uncontrolled'}: typically set equal to a1_10.}
+\item{a2_10}{A positive numeric scalar giving the Dirichlet prior parameter
+for the (1,0) response pattern in group 2.}
 
-\item{a2_11}{A positive numeric value for the Dirichlet prior parameter α2_11.
-For \code{design = 'uncontrolled'}: typically set equal to a1_11.}
+\item{a2_11}{A positive numeric scalar giving the Dirichlet prior parameter
+for the (1,1) response pattern in group 2.}
 
-\item{m1}{A positive integer representing the number of patients in group 1 for
-the future trial (required if \code{prob = 'predictive'}).}
+\item{m1}{A positive integer giving the future sample size for group 1.
+Required when \code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{m2}{A positive integer representing the number of patients in group 2 for
-the future trial (required if \code{prob = 'predictive'}).}
+\item{m2}{A positive integer giving the future sample size for group 2.
+Required when \code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{xe1_00}{A non-negative integer for external group 1 count (0,0)
-(required if \code{design = 'external'} and external treatment data used).}
+\item{xe1_00}{A non-negative integer giving the external group 1 count for
+pattern (0,0). Required when \code{design = 'external'} and external
+treatment data are used; otherwise set to \code{NULL}.}
 
-\item{xe1_01}{A non-negative integer for external group 1 count (0,1)
-(required if \code{design = 'external'} and external treatment data used).}
+\item{xe1_01}{A non-negative integer giving the external group 1 count for
+pattern (0,1). Required for external treatment data; otherwise \code{NULL}.}
 
-\item{xe1_10}{A non-negative integer for external group 1 count (1,0)
-(required if \code{design = 'external'} and external treatment data used).}
+\item{xe1_10}{A non-negative integer giving the external group 1 count for
+pattern (1,0). Required for external treatment data; otherwise \code{NULL}.}
 
-\item{xe1_11}{A non-negative integer for external group 1 count (1,1)
-(required if \code{design = 'external'} and external treatment data used).}
+\item{xe1_11}{A non-negative integer giving the external group 1 count for
+pattern (1,1). Required for external treatment data; otherwise \code{NULL}.}
 
-\item{xe2_00}{A non-negative integer for external group 2 count (0,0)
-(required if \code{design = 'external'} and external control data used).}
+\item{xe2_00}{A non-negative integer giving the external group 2 count for
+pattern (0,0). Required when \code{design = 'external'} and external
+control data are used; otherwise set to \code{NULL}.}
 
-\item{xe2_01}{A non-negative integer for external group 2 count (0,1)
-(required if \code{design = 'external'} and external control data used).}
+\item{xe2_01}{A non-negative integer giving the external group 2 count for
+pattern (0,1). Required for external control data; otherwise \code{NULL}.}
 
-\item{xe2_10}{A non-negative integer for external group 2 count (1,0)
-(required if \code{design = 'external'} and external control data used).}
+\item{xe2_10}{A non-negative integer giving the external group 2 count for
+pattern (1,0). Required for external control data; otherwise \code{NULL}.}
 
-\item{xe2_11}{A non-negative integer for external group 2 count (1,1)
-(required if \code{design = 'external'} and external control data used).}
+\item{xe2_11}{A non-negative integer giving the external group 2 count for
+pattern (1,1). Required for external control data; otherwise \code{NULL}.}
 
-\item{ae1}{A numeric value in (0, 1] representing the power prior scale parameter
-for group 1 (required if \code{design = 'external'} and external treatment data used).
-Controls the degree of borrowing: 0 = no borrowing, 1 = full borrowing.}
+\item{ae1}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
+group 1. Required when external treatment data are used; otherwise
+\code{NULL}.}
 
-\item{ae2}{A numeric value in (0, 1] representing the power prior scale parameter
-for group 2 (required if \code{design = 'external'} and external control data used).
-Controls the degree of borrowing: 0 = no borrowing, 1 = full borrowing.}
+\item{ae2}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
+group 2. Required when external control data are used; otherwise
+\code{NULL}.}
 
-\item{nMC}{A positive integer representing the number of Monte Carlo samples
-for probability calculation (default = 10000). Larger values provide
-more accurate estimates but require more computation time.}
+\item{nMC}{A positive integer giving the number of Monte Carlo draws used to
+estimate region probabilities. Default is 10000. Larger values reduce
+Monte Carlo error.}
 }
 \value{
-A named numeric vector of length 9 containing the posterior or posterior
-predictive probabilities for each of the nine decision regions (R1, ..., R9).
-The regions are defined by the treatment effects θ1 = π11 - π21 and
-θ2 = π12 - π22 relative to the thresholds:
-\itemize{
-\item R1: θ1 > TV1 AND θ2 > TV2 (both endpoints exceed target)
-\item R2: θ1 > TV1 AND TV2 ≥ θ2 > MAV2
-\item R3: θ1 > TV1 AND θ2 ≤ MAV2
-\item R4: TV1 ≥ θ1 > MAV1 AND θ2 > TV2
-\item R5: TV1 ≥ θ1 > MAV1 AND TV2 ≥ θ2 > MAV2 (both in Gray zone)
-\item R6: TV1 ≥ θ1 > MAV1 AND θ2 ≤ MAV2
-\item R7: θ1 ≤ MAV1 AND θ2 > TV2
-\item R8: θ1 ≤ MAV1 AND TV2 ≥ θ2 > MAV2
-\item R9: θ1 ≤ MAV1 AND θ2 ≤ MAV2 (both endpoints below minimum)
-}
+A named numeric vector of region probabilities.
+For \code{prob = 'posterior'}: length 9, named \code{R1}, ..., \code{R9},
+corresponding to regions defined by TV and MAV thresholds for both
+endpoints (column-major order: Endpoint 2 varies fastest).
+For \code{prob = 'predictive'}: length 4, named \code{R1}, ..., \code{R4}.
+All elements are non-negative and sum to 1.
 }
 \description{
-This function computes Bayesian posterior probability or posterior predictive
-probability for clinical trials with two binary endpoints. The function supports
-controlled and external control designs, using Dirichlet-multinomial conjugate
-priors. External data can be incorporated through power priors. The function
-returns probabilities for nine decision regions defined by target values (TV)
-and minimum acceptable values (MAV) for both endpoints.
+Computes Bayesian posterior probability or posterior predictive probability
+for clinical trials with two binary endpoints under a Dirichlet-multinomial
+conjugate model. The function returns probabilities for nine decision regions
+(posterior) or four decision regions (predictive) defined by target values
+(TV) and minimum acceptable values (MAV) for both endpoints.
+External data can be incorporated through power priors.
 }
 \details{
-The function computes probabilities based on Dirichlet-multinomial conjugate analysis:
+The model uses a Dirichlet-multinomial conjugate analysis. The four response
+categories are ordered as (0,0), (0,1), (1,0), (1,1).
+
+Prior: \eqn{p_k \sim \mathrm{Dirichlet}(\alpha_{k,00},\, \alpha_{k,01},\,
+\alpha_{k,10},\, \alpha_{k,11})}.
+
+Posterior after observing \eqn{x_k}: \eqn{p_k \mid x_k \sim
+\mathrm{Dirichlet}(\alpha_{k,00} + x_{k,00},\; \ldots,\;
+\alpha_{k,11} + x_{k,11})}.
+
+Marginal response rates:
+\eqn{\pi_{k1} = p_{k,10} + p_{k,11}} (Endpoint 1) and
+\eqn{\pi_{k2} = p_{k,01} + p_{k,11}} (Endpoint 2).
+
+Treatment effects: \eqn{\theta_1 = \pi_{11} - \pi_{21}},
+\eqn{\theta_2 = \pi_{12} - \pi_{22}}.
+
+For \code{design = 'external'}, the power prior augments the Dirichlet prior:
+\deqn{\alpha_{k,lm}^* = \alpha_{k,lm} + ae_k \cdot xe_{k,lm}.}
+
+For \code{prob = 'posterior'} the nine regions are (column-major order with
+Endpoint 2 varying fastest):
 \itemize{
-\item \strong{Data structure}: Two binary endpoints (y_k1, y_k2) are aggregated into
-four response categories: (0,0), (0,1), (1,0), and (1,1)
-\item \strong{Prior}: p_k ~ Dirichlet(αk_00, αk_01, αk_10, αk_11)
-\item \strong{Posterior}: p_k | x_k ~ Dirichlet(αk_00 + xk_00, αk_01 + xk_01,
-αk_10 + xk_10, αk_11 + xk_11)
-\item \strong{Treatment effects}: θ1 = π11 - π21, θ2 = π12 - π22, where
-πk1 = pk_10 + pk_11 (marginal probability for Endpoint 1),
-πk2 = pk_01 + pk_11 (marginal probability for Endpoint 2)
+\item R1: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 > TV_2}
+\item R2: \eqn{\theta_1 > TV_1} AND \eqn{TV_2 \ge \theta_2 > MAV_2}
+\item R3: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 \le MAV_2}
+\item R4: \eqn{TV_1 \ge \theta_1 > MAV_1} AND \eqn{\theta_2 > TV_2}
+\item R5: \eqn{TV_1 \ge \theta_1 > MAV_1} AND \eqn{TV_2 \ge \theta_2 > MAV_2}
+\item R6: \eqn{TV_1 \ge \theta_1 > MAV_1} AND \eqn{\theta_2 \le MAV_2}
+\item R7: \eqn{\theta_1 \le MAV_1} AND \eqn{\theta_2 > TV_2}
+\item R8: \eqn{\theta_1 \le MAV_1} AND \eqn{TV_2 \ge \theta_2 > MAV_2}
+\item R9: \eqn{\theta_1 \le MAV_1} AND \eqn{\theta_2 \le MAV_2}
 }
-
-\strong{Note on correlation}: The two endpoints are correlated within each arm because
-they share the p_11 component. This correlation is naturally captured through the
-Dirichlet distribution and Monte Carlo sampling.
-
-For \strong{external control designs}, power priors are used to incorporate historical
-data. The effective prior becomes:
-Dirichlet(αk_00 + aek × xek_00, αk_01 + aek × xek_01,
-αk_10 + aek × xek_10, αk_11 + aek × xek_11)
-
-\strong{Posterior predictive distribution}:
-tilde.x_k | x_k ~ Dirichlet-Multinomial(mk, αk_00 + xk_00, αk_01 + xk_01,
-αk_10 + xk_10, αk_11 + xk_11)
-
-\strong{Monte Carlo estimation}: Due to the correlation between endpoints and the
-complexity of the joint distribution, probabilities are estimated using Monte
-Carlo simulation. Larger nMC values provide more accurate estimates.
 }
 \examples{
 # Example 1: Posterior probability for controlled design
@@ -259,46 +259,20 @@ pPPtwobinary(
   nMC = 10000
 )
 
-# Example 4: Uncontrolled design (single-arm study)
-# Use hypothetical control data with same priors as treatment
+# Example 4: Uncontrolled design with hypothetical control counts
 pPPtwobinary(
   prob = 'posterior', design = 'uncontrolled',
   theta.TV1 = 0.20, theta.MAV1 = 0.10,
   theta.TV2 = 0.20, theta.MAV2 = 0.10,
   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
-  x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,  # Hypothetical control counts
+  x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,  # Same as a1_xx
+  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
   m1 = NULL, m2 = NULL,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
   nMC = 10000
 )
-
-# Example 5: Visualizing the 9 regions
-\dontrun{
-result <- pPPtwobinary(
-  prob = 'posterior', design = 'controlled',
-  theta.TV1 = 0.20, theta.MAV1 = 0.10,
-  theta.TV2 = 0.20, theta.MAV2 = 0.10,
-  x1_00 = 4, x1_01 = 3, x1_10 = 5, x1_11 = 13,
-  x2_00 = 10, x2_01 = 5, x2_10 = 7, x2_11 = 3,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = NULL, m2 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
-  nMC = 10000
-)
-
-# Display as 3x3 matrix
-matrix(result, nrow = 3, byrow = FALSE,
-       dimnames = list(
-         c("θ2 > TV2", "TV2 ≥ θ2 > MAV2", "MAV2 ≥ θ2"),
-         c("θ1 > TV1", "TV1 ≥ θ1 > MAV1", "MAV1 ≥ θ1")
-       ))
-}
 
 }

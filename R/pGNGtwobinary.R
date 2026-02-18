@@ -153,23 +153,23 @@
 #' specified true response probabilities, then calculates posterior or posterior
 #' predictive probabilities for each simulated dataset using \code{pPPtwobinary()}.
 #'
-#' **Decision Regions for Posterior Probability (9 regions)**:
-#' The nine regions are defined by the thresholds for both endpoints as follows
-#' (regions numbered 1-9 in column-major order):
+#' \strong{Decision Regions for Posterior Probability (9 regions)}:
+#' The nine regions are defined by TV and MAV thresholds for both endpoints
+#' (column-major order: Endpoint 2 varies fastest):
 #' \tabular{lccc}{
-#'   \tab \strong{θ1 > TV1} \tab \strong{TV1 ≥ θ1 > MAV1} \tab \strong{MAV1 ≥ θ1} \cr
-#'   \strong{θ2 > TV2} \tab Region 1 \tab Region 4 \tab Region 7 \cr
-#'   \strong{TV2 ≥ θ2 > MAV2} \tab Region 2 \tab Region 5 \tab Region 8 \cr
-#'   \strong{MAV2 ≥ θ2} \tab Region 3 \tab Region 6 \tab Region 9
+#'   \tab \strong{th1 > TV1} \tab \strong{TV1 >= th1 > MAV1} \tab \strong{MAV1 >= th1} \cr
+#'   \strong{th2 > TV2}         \tab Region 1 \tab Region 4 \tab Region 7 \cr
+#'   \strong{TV2 >= th2 > MAV2} \tab Region 2 \tab Region 5 \tab Region 8 \cr
+#'   \strong{MAV2 >= th2}       \tab Region 3 \tab Region 6 \tab Region 9
 #' }
 #'
-#' **Decision Regions for Predictive Probability (4 regions)**:
-#' The four regions are defined by the NULL hypothesis thresholds for both endpoints
-#' (regions numbered 1-4 in column-major order):
+#' \strong{Decision Regions for Predictive Probability (4 regions)}:
+#' The four regions are defined by the null hypothesis thresholds
+#' (column-major order: Endpoint 2 varies fastest):
 #' \tabular{lcc}{
-#'   \tab \strong{θ1 > NULL1} \tab \strong{NULL1 ≥ θ1} \cr
-#'   \strong{θ2 > NULL2} \tab Region 1 \tab Region 3 \cr
-#'   \strong{NULL2 ≥ θ2} \tab Region 2 \tab Region 4
+#'   \tab \strong{th1 > NULL1} \tab \strong{NULL1 >= th1} \cr
+#'   \strong{th2 > NULL2} \tab Region 1 \tab Region 3 \cr
+#'   \strong{NULL2 >= th2} \tab Region 2 \tab Region 4
 #' }
 #'
 #' **Decision Criteria** (corresponding to Documentation.pdf equations):
@@ -371,111 +371,171 @@ pGNGtwobinary <- function(nsim = 10000, prob = 'posterior', design = 'controlled
                           error_if_Miss = TRUE, Gray_inc_Miss = TRUE,
                           nMC = 10000, seed = NULL) {
 
+  # --- Input validation ---
+  if (!is.character(prob) || length(prob) != 1L ||
+      !prob %in% c('posterior', 'predictive')) {
+    stop("'prob' must be either 'posterior' or 'predictive'")
+  }
+
+  if (!is.character(design) || length(design) != 1L ||
+      !design %in% c('controlled', 'external', 'uncontrolled')) {
+    stop("'design' must be 'controlled', 'external', or 'uncontrolled'")
+  }
+
+  if (!is.numeric(nsim) || length(nsim) != 1L || is.na(nsim) ||
+      nsim != floor(nsim) || nsim < 1L) {
+    stop("'nsim' must be a single positive integer")
+  }
+
+  if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
+      nMC != floor(nMC) || nMC < 1L) {
+    stop("'nMC' must be a single positive integer")
+  }
+
+  for (nm in c("n1", "n2")) {
+    val <- get(nm)
+    if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
+        val != floor(val) || val < 1L) {
+      stop(paste0("'", nm, "' must be a single positive integer"))
+    }
+  }
+
+  if (!is.numeric(decision_criteria) || length(decision_criteria) != 1L ||
+      !decision_criteria %in% c(1, 2, 3, 4)) {
+    stop("'decision_criteria' must be 1, 2, 3, or 4")
+  }
+
+  if (is.null(gammaG1) || is.null(gammaN1) || is.null(gammaG2) || is.null(gammaN2)) {
+    stop("'gammaG1', 'gammaN1', 'gammaG2', and 'gammaN2' must all be non-NULL")
+  }
+
+  for (nm in c("gammaG1", "gammaN1", "gammaG2", "gammaN2")) {
+    val <- get(nm)
+    if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
+        val <= 0 || val >= 1) {
+      stop(paste0("'", nm, "' must be a single numeric value in (0, 1)"))
+    }
+  }
+
+  if (gammaG1 <= gammaN1) {
+    stop("'gammaG1' must be strictly greater than 'gammaN1'")
+  }
+
+  if (gammaG2 <= gammaN2) {
+    stop("'gammaG2' must be strictly greater than 'gammaN2'")
+  }
+
+  if (!is.numeric(pi1) || length(pi1) != 4L || any(is.na(pi1)) ||
+      abs(sum(pi1) - 1) > 1e-10) {
+    stop("'pi1' must be a numeric vector of length 4 that sums to 1")
+  }
+
+  if (!is.numeric(pi2) || length(pi2) != 4L || any(is.na(pi2)) ||
+      abs(sum(pi2) - 1) > 1e-10) {
+    stop("'pi2' must be a numeric vector of length 4 that sums to 1")
+  }
+
+  # Validate Dirichlet prior parameters
+  for (nm in c("a1_00", "a1_01", "a1_10", "a1_11",
+               "a2_00", "a2_01", "a2_10", "a2_11")) {
+    val <- get(nm)
+    if (!is.numeric(val) || length(val) != 1L || is.na(val) || val <= 0) {
+      stop(paste0("'", nm, "' must be a single positive numeric value"))
+    }
+  }
+
+  if (!is.logical(error_if_Miss) || length(error_if_Miss) != 1L || is.na(error_if_Miss)) {
+    stop("'error_if_Miss' must be a single logical value (TRUE or FALSE)")
+  }
+
+  if (!is.logical(Gray_inc_Miss) || length(Gray_inc_Miss) != 1L || is.na(Gray_inc_Miss)) {
+    stop("'Gray_inc_Miss' must be a single logical value (TRUE or FALSE)")
+  }
+
+  # Validate prob-specific parameters
+  if (prob == 'predictive') {
+    if (is.null(theta.NULL1) || is.null(theta.NULL2)) {
+      stop("'theta.NULL1' and 'theta.NULL2' must be non-NULL when prob = 'predictive'")
+    }
+    if (is.null(m1) || is.null(m2)) {
+      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
+    }
+    for (nm in c("m1", "m2")) {
+      val <- get(nm)
+      if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
+          val != floor(val) || val < 1L) {
+        stop(paste0("'", nm, "' must be a single positive integer"))
+      }
+    }
+  }
+
+  # Validate design-specific parameters
+  if (design == 'uncontrolled') {
+    if (is.null(z)) {
+      stop("'z' must be non-NULL when design = 'uncontrolled'")
+    }
+    if (!is.numeric(z) || length(z) != 4L || any(is.na(z)) ||
+        any(z != floor(z)) || any(z < 0L)) {
+      stop("'z' must be a non-negative integer vector of length 4")
+    }
+    if (sum(z) != n2) {
+      stop("Sum of 'z' must equal 'n2'")
+    }
+  }
+
+  if (design == 'external') {
+    has_xe1 <- !is.null(xe1_00) && !is.null(xe1_01) &&
+      !is.null(xe1_10) && !is.null(xe1_11) && !is.null(ae1)
+    has_xe2 <- !is.null(xe2_00) && !is.null(xe2_01) &&
+      !is.null(xe2_10) && !is.null(xe2_11) && !is.null(ae2)
+    if (!has_xe1 && !has_xe2) {
+      stop("For design = 'external', at least one complete external data set must be provided")
+    }
+    if (!is.null(ae1)) {
+      if (!is.numeric(ae1) || length(ae1) != 1L || is.na(ae1) ||
+          ae1 <= 0 || ae1 > 1) {
+        stop("'ae1' must be a single numeric value in (0, 1]")
+      }
+    }
+    if (!is.null(ae2)) {
+      if (!is.numeric(ae2) || length(ae2) != 1L || is.na(ae2) ||
+          ae2 <= 0 || ae2 > 1) {
+        stop("'ae2' must be a single numeric value in (0, 1]")
+      }
+    }
+  }
+
   # Set seed for reproducibility if provided
   if (!is.null(seed)) {
+    if (!is.numeric(seed) || length(seed) != 1L || is.na(seed)) {
+      stop("'seed' must be a single numeric value or NULL")
+    }
     set.seed(seed)
   }
 
-  # Set default regions if not specified by user
-  if (is.null(Go1_regions) || is.null(NoGo1_regions) || is.null(Go2_regions) || is.null(NoGo2_regions)) {
+  # Set default region vectors if not specified by user
+  if (is.null(Go1_regions) || is.null(NoGo1_regions) ||
+      is.null(Go2_regions) || is.null(NoGo2_regions)) {
     if (prob == 'posterior') {
-      # Default regions for posterior probability (9 regions)
-      Go1_regions <- c(1, 2, 3)
+      Go1_regions   <- c(1, 2, 3)
       NoGo1_regions <- c(7, 8, 9)
-      Go2_regions <- c(1, 4, 7)
+      Go2_regions   <- c(1, 4, 7)
       NoGo2_regions <- c(3, 6, 9)
     } else {
-      # Default regions for predictive probability (4 regions)
-      Go1_regions <- c(1, 2)
+      Go1_regions   <- c(1, 2)
       NoGo1_regions <- c(3, 4)
-      Go2_regions <- c(1, 3)
+      Go2_regions   <- c(1, 3)
       NoGo2_regions <- c(2, 4)
     }
   }
 
-  # Validate decision_criteria parameter
-  if (!decision_criteria %in% c(1, 2, 3, 4)) {
-    stop("decision_criteria must be 1, 2, 3, or 4")
-  }
-
-  # Validate gamma parameters - all decision criteria use endpoint-specific gammas
-  if (is.null(gammaG1) || is.null(gammaN1) || is.null(gammaG2) || is.null(gammaN2)) {
-    stop("gammaG1, gammaN1, gammaG2, and gammaN2 must be specified")
-  }
-  if (gammaG1 <= gammaN1) {
-    stop("gammaG1 must be greater than gammaN1")
-  }
-  if (gammaG2 <= gammaN2) {
-    stop("gammaG2 must be greater than gammaN2")
-  }
-
-  # Input validation
-  if (!is.numeric(nsim) || nsim <= 0 || nsim != as.integer(nsim)) {
-    stop("nsim must be a positive integer")
-  }
-
-  if (!prob %in% c('posterior', 'predictive')) {
-    stop("prob must be either 'posterior' or 'predictive'")
-  }
-
-  if (!design %in% c('controlled', 'external', 'uncontrolled')) {
-    stop("design must be 'controlled', 'external', or 'uncontrolled'")
-  }
-
-  if (length(pi1) != 4 || abs(sum(pi1) - 1) > 1e-10) {
-    stop("pi1 must be a numeric vector of length 4 that sums to 1")
-  }
-
-  if (length(pi2) != 4 || abs(sum(pi2) - 1) > 1e-10) {
-    stop("pi2 must be a numeric vector of length 4 that sums to 1")
-  }
-
   # Validate region parameters based on prob type
-  if (prob == 'posterior') {
-    if (any(Go1_regions < 1 | Go1_regions > 9)) {
-      stop("For posterior probability, Go1_regions must contain values between 1 and 9")
-    }
-    if (any(NoGo1_regions < 1 | NoGo1_regions > 9)) {
-      stop("For posterior probability, NoGo1_regions must contain values between 1 and 9")
-    }
-    if (any(Go2_regions < 1 | Go2_regions > 9)) {
-      stop("For posterior probability, Go2_regions must contain values between 1 and 9")
-    }
-    if (any(NoGo2_regions < 1 | NoGo2_regions > 9)) {
-      stop("For posterior probability, NoGo2_regions must contain values between 1 and 9")
-    }
-  } else {
-    if (any(Go1_regions < 1 | Go1_regions > 4)) {
-      stop("For predictive probability, Go1_regions must contain values between 1 and 4")
-    }
-    if (any(NoGo1_regions < 1 | NoGo1_regions > 4)) {
-      stop("For predictive probability, NoGo1_regions must contain values between 1 and 4")
-    }
-    if (any(Go2_regions < 1 | Go2_regions > 4)) {
-      stop("For predictive probability, Go2_regions must contain values between 1 and 4")
-    }
-    if (any(NoGo2_regions < 1 | NoGo2_regions > 4)) {
-      stop("For predictive probability, NoGo2_regions must contain values between 1 and 4")
-    }
-  }
-
-  # Validate theta.NULL parameters for predictive probability
-  if (prob == 'predictive') {
-    if (is.null(theta.NULL1) || is.null(theta.NULL2)) {
-      stop("theta.NULL1 and theta.NULL2 must be specified when prob = 'predictive'")
-    }
-  }
-
-  # Validate parameter sets for uncontrolled design
-  if (design == 'uncontrolled') {
-    if (is.null(z)) {
-      stop("For uncontrolled design, z (hypothetical control response counts) must be specified")
-    }
-    if (length(z) != 4) {
-      stop("z must be a numeric vector of length 4 for (0,0), (0,1), (1,0), (1,1) responses")
-    }
-    if (sum(z) != n2) {
-      stop("Sum of z must equal n2")
+  max_r <- if (prob == 'posterior') 9L else 4L
+  for (nm in c("Go1_regions", "NoGo1_regions", "Go2_regions", "NoGo2_regions")) {
+    val <- get(nm)
+    if (!is.numeric(val) || any(is.na(val)) || any(val < 1) || any(val > max_r)) {
+      stop(paste0("'", nm, "' must contain integers between 1 and ", max_r,
+                  " for prob = '", prob, "'"))
     }
   }
 
