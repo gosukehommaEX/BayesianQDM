@@ -66,8 +66,8 @@ a Normal-Inverse-Chi-squared prior.}
 
 \item{CalcMethod}{A character string specifying the calculation method for
 computing probabilities. Options are \code{'NI'} for numerical integration,
-\code{'MC'} for Monte Carlo simulation, or \code{'WS'} for the
-Welch-Satterthwaite approximation.}
+\code{'MC'} for Monte Carlo simulation, or \code{'MM'} for the
+Moment-Matching approximation.}
 
 \item{theta.TV}{A numeric value representing the target value threshold for
 calculating Go probability when \code{prob = 'posterior'}. This represents
@@ -85,10 +85,10 @@ probability calculation when \code{CalcMethod = 'MC'} (required if
 \code{CalcMethod = 'MC'}).}
 
 \item{gamma1}{A numeric value in (0, 1) representing the threshold for Go decision.
-If P(treatment effect > threshold | data) ≥ gamma1, the decision is Go.}
+If P(treatment effect > threshold | data) >= gamma1, the decision is Go.}
 
 \item{gamma2}{A numeric value in (0, 1) representing the threshold for NoGo decision.
-If P(treatment effect > threshold | data) ≤ gamma2, the decision is NoGo.
+If P(treatment effect > threshold | data) <= gamma2, the decision is NoGo.
 Must satisfy gamma2 < gamma1.}
 
 \item{n1}{A positive integer representing the number of patients in group 1
@@ -206,6 +206,12 @@ The function performs Monte Carlo simulation to evaluate operating characteristi
 \item Classifying each trial as Go, NoGo, or Gray based on decision thresholds
 }
 
+Posterior parameter calculations (mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) are
+fully vectorized over the nsim simulated datasets. pPPsinglecontinuous is called
+twice (once per threshold), with each call receiving vectors of length nsim and
+returning a vector of nsim probabilities - no inner loop over simulation replicates
+is required.
+
 For external control designs, power priors are incorporated using exact conjugate representation:
 \itemize{
 \item Power priors for normal data are mathematically equivalent to Normal-Inverse-Chi-squared distributions
@@ -215,9 +221,9 @@ For external control designs, power priors are incorporated using exact conjugat
 
 \strong{Decision rules}:
 \itemize{
-\item \strong{Go}: P(treatment effect > threshold) ≥ γ₁
-\item \strong{NoGo}: P(treatment effect > threshold) ≤ γ₂
-\item \strong{Gray}: γ₂ < P(treatment effect > threshold) < γ₁
+\item \strong{Go}: P(treatment effect > threshold) >= gamma1
+\item \strong{NoGo}: P(treatment effect > threshold) <= gamma2
+\item \strong{Gray}: gamma2 < P(treatment effect > threshold) < gamma1
 \item \strong{Miss}: Both Go and NoGo criteria are met simultaneously (indicates
 poorly chosen thresholds)
 }
@@ -269,10 +275,10 @@ pGNGsinglecontinuous(
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 )
 
-# Example 3: External design with control data using WS approximation
+# Example 3: External design with control data using MM approximation
 \dontrun{
 pGNGsinglecontinuous(
-  nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'WS',
+  nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'MM',
   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,

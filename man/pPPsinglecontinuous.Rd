@@ -55,7 +55,7 @@ conjugate prior.}
 
 \item{CalcMethod}{A character string specifying the calculation method. Options are
 \code{'NI'} for numerical integration, \code{'MC'} for Monte Carlo simulation,
-or \code{'WS'} for Welch-Satterthwaite approximation.}
+or \code{'MM'} for Moment-Matching approximation.}
 
 \item{theta0}{A numeric value representing the pre-specified threshold value for
 the treatment effect (difference in means).}
@@ -107,15 +107,19 @@ for group 1 (required if \code{prior = 'N-Inv-Chisq'}, otherwise set to NULL).}
 for group 2 (required if \code{prior = 'N-Inv-Chisq'} and \code{design = 'controlled'},
 otherwise set to NULL).}
 
-\item{bar.y1}{A numeric value representing the sample mean for group 1.}
+\item{bar.y1}{A numeric value or vector representing the sample mean for group 1.
+When a vector of length nsim is provided, all posterior parameters are computed
+simultaneously for all replicates.}
 
-\item{bar.y2}{A numeric value representing the sample mean for group 2
+\item{bar.y2}{A numeric value or vector representing the sample mean for group 2
 (required if \code{design = 'controlled'} or \code{'external'}, otherwise set to NULL).}
 
-\item{s1}{A positive numeric value representing the sample standard deviation for group 1.}
+\item{s1}{A positive numeric value or vector representing the sample standard deviation
+for group 1.}
 
-\item{s2}{A positive numeric value representing the sample standard deviation for group 2
-(required if \code{design = 'controlled'} or \code{'external'}, otherwise set to NULL).}
+\item{s2}{A positive numeric value or vector representing the sample standard deviation
+for group 2 (required if \code{design = 'controlled'} or \code{'external'},
+otherwise set to NULL).}
 
 \item{r}{A positive numeric value representing the variance scaling factor for
 hypothetical control. For \code{design = 'uncontrolled'}: specifies how the
@@ -155,19 +159,21 @@ external group 2 (required if \code{design = 'external'} and external control
 data used, otherwise set to NULL).}
 
 \item{lower.tail}{A logical value; if TRUE (default), probabilities are
-P(treatment effect ≤ theta0), otherwise P(treatment effect > theta0).}
+P(treatment effect <= theta0), otherwise P(treatment effect > theta0).}
 }
 \value{
-A numeric value in \code{[0, 1]} representing the Bayesian posterior probability
-or posterior predictive probability that the treatment effect exceeds
-(or is below) the threshold theta0.
+A numeric value or vector in \code{[0, 1]} representing the Bayesian posterior
+probability or posterior predictive probability that the treatment effect exceeds
+(or is below) the threshold theta0. If bar.y1, s1, bar.y2, or s2 are vectors,
+returns a vector of the same length.
 }
 \description{
 This function computes Bayesian posterior probability or posterior predictive
 probability for continuous outcome clinical trials. The function supports
 controlled, uncontrolled, and external control designs, with Normal-Inverse-Chi-squared
 conjugate priors or vague priors. External data can be incorporated through
-power priors.
+power priors. Vector inputs for bar.y1, s1, bar.y2, and s2 are supported for
+efficient batch processing (e.g., across simulation replicates).
 }
 \details{
 The function can obtain:
@@ -179,6 +185,12 @@ The function can obtain:
 Prior distribution of mean and variance of outcomes for each treatment group (k=1,2) can be either
 (1) Normal-Inverse-Chi-squared or (2) Vague. The posterior distribution or posterior predictive
 distribution of outcome for each treatment group follows a t-distribution.
+
+All posterior parameter calculations (mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2) are
+performed using vectorized arithmetic, so bar.y1, s1, bar.y2, and s2 can be vectors
+of length nsim. The resulting parameter vectors are passed directly to pNI2tdiff,
+pMC2tdiff, or pMM2tdiff, which also support vector inputs, eliminating the need
+for an outer loop over simulation replicates.
 
 \strong{Design-specific handling}:
 \itemize{
@@ -196,7 +208,7 @@ For controlled and uncontrolled designs, three calculation methods are available
 \itemize{
 \item NI: Numerical integration method for exact computation
 \item MC: Monte Carlo simulation for flexible approximation
-\item WS: Welch-Satterthwaite approximation for computational efficiency
+\item MM: Moment-Matching approximation for computational efficiency
 }
 
 For external control designs, power priors are incorporated using exact conjugate representation:
@@ -232,7 +244,7 @@ pPPsinglecontinuous(
 # mu02 = 1.5 is the hypothetical control mean
 # r = 1.2 means hypothetical control variance is 1.2 times treatment variance
 pPPsinglecontinuous(
-  prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'WS',
+  prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MM',
   theta0 = 1.5, n1 = 15, n2 = 15,
   bar.y1 = 3.5, bar.y2 = NULL, s1 = 1.2, s2 = NULL,
   mu02 = 1.5, r = 1.2,
@@ -246,7 +258,7 @@ pPPsinglecontinuous(
 
 # Example 3: Posterior predictive probability for controlled design
 pPPsinglecontinuous(
-  prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'WS',
+  prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MM',
   theta0 = 0.5, n1 = 15, n2 = 15, m1 = 100, m2 = 100,
   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
   mu01 = 2, mu02 = 2, sigma01 = 2, sigma02 = 2,
@@ -266,6 +278,24 @@ pPPsinglecontinuous(
   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
   m1 = NULL, m2 = NULL, r = NULL,
   ne1 = NULL, alpha01 = NULL, bar.ye1 = NULL, se1 = NULL,
+  lower.tail = FALSE
+)
+
+# Example 5: Vectorized usage across simulation replicates
+set.seed(1)
+bar.y1_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
+s1_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
+bar.y2_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
+s2_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
+pPPsinglecontinuous(
+  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MM',
+  theta0 = 1.5, n1 = 12, n2 = 12,
+  bar.y1 = bar.y1_vec, bar.y2 = bar.y2_vec, s1 = s1_vec, s2 = s2_vec,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  m1 = NULL, m2 = NULL, r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
   lower.tail = FALSE
 )
 

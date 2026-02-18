@@ -10,37 +10,38 @@ pNI2tdiff(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE)
 \arguments{
 \item{q}{A numeric value representing the quantile threshold.}
 
-\item{mu.t1}{A numeric value representing the location parameter (μ) of the first
-t-distribution.}
-
-\item{mu.t2}{A numeric value representing the location parameter (μ) of the second
-t-distribution.}
-
-\item{sd.t1}{A positive numeric value representing the scale parameter (σ) of the
+\item{mu.t1}{A numeric value or vector representing the location parameter (mu) of the
 first t-distribution.}
 
-\item{sd.t2}{A positive numeric value representing the scale parameter (σ) of the
+\item{mu.t2}{A numeric value or vector representing the location parameter (mu) of the
 second t-distribution.}
 
-\item{nu.t1}{A positive numeric value representing the degrees of freedom (ν) of
+\item{sd.t1}{A positive numeric value or vector representing the scale parameter (sigma)
+of the first t-distribution.}
+
+\item{sd.t2}{A positive numeric value or vector representing the scale parameter (sigma)
+of the second t-distribution.}
+
+\item{nu.t1}{A positive numeric value representing the degrees of freedom (nu) of
 the first t-distribution. Must be > 2 for finite variance.}
 
-\item{nu.t2}{A positive numeric value representing the degrees of freedom (ν) of
+\item{nu.t2}{A positive numeric value representing the degrees of freedom (nu) of
 the second t-distribution. Must be > 2 for finite variance.}
 
-\item{lower.tail}{A logical value; if TRUE (default), probabilities are P(T1 - T2 ≤ q),
+\item{lower.tail}{A logical value; if TRUE (default), probabilities are P(T1 - T2 <= q),
 otherwise P(T1 - T2 > q).}
 }
 \value{
-A numeric value in \code{[0, 1]} representing the cumulative probability that the
-difference between the two t-distributed variables is below (if lower.tail = TRUE)
-or exceeds (if lower.tail = FALSE) the quantile q.
+A numeric value or vector in \code{[0, 1]} representing the cumulative probability
+that the difference between the two t-distributed variables is below
+(if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile q.
+If mu.t1, mu.t2, sd.t1, or sd.t2 are vectors, returns a vector of the same length.
 }
 \description{
 This function calculates the cumulative distribution function (CDF) of the difference
 between two independent t-distributed random variables using exact numerical integration
 via convolution. This method provides the most accurate results (within numerical
-precision) compared to approximation methods. Specifically, it computes P(T1 - T2 ≤ q)
+precision) compared to approximation methods. Specifically, it computes P(T1 - T2 <= q)
 or P(T1 - T2 > q) where T1 and T2 follow t-distributions with potentially different
 location, scale, and degrees of freedom parameters.
 }
@@ -49,16 +50,19 @@ This function uses the exact convolution approach to compute the distribution of
 difference between two t-distributed variables. The method involves:
 \itemize{
 \item Using the convolution formula:
-\deqn{P(T_1 - T_2 \le q) = \int_{-\infty}^{\infty} f_1(x) \cdot F_2(x - q) dx}
-\item Where \eqn{f_1(x)} is the probability density function (PDF) of the first
+P(T_1 - T_2 > q) = integral from -infinity to infinity of f_1(x) * F_2(x - q) dx
+\item Where f_1(x) is the probability density function (PDF) of the first
 t-distribution
-\item And \eqn{F_2(x - q)} is the cumulative distribution function (CDF) of the
-second t-distribution evaluated at \eqn{x - q}
+\item And F_2(x - q) is the cumulative distribution function (CDF) of the
+second t-distribution evaluated at (x - q)
 \item Adaptive integration bounds based on the distribution characteristics
-(approximately ±8 standard deviations from the mean)
+(approximately plus/minus 8 standard deviations from the mean)
 \item High-precision numerical integration with relative tolerance 1e-6 and
 absolute tolerance 1e-8
 }
+
+When mu.t1, mu.t2, sd.t1, or sd.t2 are vectors, mapply is used to apply the
+scalar integration function across all parameter sets efficiently.
 
 \strong{Advantages}:
 \itemize{
@@ -88,8 +92,13 @@ pNI2tdiff(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5,
 pNI2tdiff(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
          nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
 
-# Calculate lower tail probability P(t1 - t2 ≤ 2)
+# Calculate lower tail probability P(t1 - t2 <= 2)
 pNI2tdiff(q = 2, mu.t1 = 3, mu.t2 = 0, sd.t1 = 1.5, sd.t2 = 1.2,
          nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
+
+# Vectorized usage: calculate for multiple parameter sets simultaneously
+pNI2tdiff(q = 1, mu.t1 = c(2, 3, 4), mu.t2 = c(0, 1, 2),
+         sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
+         nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
 
 }

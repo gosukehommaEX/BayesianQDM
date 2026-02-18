@@ -21,7 +21,7 @@ of the first beta distribution.}
 \item{beta2}{A positive numeric value representing the second shape parameter
 of the second beta distribution.}
 
-\item{lower.tail}{A logical value; if TRUE (default), probabilities are P(X1 - X2 ≤ q),
+\item{lower.tail}{A logical value; if TRUE (default), probabilities are P(X1 - X2 <= q),
 otherwise P(X1 - X2 > q).}
 }
 \value{
@@ -31,25 +31,28 @@ or exceeds (if lower.tail = FALSE) the quantile q.
 }
 \description{
 This function calculates the cumulative distribution function (CDF) of the difference
-between two independent beta-distributed random variables using numerical integration
-of the probability density function. The density function uses Appell's first
-hypergeometric function for computation. Specifically, it computes P(X1 - X2 ≤ q) or
-P(X1 - X2 > q) where X1 ~ Beta(alpha1, beta1) and X2 ~ Beta(alpha2, beta2).
+between two independent beta-distributed random variables. Specifically, it computes
+P(X1 - X2 <= q) or P(X1 - X2 > q) where X1 ~ Beta(alpha1, beta1) and
+X2 ~ Beta(alpha2, beta2).
 }
 \details{
-The function computes the CDF by numerically integrating the probability density
-function of the difference using adaptive quadrature. The density is evaluated
-using piecewise formulations based on Appell's F1 hypergeometric function:
-\itemize{
-\item For π ∈ \code{[-1, 0)}: Uses Appell's F1 with parameters adjusted for negative differences
-\item For π ∈ \code{[0, 1)}: Uses Appell's F1 with parameters adjusted for positive differences
-\item Special case handling when π = 0 and certain parameter conditions are met
-}
+The upper tail probability P(X1 - X2 > q) is expressed as the convolution:
 
-The upper tail probability P(X1 - X2 > q) is computed as:
-\deqn{P(X1 - X2 > q) = \int_q^1 f(π) dπ}
+P(X1 - X2 > q) = integral_0^1 P(X2 < x - q) * f1(x) dx
+= integral_0^1 pbeta(x - q, alpha2, beta2) * dbeta(x, alpha1, beta1) dx
 
-where f(π) is the probability density function of the difference.
+where f1(x) = dbeta(x, alpha1, beta1) is the density of X1, and
+pbeta(x - q, alpha2, beta2) = P(X2 < x - q) is the CDF of X2 evaluated at x - q.
+The argument x - q is implicitly clipped to \link{0, 1} by pbeta (returns 0 for negative
+values and 1 for values exceeding 1).
+
+This formulation replaces the original double integration structure
+(outer integral over the difference, inner integral for Appell's F1 function)
+with a single numerical integration. The two approaches are mathematically
+equivalent by the law of total probability. The integrand uses only
+R's native pbeta and dbeta functions, which are implemented in C and are
+substantially faster than the recursive numerical integration required by
+Appell's F1 hypergeometric function.
 }
 \examples{
 # Calculate P(Beta(0.5, 0.5) - Beta(0.5, 0.5) > 0.2)
@@ -61,7 +64,7 @@ p2betadiff(-0.1, 2, 3, 1, 4, lower.tail = FALSE)
 # Calculate P(Beta(1, 1) - Beta(1, 1) > 0) - should be approximately 0.5
 p2betadiff(0, 1, 1, 1, 1, lower.tail = FALSE)
 
-# Calculate lower tail probability P(Beta(2, 2) - Beta(2, 2) ≤ 0.1)
+# Calculate lower tail probability P(Beta(2, 2) - Beta(2, 2) <= 0.1)
 p2betadiff(0.1, 2, 2, 2, 2, lower.tail = TRUE)
 
 }

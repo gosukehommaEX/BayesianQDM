@@ -29,7 +29,7 @@ of the first beta distribution.}
 of the second beta distribution.}
 
 \item{lower.tail}{A logical value; if TRUE (default), probabilities are
-P((Y1/m1) - (Y2/m2) ≤ q), otherwise P((Y1/m1) - (Y2/m2) > q).}
+P((Y1/m1) - (Y2/m2) <= q), otherwise P((Y1/m1) - (Y2/m2) > q).}
 }
 \value{
 A numeric value in \code{[0, 1]} representing the cumulative probability that
@@ -40,7 +40,7 @@ is below (if lower.tail = TRUE) or exceeds (if lower.tail = FALSE) the quantile 
 This function calculates the cumulative distribution function (CDF) of the difference
 between two independent beta-binomial random variables. The computation uses exact
 enumeration over all possible combinations of outcomes. Specifically, it computes
-P((Y1/m1) - (Y2/m2) ≤ q) or P((Y1/m1) - (Y2/m2) > q) where Y1 ~ BetaBinomial(m1, alpha1, beta1)
+P((Y1/m1) - (Y2/m2) <= q) or P((Y1/m1) - (Y2/m2) > q) where Y1 ~ BetaBinomial(m1, alpha1, beta1)
 and Y2 ~ BetaBinomial(m2, alpha2, beta2).
 }
 \details{
@@ -48,15 +48,15 @@ The function computes the exact probability by enumerating all possible combinat
 of outcomes for both beta-binomial distributions and summing the joint probabilities
 for which the proportion difference satisfies the specified condition.
 
-The probability mass function for BetaBinomial(m, α, β) is:
-\deqn{P(Y = k) = \binom{m}{k} \frac{B(k + \alpha, m - k + \beta)}{B(\alpha, \beta)}}
+The probability mass function for BetaBinomial(m, alpha, beta) is:
+P(Y = k) = choose(m, k) * B(k + alpha, m - k + beta) / B(alpha, beta)
 
-where B(·,·) is the beta function.
+where B(.,.) is the beta function.
 
 The beta-binomial distribution arises when the success probability in a binomial
 distribution follows a beta distribution, making it useful for modeling overdispersed
 count data. For large values of m1 and m2, the computation may become slow as it
-requires evaluating (m1 + 1) × (m2 + 1) combinations.
+requires evaluating (m1 + 1) times (m2 + 1) combinations.
 }
 \examples{
 # Calculate P((Y1/12) - (Y2/12) > 0.2) for symmetric beta priors
@@ -68,7 +68,7 @@ p2betabinomdiff(0.1, 20, 15, 1, 1, 1, 1, lower.tail = FALSE)
 # Calculate P((Y1/10) - (Y2/10) > 0) for informative priors
 p2betabinomdiff(0, 10, 10, 2, 3, 3, 2, lower.tail = FALSE)
 
-# Calculate lower tail probability P((Y1/15) - (Y2/15) ≤ 0.05)
+# Calculate lower tail probability P((Y1/15) - (Y2/15) <= 0.05)
 p2betabinomdiff(0.05, 15, 15, 1, 1, 1, 1, lower.tail = TRUE)
 
 }

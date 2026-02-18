@@ -68,7 +68,8 @@ like 0.2 or 0.3, with gamma2 < gamma1.}
 for group 1 (treatment) under which to evaluate operating characteristics.}
 
 \item{pi2}{A numeric value or vector representing the true response probability(s)
-for group 2 (control) under which to evaluate operating characteristics.}
+for group 2 (control) under which to evaluate operating characteristics.
+For uncontrolled design, this parameter is not used.}
 
 \item{n1}{A positive integer representing the number of patients in group 1 for
 the proof-of-concept (PoC) trial.}
@@ -77,23 +78,22 @@ the proof-of-concept (PoC) trial.}
 the PoC trial (used for controlled and external designs, also required for
 uncontrolled design for consistency).}
 
-\item{a1}{A positive numeric value representing the first shape parameter (α)
+\item{a1}{A positive numeric value representing the first shape parameter (alpha)
 of the prior beta distribution for group 1 (treatment).}
 
-\item{a2}{A positive numeric value representing the first shape parameter (α)
+\item{a2}{A positive numeric value representing the first shape parameter (alpha)
 of the prior beta distribution for group 2 (control or hypothetical control).}
 
-\item{b1}{A positive numeric value representing the second shape parameter (β)
+\item{b1}{A positive numeric value representing the second shape parameter (beta)
 of the prior beta distribution for group 1 (treatment).}
 
-\item{b2}{A positive numeric value representing the second shape parameter (β)
+\item{b2}{A positive numeric value representing the second shape parameter (beta)
 of the prior beta distribution for group 2 (control or hypothetical control).}
 
 \item{z}{A non-negative integer representing the hypothetical control responder count
 (required if \code{design = 'uncontrolled'}, otherwise set to NULL).
 This specifies the expected number of responders in a hypothetical control
-group based on historical data or prior knowledge. This is mathematically
-equivalent to y2 in pPPsinglebinary() for uncontrolled design.}
+group based on historical data or prior knowledge.}
 
 \item{m1}{A positive integer representing the number of patients in group 1 for
 the future trial (required if \code{prob = 'predictive'}, otherwise set to NULL).}
@@ -156,11 +156,9 @@ true response rates (pi1, pi2)
 
 \strong{Decision rules}:
 \itemize{
-\item \strong{Go}: P(treatment effect > threshold | data) ≥ γ₁ AND
-P(treatment effect > threshold | data) in lower tail < γ₂
-\item \strong{NoGo}: P(treatment effect > threshold | data) < γ₁ AND
-P(treatment effect > threshold | data) in lower tail ≥ γ₂
-\item \strong{Gray}: Neither Go nor NoGo criteria are met (γ₂ < probability < γ₁)
+\item \strong{Go}: P(treatment effect > theta.TV | data) >= gamma1
+\item \strong{NoGo}: P(treatment effect > theta.MAV | data) <= gamma2
+\item \strong{Gray}: Neither Go nor NoGo criteria are met
 \item \strong{Miss}: Both Go and NoGo criteria are met simultaneously (indicates
 poorly chosen thresholds)
 }
@@ -168,9 +166,9 @@ poorly chosen thresholds)
 \strong{Design-specific handling}:
 \itemize{
 \item \strong{Controlled design}: Evaluates all possible outcomes (y1, y2) where
-y1 ∈ {0,...,n1} and y2 ∈ {0,...,n2}
-\item \strong{Uncontrolled design}: Uses hypothetical control specified by \code{z}.
-Evaluates outcomes (y1, z) where y1 ∈ {0,...,n1} and y2 is fixed at z.
+y1 in {0,...,n1} and y2 in {0,...,n2}
+\item \strong{Uncontrolled design}: Uses hypothetical control specified by z.
+Evaluates outcomes (y1, z) where y1 in {0,...,n1} and y2 is fixed at z.
 The parameter z represents the expected responder count in a hypothetical
 control group.
 \item \strong{External design}: Incorporates external data through power priors for
@@ -232,6 +230,32 @@ pGNGsinglebinary(
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = 30, m2 = 30,
   ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+# Example 4: External design with power prior (50 percent borrowing)
+pGNGsinglebinary(
+  prob = 'posterior', design = 'external',
+  theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
+  gamma1 = 0.8, gamma2 = 0.2,
+  pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
+  n1 = 12, n2 = 12,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = 15, ne2 = 15, ye1 = 6, ye2 = 4, ae1 = 0.5, ae2 = 0.5,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+# Example 5: External design with strong borrowing (100 percent)
+pGNGsinglebinary(
+  prob = 'posterior', design = 'external',
+  theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
+  gamma1 = 0.8, gamma2 = 0.2,
+  pi1 = c(0.3, 0.5, 0.7), pi2 = rep(0.3, 3),
+  n1 = 15, n2 = 15,
+  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = 20, ne2 = 20, ye1 = 10, ye2 = 8, ae1 = 1.0, ae2 = 1.0,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
