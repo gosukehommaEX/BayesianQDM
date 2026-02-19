@@ -169,11 +169,16 @@
 #' \strong{Two-stage computation.}
 #'
 #' Stage 1 (precomputation): All possible multinomial count combinations
-#' \eqn{(x_t, x_c)} are enumerated using \code{\link{allmultinom}}.
-#' For each combination, \code{\link{pbayespostpred2bin}} computes the Go and NoGo
-#' posterior/predictive probabilities via Monte Carlo, yielding matrices
-#' \code{PrGo[i, j]} and \code{PrNoGo[i, j]}.  This stage is independent of
-#' the true scenario parameters.
+#' \eqn{x_t} are enumerated using \code{\link{allmultinom}}.
+#' For \code{design = 'controlled'} or \code{'external'}, all combinations
+#' \eqn{x_c} are also enumerated and the Go/NoGo probability matrix
+#' \code{PrGo[i, j]} has dimensions \eqn{n_t \times n_c}.
+#' For \code{design = 'uncontrolled'}, the control distribution is fixed as
+#' \eqn{\mathrm{Dir}(\alpha_{2,**} + z_{**})} and does not depend on any
+#' observed control counts; the probability matrix therefore has dimensions
+#' \eqn{n_t \times 1}, eliminating the \eqn{\binom{n_2+3}{3}}-row control
+#' enumeration and the associated Gamma sampling.
+#' This stage is independent of the true scenario parameters.
 #'
 #' Stage 2 (scenario evaluation): For each scenario
 #' \eqn{(\pi_{t1}, \pi_{t2}, \rho_t, \pi_{c1}, \pi_{c2}, \rho_c)},
@@ -617,9 +622,18 @@ pbayesdecisionprob2bin <- function(prob        = 'posterior',
 
   # Enumerate all possible count vectors for each arm
   counts_t <- allmultinom(n1)   # (n_t x 4) integer matrix
-  counts_c <- allmultinom(n2)   # (n_c x 4) integer matrix
   n_t      <- nrow(counts_t)
-  n_c      <- nrow(counts_c)
+
+  # For uncontrolled design, the control distribution is fixed (Dir(a2 + z))
+  # and does not vary with observed control counts.  The Stage 1 probability
+  # matrix therefore needs only a single column (n_c = 1), avoiding the
+  # generation of the full allmultinom(n2) table (C(n2+3,3) rows).
+  if (design == 'uncontrolled') {
+    n_c <- 1L
+  } else {
+    counts_c <- allmultinom(n2)   # (n_c x 4) integer matrix
+    n_c      <- nrow(counts_c)
+  }
 
   # --- Build posterior Dirichlet base parameters (prior + external data) ---
   xe1_w <- if (!is.null(ae1) && design == 'external') ae1 else 0
@@ -786,9 +800,9 @@ pbayesdecisionprob2bin <- function(prob        = 'posterior',
       p1   <- G1 / rowSums(G1)
 
       res <- .compute_PrGoNoGo(p1, p2_fixed)
-      # All columns share the same value (Stage 2 will use only column 1)
-      PrGo_mat[i, ]   <- res$PrGo
-      PrNoGo_mat[i, ] <- res$PrNoGo
+      # n_c = 1 for uncontrolled, so only column 1 exists
+      PrGo_mat[i, 1L]   <- res$PrGo
+      PrNoGo_mat[i, 1L] <- res$PrNoGo
     }
 
   } else {
@@ -920,16 +934,10 @@ pbayesdecisionprob2bin <- function(prob        = 'posterior',
     p_t <- getjointbin(pi1 = pi_t1[s], pi2 = pi_t2[s], rho = rho_t[s])
 
     if (design == 'uncontrolled') {
-      # Control arm weights do not depend on (pi_c, rho_c): use unit weight
-      # The Stage 1 precomputation already fixed the hypothetical control
-      # distribution via z*, so x_c iterates over a single row (all zeros)
-      # conceptually -- but pbayespostpred2bin draws from Dir(a2 + z) regardless
-      # of x_c.  We therefore fix x_c to zeros and iterate over x_t only.
-      # Multinomial weight for control is degenerate (point mass at x_c=0000
-      # is not meaningful); instead collapse the j loop to j=1 with weight 1.
-      # Stage 1 already stored results for all (i,j) but only the i loop
-      # matters; the j=1 column (all zeros) is the reference.
-      # Correct approach: treat Stage 1 x_c index as dummy and sum over j=1.
+      # Control distribution is fixed (Dir(a2 + z)) and independent of x_c.
+      # Stage 1 was computed with n_c = 1, so ind_Go/ind_NoGo/ind_Miss have
+      # exactly one column.  Only treatment counts contribute multinomial
+      # weights; the control column index is always 1.
       w_t <- apply(counts_t, 1L, function(x)
         dmultinom(x, size = n1, prob = p_t))
 

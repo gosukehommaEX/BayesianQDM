@@ -40,7 +40,8 @@ pbayespostpred2cont(
   ybar_e2 = NULL,
   Se1 = NULL,
   Se2 = NULL,
-  nMC = 10000L
+  nMC = 10000L,
+  method = "MC"
 )
 }
 \arguments{
@@ -177,7 +178,19 @@ of external data for group 2. Required when \code{ne2} is
 non-NULL; otherwise \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Monte Carlo samples.
-Default is \code{10000L}.}
+Default is \code{10000L}.  Used when \code{method = 'MC'} or when
+\code{method = 'MM'} falls back to MC.}
+
+\item{method}{A character string specifying the computation method.
+Must be \code{'MC'} (Monte Carlo; default) or \code{'MM'}
+(Moment-Matching approximation based on Theorem 3 of the reference).
+When \code{method = 'MM'}, the parameters of the approximating
+bivariate t-distribution are determined analytically via moment
+matching, and rectangular region probabilities are evaluated with
+\code{mvtnorm::pmvt}.  If the degrees-of-freedom condition
+\eqn{\nu_k > 4} is not met (e.g., vague prior with small
+\eqn{n_k \leq 6}), a warning is issued and the function falls back
+to \code{method = 'MC'}.}
 }
 \value{
 A named numeric vector of region probabilities.
@@ -373,6 +386,27 @@ pbayespostpred2cont(
   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
   nMC = 1000L
+)
+
+# Example 6: Posterior probability, controlled design, NIW prior, MM method
+S1 <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S2 <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+L0 <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
+pbayespostpred2cont(
+  prob = 'posterior', design = 'controlled', prior = 'N-Inv-Wishart',
+  theta.TV1 = 1.5, theta.MAV1 = 0.5,
+  theta.TV2 = 1.0, theta.MAV2 = 0.3,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n1 = 12L, n2 = 12L,
+  ybar1 = c(3.5, 2.1), S1 = S1,
+  ybar2 = c(1.8, 1.0), S2 = S2,
+  m1 = NULL, m2 = NULL,
+  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
+  kappa02 = 2.0, nu02 = 5.0, mu02 = c(1.0, 0.5), Lambda02 = L0,
+  r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  nMC = 1000L, method = 'MM'
 )
 
 }

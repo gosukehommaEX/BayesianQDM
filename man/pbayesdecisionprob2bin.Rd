@@ -272,11 +272,16 @@ Carlo sampling per scenario.
 \strong{Two-stage computation.}
 
 Stage 1 (precomputation): All possible multinomial count combinations
-\eqn{(x_t, x_c)} are enumerated using \code{\link{allmultinom}}.
-For each combination, \code{\link{pbayespostpred2bin}} computes the Go and NoGo
-posterior/predictive probabilities via Monte Carlo, yielding matrices
-\code{PrGo[i, j]} and \code{PrNoGo[i, j]}.  This stage is independent of
-the true scenario parameters.
+\eqn{x_t} are enumerated using \code{\link{allmultinom}}.
+For \code{design = 'controlled'} or \code{'external'}, all combinations
+\eqn{x_c} are also enumerated and the Go/NoGo probability matrix
+\code{PrGo[i, j]} has dimensions \eqn{n_t \times n_c}.
+For \code{design = 'uncontrolled'}, the control distribution is fixed as
+\eqn{\mathrm{Dir}(\alpha_{2,**} + z_{**})} and does not depend on any
+observed control counts; the probability matrix therefore has dimensions
+\eqn{n_t \times 1}, eliminating the \eqn{\binom{n_2+3}{3}}-row control
+enumeration and the associated Gamma sampling.
+This stage is independent of the true scenario parameters.
 
 Stage 2 (scenario evaluation): For each scenario
 \eqn{(\pi_{t1}, \pi_{t2}, \rho_t, \pi_{c1}, \pi_{c2}, \rho_c)},

@@ -126,7 +126,13 @@
 #'        otherwise \code{NULL}.
 #' @param nMC A positive integer giving the number of Monte Carlo samples
 #'        passed to \code{\link{pbayespostpred2cont}} for each simulated dataset.
-#'        Default is \code{1000L}.
+#'        Used when \code{method = 'MC'} or when \code{method = 'MM'} falls back
+#'        to MC.  Default is \code{1000L}.
+#' @param method A character string specifying the computation method passed to
+#'        \code{\link{pbayespostpred2cont}}.  Must be \code{'MC'} (Monte Carlo;
+#'        default) or \code{'MM'} (Moment-Matching approximation).  See
+#'        \code{\link{pbayespostpred2cont}} for details on the MM approximation
+#'        and its fallback behaviour.
 #' @param error_if_Miss A logical scalar; if \code{TRUE} (default), the
 #'        function stops with an error if Miss probability is positive.
 #' @param Gray_inc_Miss A logical scalar; if \code{TRUE}, Miss probability
@@ -289,6 +295,33 @@
 #' )
 #' }
 #'
+#' # Example 6: Controlled design, posterior probability, NIW prior, MM method
+#' \dontrun{
+#' Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
+#' L0    <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
+#' pbayesdecisionprob2cont(
+#'   nsim = 100L, prob = 'posterior', design = 'controlled',
+#'   prior = 'N-Inv-Wishart',
+#'   GoRegions = 1L, NoGoRegions = 9L,
+#'   gamma1 = 0.8, gamma2 = 0.8,
+#'   theta.TV1 = 1.5, theta.MAV1 = 0.5,
+#'   theta.TV2 = 1.0, theta.MAV2 = 0.3,
+#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
+#'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+#'   Sigma1 = Sigma,
+#'   mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+#'   Sigma2 = Sigma,
+#'   kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
+#'   kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0,
+#'   r = NULL,
+#'   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+#'   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+#'   nMC = 500L, method = 'MM',
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 6L
+#' )
+#' }
+#'
 #' @importFrom stats rnorm
 #' @export
 pbayesdecisionprob2cont <- function(nsim,
@@ -312,6 +345,7 @@ pbayesdecisionprob2cont <- function(nsim,
                                     ybar_e1     = NULL, ybar_e2     = NULL,
                                     Se1         = NULL, Se2         = NULL,
                                     nMC         = 1000L,
+                                    method      = 'MC',
                                     error_if_Miss = TRUE,
                                     Gray_inc_Miss = FALSE,
                                     seed) {
@@ -427,6 +461,10 @@ pbayesdecisionprob2cont <- function(nsim,
     stop("'nMC' must be a single positive integer")
   nMC <- as.integer(nMC)
 
+  if (!is.character(method) || length(method) != 1L ||
+      !method %in% c('MC', 'MM'))
+    stop("'method' must be either 'MC' or 'MM'")
+
   # ---------------------------------------------------------------------------
   # Section 2: Pre-generate shared PoC data components
   #
@@ -535,7 +573,7 @@ pbayesdecisionprob2cont <- function(nsim,
         r = r,
         ne1 = ne1, ne2 = ne2, alpha01e = alpha01e, alpha02e = alpha02e,
         ybar_e1 = ybar_e1, ybar_e2 = ybar_e2, Se1 = Se1, Se2 = Se2,
-        nMC = nMC
+        nMC = nMC, method = method
       )
 
       PrGo_vec[i]   <- sum(Pr_R[GoRegions])
@@ -597,6 +635,7 @@ pbayesdecisionprob2cont <- function(nsim,
   attr(results, 'prior')         <- prior
   attr(results, 'nsim')          <- nsim
   attr(results, 'nMC')           <- nMC
+  attr(results, 'method')        <- method
   attr(results, 'GoRegions')     <- GoRegions
   attr(results, 'NoGoRegions')   <- NoGoRegions
   attr(results, 'gamma1')        <- gamma1
@@ -696,6 +735,7 @@ print.pbayesdecisionprob2cont <- function(x, digits = 4, ...) {
   error_if_Miss <- attr(x, 'error_if_Miss')
   Gray_inc_Miss <- attr(x, 'Gray_inc_Miss')
   seed          <- attr(x, 'seed')
+  method        <- attr(x, 'method')
 
   if (prob == 'posterior') {
     thresh_str <- sprintf('TV1 = %s, MAV1 = %s, TV2 = %s, MAV2 = %s',
@@ -714,6 +754,7 @@ print.pbayesdecisionprob2cont <- function(x, digits = 4, ...) {
   cat(sprintf('  Design           : %s\n',   design))
   cat(sprintf('  Prior            : %s\n',   prior_label))
   cat(sprintf('  Simulations      : nsim = %s, nMC = %s\n', fmt(nsim), fmt(nMC)))
+  cat(sprintf('  Method           : %s\n',   fmt(method)))
   cat(sprintf('  Seed             : %s\n',   fmt(seed)))
   cat(sprintf('  Threshold(s)     : %s\n',   thresh_str))
   cat(sprintf('  Go  threshold    : gamma1 = %s\n', fmt(gamma1)))

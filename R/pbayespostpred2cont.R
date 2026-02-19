@@ -110,7 +110,18 @@
 #'        of external data for group 2. Required when \code{ne2} is
 #'        non-NULL; otherwise \code{NULL}.
 #' @param nMC A positive integer giving the number of Monte Carlo samples.
-#'        Default is \code{10000L}.
+#'        Default is \code{10000L}.  Used when \code{method = 'MC'} or when
+#'        \code{method = 'MM'} falls back to MC.
+#' @param method A character string specifying the computation method.
+#'        Must be \code{'MC'} (Monte Carlo; default) or \code{'MM'}
+#'        (Moment-Matching approximation based on Theorem 3 of the reference).
+#'        When \code{method = 'MM'}, the parameters of the approximating
+#'        bivariate t-distribution are determined analytically via moment
+#'        matching, and rectangular region probabilities are evaluated with
+#'        \code{mvtnorm::pmvt}.  If the degrees-of-freedom condition
+#'        \eqn{\nu_k > 4} is not met (e.g., vague prior with small
+#'        \eqn{n_k \leq 6}), a warning is issued and the function falls back
+#'        to \code{method = 'MC'}.
 #'
 #' @return A named numeric vector of region probabilities.
 #'         For \code{prob = 'posterior'}: length 9, named \code{R1}, ...,
@@ -296,28 +307,51 @@
 #'   nMC = 1000L
 #' )
 #'
+#' # Example 6: Posterior probability, controlled design, NIW prior, MM method
+#' S1 <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+#' S2 <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+#' L0 <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
+#' pbayespostpred2cont(
+#'   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Wishart',
+#'   theta.TV1 = 1.5, theta.MAV1 = 0.5,
+#'   theta.TV2 = 1.0, theta.MAV2 = 0.3,
+#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   n1 = 12L, n2 = 12L,
+#'   ybar1 = c(3.5, 2.1), S1 = S1,
+#'   ybar2 = c(1.8, 1.0), S2 = S2,
+#'   m1 = NULL, m2 = NULL,
+#'   kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
+#'   kappa02 = 2.0, nu02 = 5.0, mu02 = c(1.0, 0.5), Lambda02 = L0,
+#'   r = NULL,
+#'   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+#'   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+#'   nMC = 1000L, method = 'MM'
+#' )
+#'
 #' @importFrom stats rnorm rchisq
+#' @importFrom mvtnorm pmvt
 #' @export
 pbayespostpred2cont <- function(prob,
-                             design,
-                             prior,
-                             theta.TV1   = NULL, theta.MAV1  = NULL,
-                             theta.TV2   = NULL, theta.MAV2  = NULL,
-                             theta.NULL1 = NULL, theta.NULL2 = NULL,
-                             n1, n2      = NULL,
-                             ybar1, S1,
-                             ybar2       = NULL, S2          = NULL,
-                             m1          = NULL, m2          = NULL,
-                             kappa01     = NULL, nu01        = NULL,
-                             mu01        = NULL, Lambda01    = NULL,
-                             kappa02     = NULL, nu02        = NULL,
-                             mu02        = NULL, Lambda02    = NULL,
-                             r           = NULL,
-                             ne1         = NULL, ne2         = NULL,
-                             alpha01e    = NULL, alpha02e    = NULL,
-                             ybar_e1     = NULL, ybar_e2     = NULL,
-                             Se1         = NULL, Se2         = NULL,
-                             nMC         = 10000L) {
+                                design,
+                                prior,
+                                theta.TV1   = NULL, theta.MAV1  = NULL,
+                                theta.TV2   = NULL, theta.MAV2  = NULL,
+                                theta.NULL1 = NULL, theta.NULL2 = NULL,
+                                n1, n2      = NULL,
+                                ybar1, S1,
+                                ybar2       = NULL, S2          = NULL,
+                                m1          = NULL, m2          = NULL,
+                                kappa01     = NULL, nu01        = NULL,
+                                mu01        = NULL, Lambda01    = NULL,
+                                kappa02     = NULL, nu02        = NULL,
+                                mu02        = NULL, Lambda02    = NULL,
+                                r           = NULL,
+                                ne1         = NULL, ne2         = NULL,
+                                alpha01e    = NULL, alpha02e    = NULL,
+                                ybar_e1     = NULL, ybar_e2     = NULL,
+                                Se1         = NULL, Se2         = NULL,
+                                nMC         = 10000L,
+                                method      = 'MC') {
 
   # ---------------------------------------------------------------------------
   # Section 1: Input validation
@@ -481,6 +515,10 @@ pbayespostpred2cont <- function(prob,
     stop("'nMC' must be a single positive integer")
   nMC <- as.integer(nMC)
 
+  if (!is.character(method) || length(method) != 1L ||
+      !method %in% c('MC', 'MM'))
+    stop("'method' must be either 'MC' or 'MM'")
+
   # ---------------------------------------------------------------------------
   # Section 2: Compute posterior hyperparameters for each arm
   # ---------------------------------------------------------------------------
@@ -573,46 +611,195 @@ pbayespostpred2cont <- function(prob,
   }
 
   # ---------------------------------------------------------------------------
-  # Section 3: Monte Carlo sampling and region classification
+  # Section 3: Region probability computation (MC or MM)
   # ---------------------------------------------------------------------------
 
-  if (prob == 'posterior') {
+  # --- MM method: Theorem 3 moment-matching helper ---
+  # Computes the parameters of the approximating bivariate t-distribution for
+  # the difference Z = mu_t - mu_c, where mu_k ~ t_p(mu_nk, V_k, df_k).
+  # Returns list(mu_diff, Sigma_star, nu_star).
+  .mm_general <- function(mu1, V1, nu1, mu2, V2, nu2) {
+    beta1  <- nu1 / (nu1 - 2)
+    beta2  <- nu2 / (nu2 - 2)
+    alpha1 <- nu1 ^ 2 / ((nu1 - 2) * (nu1 - 4))
+    alpha2 <- nu2 ^ 2 / ((nu2 - 2) * (nu2 - 4))
+    gamma  <- 2 * nu1 * nu2 / ((nu1 - 2) * (nu2 - 2))
 
-    # Draw nMC samples from each arm's marginal posterior distribution
-    mu_t <- rnsbt(nMC, df = post1$df, mu = post1$mu_n, V = post1$V)
-    mu_c <- rnsbt(nMC, df = post2$df, mu = post2$mu_n, V = post2$V)
+    # Variance-covariance sum of the two arms
+    Vsum <- V1 * beta1 + V2 * beta2
 
-    theta1 <- mu_t[, 1L] - mu_c[, 1L]
-    theta2 <- mu_t[, 2L] - mu_c[, 2L]
+    # A = Vsum^{-1} via Cholesky for numerical stability
+    R_chol <- tryCatch(chol(Vsum), error = function(e) NULL)
+    A <- if (!is.null(R_chol)) chol2inv(R_chol) else solve(Vsum)
 
-    # 3x3 region grid, row-major, Endpoint 1 slow index
-    r1 <- 3L - as.integer(theta1 > theta.MAV1) - as.integer(theta1 > theta.TV1)
-    r2 <- 3L - as.integer(theta2 > theta.MAV2) - as.integer(theta2 > theta.TV2)
-    region <- (r1 - 1L) * 3L + r2
+    # Trace quantities required for Qm (Theorem 3)
+    AV1      <- A %*% V1
+    AV2      <- A %*% V2
+    tr_AV1   <- sum(diag(AV1))
+    tr_AV2   <- sum(diag(AV2))
+    tr_AV1V1 <- sum(diag(AV1 %*% AV1))
+    tr_AV2V2 <- sum(diag(AV2 %*% AV2))
+    tr_AV1V2 <- sum(diag(AV1 %*% AV2))
 
-    Pr_R        <- tabulate(region, nbins = 9L) / nMC
-    names(Pr_R) <- paste0("R", 1:9)
+    p  <- length(mu1)
+    Qm <- (alpha1 * (tr_AV1 ^ 2 + 2 * tr_AV1V1) +
+             alpha2 * (tr_AV2 ^ 2 + 2 * tr_AV2V2) +
+             gamma  * (tr_AV1 * tr_AV2 + 2 * tr_AV1V2)) / (p * (p + 2))
+
+    nu_star    <- (2 - 4 * Qm) / (1 - Qm)
+    Sigma_star <- Vsum * (nu_star - 2) / nu_star
+
+    list(mu_diff = mu1 - mu2, Sigma_star = Sigma_star, nu_star = nu_star)
+  }
+
+  # --- Helper: rectangular region probability via inclusion-exclusion ---
+  # Computes P(lo1 < Z1 <= hi1, lo2 < Z2 <= hi2) for Z ~ t(mu_diff, Sigma*, nu*)
+  # using mvtnorm::pmvt on the centred variable Z - mu_diff.
+  # -Inf / +Inf boundaries are handled naturally by pmvt.
+  .rect_prob <- function(lo1, hi1, lo2, hi2, mm) {
+    nu_r   <- round(mm$nu_star)
+    sig    <- mm$Sigma_star
+    mu_d   <- mm$mu_diff
+    # pmvt integrates P(lower < Z - mu_diff < upper)
+    corners <- rbind(
+      c(lo1 - mu_d[1L], lo2 - mu_d[2L]),   # lower-lower  (+)
+      c(hi1 - mu_d[1L], lo2 - mu_d[2L]),   # upper-lower  (-)
+      c(lo1 - mu_d[1L], hi2 - mu_d[2L]),   # lower-upper  (-)
+      c(hi1 - mu_d[1L], hi2 - mu_d[2L])    # upper-upper  (+)
+    )
+    signs <- c(1, -1, -1, 1)
+    val   <- 0
+    for (k in seq_len(4L)) {
+      lo_k <- c(-Inf, -Inf)
+      hi_k <- corners[k, ]
+      val  <- val + signs[k] *
+        as.numeric(mvtnorm::pmvt(lower = lo_k, upper = hi_k,
+                                 delta = c(0, 0),
+                                 sigma = sig, df = nu_r))
+    }
+    pmax(val, 0)   # guard against small negative numerical noise
+  }
+
+  # --- Determine whether MM is feasible (both df > 4) ---
+  use_mm <- (method == 'MM')
+  if (use_mm && (post1$df <= 4 || post2$df <= 4)) {
+    warning(
+      "MM method requires df > 4 for both arms (df1 = ", post1$df,
+      ", df2 = ", post2$df, "). Falling back to method = 'MC'."
+    )
+    use_mm <- FALSE
+  }
+
+  if (!use_mm) {
+
+    # -------------------------------------------------------------------------
+    # MC path (original implementation)
+    # -------------------------------------------------------------------------
+
+    if (prob == 'posterior') {
+
+      # Draw nMC samples from each arm's marginal posterior distribution
+      mu_t <- rnsbt(nMC, df = post1$df, mu = post1$mu_n, V = post1$V)
+      mu_c <- rnsbt(nMC, df = post2$df, mu = post2$mu_n, V = post2$V)
+
+      theta1 <- mu_t[, 1L] - mu_c[, 1L]
+      theta2 <- mu_t[, 2L] - mu_c[, 2L]
+
+      # 3x3 region grid, row-major, Endpoint 1 slow index
+      r1 <- 3L - as.integer(theta1 > theta.MAV1) - as.integer(theta1 > theta.TV1)
+      r2 <- 3L - as.integer(theta2 > theta.MAV2) - as.integer(theta2 > theta.TV2)
+      region <- (r1 - 1L) * 3L + r2
+
+      Pr_R        <- tabulate(region, nbins = 9L) / nMC
+      names(Pr_R) <- paste0("R", 1:9)
+
+    } else {
+
+      # V already inflated for one future observation; divide by m_k for the
+      # distribution of the mean of m_k future observations
+      V1_pred <- post1$V / m1
+      V2_pred <- post2$V / m2
+
+      ytilde_t <- rnsbt(nMC, df = post1$df, mu = post1$mu_n, V = V1_pred)
+      ytilde_c <- rnsbt(nMC, df = post2$df, mu = post2$mu_n, V = V2_pred)
+
+      theta1 <- ytilde_t[, 1L] - ytilde_c[, 1L]
+      theta2 <- ytilde_t[, 2L] - ytilde_c[, 2L]
+
+      # 2x2 region grid, row-major, Endpoint 1 slow index
+      r1 <- 2L - as.integer(theta1 > theta.NULL1)
+      r2 <- 2L - as.integer(theta2 > theta.NULL2)
+      region <- (r1 - 1L) * 2L + r2
+
+      Pr_R        <- tabulate(region, nbins = 4L) / nMC
+      names(Pr_R) <- paste0("R", 1:4)
+    }
 
   } else {
 
-    # V already inflated for one future observation; divide by m_k for the
-    # distribution of the mean of m_k future observations
-    V1_pred <- post1$V / m1
-    V2_pred <- post2$V / m2
+    # -------------------------------------------------------------------------
+    # MM path: Theorem 3 moment-matching + mvtnorm::pmvt
+    # -------------------------------------------------------------------------
 
-    ytilde_t <- rnsbt(nMC, df = post1$df, mu = post1$mu_n, V = V1_pred)
-    ytilde_c <- rnsbt(nMC, df = post2$df, mu = post2$mu_n, V = V2_pred)
+    if (prob == 'posterior') {
 
-    theta1 <- ytilde_t[, 1L] - ytilde_c[, 1L]
-    theta2 <- ytilde_t[, 2L] - ytilde_c[, 2L]
+      mm <- .mm_general(post1$mu_n, post1$V, post1$df,
+                        post2$mu_n, post2$V, post2$df)
 
-    # 2x2 region grid, row-major, Endpoint 1 slow index
-    r1 <- 2L - as.integer(theta1 > theta.NULL1)
-    r2 <- 2L - as.integer(theta2 > theta.NULL2)
-    region <- (r1 - 1L) * 2L + r2
+      # Endpoint 1 cut-points: -Inf < MAV1 < TV1 < +Inf  (3 bands)
+      # Endpoint 2 cut-points: -Inf < MAV2 < TV2 < +Inf  (3 bands)
+      # 3x3 = 9 regions, row-major, Endpoint 1 slow index
+      cuts1 <- c(-Inf, theta.MAV1, theta.TV1,  Inf)
+      cuts2 <- c(-Inf, theta.MAV2, theta.TV2,  Inf)
 
-    Pr_R        <- tabulate(region, nbins = 4L) / nMC
-    names(Pr_R) <- paste0("R", 1:4)
+      Pr_R <- numeric(9L)
+      idx  <- 1L
+      # Endpoint 1 band: from high to low to match row-major order R1..R9
+      # Row 1: theta1 > TV1  (cuts1[3] to cuts1[4])
+      # Row 2: MAV1 < theta1 <= TV1  (cuts1[2] to cuts1[3])
+      # Row 3: theta1 <= MAV1  (cuts1[1] to cuts1[2])
+      for (i in 3L:1L) {
+        lo1 <- cuts1[i];  hi1 <- cuts1[i + 1L]
+        for (j in 3L:1L) {
+          lo2 <- cuts2[j];  hi2 <- cuts2[j + 1L]
+          Pr_R[idx] <- .rect_prob(lo1, hi1, lo2, hi2, mm)
+          idx <- idx + 1L
+        }
+      }
+      # Normalise to ensure exact sum-to-1 (corrects for pmvt rounding)
+      Pr_R        <- Pr_R / sum(Pr_R)
+      names(Pr_R) <- paste0("R", 1:9)
+
+    } else {
+
+      # Predictive: scale matrices already inflated for single obs; divide by m_k
+      V1_pred <- post1$V / m1
+      V2_pred <- post2$V / m2
+
+      mm <- .mm_general(post1$mu_n, V1_pred, post1$df,
+                        post2$mu_n, V2_pred, post2$df)
+
+      # 2x2 regions (row-major, Endpoint 1 slow index):
+      # R1: theta1 > NULL1  AND  theta2 > NULL2
+      # R2: theta1 > NULL1  AND  theta2 <= NULL2
+      # R3: theta1 <= NULL1 AND  theta2 > NULL2
+      # R4: theta1 <= NULL1 AND  theta2 <= NULL2
+      cuts1 <- c(-Inf, theta.NULL1, Inf)
+      cuts2 <- c(-Inf, theta.NULL2, Inf)
+
+      Pr_R <- numeric(4L)
+      idx  <- 1L
+      for (i in 2L:1L) {
+        lo1 <- cuts1[i];  hi1 <- cuts1[i + 1L]
+        for (j in 2L:1L) {
+          lo2 <- cuts2[j];  hi2 <- cuts2[j + 1L]
+          Pr_R[idx] <- .rect_prob(lo1, hi1, lo2, hi2, mm)
+          idx <- idx + 1L
+        }
+      }
+      Pr_R        <- Pr_R / sum(Pr_R)
+      names(Pr_R) <- paste0("R", 1:4)
+    }
   }
 
   Pr_R

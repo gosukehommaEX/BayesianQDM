@@ -46,6 +46,7 @@ pbayesdecisionprob2cont(
   Se1 = NULL,
   Se2 = NULL,
   nMC = 1000L,
+  method = "MC",
   error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE,
   seed
@@ -201,7 +202,14 @@ otherwise \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Monte Carlo samples
 passed to \code{\link{pbayespostpred2cont}} for each simulated dataset.
-Default is \code{1000L}.}
+Used when \code{method = 'MC'} or when \code{method = 'MM'} falls back
+to MC.  Default is \code{1000L}.}
+
+\item{method}{A character string specifying the computation method passed to
+\code{\link{pbayespostpred2cont}}.  Must be \code{'MC'} (Monte Carlo;
+default) or \code{'MM'} (Moment-Matching approximation).  See
+\code{\link{pbayespostpred2cont}} for details on the MM approximation
+and its fallback behaviour.}
 
 \item{error_if_Miss}{A logical scalar; if \code{TRUE} (default), the
 function stops with an error if Miss probability is positive.}
@@ -381,6 +389,33 @@ pbayesdecisionprob2cont(
   ne1 = NULL, ne2 = 15L, alpha01e = NULL, alpha02e = 0.5,
   ybar_e1 = NULL, ybar_e2 = c(0.2, 0.1), Se1 = NULL, Se2 = Se2,
   nMC = 500L, error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
+)
+}
+
+# Example 6: Controlled design, posterior probability, NIW prior, MM method
+\dontrun{
+Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
+L0    <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
+pbayesdecisionprob2cont(
+  nsim = 100L, prob = 'posterior', design = 'controlled',
+  prior = 'N-Inv-Wishart',
+  GoRegions = 1L, NoGoRegions = 9L,
+  gamma1 = 0.8, gamma2 = 0.8,
+  theta.TV1 = 1.5, theta.MAV1 = 0.5,
+  theta.TV2 = 1.0, theta.MAV2 = 0.3,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
+  mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+  Sigma1 = Sigma,
+  mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+  Sigma2 = Sigma,
+  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
+  kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0,
+  r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  nMC = 500L, method = 'MM',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 6L
 )
 }
 
