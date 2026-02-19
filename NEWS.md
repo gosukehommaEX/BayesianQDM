@@ -2,75 +2,71 @@
 
 ## Initial Release
 
-The initial release of BayesianQDM provides a comprehensive framework for Bayesian decision-making in clinical trials with support for both binary and continuous endpoints.
+Initial release providing a comprehensive Bayesian quantitative decision-making
+framework for clinical trials with single and two-endpoint analyses for binary
+and continuous outcomes.
 
-### Core Functions
+### Decision Probability Functions
 
-#### Binary Endpoints
+* `pbayesdecisionprob1bin()` - Go/NoGo/Gray decision probabilities for a single
+  binary endpoint
+* `pbayesdecisionprob1cont()` - Go/NoGo/Gray decision probabilities for a single
+  continuous endpoint
+* `pbayesdecisionprob2bin()` - Go/NoGo/Gray decision probabilities for two binary
+  endpoints
+* `pbayesdecisionprob2cont()` - Go/NoGo/Gray decision probabilities for two
+  continuous endpoints
 
-* `pPPsinglebinary()` - Posterior and posterior predictive probability calculation
-* `pGNGsinglebinary()` - Go/NoGo/Gray decision probability framework
-* `p2betadiff()` - Beta distribution differences
-* `p2betabinomdiff()` - Beta-Binomial distribution differences
-* `d2betadiff()` - Density function for beta distribution differences
+### Posterior and Predictive Probability Functions
 
-#### Continuous Endpoints
+* `pbayespostpred1bin()` - Posterior or predictive probability for a single binary
+  endpoint
+* `pbayespostpred1cont()` - Posterior or predictive probability for a single
+  continuous endpoint
+* `pbayespostpred2bin()` - Joint region probabilities for two binary endpoints
+* `pbayespostpred2cont()` - Joint region probabilities for two continuous endpoints
 
-* `pPPsinglecontinuous()` - Posterior and posterior predictive probability calculation
-* `pGNGsinglecontinuous()` - Go/NoGo/Gray decision probability framework
-* Distribution difference functions:
-  - `pNI2tdiff()` - Numerical integration method
-  - `pMC2tdiff()` - Monte Carlo simulation method
-  - `pWS2tdiff()` - Welch-Satterthwaite approximation method
+### Distribution Functions for Continuous Endpoints
 
-#### Utility Functions
+* `ptdiff_NI()` - CDF for the difference of two t-distributions via numerical
+  integration
+* `ptdiff_MC()` - CDF for the difference of two t-distributions via Monte Carlo
+  simulation
+* `ptdiff_MM()` - CDF for the difference of two t-distributions via
+  Moment-Matching approximation
 
-* `AppellsF1()` - Appell's hypergeometric function F1 for numerical calculations
+### Distribution Functions for Binary Endpoints
+
+* `pbetadiff()` - CDF for the difference of two independent Beta distributions
+* `pbetabinomdiff()` - Beta-binomial posterior predictive probability
+
+### Sampling Functions
+
+* `rnsbt()` - Random sampler for the bivariate non-standardised t-distribution
+* `rdirichlet()` - Random sampler for the Dirichlet distribution
+
+### Utility Functions
+
+* `getjointbin()` - Joint binary probability from marginals and a correlation
+  parameter
+* `allmultinom()` - Enumerate all multinomial outcome combinations
 
 ### Study Designs
 
-* **Controlled design** - Standard randomized controlled trials
-* **Uncontrolled design** - Single-arm studies with historical controls
-* **External control design** - Power prior incorporation of historical data
+* Controlled design
+* Uncontrolled design (hypothetical control)
+* External control design with power priors
 
 ### Prior Distributions
 
-* **Binary endpoints** - Beta priors with flexible parameterization
-* **Continuous endpoints** - Normal-Inverse-Chi-squared conjugate priors and vague priors
+* Binary endpoints: Beta and Dirichlet conjugate priors
+* Single continuous endpoints: Normal-Inverse-Chi-squared conjugate prior and
+  vague (Jeffreys) prior
+* Two continuous endpoints: Normal-Inverse-Wishart conjugate prior and vague prior
 
-### Calculation Methods
+### Calculation Methods for Continuous Endpoints
 
-* **NI** (Numerical Integration) - Exact calculation using convolution
-* **WS** (Welch-Satterthwaite) - Fast approximation for unequal variances
-* **MC** (Monte Carlo) - Simulation-based flexible approach
-
-### Documentation
-
-* Comprehensive function documentation with examples
-* Three detailed vignettes:
-  - Introduction to BayesianQDM
-  - Binary endpoints analysis
-  - Continuous endpoints analysis
-* Complete test suite using testthat
-
-### Dependencies
-
-* Base R stats functions
-* Suggested packages: testthat, knitr, rmarkdown, dplyr, ggplot2, tidyr, purrr
-* Compatible with tidyverse ecosystem for data manipulation and visualization
-
-### Quality Assurance
-
-* Extensive test coverage for all core functions
-* Input validation and informative error messages
-* Numerical precision checks and method comparisons
-* Operating characteristics validation
-
-## Future Development
-
-Planned features for future releases:
-* Additional calculation methods for complex scenarios
-* Enhanced visualization functions
-* Adaptive design utilities
-* Extended external data incorporation methods
-* Performance optimizations for large-scale simulations
+* NI (Numerical Integration): exact computation via adaptive quadrature
+* MC (Monte Carlo): simulation-based estimation
+* MM (Moment-Matching): closed-form approximation; fully vectorised and
+  recommended for large-scale simulation studies

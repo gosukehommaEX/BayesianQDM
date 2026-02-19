@@ -117,7 +117,7 @@ To cite BayesianQDM in publications, please use:
 ```
 Homma, G., Yamaguchi, Y. (2025). BayesianQDM: Bayesian Quantitative
 Decision-Making Framework for Binary and Continuous Endpoints.
-R package version 0.2.0.
+R package version 0.1.0.
 ```
 
 ## License

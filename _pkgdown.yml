@@ -3,36 +3,46 @@ template:
   bootstrap: 5
 
 reference:
-- title: Decision Making Functions
-  desc: Main functions for Go/NoGo/Gray decision making
+- title: Decision Probability Functions
+  desc: Go/NoGo/Gray decision probability calculation
   contents:
-  - pGNGsinglebinary
-  - pGNGsinglecontinuous
+  - pbayesdecisionprob1bin
+  - pbayesdecisionprob1cont
+  - pbayesdecisionprob2bin
+  - pbayesdecisionprob2cont
 
-- title: Probability Calculation Functions
-  desc: Functions for posterior and posterior predictive probabilities
+- title: Posterior and Predictive Probability Functions
+  desc: Posterior and posterior predictive probability calculation
   contents:
-  - pPPsinglebinary
-  - pPPsinglecontinuous
+  - pbayespostpred1bin
+  - pbayespostpred1cont
+  - pbayespostpred2bin
+  - pbayespostpred2cont
 
 - title: Distribution Functions for Continuous Endpoints
-  desc: Functions for calculating differences of t-distributions
+  desc: CDF for the difference of two t-distributions
   contents:
-  - pNI2tdiff
-  - pWS2tdiff
-  - pMC2tdiff
+  - ptdiff_NI
+  - ptdiff_MC
+  - ptdiff_MM
 
 - title: Distribution Functions for Binary Endpoints
-  desc: Functions for calculating differences of beta distributions
+  desc: CDF and related functions for Beta and Beta-binomial distributions
   contents:
-  - p2betadiff
-  - p2betabinomdiff
-  - d2betadiff
+  - pbetadiff
+  - pbetabinomdiff
+
+- title: Sampling Functions
+  desc: Random samplers for multivariate distributions
+  contents:
+  - rnsbt
+  - rdirichlet
 
 - title: Utility Functions
-  desc: Supporting mathematical functions
+  desc: Supporting functions for joint probability and multinomial enumeration
   contents:
-  - AppellsF1
+  - getjointbin
+  - allmultinom
 
 articles:
 - title: Getting Started
@@ -43,8 +53,8 @@ articles:
 - title: Endpoint-Specific Guides
   navbar: Guides
   contents:
-  - binary-endpoints
-  - continuous-endpoints
+  - single-endpoint
+  - two-endpoint
 
 navbar:
   structure:
@@ -57,10 +67,10 @@ navbar:
       - text: Introduction to BayesianQDM
         href: articles/BayesianQDM.html
       - text: -------
-      - text: Binary Endpoints
-        href: articles/binary-endpoints.html
-      - text: Continuous Endpoints
-        href: articles/continuous-endpoints.html
+      - text: Single Endpoint Analysis
+        href: articles/single-endpoint.html
+      - text: Two Endpoint Analysis
+        href: articles/two-endpoint.html
 
 home:
   title: BayesianQDM
