@@ -11,6 +11,14 @@ reference:
   - pbayesdecisionprob2bin
   - pbayesdecisionprob2cont
 
+- title: Print Methods
+  desc: S3 print methods for decision probability objects
+  contents:
+  - print.pbayesdecisionprob1bin
+  - print.pbayesdecisionprob1cont
+  - print.pbayesdecisionprob2bin
+  - print.pbayesdecisionprob2cont
+
 - title: Posterior and Predictive Probability Functions
   desc: Posterior and posterior predictive probability calculation
   contents:
@@ -76,4 +84,3 @@ home:
   title: BayesianQDM
   description: >
     Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints
-
