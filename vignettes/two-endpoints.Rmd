@@ -1,0 +1,389 @@
+---
+title: "Two-Endpoint Bayesian QDM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Two-Endpoint Bayesian QDM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>"
+)
+library(BayesianQDM)
+```
+
+## Motivating Scenario
+
+We extend the hypothetical Phase IIa PoC trial in rheumatoid arthritis (RA)
+to co-primary endpoints, evaluating both efficacy dimensions simultaneously.
+
+* **Two binary endpoints** — ACR20 and ACR50 response rates.
+* **Two continuous endpoints** — Change from baseline in DAS28 score (Endpoint 1)
+  and HAQ-DI disability index (Endpoint 2).
+
+The 9-region decision grid (posterior probability) and 4-region grid
+(predictive probability) are defined over the Cartesian product of the
+Go/Gray/NoGo zones for each endpoint individually.
+
+```{r region-table, echo = FALSE}
+knitr::kable(data.frame(
+  Region = paste0("R", 1:9),
+  EP1    = c(">TV1",  ">TV1",  ">TV1",
+             "MAV1 < . <= TV1", "MAV1 < . <= TV1", "MAV1 < . <= TV1",
+             "<= MAV1", "<= MAV1", "<= MAV1"),
+  EP2    = c(">TV2",  "MAV2 < . <= TV2", "<= MAV2",
+             ">TV2",  "MAV2 < . <= TV2", "<= MAV2",
+             ">TV2",  "MAV2 < . <= TV2", "<= MAV2")
+), col.names = c("Region", "Endpoint 1", "Endpoint 2"),
+caption = "9-region grid for posterior probability (prob = 'posterior')")
+```
+
+Typically **R1** (both endpoints exceed TV) is designated as the Go region
+and **R9** (both endpoints below MAV) as the NoGo region.
+
+---
+
+## Part 1: Two Binary Endpoints (ACR20 + ACR50)
+
+The Dirichlet-multinomial conjugate model is used.  Observed counts are the
+four bivariate response patterns: (ACR20=0, ACR50=0), (ACR20=0, ACR50=1),
+(ACR20=1, ACR50=0), (ACR20=1, ACR50=1).  Since ACR50 implies ACR20, the
+(0,1) cell is impossible in practice; we set `x_01 = 0`.
+
+```{r bin2-scenario, echo = FALSE}
+knitr::kable(data.frame(
+  Design   = c("Treatment arm", "Control arm"),
+  x_00 = c(2, 6),
+  x_01 = c(0, 0),
+  x_10 = c(3, 3),
+  x_11 = c(5, 1)
+), col.names = c("Arm", "Neither (0,0)", "ACR50 only (0,1)",
+                  "ACR20 only (1,0)", "Both (1,1)"),
+caption = "Observed bivariate counts (n1 = n2 = 10)")
+```
+
+### 1-1. Posterior Probability — Controlled Design
+
+```{r bin2-post}
+prob_bin2 <- pbayespostpred2bin(
+  prob   = 'posterior',
+  design = 'controlled',
+  theta.TV1  = 0.20,  theta.MAV1 = 0.05,
+  theta.TV2  = 0.20,  theta.MAV2 = 0.05,
+  x1_00 = 2L, x1_01 = 0L, x1_10 = 3L, x1_11 = 5L,
+  x2_00 = 6L, x2_01 = 0L, x2_10 = 3L, x2_11 = 1L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 2000L
+)
+round(prob_bin2, 4)
+```
+
+The Go decision rule is $P(R1) \ge \gamma_1 = 0.80$; NoGo is
+$P(R9) \ge \gamma_2 = 0.20$.
+
+```{r bin2-decision}
+cat(sprintf("P(R1) = %.4f  ->  %s\n", prob_bin2["R1"],
+            ifelse(prob_bin2["R1"] >= 0.80, "Go", "not Go")))
+cat(sprintf("P(R9) = %.4f  ->  %s\n", prob_bin2["R9"],
+            ifelse(prob_bin2["R9"] >= 0.20, "NoGo", "not NoGo")))
+```
+
+### 1-2. Posterior Predictive Probability — Controlled Design
+
+For predictive probability, TV and MAV must be equal (single null threshold).
+The 4-region grid applies.
+
+```{r bin2-pred}
+prob_bin2_pred <- pbayespostpred2bin(
+  prob   = 'predictive',
+  design = 'controlled',
+  theta.TV1  = 0.10,  theta.MAV1 = 0.10,
+  theta.TV2  = 0.10,  theta.MAV2 = 0.10,
+  x1_00 = 2L, x1_01 = 0L, x1_10 = 3L, x1_11 = 5L,
+  x2_00 = 6L, x2_01 = 0L, x2_10 = 3L, x2_11 = 1L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = 50L, m2 = 50L,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 2000L
+)
+round(prob_bin2_pred, 4)
+```
+
+### 1-3. Operating Characteristics — Controlled Design
+
+`error_if_Miss = FALSE` is used here because with small samples the Go and
+NoGo regions can both be triggered simultaneously (Miss event).
+
+```{r bin2-oc}
+oc_bin2 <- pbayesdecisionprob2bin(
+  prob        = 'posterior',
+  design      = 'controlled',
+  GoRegions   = 1L,
+  NoGoRegions = 9L,
+  gamma1      = 0.60,
+  gamma2      = 0.60,
+  pi_t1  = c(0.40, 0.60, 0.80),
+  pi_t2  = c(0.25, 0.40, 0.55),
+  rho_t  = rep(0.5, 3),
+  pi_c1  = rep(0.15, 3),
+  pi_c2  = rep(0.05, 3),
+  rho_c  = rep(0.3, 3),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1  = 0.20,  theta.MAV1 = 0.05,
+  theta.TV2  = 0.20,  theta.MAV2 = 0.05,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 500L,
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
+)
+print(oc_bin2)
+```
+
+### 1-4. Uncontrolled Design
+
+When no concurrent control arm is available, hypothetical control pseudo-counts
+`z00`, `z01`, `z10`, `z11` are specified.
+
+```{r bin2-unctrl}
+prob_bin2_unctrl <- pbayespostpred2bin(
+  prob   = 'posterior',
+  design = 'uncontrolled',
+  theta.TV1  = 0.20,  theta.MAV1 = 0.05,
+  theta.TV2  = 0.20,  theta.MAV2 = 0.05,
+  x1_00 = 2L, x1_01 = 0L, x1_10 = 3L, x1_11 = 5L,
+  x2_00 = NULL, x2_01 = NULL, x2_10 = NULL, x2_11 = NULL,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  z00 = 5L, z01 = 0L, z10 = 3L, z11 = 2L,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 2000L
+)
+round(prob_bin2_unctrl, 4)
+```
+
+---
+
+## Part 2: Two Continuous Endpoints (DAS28 + HAQ-DI)
+
+The bivariate Normal-Inverse-Wishart (NIW) conjugate model is used.
+Sufficient statistics supplied are the sample mean vectors and
+sum-of-squares matrices.
+
+```{r cont2-data}
+# Sample means
+ybar1 <- c(3.5, 0.6)   # treatment: DAS28 change, HAQ-DI change
+ybar2 <- c(1.2, 0.2)   # control
+
+# Sum-of-squares matrices (S = sum of (y_j - ybar)(y_j - ybar)^T)
+S1 <- matrix(c(32, 5, 5, 8), 2, 2)   # treatment (n1 = 10)
+S2 <- matrix(c(28, 4, 4, 7), 2, 2)   # control   (n2 = 10)
+```
+
+Clinically meaningful thresholds:
+
+| Endpoint | TV   | MAV  |
+|----------|------|------|
+| DAS28 change difference | 1.50 | 0.50 |
+| HAQ-DI change difference | 0.40 | 0.10 |
+
+### 2-1. Posterior Probability — Vague Prior, MM Method
+
+```{r cont2-post-vague}
+prob_cont2 <- pbayespostpred2cont(
+  prob   = 'posterior',
+  design = 'controlled',
+  prior  = 'vague',
+  theta.TV1  = 1.50,  theta.MAV1 = 0.50,
+  theta.TV2  = 0.40,  theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n1 = 10L, n2 = 10L,
+  ybar1 = ybar1, S1 = S1,
+  ybar2 = ybar2, S2 = S2,
+  m1 = NULL, m2 = NULL,
+  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
+  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, Se1 = NULL, ybar_e2 = NULL, Se2 = NULL,
+  nMC = 2000L, method = 'MM'
+)
+round(prob_cont2, 4)
+```
+
+```{r cont2-decision}
+cat(sprintf("P(R1) = %.4f  ->  %s\n", prob_cont2["R1"],
+            ifelse(prob_cont2["R1"] >= 0.80, "Go", "not Go")))
+cat(sprintf("P(R9) = %.4f  ->  %s\n", prob_cont2["R9"],
+            ifelse(prob_cont2["R9"] >= 0.20, "NoGo", "not NoGo")))
+```
+
+### 2-2. Informative Prior (Normal-Inverse-Wishart)
+
+Prior information from a similar previous trial is encoded in the NIW
+hyperparameters.
+
+```{r cont2-post-niw}
+Lambda0 <- matrix(c(20, 3, 3, 5), 2, 2)
+
+prob_cont2_niw <- pbayespostpred2cont(
+  prob   = 'posterior',
+  design = 'controlled',
+  prior  = 'N-Inv-Wishart',
+  theta.TV1  = 1.50,  theta.MAV1 = 0.50,
+  theta.TV2  = 0.40,  theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n1 = 10L, n2 = 10L,
+  ybar1 = ybar1, S1 = S1,
+  ybar2 = ybar2, S2 = S2,
+  m1 = NULL, m2 = NULL,
+  kappa01 = 3,  nu01 = 5,  mu01 = c(3.0, 0.5), Lambda01 = Lambda0,
+  kappa02 = 3,  nu02 = 5,  mu02 = c(1.0, 0.2), Lambda02 = Lambda0,
+  r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, Se1 = NULL, ybar_e2 = NULL, Se2 = NULL,
+  nMC = 2000L, method = 'MM'
+)
+round(prob_cont2_niw, 4)
+```
+
+### 2-3. Posterior Predictive Probability — Vague Prior
+
+```{r cont2-pred}
+set.seed(1)
+prob_cont2_pred <- pbayespostpred2cont(
+  prob   = 'predictive',
+  design = 'controlled',
+  prior  = 'vague',
+  theta.TV1  = NULL, theta.MAV1 = NULL,
+  theta.TV2  = NULL, theta.MAV2 = NULL,
+  theta.NULL1 = 1.00, theta.NULL2 = 0.30,
+  n1 = 10L, n2 = 10L,
+  ybar1 = ybar1, S1 = S1,
+  ybar2 = ybar2, S2 = S2,
+  m1 = 60L, m2 = 60L,
+  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
+  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, Se1 = NULL, ybar_e2 = NULL, Se2 = NULL,
+  nMC = 2000L, method = 'MC'
+)
+round(prob_cont2_pred, 4)
+```
+
+### 2-4. Operating Characteristics — Vague Prior, MM Method
+
+`error_if_Miss = FALSE` is used because with small samples the Go and NoGo
+regions can both be triggered simultaneously.
+
+```{r cont2-oc}
+# True treatment mean matrix: each row = one scenario (EP1, EP2)
+mu1_mat <- rbind(c(1.5, 0.3),
+                 c(2.5, 0.5),
+                 c(3.5, 0.6))
+mu2_mat <- rbind(c(1.0, 0.2),
+                 c(1.0, 0.2),
+                 c(1.0, 0.2))
+
+Sigma_true <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
+
+oc_cont2 <- pbayesdecisionprob2cont(
+  nsim   = 100L,
+  prob   = 'posterior',
+  design = 'controlled',
+  prior  = 'vague',
+  GoRegions   = 1L,
+  NoGoRegions = 9L,
+  gamma1 = 0.60,  gamma2 = 0.60,
+  theta.TV1  = 1.50,  theta.MAV1 = 0.50,
+  theta.TV2  = 0.40,  theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n1 = 10L, n2 = 10L, m1 = NULL, m2 = NULL,
+  mu1    = mu1_mat,
+  Sigma1 = Sigma_true,
+  mu2    = mu2_mat,
+  Sigma2 = Sigma_true,
+  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
+  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, Se1 = NULL, ybar_e2 = NULL, Se2 = NULL,
+  method = 'MM', nMC = 500L,
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE,
+  seed = 1L
+)
+print(oc_cont2)
+```
+
+### 2-5. Uncontrolled Design (Single-Arm)
+
+For a single-arm study, the hypothetical control mean vector `mu02` and
+variance scaling ratio `r` replace the control arm data.
+
+```{r cont2-unctrl}
+oc_cont2_unctrl <- pbayesdecisionprob2cont(
+  nsim   = 100L,
+  prob   = 'posterior',
+  design = 'uncontrolled',
+  prior  = 'vague',
+  GoRegions   = 1L,
+  NoGoRegions = 9L,
+  gamma1 = 0.60,  gamma2 = 0.60,
+  theta.TV1  = 1.50,  theta.MAV1 = 0.50,
+  theta.TV2  = 0.40,  theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n1 = 10L, n2 = NULL, m1 = NULL, m2 = NULL,
+  mu1    = mu1_mat,
+  Sigma1 = Sigma_true,
+  mu2    = mu2_mat,
+  Sigma2 = Sigma_true,
+  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
+  kappa02 = NULL, nu02 = NULL, mu02 = c(1.0, 0.2), Lambda02 = NULL,
+  r = 1.0,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, Se1 = NULL, ybar_e2 = NULL, Se2 = NULL,
+  method = 'MM', nMC = 500L,
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE,
+  seed = 2L
+)
+print(oc_cont2_unctrl)
+```
+
+---
+
+## Summary
+
+This vignette demonstrated:
+
+1. **Two binary endpoints** (ACR20 + ACR50) using the Dirichlet-multinomial
+   model (`pbayespostpred2bin`, `pbayesdecisionprob2bin`).
+2. **Two continuous endpoints** (DAS28 + HAQ-DI) using the bivariate NIW model
+   (`pbayespostpred2cont`, `pbayesdecisionprob2cont`).
+3. The **9-region** (posterior) and **4-region** (predictive) decision grids.
+4. **Vague and informative priors**, controlled and uncontrolled designs.
+5. **MM method** for efficient operating characteristics evaluation.
+
+See `vignette("single-endpoint")` for single-endpoint analyses, and
+`vignette("overview")` for the overall framework.

@@ -1,0 +1,193 @@
+---
+title: "Overview of BayesianQDM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Overview of BayesianQDM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>"
+)
+library(BayesianQDM)
+```
+
+## Introduction
+
+The **BayesianQDM** package provides a comprehensive framework for Bayesian
+quantitative decision-making (QDM) in clinical trials.  It implements the
+three-zone Go/NoGo/Gray decision rule under two complementary probability
+metrics:
+
+* **Posterior probability** — assesses whether the observed PoC data provide
+  sufficient evidence that the treatment effect exceeds a clinically meaningful
+  threshold.
+* **Posterior predictive probability** — assesses the probability that a
+  future Phase III trial would be successful given the PoC results.
+
+Both metrics are available for single and two-endpoint analyses, covering
+binary and continuous outcomes.
+
+## The Three-Zone Decision Framework
+
+For a single pre-specified threshold $\theta_0$, let
+$p = P(\theta > \theta_0 \mid \text{data})$.  The decision rule is:
+
+| Decision | Criterion |
+|----------|-----------|
+| **Go**   | $p \ge \gamma_1$ |
+| **NoGo** | $p \le \gamma_2$ |
+| **Gray** | $\gamma_2 < p < \gamma_1$ |
+
+where $\gamma_1 > \gamma_2$ are pre-specified probability thresholds.
+
+For the **posterior** metric, two thresholds are used simultaneously:
+
+* **Go**: $P(\theta > \text{TV} \mid \text{data}) \ge \gamma_1$
+* **NoGo**: $P(\theta > \text{MAV} \mid \text{data}) \le \gamma_2$
+
+where TV (Target Value) and MAV (Minimum Acceptable Value) satisfy
+TV $>$ MAV.
+
+## Supported Designs and Endpoint Types
+
+```{r design-table, echo = FALSE}
+tab <- data.frame(
+  Feature    = c("Endpoint type", "Number of endpoints",
+                 "PoC design", "External data"),
+  Options    = c("Binary, Continuous",
+                 "Single, Two",
+                 "Controlled, Uncontrolled, External control",
+                 "Power prior (conjugate representation)")
+)
+knitr::kable(tab, col.names = c("Feature", "Available options"))
+```
+
+For **single continuous endpoints** three calculation methods are available:
+
+* `'NI'` — numerical integration (exact)
+* `'MC'` — Monte Carlo simulation
+* `'MM'` — Moment-Matching approximation (fast; recommended for operating
+  characteristics evaluation)
+
+For **two continuous endpoints** `'MC'` and `'MM'` are available.
+
+## Motivating Example: Rheumatoid Arthritis PoC Trial
+
+Throughout the vignettes we use a hypothetical Phase IIa proof-of-concept
+(PoC) trial in moderate-to-severe rheumatoid arthritis (RA).  The trial
+compares an investigational drug (treatment) with placebo (control).
+
+```{r scenario, echo = FALSE}
+s <- data.frame(
+  Item   = c("Indication", "Phase", "Design",
+             "PoC sample size", "Primary endpoint (binary)",
+             "Primary endpoint (continuous)",
+             "Co-primary endpoints (two-endpoint)"),
+  Detail = c("Rheumatoid arthritis (RA)", "Phase IIa PoC",
+             "Randomised, double-blind, parallel-group",
+             "n1 = n2 = 10 per arm",
+             "ACR20 response rate",
+             "Change from baseline in DAS28 score",
+             "ACR20 + ACR50 response rates; DAS28 + HAQ-DI change")
+)
+knitr::kable(s, col.names = c("Item", "Detail"))
+```
+
+## Quick-Start: Single Binary Endpoint
+
+```{r binary-quick}
+# Posterior probability: P(pi_treat - pi_ctrl > 0.10 | data)
+# Observed: 7/10 responders in treatment, 3/10 in control
+pbayespostpred1bin(
+  prob   = 'posterior',
+  design = 'controlled',
+  theta0 = 0.10,           # MAV threshold (treatment difference)
+  n1 = 10, n2 = 10,
+  y1 =  7, y2 =  3,
+  a1 = 0.5, b1 = 0.5,     # Uniform Beta prior
+  a2 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, z = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  lower.tail = FALSE
+)
+```
+
+## Quick-Start: Single Continuous Endpoint
+
+```{r cont-quick}
+# Posterior probability: P(mu_treat - mu_ctrl > 1.0 | data)
+# Observed means: 3.5 (treatment), 1.2 (control); SD ~2.0
+pbayespostpred1cont(
+  prob       = 'posterior',
+  design     = 'controlled',
+  prior      = 'vague',
+  CalcMethod = 'MM',
+  theta0     = 1.0,
+  nMC        = NULL,
+  n1 = 10, n2 = 10,
+  bar.y1 = 3.5, s1 = 2.0,
+  bar.y2 = 1.2, s2 = 2.0,
+  m1 = NULL, m2 = NULL,
+  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL
+)
+```
+
+## Quick-Start: Go/NoGo Decision (Single Binary)
+
+```{r gng-quick}
+# Operating characteristics across true response rate scenarios
+pbayesdecisionprob1bin(
+  prob      = 'posterior',
+  design    = 'controlled',
+  theta.TV  = 0.20,   theta.MAV  = 0.05, theta.NULL = NULL,
+  gamma1    = 0.80,   gamma2     = 0.20,
+  pi1       = c(0.20, 0.35, 0.50),   # True treatment rates
+  pi2       = rep(0.15, 3),           # True control rate
+  n1 = 10,  n2 = 10,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+)
+```
+
+## Package Structure
+
+The package functions follow a consistent naming convention:
+
+| Prefix | Meaning |
+|--------|---------|
+| `pbayespostpred1bin`  | Posterior/predictive probability, 1 binary endpoint |
+| `pbayespostpred1cont` | Posterior/predictive probability, 1 continuous endpoint |
+| `pbayespostpred2bin`  | Posterior/predictive probability, 2 binary endpoints |
+| `pbayespostpred2cont` | Posterior/predictive probability, 2 continuous endpoints |
+| `pbayesdecisionprob1bin`  | Go/NoGo/Gray probabilities, 1 binary endpoint |
+| `pbayesdecisionprob1cont` | Go/NoGo/Gray probabilities, 1 continuous endpoint |
+| `pbayesdecisionprob2bin`  | Go/NoGo/Gray probabilities, 2 binary endpoints |
+| `pbayesdecisionprob2cont` | Go/NoGo/Gray probabilities, 2 continuous endpoints |
+
+Helper / utility functions:
+
+| Function | Purpose |
+|----------|---------|
+| `pbetadiff`      | CDF of the difference of two Beta random variables |
+| `pbetabinomdiff` | CDF of the difference of two Beta-Binomial proportions |
+| `ptdiff_NI`, `ptdiff_MC`, `ptdiff_MM` | CDF of the difference of two non-standardised t variables |
+| `rdirichlet`  | Sample from a Dirichlet distribution |
+| `rnsbt`       | Sample from a bivariate non-standardised t distribution |
+| `getjointbin` | Joint bivariate binary probabilities from marginals and correlation |
+| `allmultinom` | Enumerate all multinomial outcome vectors |
+
+## Further Reading
+
+* `vignette("single-endpoint")` — detailed examples for single binary and
+  continuous endpoints, covering all three designs and prior types.
+* `vignette("two-endpoints")` — detailed examples for two binary and two
+  continuous endpoints, including the 9-region decision grid.
