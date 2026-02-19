@@ -48,13 +48,13 @@ articles:
 - title: Getting Started
   navbar: ~
   contents:
-  - BayesianQDM
+  - overview
 
 - title: Endpoint-Specific Guides
   navbar: Guides
   contents:
   - single-endpoint
-  - two-endpoint
+  - two-endpoints
 
 navbar:
   structure:
@@ -64,13 +64,13 @@ navbar:
     articles:
       text: Articles
       menu:
-      - text: Introduction to BayesianQDM
-        href: articles/BayesianQDM.html
+      - text: Overview of BayesianQDM
+        href: articles/overview.html
       - text: -------
       - text: Single Endpoint Analysis
         href: articles/single-endpoint.html
       - text: Two Endpoint Analysis
-        href: articles/two-endpoint.html
+        href: articles/two-endpoints.html
 
 home:
   title: BayesianQDM
