@@ -6,6 +6,7 @@
 Endpoints}
 \usage{
 pbayesdecisionprob2bin(
+  nsim = 10000L,
   prob = "posterior",
   design = "controlled",
   GoRegions,
@@ -51,11 +52,20 @@ pbayesdecisionprob2bin(
   ae1 = NULL,
   ae2 = NULL,
   nMC = 10000L,
+  method = "Exact",
   error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE
 )
 }
 \arguments{
+\item{nsim}{A positive integer giving the number of PoC count vectors
+sampled via \code{rmultinom} per arm per scenario when
+\code{method = 'MC'} (outer loop).  The sampled vectors are
+deduplicated into \eqn{K_t} and \eqn{K_c} unique vectors
+(\eqn{K_t, K_c \ll} \code{nsim}); Dirichlet sampling is then
+performed only for these unique vectors using \code{nMC} draws each.
+Ignored when \code{method = 'Exact'}.  Default is \code{10000}.}
+
 \item{prob}{A character string specifying the probability type for
 decision-making.  Must be \code{'posterior'} or
 \code{'predictive'}.}
@@ -219,9 +229,25 @@ used; otherwise \code{NULL}.}
 weight for group 2.  Required when external control data are
 used; otherwise \code{NULL}.}
 
-\item{nMC}{A positive integer giving the number of Monte Carlo draws
-used inside \code{\link{pbayespostpred2bin}} for each count combination.
-Default is \code{10000}.}
+\item{nMC}{A positive integer giving the number of Dirichlet draws used to
+evaluate the decision probability for each count combination in
+Stage 1.  Used by both \code{method = 'Exact'} and
+\code{method = 'MC'} (inner loop).  Default is \code{10000}.}
+
+\item{method}{A character string specifying the computation method.
+Must be \code{'Exact'} (default) or \code{'MC'}.
+\code{'Exact'} uses full enumeration of all possible multinomial
+count combinations (two-stage approach described in Details).
+\code{'MC'} samples \code{nsim} \eqn{(x_t, x_c)} pairs via
+\code{rmultinom}, deduplicates them into \eqn{K} unique pairs
+(\eqn{K \ll} \code{nsim}), calls
+\code{\link{pbayespostpred2bin}} for each unique pair to obtain
+Go/NoGo probabilities, and weights the decisions by the observed
+pair frequencies.  This reuses the same validated probability logic
+as the Exact method, avoiding any duplication of computation.
+The \code{'MC'} method trades some Monte Carlo variance for
+substantially reduced computation time when \code{n1} and/or
+\code{n2} are large.}
 
 \item{error_if_Miss}{A logical scalar; if \code{TRUE} (default), the
 function stops with an error if the Miss probability is positive,
@@ -333,7 +359,7 @@ pbayesdecisionprob2bin(
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
   nMC = 100,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 2: Posterior probability, controlled design (rho > 0)
@@ -363,7 +389,7 @@ pbayesdecisionprob2bin(
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
   nMC = 100,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 3: Posterior probability, uncontrolled design
@@ -393,7 +419,7 @@ pbayesdecisionprob2bin(
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
   nMC = 100,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 4: Posterior probability, external control design
@@ -423,7 +449,7 @@ pbayesdecisionprob2bin(
   xe2_00 = 4L,  xe2_01 = 2L,  xe2_10 = 3L,  xe2_11 = 1L,
   ae1 = NULL, ae2 = 0.5,
   nMC = 100,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 5: Predictive probability, controlled design
@@ -453,7 +479,7 @@ pbayesdecisionprob2bin(
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
   nMC = 100,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 6: Predictive probability, uncontrolled design
@@ -483,7 +509,7 @@ pbayesdecisionprob2bin(
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
   nMC = 100,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 7: Predictive probability, external control design
@@ -513,7 +539,38 @@ pbayesdecisionprob2bin(
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = 0.5, ae2 = NULL,
   nMC = 100,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
+)
+
+# Example 8: MC method, controlled design (faster for large n)
+# Uses direct simulation instead of full multinomial enumeration.
+pbayesdecisionprob2bin(
+  prob        = 'posterior',
+  design      = 'controlled',
+  GoRegions   = 1L,
+  NoGoRegions = 9L,
+  gamma1      = 0.27,
+  gamma2      = 0.36,
+  pi_t1       = c(0.15, 0.25, 0.30, 0.40),
+  pi_t2       = c(0.20, 0.30, 0.35, 0.45),
+  rho_t       = rep(0.0, 4),
+  pi_c1       = rep(0.15, 4),
+  pi_c2       = rep(0.20, 4),
+  rho_c       = rep(0.0, 4),
+  n1 = 10, n2 = 10,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1   = 0.15, theta.MAV1 = 0.10,
+  theta.TV2   = 0.15, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 1000, nsim = 1000,
+  method = 'MC',
+  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 }

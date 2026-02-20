@@ -133,9 +133,31 @@
 #' @param ae2 A numeric scalar in \code{(0, 1]} giving the power prior
 #'        weight for group 2.  Required when external control data are
 #'        used; otherwise \code{NULL}.
-#' @param nMC A positive integer giving the number of Monte Carlo draws
-#'        used inside \code{\link{pbayespostpred2bin}} for each count combination.
-#'        Default is \code{10000}.
+#' @param nsim A positive integer giving the number of PoC count vectors
+#'        sampled via \code{rmultinom} per arm per scenario when
+#'        \code{method = 'MC'} (outer loop).  The sampled vectors are
+#'        deduplicated into \eqn{K_t} and \eqn{K_c} unique vectors
+#'        (\eqn{K_t, K_c \ll} \code{nsim}); Dirichlet sampling is then
+#'        performed only for these unique vectors using \code{nMC} draws each.
+#'        Ignored when \code{method = 'Exact'}.  Default is \code{10000}.
+#' @param nMC A positive integer giving the number of Dirichlet draws used to
+#'        evaluate the decision probability for each count combination in
+#'        Stage 1.  Used by both \code{method = 'Exact'} and
+#'        \code{method = 'MC'} (inner loop).  Default is \code{10000}.
+#' @param method A character string specifying the computation method.
+#'        Must be \code{'Exact'} (default) or \code{'MC'}.
+#'        \code{'Exact'} uses full enumeration of all possible multinomial
+#'        count combinations (two-stage approach described in Details).
+#'        \code{'MC'} samples \code{nsim} \eqn{(x_t, x_c)} pairs via
+#'        \code{rmultinom}, deduplicates them into \eqn{K} unique pairs
+#'        (\eqn{K \ll} \code{nsim}), calls
+#'        \code{\link{pbayespostpred2bin}} for each unique pair to obtain
+#'        Go/NoGo probabilities, and weights the decisions by the observed
+#'        pair frequencies.  This reuses the same validated probability logic
+#'        as the Exact method, avoiding any duplication of computation.
+#'        The \code{'MC'} method trades some Monte Carlo variance for
+#'        substantially reduced computation time when \code{n1} and/or
+#'        \code{n2} are large.
 #' @param error_if_Miss A logical scalar; if \code{TRUE} (default), the
 #'        function stops with an error if the Miss probability is positive,
 #'        prompting reconsideration of the thresholds.
@@ -230,7 +252,7 @@
 #'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
 #'   ae1 = NULL, ae2 = NULL,
 #'   nMC = 100,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 2: Posterior probability, controlled design (rho > 0)
@@ -260,7 +282,7 @@
 #'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
 #'   ae1 = NULL, ae2 = NULL,
 #'   nMC = 100,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 3: Posterior probability, uncontrolled design
@@ -290,7 +312,7 @@
 #'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
 #'   ae1 = NULL, ae2 = NULL,
 #'   nMC = 100,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 4: Posterior probability, external control design
@@ -320,7 +342,7 @@
 #'   xe2_00 = 4L,  xe2_01 = 2L,  xe2_10 = 3L,  xe2_11 = 1L,
 #'   ae1 = NULL, ae2 = 0.5,
 #'   nMC = 100,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 5: Predictive probability, controlled design
@@ -350,7 +372,7 @@
 #'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
 #'   ae1 = NULL, ae2 = NULL,
 #'   nMC = 100,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 6: Predictive probability, uncontrolled design
@@ -380,7 +402,7 @@
 #'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
 #'   ae1 = NULL, ae2 = NULL,
 #'   nMC = 100,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 7: Predictive probability, external control design
@@ -410,12 +432,44 @@
 #'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
 #'   ae1 = 0.5, ae2 = NULL,
 #'   nMC = 100,
-#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
-#' @importFrom stats dmultinom
+#' # Example 8: MC method, controlled design (faster for large n)
+#' # Uses direct simulation instead of full multinomial enumeration.
+#' pbayesdecisionprob2bin(
+#'   prob        = 'posterior',
+#'   design      = 'controlled',
+#'   GoRegions   = 1L,
+#'   NoGoRegions = 9L,
+#'   gamma1      = 0.27,
+#'   gamma2      = 0.36,
+#'   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
+#'   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
+#'   rho_t       = rep(0.0, 4),
+#'   pi_c1       = rep(0.15, 4),
+#'   pi_c2       = rep(0.20, 4),
+#'   rho_c       = rep(0.0, 4),
+#'   n1 = 10, n2 = 10,
+#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+#'   m1 = NULL, m2 = NULL,
+#'   theta.TV1   = 0.15, theta.MAV1 = 0.10,
+#'   theta.TV2   = 0.15, theta.MAV2 = 0.10,
+#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+#'   ae1 = NULL, ae2 = NULL,
+#'   nMC = 1000, nsim = 1000,
+#'   method = 'MC',
+#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
+#' )
+#'
+#' @importFrom stats dmultinom rmultinom rgamma rbinom
 #' @export
-pbayesdecisionprob2bin <- function(prob        = 'posterior',
+pbayesdecisionprob2bin <- function(nsim        = 10000L,
+                                   prob        = 'posterior',
                                    design      = 'controlled',
                                    GoRegions,
                                    NoGoRegions,
@@ -440,12 +494,24 @@ pbayesdecisionprob2bin <- function(prob        = 'posterior',
                                    ae1         = NULL,
                                    ae2         = NULL,
                                    nMC         = 10000L,
+                                   method      = 'Exact',
                                    error_if_Miss = TRUE,
                                    Gray_inc_Miss = FALSE) {
 
   # ---------------------------------------------------------------------------
   # Section 1: Input validation
   # ---------------------------------------------------------------------------
+
+  if (!is.character(method) || length(method) != 1L ||
+      !method %in% c('Exact', 'MC'))
+    stop("'method' must be either 'Exact' or 'MC'")
+
+  if (method == 'MC') {
+    if (!is.numeric(nsim) || length(nsim) != 1L || is.na(nsim) ||
+        nsim != floor(nsim) || nsim < 1L)
+      stop("'nsim' must be a single positive integer")
+    nsim <- as.integer(nsim)
+  }
 
   if (!is.character(prob) || length(prob) != 1L ||
       !prob %in% c('posterior', 'predictive')) {
@@ -607,361 +673,483 @@ pbayesdecisionprob2bin <- function(prob        = 'posterior',
     stop("'Gray_inc_Miss' must be a single logical value")
 
   # ---------------------------------------------------------------------------
-  # Section 2: Stage 1 -- Precompute decision probabilities for all count
-  #            combinations using fully vectorised batch Gamma sampling.
+  # Section 2 (MC): Unique-pair weighted Monte Carlo per scenario
   #
-  # Key idea: Dirichlet posterior Dir(alpha + x) can be sampled via
-  #   Gamma(alpha_k + x_k, 1) normalised by their row sum.
-  # We split this into:
-  #   Y_k ~ Gamma(alpha_k, 1)   [prior component, shared across all x]
-  #   Z_k ~ Gamma(x_k,     1)   [data  component, specific to each x]
-  # and generate all Y and Z draws in a single rgamma() call each,
-  # then add them to form the unnormalised posterior samples.
-  # This reduces function-call overhead from n_t * n_c calls to O(1) calls.
+  # For each scenario s:
+  #   1. Sample nsim count vectors via rmultinom for each arm.
+  #   2. Deduplicate (x_t, x_c) pairs jointly; extract K unique pairs and
+  #      their observed frequencies w (where K << nsim^2).
+  #   3. Call pbayespostpred2bin for each unique pair to obtain PrGo/PrNoGo,
+  #      reusing the same validated logic as the Exact method.
+  #   4. Accumulate Go/NoGo/Miss probabilities weighted by w.
   # ---------------------------------------------------------------------------
 
-  # Enumerate all possible count vectors for each arm
-  counts_t <- allmultinom(n1)   # (n_t x 4) integer matrix
-  n_t      <- nrow(counts_t)
+  if (method == 'MC') {
 
-  # For uncontrolled design, the control distribution is fixed (Dir(a2 + z))
-  # and does not vary with observed control counts.  The Stage 1 probability
-  # matrix therefore needs only a single column (n_c = 1), avoiding the
-  # generation of the full allmultinom(n2) table (C(n2+3,3) rows).
-  if (design == 'uncontrolled') {
-    n_c <- 1L
-  } else {
-    counts_c <- allmultinom(n2)   # (n_c x 4) integer matrix
-    n_c      <- nrow(counts_c)
-  }
+    # ---------------------------------------------------------------------------
+    # MC method: sample nsim (x_t, x_c) pairs, deduplicate as joint pairs,
+    # call pbayespostpred2bin for each unique pair, then weight by frequency.
+    #
+    # Using pbayespostpred2bin directly guarantees the same computation as the
+    # Exact method's Stage 1, and avoids duplicating the posterior/predictive
+    # probability logic.
+    # ---------------------------------------------------------------------------
 
-  # --- Build posterior Dirichlet base parameters (prior + external data) ---
-  xe1_w <- if (!is.null(ae1) && design == 'external') ae1 else 0
-  xe2_w <- if (!is.null(ae2) && design == 'external') ae2 else 0
+    result_mat <- matrix(0, nrow = n_scen, ncol = 3L)
 
-  alpha1_base <- c(
-    a1_00 + xe1_w * ifelse(!is.null(xe1_00), xe1_00, 0),
-    a1_01 + xe1_w * ifelse(!is.null(xe1_01), xe1_01, 0),
-    a1_10 + xe1_w * ifelse(!is.null(xe1_10), xe1_10, 0),
-    a1_11 + xe1_w * ifelse(!is.null(xe1_11), xe1_11, 0)
-  )
+    for (s in seq_len(n_scen)) {
 
-  if (design == 'uncontrolled') {
-    # Hypothetical control: fixed Dir(a2 + z), no data component varies
-    alpha2_fixed <- c(a2_00 + z00, a2_01 + z01, a2_10 + z10, a2_11 + z11)
-  } else {
-    alpha2_base <- c(
-      a2_00 + xe2_w * ifelse(!is.null(xe2_00), xe2_00, 0),
-      a2_01 + xe2_w * ifelse(!is.null(xe2_01), xe2_01, 0),
-      a2_10 + xe2_w * ifelse(!is.null(xe2_10), xe2_10, 0),
-      a2_11 + xe2_w * ifelse(!is.null(xe2_11), xe2_11, 0)
-    )
-  }
+      # Sample nsim treatment count vectors
+      p_t    <- getjointbin(pi1 = pi_t1[s], pi2 = pi_t2[s], rho = rho_t[s])
+      xt_raw <- t(rmultinom(nsim, size = n1, prob = p_t))   # nsim x 4
 
-  # --- Batch Gamma sampling: prior component (nMC x 4) ---
-  # Y1[u, k] ~ Gamma(alpha1_base[k], 1),  shared across all x_t
-  # Y2[u, k] ~ Gamma(alpha2_base[k], 1),  shared across all x_c
-  Y1 <- matrix(rgamma(nMC * 4L, shape = rep(alpha1_base, each = nMC)),
-               nrow = nMC, ncol = 4L)
+      if (design == 'uncontrolled') {
 
-  if (design == 'uncontrolled') {
-    # Control is fixed: sample once from Dir(alpha2_fixed)
-    G2_fixed <- matrix(rgamma(nMC * 4L,
-                              shape = rep(alpha2_fixed, each = nMC)),
-                       nrow = nMC, ncol = 4L)
-    S2_fixed  <- rowSums(G2_fixed)
-    p2_fixed  <- G2_fixed / S2_fixed   # (nMC x 4) Dirichlet samples
-  } else {
-    Y2 <- matrix(rgamma(nMC * 4L, shape = rep(alpha2_base, each = nMC)),
-                 nrow = nMC, ncol = 4L)
-  }
+        # Deduplicate treatment counts only
+        xt_keys   <- apply(xt_raw, 1L, paste, collapse = "_")
+        uniq_keys <- unique(xt_keys)
+        w_pairs   <- tabulate(match(xt_keys, uniq_keys)) / nsim
+        K         <- length(uniq_keys)
+        xt_uniq   <- xt_raw[match(uniq_keys, xt_keys), , drop = FALSE]
 
-  # --- For predictive: pre-generate uniform random draws for future data ---
-  # (Sequential binomial approach; uniform variates reused across count combos
-  #  is NOT valid because each combo has different p parameters.
-  #  We therefore keep the sequential-binomial loop but operate on the
-  #  nMC-length p vectors produced per combo from the batch Gamma above.)
+        PrGo_vec   <- numeric(K)
+        PrNoGo_vec <- numeric(K)
 
-  # --- Precompute Gamma data components for all count combinations ---
-  # Z1[i, u, k] ~ Gamma(counts_t[i, k] + 1, 1) would be expensive;
-  # instead we use the additive property:
-  #   Gamma(alpha + x, 1) = Gamma(alpha, 1) + Gamma(x, 1)  [in distribution]
-  # Z1_arr[i, u, k]: nMC draws of Gamma(counts_t[i,k], 1) for each i.
-  # We generate all at once: shape vector of length n_t * nMC * 4.
-  # To avoid Gamma(0, 1) (undefined), we clamp shapes to a small epsilon
-  # and note that Gamma(0,1) = 0 a.s., so we handle zeros separately.
-
-  # Vectorised Gamma draws for treatment arm data component:
-  # shape matrix: (n_t x 4), replicated nMC times -> (n_t * nMC x 4)
-  shapes_t <- counts_t + 0L   # keep as integer; Gamma(0,1) handled below
-
-  # Draw Gamma(shape, 1) for all (i, k) pairs and all nMC replicates at once.
-  # Layout: for each i, nMC consecutive rows -> total n_t * nMC rows, 4 cols.
-  # shape for row (i-1)*nMC + u, col k  =  counts_t[i, k]
-  shape_vec_t <- as.numeric(rep(t(shapes_t), each = nMC))  # length n_t*nMC*4
-  # Replace 0 shapes with 1 temporarily; zero-count columns contribute 0
-  zero_mask_t <- shape_vec_t == 0
-  shape_vec_t[zero_mask_t] <- 1
-  raw_t <- rgamma(n_t * nMC * 4L, shape = shape_vec_t, rate = 1)
-  raw_t[zero_mask_t] <- 0   # Gamma(0,1) = 0 a.s.
-  # Arrange into (n_t * nMC) x 4 matrix
-  Z1_mat <- matrix(raw_t, nrow = n_t * nMC, ncol = 4L)
-
-  if (design != 'uncontrolled') {
-    shapes_c    <- counts_c + 0L
-    shape_vec_c <- as.numeric(rep(t(shapes_c), each = nMC))
-    zero_mask_c <- shape_vec_c == 0
-    shape_vec_c[zero_mask_c] <- 1
-    raw_c <- rgamma(n_c * nMC * 4L, shape = shape_vec_c, rate = 1)
-    raw_c[zero_mask_c] <- 0
-    Z2_mat <- matrix(raw_c, nrow = n_c * nMC, ncol = 4L)
-  }
-
-  # --- Helper: compute PrGo and PrNoGo from a set of (p1, p2) samples ---
-  # p1, p2: (nMC x 4) matrices of Dirichlet samples
-  .compute_PrGoNoGo <- function(p1, p2) {
-
-    # Marginal response rates and treatment effects
-    theta1 <- (p1[, 3L] + p1[, 4L]) - (p2[, 3L] + p2[, 4L])
-    theta2 <- (p1[, 2L] + p1[, 4L]) - (p2[, 2L] + p2[, 4L])
-
-    if (prob == 'posterior') {
-      # Region index: row-major, Endpoint 1 slowest (3 x 3 grid -> 9 regions)
-      r1 <- 3L - as.integer(theta1 > theta.MAV1) -
-        as.integer(theta1 > theta.TV1)
-      r2 <- 3L - as.integer(theta2 > theta.MAV2) -
-        as.integer(theta2 > theta.TV2)
-      region <- (r1 - 1L) * 3L + r2
-      Pr_R   <- tabulate(region, nbins = 9L) / nMC
-
-    } else {
-      # Predictive: simulate future multinomial data via sequential binomials
-      x1f <- matrix(0L, nrow = nMC, ncol = 4L)
-      x2f <- matrix(0L, nrow = nMC, ncol = 4L)
-      rem1 <- rep(m1, nMC);  rem2 <- rep(m2, nMC)
-      u1   <- rep(0,  nMC);  u2   <- rep(0,  nMC)
-
-      for (jj in seq_len(3L)) {
-        d1 <- pmax(1 - u1, 0);  d2 <- pmax(1 - u2, 0)
-        q1 <- pmin(pmax(ifelse(d1 > 0, p1[, jj] / d1, 0), 0), 1)
-        q2 <- pmin(pmax(ifelse(d2 > 0, p2[, jj] / d2, 0), 0), 1)
-        b1 <- rbinom(nMC, rem1, q1);  b2 <- rbinom(nMC, rem2, q2)
-        x1f[, jj] <- b1;  x2f[, jj] <- b2
-        rem1 <- rem1 - b1;  rem2 <- rem2 - b2
-        u1   <- u1 + p1[, jj];  u2 <- u2 + p2[, jj]
-      }
-      x1f[, 4L] <- rem1;  x2f[, 4L] <- rem2
-
-      theta1 <- (x1f[, 3L] + x1f[, 4L]) / m1 -
-        (x2f[, 3L] + x2f[, 4L]) / m2
-      theta2 <- (x1f[, 2L] + x1f[, 4L]) / m1 -
-        (x2f[, 2L] + x2f[, 4L]) / m2
-
-      r1     <- 2L - as.integer(theta1 > theta.TV1)
-      r2     <- 2L - as.integer(theta2 > theta.TV2)
-      region <- (r1 - 1L) * 2L + r2
-      Pr_R   <- tabulate(region, nbins = 4L) / nMC
-    }
-
-    list(PrGo   = sum(Pr_R[GoRegions]),
-         PrNoGo = sum(Pr_R[NoGoRegions]))
-  }
-
-  # --- Main Stage 1 loop: iterate over treatment count combinations ---
-  # For the controlled/external case, we eliminate the inner j-loop by
-  # computing region memberships for all n_c control combos simultaneously.
-  #
-  # For each treatment combo i:
-  #   p1[u, k] = (Y1[u,k] + Z1[i,u,k]) / rowSum  -- (nMC x 4)
-  #
-  # theta1_t[u] = p1[u,3] + p1[u,4]  (treatment marginal for Endpoint 1)
-  # theta2_t[u] = p1[u,2] + p1[u,4]  (treatment marginal for Endpoint 2)
-  #
-  # For each control combo j:
-  #   theta1_c[u] = p2[u,3] + p2[u,4]
-  #   theta2_c[u] = p2[u,2] + p2[u,4]
-  #
-  # region_ij = f(theta1_t[u] - theta1_c[u], theta2_t[u] - theta2_c[u])
-  #
-  # Key vectorisation: pre-compute normalised p2 for ALL j at once:
-  #   p2_all: (n_c * nMC x 4)  -- all control combos stacked
-  # Then for fixed i, broadcast theta_t (length nMC) against
-  # theta_c (n_c blocks of nMC) to get all n_c results in one pass.
-
-  PrGo_mat   <- matrix(0, nrow = n_t, ncol = n_c)
-  PrNoGo_mat <- matrix(0, nrow = n_t, ncol = n_c)
-
-  if (design == 'uncontrolled') {
-
-    # --- Uncontrolled: single fixed control distribution ---
-    for (i in seq_len(n_t)) {
-      idx1 <- ((i - 1L) * nMC + 1L):(i * nMC)
-      G1   <- Y1 + Z1_mat[idx1, , drop = FALSE]
-      p1   <- G1 / rowSums(G1)
-
-      res <- .compute_PrGoNoGo(p1, p2_fixed)
-      # n_c = 1 for uncontrolled, so only column 1 exists
-      PrGo_mat[i, 1L]   <- res$PrGo
-      PrNoGo_mat[i, 1L] <- res$PrNoGo
-    }
-
-  } else {
-
-    # --- Controlled / External: vectorise over all j for each i ---
-
-    # Pre-normalise all control combos: p2_all is (n_c * nMC) x 4
-    G2_all <- Y2[rep(seq_len(nMC), times = n_c), , drop = FALSE] +
-      Z2_mat
-    p2_all <- G2_all / rowSums(G2_all)
-
-    # Pre-compute control marginals for all combos: each is length n_c * nMC
-    # theta_c1[j-block, u] = p2_all[(j-1)*nMC+u, 3] + p2_all[(j-1)*nMC+u, 4]
-    tc1_all <- p2_all[, 3L] + p2_all[, 4L]  # length n_c * nMC
-    tc2_all <- p2_all[, 2L] + p2_all[, 4L]  # length n_c * nMC
-
-    # Pre-compute control marginals reshaped as (nMC x n_c) matrices.
-    # tc1_mat[u, j] = marginal for Endpoint 1 in control combo j, MC draw u
-    # tc2_mat[u, j] = marginal for Endpoint 2 in control combo j, MC draw u
-    # This avoids rep() inside the i-loop (case B optimisation).
-    tc1_mat <- matrix(tc1_all, nrow = nMC, ncol = n_c)
-    tc2_mat <- matrix(tc2_all, nrow = nMC, ncol = n_c)
-
-    if (prob == 'predictive') {
-      # Pre-compute future multinomial draws for ALL control combos at once.
-      # Layout of p2_all: (n_c * nMC) x 4, blocks of nMC rows per combo j.
-      # Sequential binomial for all n_c * nMC rows simultaneously (case C).
-      x2f_all <- matrix(0L, nrow = n_c * nMC, ncol = 4L)
-      rem2_all <- rep(m2, n_c * nMC)
-      u2_all   <- rep(0,  n_c * nMC)
-      for (jj in seq_len(3L)) {
-        d2_all  <- pmax(1 - u2_all, 0)
-        q2_all  <- pmin(pmax(
-          ifelse(d2_all > 0, p2_all[, jj] / d2_all, 0), 0), 1)
-        b2_all  <- rbinom(n_c * nMC, rem2_all, q2_all)
-        x2f_all[, jj] <- b2_all
-        rem2_all <- rem2_all - b2_all
-        u2_all   <- u2_all + p2_all[, jj]
-      }
-      x2f_all[, 4L] <- rem2_all
-
-      # Endpoint marginals for future control data: (nMC x n_c) matrices
-      # fut_tc1_mat[u, j] = (x2f_all[(j-1)*nMC+u, 3] + x2f_all[..., 4]) / m2
-      fut_tc1_mat <- matrix(
-        (x2f_all[, 3L] + x2f_all[, 4L]) / m2, nrow = nMC, ncol = n_c)
-      fut_tc2_mat <- matrix(
-        (x2f_all[, 2L] + x2f_all[, 4L]) / m2, nrow = nMC, ncol = n_c)
-    }
-
-    for (i in seq_len(n_t)) {
-      idx1 <- ((i - 1L) * nMC + 1L):(i * nMC)
-      G1   <- Y1 + Z1_mat[idx1, , drop = FALSE]
-      p1   <- G1 / rowSums(G1)
-
-      # Treatment marginals: (nMC x 1) vectors
-      tt1 <- p1[, 3L] + p1[, 4L]
-      tt2 <- p1[, 2L] + p1[, 4L]
-
-      if (prob == 'posterior') {
-
-        # th1_mat[u, j] = tt1[u] - tc1_mat[u, j]  (nMC x n_c, no rep())
-        th1_mat <- tt1 - tc1_mat   # R broadcasts (nMC) against (nMC x n_c)
-        th2_mat <- tt2 - tc2_mat
-
-        # Region classification: (nMC x n_c) integer matrices
-        r1_mat <- 3L - (th1_mat > theta.MAV1) - (th1_mat > theta.TV1)
-        r2_mat <- 3L - (th2_mat > theta.MAV2) - (th2_mat > theta.TV2)
-        reg_mat <- (r1_mat - 1L) * 3L + r2_mat   # values in 1..9
-
-        # Go/NoGo indicator matrices (nMC x n_c), then column means = PrGo[i,]
-        # matrix() restores dimensions lost by %in% (which returns a plain vector)
-        PrGo_mat[i, ]   <- colMeans(
-          matrix(reg_mat %in% GoRegions,   nrow = nMC, ncol = n_c))
-        PrNoGo_mat[i, ] <- colMeans(
-          matrix(reg_mat %in% NoGoRegions, nrow = nMC, ncol = n_c))
+        for (i in seq_len(K)) {
+          Pr_R <- pbayespostpred2bin(
+            prob    = prob,  design  = design,
+            theta.TV1 = theta.TV1,   theta.MAV1 = theta.MAV1,
+            theta.TV2 = theta.TV2,   theta.MAV2 = theta.MAV2,
+            x1_00 = xt_uniq[i, 1L], x1_01 = xt_uniq[i, 2L],
+            x1_10 = xt_uniq[i, 3L], x1_11 = xt_uniq[i, 4L],
+            x2_00 = NULL, x2_01 = NULL, x2_10 = NULL, x2_11 = NULL,
+            a1_00 = a1_00, a1_01 = a1_01, a1_10 = a1_10, a1_11 = a1_11,
+            a2_00 = a2_00, a2_01 = a2_01, a2_10 = a2_10, a2_11 = a2_11,
+            m1 = m1, m2 = m2,
+            z00 = z00, z01 = z01, z10 = z10, z11 = z11,
+            xe1_00 = xe1_00, xe1_01 = xe1_01,
+            xe1_10 = xe1_10, xe1_11 = xe1_11,
+            xe2_00 = xe2_00, xe2_01 = xe2_01,
+            xe2_10 = xe2_10, xe2_11 = xe2_11,
+            ae1 = ae1, ae2 = ae2,
+            nMC = nMC
+          )
+          PrGo_vec[i]   <- sum(Pr_R[GoRegions])
+          PrNoGo_vec[i] <- sum(Pr_R[NoGoRegions])
+        }
 
       } else {
 
-        # Predictive: simulate future treatment data for this combo i
-        x1f <- matrix(0L, nrow = nMC, ncol = 4L)
-        rem1 <- rep(m1, nMC)
-        u1   <- rep(0,  nMC)
-        for (jj in seq_len(3L)) {
-          d1 <- pmax(1 - u1, 0)
-          q1 <- pmin(pmax(ifelse(d1 > 0, p1[, jj] / d1, 0), 0), 1)
-          b1 <- rbinom(nMC, rem1, q1)
-          x1f[, jj] <- b1
-          rem1 <- rem1 - b1
-          u1   <- u1 + p1[, jj]
+        # Sample nsim control count vectors
+        p_c    <- getjointbin(pi1 = pi_c1[s], pi2 = pi_c2[s], rho = rho_c[s])
+        xc_raw <- t(rmultinom(nsim, size = n2, prob = p_c))   # nsim x 4
+
+        # Deduplicate (x_t, x_c) pairs jointly
+        pair_keys <- paste(
+          apply(xt_raw, 1L, paste, collapse = "_"),
+          apply(xc_raw, 1L, paste, collapse = "_"),
+          sep = "|"
+        )
+        uniq_keys <- unique(pair_keys)
+        w_pairs   <- tabulate(match(pair_keys, uniq_keys)) / nsim
+        K         <- length(uniq_keys)
+
+        uniq_idx <- match(uniq_keys, pair_keys)
+        xt_uniq  <- xt_raw[uniq_idx, , drop = FALSE]
+        xc_uniq  <- xc_raw[uniq_idx, , drop = FALSE]
+
+        PrGo_vec   <- numeric(K)
+        PrNoGo_vec <- numeric(K)
+
+        for (i in seq_len(K)) {
+          Pr_R <- pbayespostpred2bin(
+            prob    = prob,  design  = design,
+            theta.TV1 = theta.TV1,   theta.MAV1 = theta.MAV1,
+            theta.TV2 = theta.TV2,   theta.MAV2 = theta.MAV2,
+            x1_00 = xt_uniq[i, 1L], x1_01 = xt_uniq[i, 2L],
+            x1_10 = xt_uniq[i, 3L], x1_11 = xt_uniq[i, 4L],
+            x2_00 = xc_uniq[i, 1L], x2_01 = xc_uniq[i, 2L],
+            x2_10 = xc_uniq[i, 3L], x2_11 = xc_uniq[i, 4L],
+            a1_00 = a1_00, a1_01 = a1_01, a1_10 = a1_10, a1_11 = a1_11,
+            a2_00 = a2_00, a2_01 = a2_01, a2_10 = a2_10, a2_11 = a2_11,
+            m1 = m1, m2 = m2,
+            z00 = z00, z01 = z01, z10 = z10, z11 = z11,
+            xe1_00 = xe1_00, xe1_01 = xe1_01,
+            xe1_10 = xe1_10, xe1_11 = xe1_11,
+            xe2_00 = xe2_00, xe2_01 = xe2_01,
+            xe2_10 = xe2_10, xe2_11 = xe2_11,
+            ae1 = ae1, ae2 = ae2,
+            nMC = nMC
+          )
+          PrGo_vec[i]   <- sum(Pr_R[GoRegions])
+          PrNoGo_vec[i] <- sum(Pr_R[NoGoRegions])
         }
-        x1f[, 4L] <- rem1
-
-        # Future treatment marginals: (nMC x 1) vectors
-        fut_tt1 <- (x1f[, 3L] + x1f[, 4L]) / m1
-        fut_tt2 <- (x1f[, 2L] + x1f[, 4L]) / m1
-
-        # Difference matrices (nMC x n_c) using pre-computed control futures
-        fth1_mat <- fut_tt1 - fut_tc1_mat
-        fth2_mat <- fut_tt2 - fut_tc2_mat
-
-        r1_mat  <- 2L - (fth1_mat > theta.TV1)
-        r2_mat  <- 2L - (fth2_mat > theta.TV2)
-        reg_mat <- (r1_mat - 1L) * 2L + r2_mat
-
-        PrGo_mat[i, ]   <- colMeans(
-          matrix(reg_mat %in% GoRegions,   nrow = nMC, ncol = n_c))
-        PrNoGo_mat[i, ] <- colMeans(
-          matrix(reg_mat %in% NoGoRegions, nrow = nMC, ncol = n_c))
       }
+
+      # Accumulate Go/NoGo/Miss using frequency weights
+      ind_Go   <- (PrGo_vec   >= gamma1) & (PrNoGo_vec <  gamma2)
+      ind_NoGo <- (PrGo_vec   <  gamma1) & (PrNoGo_vec >= gamma2)
+      ind_Miss <- (PrGo_vec   >= gamma1) & (PrNoGo_vec >= gamma2)
+
+      result_mat[s, 1L] <- sum(ind_Go   * w_pairs)
+      result_mat[s, 2L] <- sum(ind_NoGo * w_pairs)
+      result_mat[s, 3L] <- sum(ind_Miss * w_pairs)
     }
-  }
 
-  # Decision indicator matrices
-  ind_Go   <- (PrGo_mat   >= gamma1) & (PrNoGo_mat <  gamma2)
-  ind_NoGo <- (PrGo_mat   <  gamma1) & (PrNoGo_mat >= gamma2)
-  ind_Miss <- (PrGo_mat   >= gamma1) & (PrNoGo_mat >= gamma2)
+  } else {
 
-  # ---------------------------------------------------------------------------
-  # Section 3: Stage 2 -- Compute operating characteristics per scenario
-  #            by weighting Stage 1 decisions with multinomial probabilities
-  # ---------------------------------------------------------------------------
+    # ---------------------------------------------------------------------------
+    # Section 2 (Exact): Stage 1 -- Precompute decision probabilities for all
+    #            count combinations using fully vectorised batch Gamma sampling.
+    #
+    # Key idea: Dirichlet posterior Dir(alpha + x) can be sampled via
+    #   Gamma(alpha_k + x_k, 1) normalised by their row sum.
+    # We split this into:
+    #   Y_k ~ Gamma(alpha_k, 1)   [prior component, shared across all x]
+    #   Z_k ~ Gamma(x_k,     1)   [data  component, specific to each x]
+    # and generate all Y and Z draws in a single rgamma() call each,
+    # then add them to form the unnormalised posterior samples.
+    # This reduces function-call overhead from n_t * n_c calls to O(1) calls.
+    # ---------------------------------------------------------------------------
 
-  # Result matrix: columns = Go, NoGo, Miss
-  result_mat <- matrix(0, nrow = n_scen, ncol = 3L)
+    # Enumerate all possible count vectors for each arm
+    counts_t <- allmultinom(n1)   # (n_t x 4) integer matrix
+    n_t      <- nrow(counts_t)
 
-  for (s in seq_len(n_scen)) {
+    # For uncontrolled design, the control distribution is fixed (Dir(a2 + z))
+    # and does not vary with observed control counts.  The Stage 1 probability
+    # matrix therefore needs only a single column (n_c = 1), avoiding the
+    # generation of the full allmultinom(n2) table (C(n2+3,3) rows).
+    if (design == 'uncontrolled') {
+      n_c <- 1L
+    } else {
+      counts_c <- allmultinom(n2)   # (n_c x 4) integer matrix
+      n_c      <- nrow(counts_c)
+    }
 
-    # Convert (pi, rho) to four-cell probability vector for each arm
-    p_t <- getjointbin(pi1 = pi_t1[s], pi2 = pi_t2[s], rho = rho_t[s])
+    # --- Build posterior Dirichlet base parameters (prior + external data) ---
+    xe1_w <- if (!is.null(ae1) && design == 'external') ae1 else 0
+    xe2_w <- if (!is.null(ae2) && design == 'external') ae2 else 0
+
+    alpha1_base <- c(
+      a1_00 + xe1_w * ifelse(!is.null(xe1_00), xe1_00, 0),
+      a1_01 + xe1_w * ifelse(!is.null(xe1_01), xe1_01, 0),
+      a1_10 + xe1_w * ifelse(!is.null(xe1_10), xe1_10, 0),
+      a1_11 + xe1_w * ifelse(!is.null(xe1_11), xe1_11, 0)
+    )
 
     if (design == 'uncontrolled') {
-      # Control distribution is fixed (Dir(a2 + z)) and independent of x_c.
-      # Stage 1 was computed with n_c = 1, so ind_Go/ind_NoGo/ind_Miss have
-      # exactly one column.  Only treatment counts contribute multinomial
-      # weights; the control column index is always 1.
-      w_t <- apply(counts_t, 1L, function(x)
-        dmultinom(x, size = n1, prob = p_t))
+      # Hypothetical control: fixed Dir(a2 + z), no data component varies
+      alpha2_fixed <- c(a2_00 + z00, a2_01 + z01, a2_10 + z10, a2_11 + z11)
+    } else {
+      alpha2_base <- c(
+        a2_00 + xe2_w * ifelse(!is.null(xe2_00), xe2_00, 0),
+        a2_01 + xe2_w * ifelse(!is.null(xe2_01), xe2_01, 0),
+        a2_10 + xe2_w * ifelse(!is.null(xe2_10), xe2_10, 0),
+        a2_11 + xe2_w * ifelse(!is.null(xe2_11), xe2_11, 0)
+      )
+    }
 
-      result_mat[s, 1L] <- sum(ind_Go[,   1L] * w_t)
-      result_mat[s, 2L] <- sum(ind_NoGo[, 1L] * w_t)
-      result_mat[s, 3L] <- sum(ind_Miss[, 1L] * w_t)
+    # --- Batch Gamma sampling: prior component (nMC x 4) ---
+    # Y1[u, k] ~ Gamma(alpha1_base[k], 1),  shared across all x_t
+    # Y2[u, k] ~ Gamma(alpha2_base[k], 1),  shared across all x_c
+    Y1 <- matrix(rgamma(nMC * 4L, shape = rep(alpha1_base, each = nMC)),
+                 nrow = nMC, ncol = 4L)
+
+    if (design == 'uncontrolled') {
+      # Control is fixed: sample once from Dir(alpha2_fixed)
+      G2_fixed <- matrix(rgamma(nMC * 4L,
+                                shape = rep(alpha2_fixed, each = nMC)),
+                         nrow = nMC, ncol = 4L)
+      S2_fixed  <- rowSums(G2_fixed)
+      p2_fixed  <- G2_fixed / S2_fixed   # (nMC x 4) Dirichlet samples
+    } else {
+      Y2 <- matrix(rgamma(nMC * 4L, shape = rep(alpha2_base, each = nMC)),
+                   nrow = nMC, ncol = 4L)
+    }
+
+    # --- For predictive: pre-generate uniform random draws for future data ---
+    # (Sequential binomial approach; uniform variates reused across count combos
+    #  is NOT valid because each combo has different p parameters.
+    #  We therefore keep the sequential-binomial loop but operate on the
+    #  nMC-length p vectors produced per combo from the batch Gamma above.)
+
+    # --- Precompute Gamma data components for all count combinations ---
+    # Z1[i, u, k] ~ Gamma(counts_t[i, k] + 1, 1) would be expensive;
+    # instead we use the additive property:
+    #   Gamma(alpha + x, 1) = Gamma(alpha, 1) + Gamma(x, 1)  [in distribution]
+    # Z1_arr[i, u, k]: nMC draws of Gamma(counts_t[i,k], 1) for each i.
+    # We generate all at once: shape vector of length n_t * nMC * 4.
+    # To avoid Gamma(0, 1) (undefined), we clamp shapes to a small epsilon
+    # and note that Gamma(0,1) = 0 a.s., so we handle zeros separately.
+
+    # Vectorised Gamma draws for treatment arm data component.
+    # Replicate each row of counts_t nMC times: row block i holds counts_t[i, ]
+    # for nMC consecutive rows, giving the correct (n_t * nMC x 4) shape matrix.
+    shapes_t_rep <- counts_t[rep(seq_len(n_t), each = nMC), , drop = FALSE]
+    zero_mask_t  <- shapes_t_rep == 0L
+    shapes_t_rep[zero_mask_t] <- 1L
+    raw_t <- rgamma(n_t * nMC * 4L, shape = shapes_t_rep, rate = 1)
+    raw_t[zero_mask_t] <- 0   # Gamma(0,1) = 0 a.s.
+    Z1_mat <- matrix(raw_t, nrow = n_t * nMC, ncol = 4L)
+
+    if (design != 'uncontrolled') {
+      shapes_c_rep <- counts_c[rep(seq_len(n_c), each = nMC), , drop = FALSE]
+      zero_mask_c  <- shapes_c_rep == 0L
+      shapes_c_rep[zero_mask_c] <- 1L
+      raw_c <- rgamma(n_c * nMC * 4L, shape = shapes_c_rep, rate = 1)
+      raw_c[zero_mask_c] <- 0
+      Z2_mat <- matrix(raw_c, nrow = n_c * nMC, ncol = 4L)
+    }
+
+    # --- Helper: compute PrGo and PrNoGo from a set of (p1, p2) samples ---
+    # p1, p2: (nMC x 4) matrices of Dirichlet samples
+    .compute_PrGoNoGo <- function(p1, p2) {
+
+      # Marginal response rates and treatment effects
+      theta1 <- (p1[, 3L] + p1[, 4L]) - (p2[, 3L] + p2[, 4L])
+      theta2 <- (p1[, 2L] + p1[, 4L]) - (p2[, 2L] + p2[, 4L])
+
+      if (prob == 'posterior') {
+        # Region index: row-major, Endpoint 1 slowest (3 x 3 grid -> 9 regions)
+        r1 <- 3L - as.integer(theta1 > theta.MAV1) -
+          as.integer(theta1 > theta.TV1)
+        r2 <- 3L - as.integer(theta2 > theta.MAV2) -
+          as.integer(theta2 > theta.TV2)
+        region <- (r1 - 1L) * 3L + r2
+        Pr_R   <- tabulate(region, nbins = 9L) / nMC
+
+      } else {
+        # Predictive: simulate future multinomial data via sequential binomials
+        x1f <- matrix(0L, nrow = nMC, ncol = 4L)
+        x2f <- matrix(0L, nrow = nMC, ncol = 4L)
+        rem1 <- rep(m1, nMC);  rem2 <- rep(m2, nMC)
+        u1   <- rep(0,  nMC);  u2   <- rep(0,  nMC)
+
+        for (jj in seq_len(3L)) {
+          d1 <- pmax(1 - u1, 0);  d2 <- pmax(1 - u2, 0)
+          q1 <- pmin(pmax(ifelse(d1 > 0, p1[, jj] / d1, 0), 0), 1)
+          q2 <- pmin(pmax(ifelse(d2 > 0, p2[, jj] / d2, 0), 0), 1)
+          b1 <- rbinom(nMC, rem1, q1);  b2 <- rbinom(nMC, rem2, q2)
+          x1f[, jj] <- b1;  x2f[, jj] <- b2
+          rem1 <- rem1 - b1;  rem2 <- rem2 - b2
+          u1   <- u1 + p1[, jj];  u2 <- u2 + p2[, jj]
+        }
+        x1f[, 4L] <- rem1;  x2f[, 4L] <- rem2
+
+        theta1 <- (x1f[, 3L] + x1f[, 4L]) / m1 -
+          (x2f[, 3L] + x2f[, 4L]) / m2
+        theta2 <- (x1f[, 2L] + x1f[, 4L]) / m1 -
+          (x2f[, 2L] + x2f[, 4L]) / m2
+
+        r1     <- 2L - as.integer(theta1 > theta.TV1)
+        r2     <- 2L - as.integer(theta2 > theta.TV2)
+        region <- (r1 - 1L) * 2L + r2
+        Pr_R   <- tabulate(region, nbins = 4L) / nMC
+      }
+
+      list(PrGo   = sum(Pr_R[GoRegions]),
+           PrNoGo = sum(Pr_R[NoGoRegions]))
+    }
+
+    # --- Main Stage 1 loop: iterate over treatment count combinations ---
+    # For the controlled/external case, we eliminate the inner j-loop by
+    # computing region memberships for all n_c control combos simultaneously.
+    #
+    # For each treatment combo i:
+    #   p1[u, k] = (Y1[u,k] + Z1[i,u,k]) / rowSum  -- (nMC x 4)
+    #
+    # theta1_t[u] = p1[u,3] + p1[u,4]  (treatment marginal for Endpoint 1)
+    # theta2_t[u] = p1[u,2] + p1[u,4]  (treatment marginal for Endpoint 2)
+    #
+    # For each control combo j:
+    #   theta1_c[u] = p2[u,3] + p2[u,4]
+    #   theta2_c[u] = p2[u,2] + p2[u,4]
+    #
+    # region_ij = f(theta1_t[u] - theta1_c[u], theta2_t[u] - theta2_c[u])
+    #
+    # Key vectorisation: pre-compute normalised p2 for ALL j at once:
+    #   p2_all: (n_c * nMC x 4)  -- all control combos stacked
+    # Then for fixed i, broadcast theta_t (length nMC) against
+    # theta_c (n_c blocks of nMC) to get all n_c results in one pass.
+
+    PrGo_mat   <- matrix(0, nrow = n_t, ncol = n_c)
+    PrNoGo_mat <- matrix(0, nrow = n_t, ncol = n_c)
+
+    if (design == 'uncontrolled') {
+
+      # --- Uncontrolled: single fixed control distribution ---
+      for (i in seq_len(n_t)) {
+        idx1 <- ((i - 1L) * nMC + 1L):(i * nMC)
+        G1   <- Y1 + Z1_mat[idx1, , drop = FALSE]
+        p1   <- G1 / rowSums(G1)
+
+        res <- .compute_PrGoNoGo(p1, p2_fixed)
+        # n_c = 1 for uncontrolled, so only column 1 exists
+        PrGo_mat[i, 1L]   <- res$PrGo
+        PrNoGo_mat[i, 1L] <- res$PrNoGo
+      }
 
     } else {
-      # Controlled or external: both arms contribute multinomial weights
-      p_c <- getjointbin(pi1 = pi_c1[s], pi2 = pi_c2[s], rho = rho_c[s])
 
-      w_t <- apply(counts_t, 1L, function(x)
-        dmultinom(x, size = n1, prob = p_t))
-      w_c <- apply(counts_c, 1L, function(x)
-        dmultinom(x, size = n2, prob = p_c))
+      # --- Controlled / External: vectorise over all j for each i ---
 
-      # Outer product of weights: w[i,j] = w_t[i] * w_c[j]
-      w_mat <- outer(w_t, w_c)
+      # Pre-normalise all control combos: p2_all is (n_c * nMC) x 4
+      G2_all <- Y2[rep(seq_len(nMC), times = n_c), , drop = FALSE] +
+        Z2_mat
+      p2_all <- G2_all / rowSums(G2_all)
 
-      result_mat[s, 1L] <- sum(ind_Go   * w_mat)
-      result_mat[s, 2L] <- sum(ind_NoGo * w_mat)
-      result_mat[s, 3L] <- sum(ind_Miss * w_mat)
+      # Pre-compute control marginals for all combos: each is length n_c * nMC
+      # theta_c1[j-block, u] = p2_all[(j-1)*nMC+u, 3] + p2_all[(j-1)*nMC+u, 4]
+      tc1_all <- p2_all[, 3L] + p2_all[, 4L]  # length n_c * nMC
+      tc2_all <- p2_all[, 2L] + p2_all[, 4L]  # length n_c * nMC
+
+      # Pre-compute control marginals reshaped as (nMC x n_c) matrices.
+      # tc1_mat[u, j] = marginal for Endpoint 1 in control combo j, MC draw u
+      # tc2_mat[u, j] = marginal for Endpoint 2 in control combo j, MC draw u
+      # This avoids rep() inside the i-loop (case B optimisation).
+      tc1_mat <- matrix(tc1_all, nrow = nMC, ncol = n_c)
+      tc2_mat <- matrix(tc2_all, nrow = nMC, ncol = n_c)
+
+      if (prob == 'predictive') {
+        # Pre-compute future multinomial draws for ALL control combos at once.
+        # Layout of p2_all: (n_c * nMC) x 4, blocks of nMC rows per combo j.
+        # Sequential binomial for all n_c * nMC rows simultaneously (case C).
+        x2f_all <- matrix(0L, nrow = n_c * nMC, ncol = 4L)
+        rem2_all <- rep(m2, n_c * nMC)
+        u2_all   <- rep(0,  n_c * nMC)
+        for (jj in seq_len(3L)) {
+          d2_all  <- pmax(1 - u2_all, 0)
+          q2_all  <- pmin(pmax(
+            ifelse(d2_all > 0, p2_all[, jj] / d2_all, 0), 0), 1)
+          b2_all  <- rbinom(n_c * nMC, rem2_all, q2_all)
+          x2f_all[, jj] <- b2_all
+          rem2_all <- rem2_all - b2_all
+          u2_all   <- u2_all + p2_all[, jj]
+        }
+        x2f_all[, 4L] <- rem2_all
+
+        # Endpoint marginals for future control data: (nMC x n_c) matrices
+        # fut_tc1_mat[u, j] = (x2f_all[(j-1)*nMC+u, 3] + x2f_all[..., 4]) / m2
+        fut_tc1_mat <- matrix(
+          (x2f_all[, 3L] + x2f_all[, 4L]) / m2, nrow = nMC, ncol = n_c)
+        fut_tc2_mat <- matrix(
+          (x2f_all[, 2L] + x2f_all[, 4L]) / m2, nrow = nMC, ncol = n_c)
+      }
+
+      for (i in seq_len(n_t)) {
+        idx1 <- ((i - 1L) * nMC + 1L):(i * nMC)
+        G1   <- Y1 + Z1_mat[idx1, , drop = FALSE]
+        p1   <- G1 / rowSums(G1)
+
+        # Treatment marginals: (nMC x 1) vectors
+        tt1 <- p1[, 3L] + p1[, 4L]
+        tt2 <- p1[, 2L] + p1[, 4L]
+
+        if (prob == 'posterior') {
+
+          # th1_mat[u, j] = tt1[u] - tc1_mat[u, j]  (nMC x n_c, no rep())
+          th1_mat <- tt1 - tc1_mat   # R broadcasts (nMC) against (nMC x n_c)
+          th2_mat <- tt2 - tc2_mat
+
+          # Region classification: (nMC x n_c) integer matrices
+          r1_mat <- 3L - (th1_mat > theta.MAV1) - (th1_mat > theta.TV1)
+          r2_mat <- 3L - (th2_mat > theta.MAV2) - (th2_mat > theta.TV2)
+          reg_mat <- (r1_mat - 1L) * 3L + r2_mat   # values in 1..9
+
+          # Go/NoGo indicator matrices (nMC x n_c), then column means = PrGo[i,]
+          # matrix() restores dimensions lost by %in% (which returns a plain vector)
+          PrGo_mat[i, ]   <- colMeans(
+            matrix(reg_mat %in% GoRegions,   nrow = nMC, ncol = n_c))
+          PrNoGo_mat[i, ] <- colMeans(
+            matrix(reg_mat %in% NoGoRegions, nrow = nMC, ncol = n_c))
+
+        } else {
+
+          # Predictive: simulate future treatment data for this combo i
+          x1f <- matrix(0L, nrow = nMC, ncol = 4L)
+          rem1 <- rep(m1, nMC)
+          u1   <- rep(0,  nMC)
+          for (jj in seq_len(3L)) {
+            d1 <- pmax(1 - u1, 0)
+            q1 <- pmin(pmax(ifelse(d1 > 0, p1[, jj] / d1, 0), 0), 1)
+            b1 <- rbinom(nMC, rem1, q1)
+            x1f[, jj] <- b1
+            rem1 <- rem1 - b1
+            u1   <- u1 + p1[, jj]
+          }
+          x1f[, 4L] <- rem1
+
+          # Future treatment marginals: (nMC x 1) vectors
+          fut_tt1 <- (x1f[, 3L] + x1f[, 4L]) / m1
+          fut_tt2 <- (x1f[, 2L] + x1f[, 4L]) / m1
+
+          # Difference matrices (nMC x n_c) using pre-computed control futures
+          fth1_mat <- fut_tt1 - fut_tc1_mat
+          fth2_mat <- fut_tt2 - fut_tc2_mat
+
+          r1_mat  <- 2L - (fth1_mat > theta.TV1)
+          r2_mat  <- 2L - (fth2_mat > theta.TV2)
+          reg_mat <- (r1_mat - 1L) * 2L + r2_mat
+
+          PrGo_mat[i, ]   <- colMeans(
+            matrix(reg_mat %in% GoRegions,   nrow = nMC, ncol = n_c))
+          PrNoGo_mat[i, ] <- colMeans(
+            matrix(reg_mat %in% NoGoRegions, nrow = nMC, ncol = n_c))
+        }
+      }
     }
-  }
+
+    # Decision indicator matrices
+    ind_Go   <- (PrGo_mat   >= gamma1) & (PrNoGo_mat <  gamma2)
+    ind_NoGo <- (PrGo_mat   <  gamma1) & (PrNoGo_mat >= gamma2)
+    ind_Miss <- (PrGo_mat   >= gamma1) & (PrNoGo_mat >= gamma2)
+
+    # ---------------------------------------------------------------------------
+    # Section 3 (Exact): Stage 2 -- Compute operating characteristics per
+    #            scenario by weighting Stage 1 decisions with multinomial
+    #            probabilities
+    # ---------------------------------------------------------------------------
+
+    # Result matrix: columns = Go, NoGo, Miss
+    result_mat <- matrix(0, nrow = n_scen, ncol = 3L)
+
+    for (s in seq_len(n_scen)) {
+
+      # Convert (pi, rho) to four-cell probability vector for each arm
+      p_t <- getjointbin(pi1 = pi_t1[s], pi2 = pi_t2[s], rho = rho_t[s])
+
+      if (design == 'uncontrolled') {
+        # Control distribution is fixed (Dir(a2 + z)) and independent of x_c.
+        # Stage 1 was computed with n_c = 1, so ind_Go/ind_NoGo/ind_Miss have
+        # exactly one column.  Only treatment counts contribute multinomial
+        # weights; the control column index is always 1.
+        w_t <- apply(counts_t, 1L, function(x)
+          dmultinom(x, size = n1, prob = p_t))
+
+        result_mat[s, 1L] <- sum(ind_Go[,   1L] * w_t)
+        result_mat[s, 2L] <- sum(ind_NoGo[, 1L] * w_t)
+        result_mat[s, 3L] <- sum(ind_Miss[, 1L] * w_t)
+
+      } else {
+        # Controlled or external: both arms contribute multinomial weights
+        p_c <- getjointbin(pi1 = pi_c1[s], pi2 = pi_c2[s], rho = rho_c[s])
+
+        w_t <- apply(counts_t, 1L, function(x)
+          dmultinom(x, size = n1, prob = p_t))
+        w_c <- apply(counts_c, 1L, function(x)
+          dmultinom(x, size = n2, prob = p_c))
+
+        # Outer product of weights: w[i,j] = w_t[i] * w_c[j]
+        w_mat <- outer(w_t, w_c)
+
+        result_mat[s, 1L] <- sum(ind_Go   * w_mat)
+        result_mat[s, 2L] <- sum(ind_NoGo * w_mat)
+        result_mat[s, 3L] <- sum(ind_Miss * w_mat)
+      }
+    }
+
+  } # end if (method == 'MC') ... else ...
 
   # ---------------------------------------------------------------------------
   # Section 4: Assemble output
@@ -1042,6 +1230,8 @@ pbayesdecisionprob2bin <- function(prob        = 'posterior',
   attr(results, 'ae1')           <- ae1
   attr(results, 'ae2')           <- ae2
   attr(results, 'nMC')           <- nMC
+  attr(results, 'nsim')          <- nsim
+  attr(results, 'method')        <- method
   attr(results, 'error_if_Miss') <- error_if_Miss
   attr(results, 'Gray_inc_Miss') <- Gray_inc_Miss
 
@@ -1102,6 +1292,8 @@ print.pbayesdecisionprob2bin <- function(x, digits = 4, ...) {
   ae1           <- attr(x, 'ae1')
   ae2           <- attr(x, 'ae2')
   nMC           <- attr(x, 'nMC')
+  nsim          <- attr(x, 'nsim')
+  method        <- attr(x, 'method')
   error_if_Miss <- attr(x, 'error_if_Miss')
   Gray_inc_Miss <- attr(x, 'Gray_inc_Miss')
 
@@ -1153,7 +1345,10 @@ print.pbayesdecisionprob2bin <- function(x, digits = 4, ...) {
     cat(sprintf('  Power prior      : ae1 = %s, ae2 = %s\n',
                 fmt(ae1), fmt(ae2)))
   }
-  cat(sprintf('  MC samples (nMC) : %s\n', fmt(nMC)))
+  cat(sprintf('  MC draws  (nMC)  : %s\n', fmt(nMC)))
+  if (method == 'MC')
+    cat(sprintf('  Sim size  (nsim) : %s\n', fmt(nsim)))
+  cat(sprintf('  Method           : %s\n', fmt(method)))
   cat(sprintf('  Miss handling    : error_if_Miss = %s, Gray_inc_Miss = %s\n',
               fmt(error_if_Miss), fmt(Gray_inc_Miss)))
   cat(strrep('-', 65), '\n')

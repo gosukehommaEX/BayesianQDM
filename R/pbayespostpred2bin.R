@@ -292,23 +292,23 @@
 #' @importFrom stats rbinom
 #' @export
 pbayespostpred2bin <- function(prob    = 'posterior',
-                         design  = 'controlled',
-                         theta.TV1, theta.MAV1,
-                         theta.TV2, theta.MAV2,
-                         x1_00, x1_01, x1_10, x1_11,
-                         x2_00  = NULL, x2_01  = NULL,
-                         x2_10  = NULL, x2_11  = NULL,
-                         a1_00, a1_01, a1_10, a1_11,
-                         a2_00, a2_01, a2_10, a2_11,
-                         m1 = NULL, m2 = NULL,
-                         z00 = NULL, z01 = NULL,
-                         z10 = NULL, z11 = NULL,
-                         xe1_00 = NULL, xe1_01 = NULL,
-                         xe1_10 = NULL, xe1_11 = NULL,
-                         xe2_00 = NULL, xe2_01 = NULL,
-                         xe2_10 = NULL, xe2_11 = NULL,
-                         ae1 = NULL, ae2 = NULL,
-                         nMC = 10000L) {
+                               design  = 'controlled',
+                               theta.TV1, theta.MAV1,
+                               theta.TV2, theta.MAV2,
+                               x1_00, x1_01, x1_10, x1_11,
+                               x2_00  = NULL, x2_01  = NULL,
+                               x2_10  = NULL, x2_11  = NULL,
+                               a1_00, a1_01, a1_10, a1_11,
+                               a2_00, a2_01, a2_10, a2_11,
+                               m1 = NULL, m2 = NULL,
+                               z00 = NULL, z01 = NULL,
+                               z10 = NULL, z11 = NULL,
+                               xe1_00 = NULL, xe1_01 = NULL,
+                               xe1_10 = NULL, xe1_11 = NULL,
+                               xe2_00 = NULL, xe2_01 = NULL,
+                               xe2_10 = NULL, xe2_11 = NULL,
+                               ae1 = NULL, ae2 = NULL,
+                               nMC = 10000L) {
 
   # ---------------------------------------------------------------------------
   # Section 1: Input validation
