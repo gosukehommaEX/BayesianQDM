@@ -2,8 +2,7 @@
 % Please edit documentation in R/pbayespostpred2cont.R
 \name{pbayespostpred2cont}
 \alias{pbayespostpred2cont}
-\title{Bayesian Posterior or Posterior Predictive Probability for a Clinical Trial
-with Two Continuous Endpoints}
+\title{Region Probabilities for Two Continuous Endpoints}
 \usage{
 pbayespostpred2cont(
   prob,
@@ -45,172 +44,137 @@ pbayespostpred2cont(
 )
 }
 \arguments{
-\item{prob}{A character string specifying the probability type.
-Must be \code{'posterior'} or \code{'predictive'}.}
+\item{prob}{Character scalar: \code{'posterior'} or \code{'predictive'}.}
 
-\item{design}{A character string specifying the trial design.
-Must be \code{'controlled'}, \code{'uncontrolled'}, or
-\code{'external'}.}
+\item{design}{Character scalar: \code{'controlled'}, \code{'uncontrolled'},
+or \code{'external'}.}
 
-\item{prior}{A character string specifying the prior distribution.
-Must be \code{'vague'} or \code{'N-Inv-Wishart'}.}
+\item{prior}{Character scalar: \code{'vague'} or \code{'N-Inv-Wishart'}.}
 
-\item{theta.TV1}{A numeric scalar giving the target value (TV) for
-Endpoint 1. Required when \code{prob = 'posterior'};
-set to \code{NULL} for \code{prob = 'predictive'}.}
+\item{theta.TV1}{Numeric scalar. Target value for Endpoint 1
+(required when \code{prob = 'posterior'}).}
 
-\item{theta.MAV1}{A numeric scalar giving the minimum acceptable value
-(MAV) for Endpoint 1. Required when \code{prob = 'posterior'};
-must satisfy \code{theta.TV1 > theta.MAV1}.
-Set to \code{NULL} for \code{prob = 'predictive'}.}
+\item{theta.MAV1}{Numeric scalar. Minimum acceptable value for Endpoint 1
+(required when \code{prob = 'posterior'}).}
 
-\item{theta.TV2}{A numeric scalar giving the target value (TV) for
-Endpoint 2. Required when \code{prob = 'posterior'};
-set to \code{NULL} for \code{prob = 'predictive'}.}
+\item{theta.TV2}{Numeric scalar. Target value for Endpoint 2
+(required when \code{prob = 'posterior'}).}
 
-\item{theta.MAV2}{A numeric scalar giving the minimum acceptable value
-(MAV) for Endpoint 2. Required when \code{prob = 'posterior'};
-must satisfy \code{theta.TV2 > theta.MAV2}.
-Set to \code{NULL} for \code{prob = 'predictive'}.}
+\item{theta.MAV2}{Numeric scalar. Minimum acceptable value for Endpoint 2
+(required when \code{prob = 'posterior'}).}
 
-\item{theta.NULL1}{A numeric scalar giving the null hypothesis value for
-Endpoint 1. Required when \code{prob = 'predictive'};
-set to \code{NULL} for \code{prob = 'posterior'}.}
+\item{theta.NULL1}{Numeric scalar. Null threshold for Endpoint 1
+(required when \code{prob = 'predictive'}).}
 
-\item{theta.NULL2}{A numeric scalar giving the null hypothesis value for
-Endpoint 2. Required when \code{prob = 'predictive'};
-set to \code{NULL} for \code{prob = 'posterior'}.}
+\item{theta.NULL2}{Numeric scalar. Null threshold for Endpoint 2
+(required when \code{prob = 'predictive'}).}
 
-\item{n1}{A positive integer giving the PoC sample size for group 1
-(treatment). Must be >= 3 when \code{prior = 'vague'}.}
+\item{n1}{Positive integer. Sample size for the treatment arm.}
 
-\item{n2}{A positive integer giving the PoC sample size for group 2
-(control). Required for \code{design = 'controlled'} or
-\code{'external'}; set to \code{NULL} for \code{'uncontrolled'}.
-Must be >= 3 when \code{prior = 'vague'}.}
+\item{n2}{Positive integer or \code{NULL}. Sample size for the control arm
+(not used when \code{design = 'uncontrolled'}).}
 
-\item{ybar1}{A numeric vector of length 2 giving the sample mean
-\eqn{(\bar{y}_{t1}, \bar{y}_{t2})} for group 1.}
+\item{ybar1}{Numeric vector of length 2 \strong{or} a numeric matrix with
+2 columns. Sample mean(s) for the treatment arm. When a matrix with
+\eqn{N} rows is supplied, the function computes probabilities for
+all \eqn{N} observations simultaneously and returns an
+\eqn{N \times n_{\rm regions}} matrix.}
 
-\item{S1}{A 2x2 positive-definite numeric matrix giving the
-sum-of-squares matrix
-\eqn{S_t = \sum_j (y_{t,j} - \bar{y}_t)(y_{t,j} - \bar{y}_t)^T}
-for group 1.}
+\item{S1}{A 2x2 numeric matrix (single observation) \strong{or} a list of
+\eqn{N} such matrices. Sum-of-squares matrix/matrices for the
+treatment arm. Must be consistent with \code{ybar1}: if
+\code{ybar1} is a matrix, \code{S1} must be a list of the same
+length.}
 
-\item{ybar2}{A numeric vector of length 2 giving the sample mean for
-group 2. Required for \code{design = 'controlled'} or
-\code{'external'}; set to \code{NULL} for \code{'uncontrolled'}.}
+\item{ybar2}{Numeric vector of length 2, a numeric matrix with 2 columns,
+or \code{NULL}. Sample mean(s) for the control arm.}
 
-\item{S2}{A 2x2 positive-definite numeric matrix giving the
-sum-of-squares matrix for group 2. Same availability rules as
-\code{ybar2}.}
+\item{S2}{A 2x2 numeric matrix, a list of 2x2 matrices, or \code{NULL}.
+Sum-of-squares matrix/matrices for the control arm.}
 
-\item{m1}{A positive integer giving the future sample size for group 1.
-Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
+\item{m1}{Positive integer or \code{NULL}. Pivotal study sample size for
+the treatment arm (required when \code{prob = 'predictive'}).}
 
-\item{m2}{A positive integer giving the future sample size for group 2.
-Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
+\item{m2}{Positive integer or \code{NULL}. Pivotal study sample size for
+the control arm (required when \code{prob = 'predictive'} and
+\code{design != 'uncontrolled'}).}
 
-\item{kappa01}{A positive numeric scalar. Prior precision parameter for
-group 1 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{kappa01}{Positive numeric scalar. NIW prior concentration for the
+treatment arm (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{nu01}{A positive numeric scalar (> 2). Prior degrees of freedom for
-group 1 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{nu01}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
+the treatment arm (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{mu01}{A numeric vector of length 2. Prior mean for group 1 when
-\code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{mu01}{Length-2 numeric vector. NIW prior mean for the treatment arm
+(required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{Lambda01}{A 2x2 positive-definite numeric matrix. Prior scale
-matrix for group 1 when \code{prior = 'N-Inv-Wishart'};
-otherwise \code{NULL}.}
+\item{Lambda01}{A 2x2 positive-definite numeric matrix. NIW prior scale
+matrix for the treatment arm (required when
+\code{prior = 'N-Inv-Wishart'}).}
 
-\item{kappa02}{A positive numeric scalar. Prior precision parameter for
-group 2 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{kappa02}{Positive numeric scalar. NIW prior concentration for the
+control arm.}
 
-\item{nu02}{A positive numeric scalar (> 2). Prior degrees of freedom for
-group 2 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{nu02}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
+the control arm.}
 
-\item{mu02}{A numeric vector of length 2. Prior mean for group 2 when
-\code{prior = 'N-Inv-Wishart'}, or the hypothetical control
-location when \code{design = 'uncontrolled'}; otherwise \code{NULL}.}
+\item{mu02}{Length-2 numeric vector. NIW prior mean for the control arm or
+hypothetical control location (\code{design = 'uncontrolled'}).}
 
-\item{Lambda02}{A 2x2 positive-definite numeric matrix. Prior scale
-matrix for group 2 when \code{prior = 'N-Inv-Wishart'};
-otherwise \code{NULL}.}
+\item{Lambda02}{A 2x2 positive-definite numeric matrix. NIW prior scale
+matrix for the control arm.}
 
-\item{r}{A positive numeric scalar. Variance scaling factor for the
-hypothetical control distribution. Required when
-\code{design = 'uncontrolled'}; otherwise \code{NULL}.
-When \code{r = 1}, the control and treatment have equal variance
-scale. The scale matrix of the hypothetical control is set to
-\code{r} times the treatment posterior scale matrix.}
+\item{r}{Positive numeric scalar. Variance scaling factor for the
+hypothetical control (required when
+\code{design = 'uncontrolled'}).}
 
-\item{ne1}{A positive integer giving the external sample size for group 1.
-Required when \code{design = 'external'} and external treatment
-data are used; otherwise \code{NULL}.}
+\item{ne1}{Positive integer or \code{NULL}. External treatment sample size
+(used when \code{design = 'external'}).}
 
-\item{ne2}{A positive integer giving the external sample size for group 2.
-Required when \code{design = 'external'} and external control data
-are used; otherwise \code{NULL}.}
+\item{ne2}{Positive integer or \code{NULL}. External control sample size
+(used when \code{design = 'external'}).}
 
-\item{alpha01e}{A numeric scalar in \code{(0, 1]}. Power prior weight for
-group 1 external data. Required when \code{ne1} is non-NULL;
-otherwise \code{NULL}.}
+\item{alpha01e}{Numeric scalar in \code{(0, 1]}. Power prior weight for
+external treatment data.}
 
-\item{alpha02e}{A numeric scalar in \code{(0, 1]}. Power prior weight for
-group 2 external data. Required when \code{ne2} is non-NULL;
-otherwise \code{NULL}.}
+\item{alpha02e}{Numeric scalar in \code{(0, 1]}. Power prior weight for
+external control data.}
 
-\item{ybar_e1}{A numeric vector of length 2. Sample mean of external data
-for group 1. Required when \code{ne1} is non-NULL; otherwise
-\code{NULL}.}
+\item{ybar_e1}{Length-2 numeric vector. External treatment sample mean.}
 
-\item{ybar_e2}{A numeric vector of length 2. Sample mean of external data
-for group 2. Required when \code{ne2} is non-NULL; otherwise
-\code{NULL}.}
+\item{ybar_e2}{Length-2 numeric vector. External control sample mean.}
 
-\item{Se1}{A 2x2 positive-definite numeric matrix. Sum-of-squares matrix
-of external data for group 1. Required when \code{ne1} is
-non-NULL; otherwise \code{NULL}.}
+\item{Se1}{A 2x2 numeric matrix. External treatment sum-of-squares matrix.}
 
-\item{Se2}{A 2x2 positive-definite numeric matrix. Sum-of-squares matrix
-of external data for group 2. Required when \code{ne2} is
-non-NULL; otherwise \code{NULL}.}
+\item{Se2}{A 2x2 numeric matrix. External control sum-of-squares matrix.}
 
-\item{nMC}{A positive integer giving the number of Monte Carlo samples.
-Default is \code{10000L}.  Used when \code{method = 'MC'} or when
+\item{nMC}{Positive integer. Number of Monte Carlo draws. Default
+\code{10000L}. Used when \code{method = 'MC'} or when
 \code{method = 'MM'} falls back to MC.}
 
-\item{method}{A character string specifying the computation method.
-Must be \code{'MC'} (Monte Carlo; default) or \code{'MM'}
-(Moment-Matching approximation based on Theorem 3 of the reference).
-When \code{method = 'MM'}, the parameters of the approximating
-bivariate t-distribution are determined analytically via moment
-matching, and rectangular region probabilities are evaluated with
-\code{mvtnorm::pmvt}.  If the degrees-of-freedom condition
-\eqn{\nu_k > 4} is not met (e.g., vague prior with small
-\eqn{n_k \leq 6}), a warning is issued and the function falls back
-to \code{method = 'MC'}.}
+\item{method}{Character scalar: \code{'MC'} (default) or \code{'MM'}
+(Moment-Matching via \code{mvtnorm::pmvt}). When
+\code{method = 'MM'} and \eqn{\nu_k \le 4}, a warning is issued
+and the function falls back to \code{method = 'MC'}.}
 }
 \value{
-A named numeric vector of region probabilities.
-For \code{prob = 'posterior'}: length 9, named \code{R1}, ...,
-\code{R9}, corresponding to a row-major 3x3 grid where Endpoint 1
-varies slowest (see Details for region definitions).
-For \code{prob = 'predictive'}: length 4, named \code{R1}, ...,
-\code{R4}.
-All elements are non-negative and sum to 1.
+When \code{ybar1} is a length-2 vector (single observation): a
+named numeric vector of length 9 (\code{R1}--\code{R9}) for
+\code{prob = 'posterior'} or length 4 (\code{R1}--\code{R4}) for
+\code{prob = 'predictive'}. All elements are non-negative and sum
+to 1.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    When \code{ybar1} is an \eqn{N \times 2} matrix (vectorised call):
+    a numeric matrix with \eqn{N} rows and 9 (or 4) columns, with
+    column names \code{R1}--\code{R9} (or \code{R1}--\code{R4}). Each
+    row sums to 1.
+}\if{html}{\out{</div>}}
 }
 \description{
-Computes the Bayesian posterior probability or posterior predictive
-probability for clinical trials with two continuous endpoints under a
-bivariate Normal model. Sufficient statistics of the observed PoC data
-are supplied directly. The function returns probabilities for nine decision
-regions (posterior) or four decision regions (predictive) defined by target
-values (TV) and minimum acceptable values (MAV) for both endpoints. Three
-study designs are supported: controlled, uncontrolled (hypothetical
-control), and external-control (power prior with NIW conjugate
-representation).
+Computes the posterior or posterior predictive probability that the
+bivariate treatment effect \eqn{\theta = \mu_t - \mu_c} falls in each of
+the 9 (posterior) or 4 (predictive) rectangular regions defined by the
+decision thresholds.
 }
 \details{
 \strong{Model.}
@@ -257,20 +221,17 @@ Row-major 3x3 grid; Endpoint 1 varies slowest:
 \strong{Predictive probability regions (prob = 'predictive').}
 Row-major 2x2 grid; Endpoint 1 varies slowest:
 \itemize{
-\item R1: \eqn{\tilde\theta_1 > NULL_1} AND
-\eqn{\tilde\theta_2 > NULL_2}
-\item R2: \eqn{\tilde\theta_1 > NULL_1} AND
-\eqn{\tilde\theta_2 \le NULL_2}
-\item R3: \eqn{\tilde\theta_1 \le NULL_1} AND
-\eqn{\tilde\theta_2 > NULL_2}
-\item R4: \eqn{\tilde\theta_1 \le NULL_1} AND
-\eqn{\tilde\theta_2 \le NULL_2}
+\item R1: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
+\eqn{\tilde\theta_2 > \theta_{\rm NULL2}}
+\item R2: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
+\eqn{\tilde\theta_2 \le \theta_{\rm NULL2}}
+\item R3: \eqn{\tilde\theta_1 \le \theta_{\rm NULL1}} AND
+\eqn{\tilde\theta_2 > \theta_{\rm NULL2}}
+\item R4: \eqn{\tilde\theta_1 \le \theta_{\rm NULL1}} AND
+\eqn{\tilde\theta_2 \le \theta_{\rm NULL2}}
 }
 
 \strong{Uncontrolled design.}
-The hypothetical control distribution replaces the control arm posterior.
-Under vague prior:
-\eqn{\mu_c \sim t_{n_t - 2}(\mu_{0c},\; rS_t / [n_t(n_t - 2)])}.
 Under NIW prior:
 \eqn{\mu_c \sim t_{\nu_{nt} - 1}(\mu_{0c},\;
 r\Lambda_{nt} / [\kappa_{nt}(\nu_{nt} - 1)])}.
@@ -282,6 +243,19 @@ Incorporated via the power prior with NIW conjugate representation.
 The effective posterior hyperparameters are obtained by constructing the
 power prior from external data with weight \eqn{a_0}, then updating with
 current PoC data (see Conjugate_power_prior.pdf, Theorem 5).
+
+\strong{Vectorised usage.}
+When \code{ybar1} is supplied as an \eqn{N \times 2} matrix and
+\code{S1} as a list of \eqn{N} scatter matrices, the function computes
+region probabilities for all \eqn{N} observations in a single call,
+returning an \eqn{N \times n_{\rm regions}} matrix.  For
+\code{method = 'MC'}, standard normal and chi-squared variates are
+pre-generated once (size \code{nMC}) and reused across all observations,
+with only the Cholesky factor of the replicate-specific scale matrix
+recomputed per observation.  For \code{method = 'MM'}, the
+moment-matching parameters are computed per observation (since they depend
+on the replicate-specific \eqn{V_k}) and \code{mvtnorm::pmvt} is called
+once per region per observation.
 }
 \examples{
 # Example 1: Posterior probability, controlled design, vague prior
@@ -407,6 +381,36 @@ pbayespostpred2cont(
   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
   nMC = 1000L, method = 'MM'
+)
+
+# Example 7: Vectorised call -- N = 3 observations simultaneously
+S1_list <- list(
+  matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2),
+  matrix(c(20.0, 4.0, 4.0, 10.0), 2, 2),
+  matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
+)
+S2_list <- list(
+  matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2),
+  matrix(c(17.0, 3.0, 3.0, 9.0), 2, 2),
+  matrix(c(14.0, 2.2, 2.2, 7.0), 2, 2)
+)
+ybar1_mat <- rbind(c(3.5, 2.1), c(4.0, 2.5), c(2.5, 1.5))
+ybar2_mat <- rbind(c(1.8, 1.0), c(1.9, 1.1), c(1.7, 0.9))
+pbayespostpred2cont(
+  prob = 'posterior', design = 'controlled', prior = 'vague',
+  theta.TV1 = 1.5, theta.MAV1 = 0.5,
+  theta.TV2 = 1.0, theta.MAV2 = 0.3,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n1 = 12L, n2 = 12L,
+  ybar1 = ybar1_mat, S1 = S1_list,
+  ybar2 = ybar2_mat, S2 = S2_list,
+  m1 = NULL, m2 = NULL,
+  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
+  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  r = NULL,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  nMC = 1000L
 )
 
 }

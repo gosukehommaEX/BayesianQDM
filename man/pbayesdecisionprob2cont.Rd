@@ -2,8 +2,7 @@
 % Please edit documentation in R/pbayesdecisionprob2cont.R
 \name{pbayesdecisionprob2cont}
 \alias{pbayesdecisionprob2cont}
-\title{Go/NoGo/Gray Decision Probabilities for a Clinical Trial with Two
-Continuous Endpoints}
+\title{Go/NoGo/Gray Decision Probabilities for Two Continuous Endpoints}
 \usage{
 pbayesdecisionprob2cont(
   nsim,
@@ -53,221 +52,173 @@ pbayesdecisionprob2cont(
 )
 }
 \arguments{
-\item{nsim}{A positive integer giving the number of Monte Carlo simulations
-for evaluating operating characteristics.}
+\item{nsim}{A positive integer. Number of simulated datasets per scenario.}
 
-\item{prob}{A character string specifying the probability type.
-Must be \code{'posterior'} or \code{'predictive'}.}
+\item{prob}{Character scalar, either \code{'posterior'} or
+\code{'predictive'}.}
 
-\item{design}{A character string specifying the trial design.
-Must be \code{'controlled'}, \code{'uncontrolled'}, or
-\code{'external'}.}
+\item{design}{Character scalar: \code{'controlled'}, \code{'uncontrolled'},
+or \code{'external'}.}
 
-\item{prior}{A character string specifying the prior distribution.
-Must be \code{'vague'} or \code{'N-Inv-Wishart'}.}
+\item{prior}{Character scalar: \code{'vague'} or \code{'N-Inv-Wishart'}.}
 
-\item{GoRegions}{An integer vector specifying which of the nine posterior
-regions (R1--R9) or four predictive regions (R1--R4) constitute a
-Go decision. For \code{prob = 'posterior'}, valid values are
-integers in 1--9; for \code{prob = 'predictive'}, in 1--4.
-A common choice is \code{GoRegions = 1} (both endpoints exceed TV
-or NULL).}
+\item{GoRegions}{Integer vector. Region indices (1 to 9 for posterior,
+1 to 4 for predictive) that define a Go decision.}
 
-\item{NoGoRegions}{An integer vector specifying which regions constitute
-a NoGo decision. Must be disjoint from \code{GoRegions}.}
+\item{NoGoRegions}{Integer vector. Region indices that define a NoGo
+decision. Must be disjoint from \code{GoRegions}.}
 
-\item{gamma1}{A numeric scalar in \code{(0, 1)} giving the minimum
-posterior/predictive probability required for a Go decision.
-A Go decision is made when the sum of region probabilities for
-\code{GoRegions} is at least \code{gamma1}.}
+\item{gamma1}{Numeric scalar in (0, 1). Go threshold: a Go decision is made
+when \eqn{PrGo \ge \gamma_1} and \eqn{PrNoGo < \gamma_2}.}
 
-\item{gamma2}{A numeric scalar in \code{(0, 1)} giving the minimum
-posterior/predictive probability required for a NoGo decision.
-Unlike single-endpoint designs, \code{gamma2} may be greater than,
-equal to, or less than \code{gamma1}.}
+\item{gamma2}{Numeric scalar in (0, 1). NoGo threshold: a NoGo decision is
+made when \eqn{PrNoGo \ge \gamma_2} and \eqn{PrGo < \gamma_1}.}
 
-\item{theta.TV1}{A numeric scalar giving the TV threshold for Endpoint 1.
-Required when \code{prob = 'posterior'}; otherwise \code{NULL}.}
+\item{theta.TV1}{Numeric scalar. Target value for Endpoint 1
+(required when \code{prob = 'posterior'}).}
 
-\item{theta.MAV1}{A numeric scalar giving the MAV threshold for Endpoint 1.
-Required when \code{prob = 'posterior'}; must satisfy
-\code{theta.TV1 > theta.MAV1}. Otherwise \code{NULL}.}
+\item{theta.MAV1}{Numeric scalar. Minimum acceptable value for Endpoint 1
+(required when \code{prob = 'posterior'}).}
 
-\item{theta.TV2}{A numeric scalar giving the TV threshold for Endpoint 2.
-Required when \code{prob = 'posterior'}; otherwise \code{NULL}.}
+\item{theta.TV2}{Numeric scalar. Target value for Endpoint 2
+(required when \code{prob = 'posterior'}).}
 
-\item{theta.MAV2}{A numeric scalar giving the MAV threshold for Endpoint 2.
-Required when \code{prob = 'posterior'}; must satisfy
-\code{theta.TV2 > theta.MAV2}. Otherwise \code{NULL}.}
+\item{theta.MAV2}{Numeric scalar. Minimum acceptable value for Endpoint 2
+(required when \code{prob = 'posterior'}).}
 
-\item{theta.NULL1}{A numeric scalar giving the null hypothesis threshold
-for Endpoint 1. Required when \code{prob = 'predictive'};
-otherwise \code{NULL}.}
+\item{theta.NULL1}{Numeric scalar. Null threshold for Endpoint 1
+(required when \code{prob = 'predictive'}).}
 
-\item{theta.NULL2}{A numeric scalar giving the null hypothesis threshold
-for Endpoint 2. Required when \code{prob = 'predictive'};
-otherwise \code{NULL}.}
+\item{theta.NULL2}{Numeric scalar. Null threshold for Endpoint 2
+(required when \code{prob = 'predictive'}).}
 
-\item{n1}{A positive integer giving the PoC sample size for group 1
-(treatment). Must be >= 3 when \code{prior = 'vague'}.}
+\item{n1}{Positive integer. PoC sample size for the treatment arm.}
 
-\item{n2}{A positive integer giving the PoC sample size for group 2
-(control). Required for \code{design = 'controlled'} or
-\code{'external'}; set to \code{NULL} for \code{'uncontrolled'}.
-Must be >= 3 when \code{prior = 'vague'}.}
+\item{n2}{Positive integer or \code{NULL}. PoC sample size for the control
+arm (not used when \code{design = 'uncontrolled'}).}
 
-\item{m1}{A positive integer giving the future sample size for group 1.
-Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
+\item{m1}{Positive integer or \code{NULL}. Pivotal study sample size for
+the treatment arm (required when \code{prob = 'predictive'}).}
 
-\item{m2}{A positive integer giving the future sample size for group 2.
-Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
+\item{m2}{Positive integer or \code{NULL}. Pivotal study sample size for
+the control arm (required when \code{prob = 'predictive'} and
+\code{design != 'uncontrolled'}).}
 
-\item{mu1}{A numeric vector of length 2 or a matrix with 2 columns giving
-the true mean(s) for group 1 (treatment). Multiple rows define
-multiple scenarios. Each row is \eqn{(\mu_{t1}, \mu_{t2})}.}
+\item{mu1}{Numeric matrix with \eqn{K} rows and 2 columns. Each row
+specifies the true treatment mean vector for one scenario.}
 
-\item{Sigma1}{A 2x2 positive-definite numeric matrix giving the true
-covariance matrix for group 1.}
+\item{Sigma1}{A 2x2 positive-definite numeric matrix. True covariance
+matrix for the treatment arm (shared across scenarios).}
 
-\item{mu2}{A numeric vector of length 2 or a matrix with 2 columns giving
-the true mean(s) for group 2 (control). For
-\code{design = 'uncontrolled'}, this parameter is not used in
-data generation but is retained in the output for reference.
-Must have the same number of rows as \code{mu1}.}
+\item{mu2}{Numeric matrix with \eqn{K} rows and 2 columns or a length-2
+vector. True control mean vector(s). For
+\code{design = 'uncontrolled'}, only a single row or vector is
+used (hypothetical control mean, not used in simulation).}
 
-\item{Sigma2}{A 2x2 positive-definite numeric matrix giving the true
-covariance matrix for group 2. For \code{design = 'uncontrolled'},
-not used in data generation.}
+\item{Sigma2}{A 2x2 positive-definite numeric matrix. True covariance
+matrix for the control arm. Set to a diagonal matrix or any valid
+matrix for \code{design = 'uncontrolled'} (not used in simulation).}
 
-\item{kappa01}{A positive numeric scalar. Prior precision parameter for
-group 1 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{kappa01}{Positive numeric scalar. NIW prior concentration for the
+treatment arm (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{nu01}{A positive numeric scalar (> 2). Prior degrees of freedom for
-group 1 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{nu01}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
+the treatment arm (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{mu01}{A numeric vector of length 2. Prior mean for group 1 when
-\code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{mu01}{Length-2 numeric vector. NIW prior mean for the treatment arm
+(required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{Lambda01}{A 2x2 positive-definite numeric matrix. Prior scale matrix
-for group 1 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{Lambda01}{A 2x2 positive-definite numeric matrix. NIW prior scale
+matrix for the treatment arm (required when
+\code{prior = 'N-Inv-Wishart'}).}
 
-\item{kappa02}{A positive numeric scalar. Prior precision parameter for
-group 2 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{kappa02}{Positive numeric scalar. NIW prior concentration for the
+control arm (required for controlled/external when
+\code{prior = 'N-Inv-Wishart'}).}
 
-\item{nu02}{A positive numeric scalar (> 2). Prior degrees of freedom for
-group 2 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{nu02}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
+the control arm.}
 
-\item{mu02}{A numeric vector of length 2. Prior mean for group 2 when
-\code{prior = 'N-Inv-Wishart'}, or the hypothetical control location
-when \code{design = 'uncontrolled'}; otherwise \code{NULL}.}
+\item{mu02}{Length-2 numeric vector. NIW prior mean for the control arm
+or hypothetical control location
+(required when \code{design = 'uncontrolled'}).}
 
-\item{Lambda02}{A 2x2 positive-definite numeric matrix. Prior scale matrix
-for group 2 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+\item{Lambda02}{A 2x2 positive-definite numeric matrix. NIW prior scale
+matrix for the control arm.}
 
-\item{r}{A positive numeric scalar. Variance scaling factor for the
-hypothetical control. Required when \code{design = 'uncontrolled'};
-otherwise \code{NULL}.}
+\item{r}{Positive numeric scalar. Variance scaling factor for the
+hypothetical control (required when
+\code{design = 'uncontrolled'}).}
 
-\item{ne1}{A positive integer giving the external sample size for group 1.
-Required when \code{design = 'external'} and external treatment
-data are used; otherwise \code{NULL}.}
+\item{ne1}{Positive integer or \code{NULL}. External treatment sample size
+(used when \code{design = 'external'}).}
 
-\item{ne2}{A positive integer giving the external sample size for group 2.
-Required when \code{design = 'external'} and external control data
-are used; otherwise \code{NULL}.}
+\item{ne2}{Positive integer or \code{NULL}. External control sample size
+(used when \code{design = 'external'}).}
 
-\item{alpha01e}{A numeric scalar in \code{(0, 1]}. Power prior weight for
-group 1 external data. Required when \code{ne1} is non-NULL;
-otherwise \code{NULL}.}
+\item{alpha01e}{Numeric scalar in \code{(0, 1]}. Power prior weight for
+external treatment data.}
 
-\item{alpha02e}{A numeric scalar in \code{(0, 1]}. Power prior weight for
-group 2 external data. Required when \code{ne2} is non-NULL;
-otherwise \code{NULL}.}
+\item{alpha02e}{Numeric scalar in \code{(0, 1]}. Power prior weight for
+external control data.}
 
-\item{ybar_e1}{A numeric vector of length 2. Sample mean of external data
-for group 1. Required when \code{ne1} is non-NULL; otherwise
-\code{NULL}.}
+\item{ybar_e1}{Length-2 numeric vector. External treatment sample mean.}
 
-\item{ybar_e2}{A numeric vector of length 2. Sample mean of external data
-for group 2. Required when \code{ne2} is non-NULL; otherwise
-\code{NULL}.}
+\item{ybar_e2}{Length-2 numeric vector. External control sample mean.}
 
-\item{Se1}{A 2x2 positive-definite numeric matrix. Sum-of-squares matrix
-of external data for group 1. Required when \code{ne1} is non-NULL;
-otherwise \code{NULL}.}
+\item{Se1}{A 2x2 numeric matrix. External treatment sum-of-squares matrix.}
 
-\item{Se2}{A 2x2 positive-definite numeric matrix. Sum-of-squares matrix
-of external data for group 2. Required when \code{ne2} is non-NULL;
-otherwise \code{NULL}.}
+\item{Se2}{A 2x2 numeric matrix. External control sum-of-squares matrix.}
 
-\item{nMC}{A positive integer giving the number of Monte Carlo samples
-passed to \code{\link{pbayespostpred2cont}} for each simulated dataset.
-Used when \code{method = 'MC'} or when \code{method = 'MM'} falls back
-to MC.  Default is \code{1000L}.}
+\item{nMC}{Positive integer. Number of Monte Carlo draws used by
+\code{\link{pbayespostpred2cont}} to compute region probabilities
+for each simulated dataset. Default \code{1000L}.}
 
-\item{method}{A character string specifying the computation method passed to
-\code{\link{pbayespostpred2cont}}.  Must be \code{'MC'} (Monte Carlo;
-default) or \code{'MM'} (Moment-Matching approximation).  See
-\code{\link{pbayespostpred2cont}} for details on the MM approximation
-and its fallback behaviour.}
+\item{method}{Character scalar: \code{'MC'} (default) or \code{'MM'}
+(Moment-Matching via \code{mvtnorm::pmvt}).}
 
-\item{error_if_Miss}{A logical scalar; if \code{TRUE} (default), the
-function stops with an error if Miss probability is positive.}
+\item{error_if_Miss}{Logical scalar. If \code{TRUE} (default), the function
+stops when any scenario yields a positive Miss probability.}
 
-\item{Gray_inc_Miss}{A logical scalar; if \code{TRUE}, Miss probability
-is added to Gray. If \code{FALSE} (default), Miss is reported
+\item{Gray_inc_Miss}{Logical scalar. If \code{TRUE}, Miss probability is
+folded into Gray. If \code{FALSE} (default), Miss is reported
 separately. Active only when \code{error_if_Miss = FALSE}.}
 
-\item{seed}{A numeric scalar for reproducible random number generation.}
+\item{seed}{A numeric value for reproducible random number generation.}
 }
 \value{
-A data frame with one row per scenario and columns:
-\describe{
-\item{mu1_ep1}{True treatment mean for Endpoint 1.}
-\item{mu1_ep2}{True treatment mean for Endpoint 2.}
-\item{mu2_ep1}{True control mean for Endpoint 1 (omitted for
-\code{design = 'uncontrolled'}).}
-\item{mu2_ep2}{True control mean for Endpoint 2 (omitted for
-\code{design = 'uncontrolled'}).}
-\item{Go}{Probability of a Go decision.}
-\item{Gray}{Probability of a Gray decision.}
-\item{NoGo}{Probability of a NoGo decision.}
-\item{Miss}{Probability of a Miss decision (only present when
-\code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE}).}
-}
-The object has class \code{c('pbayesdecisionprob2cont', 'data.frame')} and
-carries metadata as attributes for use in the print method.
+A \code{data.frame} with one row per scenario and columns
+\code{mu1_ep1}, \code{mu1_ep2} (and \code{mu2_ep1}, \code{mu2_ep2} for
+controlled/external), \code{Go}, \code{Gray}, \code{NoGo}, and optionally
+\code{Miss}.  The object has S3 class
+\code{c("pbayesdecisionprob2cont", "data.frame")} with all input
+parameters attached as attributes.
 }
 \description{
-Evaluates operating characteristics (Go, NoGo, Gray probabilities) for
-clinical trials with two continuous endpoints under the Bayesian framework.
-The function supports controlled, uncontrolled, and external-control designs,
-and uses both posterior probability and posterior predictive probability
-criteria.
+Estimates Go, NoGo, and Gray operating characteristics for a two-endpoint
+continuous Bayesian Go/NoGo decision framework by Monte Carlo simulation.
+For each simulated dataset, region probabilities are computed by calling
+\code{\link{pbayespostpred2cont}} in vectorised mode, consistent with the
+single-endpoint analogue \code{\link{pbayesdecisionprob1cont}}.
 }
 \details{
-For each of the \code{nsim} simulated PoC datasets, sufficient statistics
-(\eqn{\bar{y}_k}, \eqn{S_k}) are computed and passed to
-\code{\link{pbayespostpred2cont}}, which returns the nine (posterior) or four
-(predictive) region probabilities. Go and NoGo probabilities for that
-replicate are obtained by summing the specified \code{GoRegions} and
-\code{NoGoRegions}. Operating characteristics are then the proportions
-of replicates classified as Go, NoGo, or Gray across all \code{nsim}
-simulations.
-
-For each of the \code{nsim} simulated PoC datasets:
+The function follows the same structure as
+\code{\link{pbayesdecisionprob1cont}}:
 \enumerate{
-\item Bivariate Normal data are generated for each arm using the
-specified true means and covariance matrices.
-\item Sufficient statistics (\eqn{\bar{y}_k}, \eqn{S_k}) are computed.
-\item \code{\link{pbayespostpred2cont}} is called to obtain region
-probabilities \eqn{(R_1, \ldots, R_9)} or \eqn{(R_1, \ldots, R_4)}.
-\item \eqn{PrGo = \sum_{l \in \text{GoRegions}} R_l} and
-\eqn{PrNoGo = \sum_{l \in \text{NoGoRegions}} R_l} are evaluated
-against \code{gamma1} and \code{gamma2}.
+\item For each scenario \eqn{s}, \code{nsim} datasets are simulated by
+generating treatment (and control) observations from
+\eqn{N_2(\mu_k^{(s)}, \Sigma_k)}.  To minimise overhead, raw
+standardised residuals are generated \emph{once} (scenario-
+invariant) and shifted by the scenario mean.
+\item All \code{nsim} simulated sufficient statistics
+\eqn{(\bar{y}_{1,i}, S_{1,i})} (and \eqn{(\bar{y}_{2,i}, S_{2,i})}
+for controlled/external designs) are passed to
+\code{\link{pbayespostpred2cont}} in a \emph{single vectorised
+call}, returning an \eqn{nsim \times n_{\rm regions}} matrix of
+region probabilities.
+\item Go/NoGo/Miss probabilities are obtained as the column means of
+indicator matrices derived from the region probability matrix.
 }
-Operating characteristics are estimated as proportions across \code{nsim}
-replicates.
 }
 \examples{
 # Example 1: Controlled design, posterior probability, vague prior

@@ -19,5 +19,6 @@ Invisibly returns \code{x}.
 }
 \description{
 Displays a formatted summary of Go/NoGo/Gray decision probabilities for
-two-continuous-endpoint results returned by \code{\link{pbayesdecisionprob2cont}}.
+two-continuous-endpoint results returned by
+\code{\link{pbayesdecisionprob2cont}}.
 }

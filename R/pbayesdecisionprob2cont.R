@@ -1,176 +1,127 @@
-#' Go/NoGo/Gray Decision Probabilities for a Clinical Trial with Two
-#' Continuous Endpoints
+#' Go/NoGo/Gray Decision Probabilities for Two Continuous Endpoints
 #'
-#' Evaluates operating characteristics (Go, NoGo, Gray probabilities) for
-#' clinical trials with two continuous endpoints under the Bayesian framework.
-#' The function supports controlled, uncontrolled, and external-control designs,
-#' and uses both posterior probability and posterior predictive probability
-#' criteria.
+#' Estimates Go, NoGo, and Gray operating characteristics for a two-endpoint
+#' continuous Bayesian Go/NoGo decision framework by Monte Carlo simulation.
+#' For each simulated dataset, region probabilities are computed by calling
+#' \code{\link{pbayespostpred2cont}} in vectorised mode, consistent with the
+#' single-endpoint analogue \code{\link{pbayesdecisionprob1cont}}.
 #'
-#' For each of the \code{nsim} simulated PoC datasets, sufficient statistics
-#' (\eqn{\bar{y}_k}, \eqn{S_k}) are computed and passed to
-#' \code{\link{pbayespostpred2cont}}, which returns the nine (posterior) or four
-#' (predictive) region probabilities. Go and NoGo probabilities for that
-#' replicate are obtained by summing the specified \code{GoRegions} and
-#' \code{NoGoRegions}. Operating characteristics are then the proportions
-#' of replicates classified as Go, NoGo, or Gray across all \code{nsim}
-#' simulations.
-#'
-#' @param nsim A positive integer giving the number of Monte Carlo simulations
-#'        for evaluating operating characteristics.
-#' @param prob A character string specifying the probability type.
-#'        Must be \code{'posterior'} or \code{'predictive'}.
-#' @param design A character string specifying the trial design.
-#'        Must be \code{'controlled'}, \code{'uncontrolled'}, or
-#'        \code{'external'}.
-#' @param prior A character string specifying the prior distribution.
-#'        Must be \code{'vague'} or \code{'N-Inv-Wishart'}.
-#' @param GoRegions An integer vector specifying which of the nine posterior
-#'        regions (R1--R9) or four predictive regions (R1--R4) constitute a
-#'        Go decision. For \code{prob = 'posterior'}, valid values are
-#'        integers in 1--9; for \code{prob = 'predictive'}, in 1--4.
-#'        A common choice is \code{GoRegions = 1} (both endpoints exceed TV
-#'        or NULL).
-#' @param NoGoRegions An integer vector specifying which regions constitute
-#'        a NoGo decision. Must be disjoint from \code{GoRegions}.
-#' @param gamma1 A numeric scalar in \code{(0, 1)} giving the minimum
-#'        posterior/predictive probability required for a Go decision.
-#'        A Go decision is made when the sum of region probabilities for
-#'        \code{GoRegions} is at least \code{gamma1}.
-#' @param gamma2 A numeric scalar in \code{(0, 1)} giving the minimum
-#'        posterior/predictive probability required for a NoGo decision.
-#'        Unlike single-endpoint designs, \code{gamma2} may be greater than,
-#'        equal to, or less than \code{gamma1}.
-#' @param theta.TV1 A numeric scalar giving the TV threshold for Endpoint 1.
-#'        Required when \code{prob = 'posterior'}; otherwise \code{NULL}.
-#' @param theta.MAV1 A numeric scalar giving the MAV threshold for Endpoint 1.
-#'        Required when \code{prob = 'posterior'}; must satisfy
-#'        \code{theta.TV1 > theta.MAV1}. Otherwise \code{NULL}.
-#' @param theta.TV2 A numeric scalar giving the TV threshold for Endpoint 2.
-#'        Required when \code{prob = 'posterior'}; otherwise \code{NULL}.
-#' @param theta.MAV2 A numeric scalar giving the MAV threshold for Endpoint 2.
-#'        Required when \code{prob = 'posterior'}; must satisfy
-#'        \code{theta.TV2 > theta.MAV2}. Otherwise \code{NULL}.
-#' @param theta.NULL1 A numeric scalar giving the null hypothesis threshold
-#'        for Endpoint 1. Required when \code{prob = 'predictive'};
-#'        otherwise \code{NULL}.
-#' @param theta.NULL2 A numeric scalar giving the null hypothesis threshold
-#'        for Endpoint 2. Required when \code{prob = 'predictive'};
-#'        otherwise \code{NULL}.
-#' @param n1 A positive integer giving the PoC sample size for group 1
-#'        (treatment). Must be >= 3 when \code{prior = 'vague'}.
-#' @param n2 A positive integer giving the PoC sample size for group 2
-#'        (control). Required for \code{design = 'controlled'} or
-#'        \code{'external'}; set to \code{NULL} for \code{'uncontrolled'}.
-#'        Must be >= 3 when \code{prior = 'vague'}.
-#' @param m1 A positive integer giving the future sample size for group 1.
-#'        Required when \code{prob = 'predictive'}; otherwise \code{NULL}.
-#' @param m2 A positive integer giving the future sample size for group 2.
-#'        Required when \code{prob = 'predictive'}; otherwise \code{NULL}.
-#' @param mu1 A numeric vector of length 2 or a matrix with 2 columns giving
-#'        the true mean(s) for group 1 (treatment). Multiple rows define
-#'        multiple scenarios. Each row is \eqn{(\mu_{t1}, \mu_{t2})}.
-#' @param Sigma1 A 2x2 positive-definite numeric matrix giving the true
-#'        covariance matrix for group 1.
-#' @param mu2 A numeric vector of length 2 or a matrix with 2 columns giving
-#'        the true mean(s) for group 2 (control). For
-#'        \code{design = 'uncontrolled'}, this parameter is not used in
-#'        data generation but is retained in the output for reference.
-#'        Must have the same number of rows as \code{mu1}.
-#' @param Sigma2 A 2x2 positive-definite numeric matrix giving the true
-#'        covariance matrix for group 2. For \code{design = 'uncontrolled'},
-#'        not used in data generation.
-#' @param kappa01 A positive numeric scalar. Prior precision parameter for
-#'        group 1 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.
-#' @param nu01 A positive numeric scalar (> 2). Prior degrees of freedom for
-#'        group 1 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.
-#' @param mu01 A numeric vector of length 2. Prior mean for group 1 when
-#'        \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.
-#' @param Lambda01 A 2x2 positive-definite numeric matrix. Prior scale matrix
-#'        for group 1 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.
-#' @param kappa02 A positive numeric scalar. Prior precision parameter for
-#'        group 2 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.
-#' @param nu02 A positive numeric scalar (> 2). Prior degrees of freedom for
-#'        group 2 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.
-#' @param mu02 A numeric vector of length 2. Prior mean for group 2 when
-#'        \code{prior = 'N-Inv-Wishart'}, or the hypothetical control location
-#'        when \code{design = 'uncontrolled'}; otherwise \code{NULL}.
-#' @param Lambda02 A 2x2 positive-definite numeric matrix. Prior scale matrix
-#'        for group 2 when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.
-#' @param r A positive numeric scalar. Variance scaling factor for the
-#'        hypothetical control. Required when \code{design = 'uncontrolled'};
-#'        otherwise \code{NULL}.
-#' @param ne1 A positive integer giving the external sample size for group 1.
-#'        Required when \code{design = 'external'} and external treatment
-#'        data are used; otherwise \code{NULL}.
-#' @param ne2 A positive integer giving the external sample size for group 2.
-#'        Required when \code{design = 'external'} and external control data
-#'        are used; otherwise \code{NULL}.
-#' @param alpha01e A numeric scalar in \code{(0, 1]}. Power prior weight for
-#'        group 1 external data. Required when \code{ne1} is non-NULL;
-#'        otherwise \code{NULL}.
-#' @param alpha02e A numeric scalar in \code{(0, 1]}. Power prior weight for
-#'        group 2 external data. Required when \code{ne2} is non-NULL;
-#'        otherwise \code{NULL}.
-#' @param ybar_e1 A numeric vector of length 2. Sample mean of external data
-#'        for group 1. Required when \code{ne1} is non-NULL; otherwise
-#'        \code{NULL}.
-#' @param ybar_e2 A numeric vector of length 2. Sample mean of external data
-#'        for group 2. Required when \code{ne2} is non-NULL; otherwise
-#'        \code{NULL}.
-#' @param Se1 A 2x2 positive-definite numeric matrix. Sum-of-squares matrix
-#'        of external data for group 1. Required when \code{ne1} is non-NULL;
-#'        otherwise \code{NULL}.
-#' @param Se2 A 2x2 positive-definite numeric matrix. Sum-of-squares matrix
-#'        of external data for group 2. Required when \code{ne2} is non-NULL;
-#'        otherwise \code{NULL}.
-#' @param nMC A positive integer giving the number of Monte Carlo samples
-#'        passed to \code{\link{pbayespostpred2cont}} for each simulated dataset.
-#'        Used when \code{method = 'MC'} or when \code{method = 'MM'} falls back
-#'        to MC.  Default is \code{1000L}.
-#' @param method A character string specifying the computation method passed to
-#'        \code{\link{pbayespostpred2cont}}.  Must be \code{'MC'} (Monte Carlo;
-#'        default) or \code{'MM'} (Moment-Matching approximation).  See
-#'        \code{\link{pbayespostpred2cont}} for details on the MM approximation
-#'        and its fallback behaviour.
-#' @param error_if_Miss A logical scalar; if \code{TRUE} (default), the
-#'        function stops with an error if Miss probability is positive.
-#' @param Gray_inc_Miss A logical scalar; if \code{TRUE}, Miss probability
-#'        is added to Gray. If \code{FALSE} (default), Miss is reported
+#' @param nsim A positive integer. Number of simulated datasets per scenario.
+#' @param prob Character scalar, either \code{'posterior'} or
+#'        \code{'predictive'}.
+#' @param design Character scalar: \code{'controlled'}, \code{'uncontrolled'},
+#'        or \code{'external'}.
+#' @param prior Character scalar: \code{'vague'} or \code{'N-Inv-Wishart'}.
+#' @param GoRegions Integer vector. Region indices (1 to 9 for posterior,
+#'        1 to 4 for predictive) that define a Go decision.
+#' @param NoGoRegions Integer vector. Region indices that define a NoGo
+#'        decision. Must be disjoint from \code{GoRegions}.
+#' @param gamma1 Numeric scalar in (0, 1). Go threshold: a Go decision is made
+#'        when \eqn{PrGo \ge \gamma_1} and \eqn{PrNoGo < \gamma_2}.
+#' @param gamma2 Numeric scalar in (0, 1). NoGo threshold: a NoGo decision is
+#'        made when \eqn{PrNoGo \ge \gamma_2} and \eqn{PrGo < \gamma_1}.
+#' @param theta.TV1 Numeric scalar. Target value for Endpoint 1
+#'        (required when \code{prob = 'posterior'}).
+#' @param theta.MAV1 Numeric scalar. Minimum acceptable value for Endpoint 1
+#'        (required when \code{prob = 'posterior'}).
+#' @param theta.TV2 Numeric scalar. Target value for Endpoint 2
+#'        (required when \code{prob = 'posterior'}).
+#' @param theta.MAV2 Numeric scalar. Minimum acceptable value for Endpoint 2
+#'        (required when \code{prob = 'posterior'}).
+#' @param theta.NULL1 Numeric scalar. Null threshold for Endpoint 1
+#'        (required when \code{prob = 'predictive'}).
+#' @param theta.NULL2 Numeric scalar. Null threshold for Endpoint 2
+#'        (required when \code{prob = 'predictive'}).
+#' @param n1 Positive integer. PoC sample size for the treatment arm.
+#' @param n2 Positive integer or \code{NULL}. PoC sample size for the control
+#'        arm (not used when \code{design = 'uncontrolled'}).
+#' @param m1 Positive integer or \code{NULL}. Pivotal study sample size for
+#'        the treatment arm (required when \code{prob = 'predictive'}).
+#' @param m2 Positive integer or \code{NULL}. Pivotal study sample size for
+#'        the control arm (required when \code{prob = 'predictive'} and
+#'        \code{design != 'uncontrolled'}).
+#' @param mu1 Numeric matrix with \eqn{K} rows and 2 columns. Each row
+#'        specifies the true treatment mean vector for one scenario.
+#' @param Sigma1 A 2x2 positive-definite numeric matrix. True covariance
+#'        matrix for the treatment arm (shared across scenarios).
+#' @param mu2 Numeric matrix with \eqn{K} rows and 2 columns or a length-2
+#'        vector. True control mean vector(s). For
+#'        \code{design = 'uncontrolled'}, only a single row or vector is
+#'        used (hypothetical control mean, not used in simulation).
+#' @param Sigma2 A 2x2 positive-definite numeric matrix. True covariance
+#'        matrix for the control arm. Set to a diagonal matrix or any valid
+#'        matrix for \code{design = 'uncontrolled'} (not used in simulation).
+#' @param kappa01 Positive numeric scalar. NIW prior concentration for the
+#'        treatment arm (required when \code{prior = 'N-Inv-Wishart'}).
+#' @param nu01 Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
+#'        the treatment arm (required when \code{prior = 'N-Inv-Wishart'}).
+#' @param mu01 Length-2 numeric vector. NIW prior mean for the treatment arm
+#'        (required when \code{prior = 'N-Inv-Wishart'}).
+#' @param Lambda01 A 2x2 positive-definite numeric matrix. NIW prior scale
+#'        matrix for the treatment arm (required when
+#'        \code{prior = 'N-Inv-Wishart'}).
+#' @param kappa02 Positive numeric scalar. NIW prior concentration for the
+#'        control arm (required for controlled/external when
+#'        \code{prior = 'N-Inv-Wishart'}).
+#' @param nu02 Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
+#'        the control arm.
+#' @param mu02 Length-2 numeric vector. NIW prior mean for the control arm
+#'        or hypothetical control location
+#'        (required when \code{design = 'uncontrolled'}).
+#' @param Lambda02 A 2x2 positive-definite numeric matrix. NIW prior scale
+#'        matrix for the control arm.
+#' @param r Positive numeric scalar. Variance scaling factor for the
+#'        hypothetical control (required when
+#'        \code{design = 'uncontrolled'}).
+#' @param ne1 Positive integer or \code{NULL}. External treatment sample size
+#'        (used when \code{design = 'external'}).
+#' @param ne2 Positive integer or \code{NULL}. External control sample size
+#'        (used when \code{design = 'external'}).
+#' @param alpha01e Numeric scalar in \code{(0, 1]}. Power prior weight for
+#'        external treatment data.
+#' @param alpha02e Numeric scalar in \code{(0, 1]}. Power prior weight for
+#'        external control data.
+#' @param ybar_e1 Length-2 numeric vector. External treatment sample mean.
+#' @param ybar_e2 Length-2 numeric vector. External control sample mean.
+#' @param Se1 A 2x2 numeric matrix. External treatment sum-of-squares matrix.
+#' @param Se2 A 2x2 numeric matrix. External control sum-of-squares matrix.
+#' @param nMC Positive integer. Number of Monte Carlo draws used by
+#'        \code{\link{pbayespostpred2cont}} to compute region probabilities
+#'        for each simulated dataset. Default \code{1000L}.
+#' @param method Character scalar: \code{'MC'} (default) or \code{'MM'}
+#'        (Moment-Matching via \code{mvtnorm::pmvt}).
+#' @param error_if_Miss Logical scalar. If \code{TRUE} (default), the function
+#'        stops when any scenario yields a positive Miss probability.
+#' @param Gray_inc_Miss Logical scalar. If \code{TRUE}, Miss probability is
+#'        folded into Gray. If \code{FALSE} (default), Miss is reported
 #'        separately. Active only when \code{error_if_Miss = FALSE}.
-#' @param seed A numeric scalar for reproducible random number generation.
+#' @param seed A numeric value for reproducible random number generation.
 #'
-#' @return A data frame with one row per scenario and columns:
-#' \describe{
-#'   \item{mu1_ep1}{True treatment mean for Endpoint 1.}
-#'   \item{mu1_ep2}{True treatment mean for Endpoint 2.}
-#'   \item{mu2_ep1}{True control mean for Endpoint 1 (omitted for
-#'         \code{design = 'uncontrolled'}).}
-#'   \item{mu2_ep2}{True control mean for Endpoint 2 (omitted for
-#'         \code{design = 'uncontrolled'}).}
-#'   \item{Go}{Probability of a Go decision.}
-#'   \item{Gray}{Probability of a Gray decision.}
-#'   \item{NoGo}{Probability of a NoGo decision.}
-#'   \item{Miss}{Probability of a Miss decision (only present when
-#'         \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE}).}
-#' }
-#' The object has class \code{c('pbayesdecisionprob2cont', 'data.frame')} and
-#' carries metadata as attributes for use in the print method.
+#' @return A \code{data.frame} with one row per scenario and columns
+#'   \code{mu1_ep1}, \code{mu1_ep2} (and \code{mu2_ep1}, \code{mu2_ep2} for
+#'   controlled/external), \code{Go}, \code{Gray}, \code{NoGo}, and optionally
+#'   \code{Miss}.  The object has S3 class
+#'   \code{c("pbayesdecisionprob2cont", "data.frame")} with all input
+#'   parameters attached as attributes.
 #'
 #' @details
-#' For each of the \code{nsim} simulated PoC datasets:
+#' The function follows the same structure as
+#' \code{\link{pbayesdecisionprob1cont}}:
 #' \enumerate{
-#'   \item Bivariate Normal data are generated for each arm using the
-#'         specified true means and covariance matrices.
-#'   \item Sufficient statistics (\eqn{\bar{y}_k}, \eqn{S_k}) are computed.
-#'   \item \code{\link{pbayespostpred2cont}} is called to obtain region
-#'         probabilities \eqn{(R_1, \ldots, R_9)} or \eqn{(R_1, \ldots, R_4)}.
-#'   \item \eqn{PrGo = \sum_{l \in \text{GoRegions}} R_l} and
-#'         \eqn{PrNoGo = \sum_{l \in \text{NoGoRegions}} R_l} are evaluated
-#'         against \code{gamma1} and \code{gamma2}.
+#'   \item For each scenario \eqn{s}, \code{nsim} datasets are simulated by
+#'         generating treatment (and control) observations from
+#'         \eqn{N_2(\mu_k^{(s)}, \Sigma_k)}.  To minimise overhead, raw
+#'         standardised residuals are generated \emph{once} (scenario-
+#'         invariant) and shifted by the scenario mean.
+#'   \item All \code{nsim} simulated sufficient statistics
+#'         \eqn{(\bar{y}_{1,i}, S_{1,i})} (and \eqn{(\bar{y}_{2,i}, S_{2,i})}
+#'         for controlled/external designs) are passed to
+#'         \code{\link{pbayespostpred2cont}} in a \emph{single vectorised
+#'         call}, returning an \eqn{nsim \times n_{\rm regions}} matrix of
+#'         region probabilities.
+#'   \item Go/NoGo/Miss probabilities are obtained as the column means of
+#'         indicator matrices derived from the region probability matrix.
 #' }
-#' Operating characteristics are estimated as proportions across \code{nsim}
-#' replicates.
 #'
 #' @examples
 #' # Example 1: Controlled design, posterior probability, vague prior
@@ -325,7 +276,9 @@
 #' @importFrom stats rnorm
 #' @export
 pbayesdecisionprob2cont <- function(nsim,
-                                    prob, design, prior,
+                                    prob,
+                                    design,
+                                    prior,
                                     GoRegions, NoGoRegions,
                                     gamma1, gamma2,
                                     theta.TV1   = NULL, theta.MAV1  = NULL,
@@ -390,7 +343,6 @@ pbayesdecisionprob2cont <- function(nsim,
       stop(paste0("'", nm, "' must be a single numeric value in (0, 1)"))
   }
 
-  # Threshold validation (delegated to pbayespostpred2cont; check basics here)
   if (prob == 'posterior') {
     for (nm in c('theta.TV1', 'theta.MAV1', 'theta.TV2', 'theta.MAV2')) {
       val <- get(nm)
@@ -417,44 +369,76 @@ pbayesdecisionprob2cont <- function(nsim,
   }
 
   if (!is.numeric(n1) || length(n1) != 1L || is.na(n1) ||
-      n1 != floor(n1) || n1 < 1L)
-    stop("'n1' must be a single positive integer")
+      n1 != floor(n1) || n1 < 2L)
+    stop("'n1' must be a single integer >= 2")
   n1 <- as.integer(n1)
 
   if (design %in% c('controlled', 'external')) {
     if (is.null(n2) || !is.numeric(n2) || length(n2) != 1L || is.na(n2) ||
-        n2 != floor(n2) || n2 < 1L)
-      stop("'n2' must be a single positive integer for controlled/external design")
+        n2 != floor(n2) || n2 < 2L)
+      stop("'n2' must be a single integer >= 2 for controlled/external designs")
     n2 <- as.integer(n2)
   }
 
-  # mu1: coerce to matrix (n_scen x 2)
-  mu1 <- if (is.matrix(mu1)) mu1 else matrix(mu1, ncol = 2L)
-  if (ncol(mu1) != 2L)
-    stop("'mu1' must have 2 columns (one per endpoint)")
+  # mu1 / mu2: accept matrix or vector; coerce to matrix
+  if (is.numeric(mu1) && !is.matrix(mu1)) mu1 <- matrix(mu1, nrow = 1L)
+  if (!is.matrix(mu1) || ncol(mu1) != 2L || !is.numeric(mu1))
+    stop("'mu1' must be a numeric matrix with 2 columns")
   n_scen <- nrow(mu1)
 
-  # mu2: coerce to matrix and check dimensions
-  mu2 <- if (is.matrix(mu2)) mu2 else matrix(mu2, ncol = 2L)
-  if (ncol(mu2) != 2L)
-    stop("'mu2' must have 2 columns")
-  if (nrow(mu2) != n_scen)
-    stop("'mu1' and 'mu2' must have the same number of rows (scenarios)")
+  if (is.numeric(mu2) && !is.matrix(mu2)) mu2 <- matrix(mu2, nrow = 1L)
+  if (!is.matrix(mu2) || ncol(mu2) != 2L || !is.numeric(mu2))
+    stop("'mu2' must be a numeric matrix with 2 columns")
+  if (design %in% c('controlled', 'external') && nrow(mu2) != n_scen)
+    stop("'mu2' must have the same number of rows as 'mu1'")
 
-  # Sigma1 and Sigma2 validation
   for (nm in c('Sigma1', 'Sigma2')) {
     val <- get(nm)
-    if (!is.matrix(val) || !is.numeric(val) || nrow(val) != 2L ||
-        ncol(val) != 2L || any(is.na(val)))
+    if (!is.matrix(val) || !is.numeric(val) || nrow(val) != 2L || ncol(val) != 2L)
       stop(paste0("'", nm, "' must be a 2x2 numeric matrix"))
   }
 
-  if (!is.logical(error_if_Miss) || length(error_if_Miss) != 1L ||
-      is.na(error_if_Miss))
-    stop("'error_if_Miss' must be a single logical value")
-  if (!is.logical(Gray_inc_Miss) || length(Gray_inc_Miss) != 1L ||
-      is.na(Gray_inc_Miss))
-    stop("'Gray_inc_Miss' must be a single logical value")
+  if (prior == 'N-Inv-Wishart') {
+    for (nm in c('kappa01', 'nu01')) {
+      val <- get(nm)
+      if (is.null(val) || !is.numeric(val) || length(val) != 1L || is.na(val) ||
+          val <= 0)
+        stop(paste0("'", nm, "' must be a single positive numeric for NIW prior"))
+    }
+    if (is.null(mu01) || !is.numeric(mu01) || length(mu01) != 2L)
+      stop("'mu01' must be a length-2 numeric vector for NIW prior")
+    if (is.null(Lambda01) || !is.matrix(Lambda01) || nrow(Lambda01) != 2L)
+      stop("'Lambda01' must be a 2x2 numeric matrix for NIW prior")
+    if (design %in% c('controlled', 'external')) {
+      for (nm in c('kappa02', 'nu02')) {
+        val <- get(nm)
+        if (is.null(val) || !is.numeric(val) || length(val) != 1L ||
+            is.na(val) || val <= 0)
+          stop(paste0("'", nm, "' must be a single positive numeric for NIW prior"))
+      }
+      if (is.null(mu02) || !is.numeric(mu02) || length(mu02) != 2L)
+        stop("'mu02' must be a length-2 numeric vector for NIW prior")
+      if (is.null(Lambda02) || !is.matrix(Lambda02) || nrow(Lambda02) != 2L)
+        stop("'Lambda02' must be a 2x2 numeric matrix for NIW prior")
+    }
+  }
+
+  if (design == 'uncontrolled') {
+    if (is.null(r) || !is.numeric(r) || length(r) != 1L || is.na(r) || r <= 0)
+      stop("'r' must be a single positive numeric when design = 'uncontrolled'")
+    if (is.null(mu02) || !is.numeric(mu02) || length(mu02) != 2L)
+      stop("'mu02' must be a length-2 numeric vector when design = 'uncontrolled'")
+  }
+
+  if (design == 'external') {
+    has_ext1 <- !is.null(ne1) && !is.null(alpha01e) &&
+      !is.null(ybar_e1) && !is.null(Se1)
+    has_ext2 <- !is.null(ne2) && !is.null(alpha02e) &&
+      !is.null(ybar_e2) && !is.null(Se2)
+    if (!has_ext1 && !has_ext2)
+      stop(paste0("For design = 'external', at least one complete set of ",
+                  "external data must be provided"))
+  }
 
   if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
       nMC != floor(nMC) || nMC < 1L)
@@ -465,122 +449,123 @@ pbayesdecisionprob2cont <- function(nsim,
       !method %in% c('MC', 'MM'))
     stop("'method' must be either 'MC' or 'MM'")
 
+  if (!is.logical(error_if_Miss) || length(error_if_Miss) != 1L ||
+      is.na(error_if_Miss))
+    stop("'error_if_Miss' must be a single logical value")
+
+  if (!is.logical(Gray_inc_Miss) || length(Gray_inc_Miss) != 1L ||
+      is.na(Gray_inc_Miss))
+    stop("'Gray_inc_Miss' must be a single logical value")
+
   # ---------------------------------------------------------------------------
-  # Section 2: Pre-generate shared PoC data components
+  # Section 2: Pre-generate simulation data (scenario-invariant)
   #
-  # For efficiency across scenarios, we separate the random residuals (shared)
-  # from the scenario-specific mean shifts (added per scenario), following
-  # the same approach as pGNGsinglecontinuous:
-  #
-  #   y_{k,i,j} = Z_{k,i,j} + mu_k[s]
-  #
-  # where Z_{k,i,j} ~ N_2(0, Sigma_k) is scenario-independent.
-  # Sufficient statistics:
-  #   ybar_k[s] = colMeans(Z_k) + mu_k[s]   (mean shifts by mu_k[s])
-  #   S_k       = t(Z_k_centered) %*% Z_k_centered  (invariant to mean)
+  # Raw standardised residuals are generated once.
+  # For group k, the sample mean for scenario s and replicate i is:
+  #   ybar_k[s, i, ] = (Z_k_colsums[i, ] / n_k) + mu_k[s, ]
+  # The scatter matrix S_k[i] depends only on Z_k (not on mu_k[s,]).
   # ---------------------------------------------------------------------------
 
   set.seed(seed)
 
-  # Generate nsim x (n1 * 2) standard normal residuals for group 1,
-  # then transform by Cholesky factor of Sigma1.
-  # Result: Z1_resid[sim, ] = vectorised n1 x 2 residual matrix for replicate sim
-  R1 <- chol(Sigma1)
-  # raw standard normals: (nsim * n1) x 2
-  Z1_raw <- matrix(rnorm(nsim * n1 * 2L), nrow = nsim * n1, ncol = 2L) %*% R1
+  R_Sigma1 <- chol(Sigma1)
+  Z1_raw   <- matrix(rnorm(nsim * n1 * 2L),
+                     nrow = nsim * n1, ncol = 2L) %*% R_Sigma1
+  block1   <- rep(seq_len(nsim), each = n1)
 
-  # Pre-compute within-replicate column sums and sum-of-squares for group 1.
-  # Z1_raw is laid out as nsim blocks of n1 rows each.
-  # block_id[row] indicates which simulation replicate the row belongs to.
-  block1 <- rep(seq_len(nsim), each = n1)
-
-  # colSums by replicate: (nsim x 2) matrix of raw (mean=0) sums
-  Z1_colsums <- apply(Z1_raw, 2L, function(col) tapply(col, block1, sum))
-
-  # Centered residuals for S1: subtract within-replicate column means
+  Z1_colsums      <- apply(Z1_raw, 2L, function(col) tapply(col, block1, sum))
   Z1_colmeans_rep <- Z1_colsums[block1, ] / n1
-  Z1_centered <- Z1_raw - Z1_colmeans_rep
+  Z1_centered     <- Z1_raw - Z1_colmeans_rep
 
-  # S1 for each replicate: (nsim x 4) where col 1-4 = c(s11, s12, s21, s22)
-  # We need S_k as 2x2; store as the 4 elements
-  S1_11 <- tapply(Z1_centered[, 1L] ^ 2,        block1, sum)
+  # S1 stored as 3 unique elements per replicate (symmetric 2x2)
+  S1_11 <- tapply(Z1_centered[, 1L] ^ 2,                block1, sum)
   S1_12 <- tapply(Z1_centered[, 1L] * Z1_centered[, 2L], block1, sum)
-  S1_22 <- tapply(Z1_centered[, 2L] ^ 2,        block1, sum)
+  S1_22 <- tapply(Z1_centered[, 2L] ^ 2,                block1, sum)
 
-  # Group 2 (only for controlled/external)
   if (design %in% c('controlled', 'external')) {
-    R2 <- chol(Sigma2)
-    Z2_raw <- matrix(rnorm(nsim * n2 * 2L), nrow = nsim * n2, ncol = 2L) %*% R2
-    block2 <- rep(seq_len(nsim), each = n2)
+    R_Sigma2 <- chol(Sigma2)
+    Z2_raw   <- matrix(rnorm(nsim * n2 * 2L),
+                       nrow = nsim * n2, ncol = 2L) %*% R_Sigma2
+    block2   <- rep(seq_len(nsim), each = n2)
 
-    Z2_colsums  <- apply(Z2_raw, 2L, function(col) tapply(col, block2, sum))
+    Z2_colsums      <- apply(Z2_raw, 2L, function(col) tapply(col, block2, sum))
     Z2_colmeans_rep <- Z2_colsums[block2, ] / n2
-    Z2_centered <- Z2_raw - Z2_colmeans_rep
+    Z2_centered     <- Z2_raw - Z2_colmeans_rep
 
-    S2_11 <- tapply(Z2_centered[, 1L] ^ 2,              block2, sum)
+    S2_11 <- tapply(Z2_centered[, 1L] ^ 2,                block2, sum)
     S2_12 <- tapply(Z2_centered[, 1L] * Z2_centered[, 2L], block2, sum)
-    S2_22 <- tapply(Z2_centered[, 2L] ^ 2,              block2, sum)
+    S2_22 <- tapply(Z2_centered[, 2L] ^ 2,                block2, sum)
   }
 
   # ---------------------------------------------------------------------------
-  # Section 3: Simulation loop over scenarios
+  # Section 3: Scenario loop
+  #
+  # For each scenario s:
+  #   1. Construct nsim sufficient statistics by shifting the pre-generated
+  #      residuals by the scenario mean.
+  #   2. Call pbayespostpred2cont once in vectorised mode (ybar1 as matrix,
+  #      S1 as list) to obtain an nsim x n_regions matrix of Pr_R values.
+  #   3. Compute PrGo and PrNoGo for each replicate and classify.
   # ---------------------------------------------------------------------------
 
-  # Result matrix: columns = Go, NoGo, Miss (n_scen x 3)
   result_mat <- matrix(0, nrow = n_scen, ncol = 3L)
 
   for (s in seq_len(n_scen)) {
 
-    # Sample means for group 1 in this scenario: add true mean to colSums / n1
-    ybar1_sim <- sweep(Z1_colsums / n1, 2L, mu1[s, ], '+')  # nsim x 2
+    # Shift residual column sums by scenario mean (vectorised over nsim)
+    ybar1_sim <- sweep(Z1_colsums / n1, 2L, mu1[s, ], '+')
+    # ybar1_sim: nsim x 2 matrix
 
-    # S1 is scenario-invariant (depends only on residuals, not means)
-    # -- no recomputation needed
+    # Build S1 list for this scenario (scenario-invariant values)
+    S1_list <- vector('list', nsim)
+    for (i in seq_len(nsim)) {
+      S1_list[[i]] <- matrix(c(S1_11[i], S1_12[i], S1_12[i], S1_22[i]),
+                             nrow = 2L, ncol = 2L)
+    }
 
     if (design %in% c('controlled', 'external')) {
-      ybar2_sim <- sweep(Z2_colsums / n2, 2L, mu2[s, ], '+')  # nsim x 2
-    }
-
-    # Vectors of PrGo and PrNoGo across nsim replicates
-    PrGo_vec   <- numeric(nsim)
-    PrNoGo_vec <- numeric(nsim)
-
-    for (i in seq_len(nsim)) {
-
-      # Assemble sufficient statistics for this replicate
-      yb1 <- ybar1_sim[i, ]
-      S1i <- matrix(c(S1_11[i], S1_12[i], S1_12[i], S1_22[i]), 2L, 2L)
-
-      if (design %in% c('controlled', 'external')) {
-        yb2 <- ybar2_sim[i, ]
-        S2i <- matrix(c(S2_11[i], S2_12[i], S2_12[i], S2_22[i]), 2L, 2L)
-      } else {
-        yb2 <- NULL; S2i <- NULL
+      ybar2_sim <- sweep(Z2_colsums / n2, 2L, mu2[s, ], '+')
+      S2_list <- vector('list', nsim)
+      for (i in seq_len(nsim)) {
+        S2_list[[i]] <- matrix(c(S2_11[i], S2_12[i], S2_12[i], S2_22[i]),
+                               nrow = 2L, ncol = 2L)
       }
-
-      # Call pbayespostpred2cont to get region probability vector
-      Pr_R <- pbayespostpred2cont(
-        prob = prob, design = design, prior = prior,
-        theta.TV1 = theta.TV1, theta.MAV1 = theta.MAV1,
-        theta.TV2 = theta.TV2, theta.MAV2 = theta.MAV2,
-        theta.NULL1 = theta.NULL1, theta.NULL2 = theta.NULL2,
-        n1 = n1, n2 = n2,
-        ybar1 = yb1, S1 = S1i,
-        ybar2 = yb2, S2 = S2i,
-        m1 = m1, m2 = m2,
-        kappa01 = kappa01, nu01 = nu01, mu01 = mu01, Lambda01 = Lambda01,
-        kappa02 = kappa02, nu02 = nu02, mu02 = mu02, Lambda02 = Lambda02,
-        r = r,
-        ne1 = ne1, ne2 = ne2, alpha01e = alpha01e, alpha02e = alpha02e,
-        ybar_e1 = ybar_e1, ybar_e2 = ybar_e2, Se1 = Se1, Se2 = Se2,
-        nMC = nMC, method = method
-      )
-
-      PrGo_vec[i]   <- sum(Pr_R[GoRegions])
-      PrNoGo_vec[i] <- sum(Pr_R[NoGoRegions])
+    } else {
+      ybar2_sim <- NULL
+      S2_list   <- NULL
     }
 
-    # Classify each replicate into Go, NoGo, Miss
+    # Vectorised call: returns nsim x n_regions matrix
+    Pr_R_mat <- pbayespostpred2cont(
+      prob        = prob,
+      design      = design,
+      prior       = prior,
+      theta.TV1   = theta.TV1,   theta.MAV1  = theta.MAV1,
+      theta.TV2   = theta.TV2,   theta.MAV2  = theta.MAV2,
+      theta.NULL1 = theta.NULL1, theta.NULL2 = theta.NULL2,
+      n1 = n1, n2 = n2,
+      ybar1 = ybar1_sim, S1 = S1_list,
+      ybar2 = ybar2_sim, S2 = S2_list,
+      m1 = m1, m2 = m2,
+      kappa01  = kappa01,  nu01     = nu01,
+      mu01     = mu01,     Lambda01 = Lambda01,
+      kappa02  = kappa02,  nu02     = nu02,
+      mu02     = mu02,     Lambda02 = Lambda02,
+      r        = r,
+      ne1 = ne1, ne2 = ne2,
+      alpha01e = alpha01e, alpha02e = alpha02e,
+      ybar_e1  = ybar_e1,  ybar_e2  = ybar_e2,
+      Se1      = Se1,      Se2      = Se2,
+      nMC    = nMC,
+      method = method
+    )
+    # Pr_R_mat: nsim x n_regions (column names R1...R9 or R1...R4)
+
+    # Go/NoGo probability per replicate
+    PrGo_vec   <- rowSums(Pr_R_mat[, GoRegions,   drop = FALSE])
+    PrNoGo_vec <- rowSums(Pr_R_mat[, NoGoRegions, drop = FALSE])
+
+    # Classify into Go, NoGo, Miss
     ind_Go   <- (PrGo_vec >= gamma1) & (PrNoGo_vec <  gamma2)
     ind_NoGo <- (PrGo_vec <  gamma1) & (PrNoGo_vec >= gamma2)
     ind_Miss <- (PrGo_vec >= gamma1) & (PrNoGo_vec >= gamma2)
@@ -594,7 +579,6 @@ pbayesdecisionprob2cont <- function(nsim,
   # Section 4: Assemble output
   # ---------------------------------------------------------------------------
 
-  # Suppress floating-point noise near zero
   result_mat[result_mat < .Machine$double.eps ^ 0.25] <- 0
 
   if (error_if_Miss && any(result_mat[, 3L] > 0))
@@ -628,6 +612,13 @@ pbayesdecisionprob2cont <- function(nsim,
 
   if (!error_if_Miss && !Gray_inc_Miss)
     results$Miss <- result_mat[, 3L]
+
+  # Suppress floating-point noise in output probability columns
+  prob_cols <- c('Go', 'Gray', 'NoGo', 'Miss')
+  prob_cols <- prob_cols[prob_cols %in% names(results)]
+  results[prob_cols] <- lapply(results[prob_cols], function(col) {
+    ifelse(col < .Machine$double.eps ^ 0.25, 0, col)
+  })
 
   # Attach metadata as attributes
   attr(results, 'prob')          <- prob
@@ -683,7 +674,8 @@ pbayesdecisionprob2cont <- function(nsim,
 #' Print Method for pbayesdecisionprob2cont Objects
 #'
 #' Displays a formatted summary of Go/NoGo/Gray decision probabilities for
-#' two-continuous-endpoint results returned by \code{\link{pbayesdecisionprob2cont}}.
+#' two-continuous-endpoint results returned by
+#' \code{\link{pbayesdecisionprob2cont}}.
 #'
 #' @param x An object of class \code{pbayesdecisionprob2cont}.
 #' @param digits A positive integer specifying the number of decimal places
