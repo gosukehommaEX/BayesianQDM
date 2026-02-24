@@ -75,9 +75,12 @@
 #' @param ybar_e2 Length-2 numeric vector. External control sample mean.
 #' @param Se1 A 2x2 numeric matrix. External treatment sum-of-squares matrix.
 #' @param Se2 A 2x2 numeric matrix. External control sum-of-squares matrix.
-#' @param nMC Positive integer. Number of Monte Carlo draws. Default
-#'        \code{10000L}. Used when \code{method = 'MC'} or when
-#'        \code{method = 'MM'} falls back to MC.
+#' @param nMC Positive integer or \code{NULL}. Number of Monte Carlo draws.
+#'        Default \code{10000L}. Required when \code{method = 'MC'}.  May be
+#'        set to \code{NULL} when \code{method = 'MM'} and \eqn{\nu_k > 4}
+#'        (the MM method uses \code{mvtnorm::pmvt} analytically); if
+#'        \code{method = 'MM'} but \eqn{\nu_k \le 4} causes a fallback to MC,
+#'        \code{nMC} must be a positive integer.
 #' @param method Character scalar: \code{'MC'} (default) or \code{'MM'}
 #'        (Moment-Matching via \code{mvtnorm::pmvt}). When
 #'        \code{method = 'MM'} and \eqn{\nu_k \le 4}, a warning is issued
@@ -488,14 +491,27 @@ pbayespostpred2cont <- function(prob,
     if (!is.null(ne2)) ne2 <- as.integer(ne2)
   }
 
-  if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
-      nMC != floor(nMC) || nMC < 1L)
-    stop("'nMC' must be a single positive integer")
-  nMC <- as.integer(nMC)
-
   if (!is.character(method) || length(method) != 1L ||
       !method %in% c('MC', 'MM'))
     stop("'method' must be either 'MC' or 'MM'")
+
+  # nMC validation: required for method = 'MC', optional for method = 'MM'
+  if (method == 'MC') {
+    if (is.null(nMC))
+      stop("'nMC' must be non-NULL when method = 'MC'")
+    if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
+        nMC != floor(nMC) || nMC < 1L)
+      stop("'nMC' must be a single positive integer")
+    nMC <- as.integer(nMC)
+  } else {
+    # method == 'MM': nMC may be NULL or a positive integer
+    if (!is.null(nMC)) {
+      if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
+          nMC != floor(nMC) || nMC < 1L)
+        stop("'nMC' must be a single positive integer or NULL")
+      nMC <- as.integer(nMC)
+    }
+  }
 
   # ---------------------------------------------------------------------------
   # Section 2: Posterior hyperparameter helpers
@@ -662,6 +678,9 @@ pbayespostpred2cont <- function(prob,
 
   # Pre-generate MC raw variates (only for MC path; also used as fallback for MM)
   if (!use_mm) {
+    if (is.null(nMC))
+      stop(paste0("'nMC' must be a positive integer when method = 'MM' falls ",
+                  "back to MC (nu_k <= 4)"))
     Z_t <- matrix(rnorm(nMC * 2L), nrow = nMC, ncol = 2L)
     W_t <- rchisq(nMC, df = df1)
     sc_t <- sqrt(W_t / df1)

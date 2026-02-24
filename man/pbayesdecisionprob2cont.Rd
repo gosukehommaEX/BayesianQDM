@@ -44,7 +44,7 @@ pbayesdecisionprob2cont(
   ybar_e2 = NULL,
   Se1 = NULL,
   Se2 = NULL,
-  nMC = 1000L,
+  nMC = NULL,
   method = "MC",
   error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE,
@@ -54,100 +54,95 @@ pbayesdecisionprob2cont(
 \arguments{
 \item{nsim}{A positive integer. Number of simulated datasets per scenario.}
 
-\item{prob}{Character scalar, either \code{'posterior'} or
-\code{'predictive'}.}
+\item{prob}{Character scalar: \code{'posterior'} or \code{'predictive'}.}
 
 \item{design}{Character scalar: \code{'controlled'}, \code{'uncontrolled'},
 or \code{'external'}.}
 
 \item{prior}{Character scalar: \code{'vague'} or \code{'N-Inv-Wishart'}.}
 
-\item{GoRegions}{Integer vector. Region indices (1 to 9 for posterior,
-1 to 4 for predictive) that define a Go decision.}
+\item{GoRegions}{Integer vector. Region indices (1--9 for posterior,
+1--4 for predictive) that trigger a Go decision.}
 
-\item{NoGoRegions}{Integer vector. Region indices that define a NoGo
+\item{NoGoRegions}{Integer vector. Region indices that trigger a NoGo
 decision. Must be disjoint from \code{GoRegions}.}
 
-\item{gamma1}{Numeric scalar in (0, 1). Go threshold: a Go decision is made
-when \eqn{PrGo \ge \gamma_1} and \eqn{PrNoGo < \gamma_2}.}
+\item{gamma1}{Numeric scalar in \code{(0, 1)}. Go threshold:
+Go if \eqn{P(\mathrm{GoRegions}) \ge \gamma_1}.}
 
-\item{gamma2}{Numeric scalar in (0, 1). NoGo threshold: a NoGo decision is
-made when \eqn{PrNoGo \ge \gamma_2} and \eqn{PrGo < \gamma_1}.}
+\item{gamma2}{Numeric scalar in \code{(0, 1)}. NoGo threshold:
+NoGo if \eqn{P(\mathrm{NoGoRegions}) \ge \gamma_2}.}
 
-\item{theta.TV1}{Numeric scalar. Target value for Endpoint 1
-(required when \code{prob = 'posterior'}).}
+\item{theta.TV1}{Numeric scalar or \code{NULL}. Target value for
+Endpoint 1 (required when \code{prob = 'posterior'}).}
 
-\item{theta.MAV1}{Numeric scalar. Minimum acceptable value for Endpoint 1
-(required when \code{prob = 'posterior'}).}
+\item{theta.MAV1}{Numeric scalar or \code{NULL}. Minimum acceptable value
+for Endpoint 1 (required when \code{prob = 'posterior'}).}
 
-\item{theta.TV2}{Numeric scalar. Target value for Endpoint 2
-(required when \code{prob = 'posterior'}).}
+\item{theta.TV2}{Numeric scalar or \code{NULL}. Target value for
+Endpoint 2 (required when \code{prob = 'posterior'}).}
 
-\item{theta.MAV2}{Numeric scalar. Minimum acceptable value for Endpoint 2
-(required when \code{prob = 'posterior'}).}
+\item{theta.MAV2}{Numeric scalar or \code{NULL}. Minimum acceptable value
+for Endpoint 2 (required when \code{prob = 'posterior'}).}
 
-\item{theta.NULL1}{Numeric scalar. Null threshold for Endpoint 1
+\item{theta.NULL1}{Numeric scalar or \code{NULL}. Null value for Endpoint 1
 (required when \code{prob = 'predictive'}).}
 
-\item{theta.NULL2}{Numeric scalar. Null threshold for Endpoint 2
+\item{theta.NULL2}{Numeric scalar or \code{NULL}. Null value for Endpoint 2
 (required when \code{prob = 'predictive'}).}
 
-\item{n1}{Positive integer. PoC sample size for the treatment arm.}
+\item{n1}{Positive integer. Treatment arm sample size.}
 
-\item{n2}{Positive integer or \code{NULL}. PoC sample size for the control
-arm (not used when \code{design = 'uncontrolled'}).}
+\item{n2}{Positive integer or \code{NULL}. Control arm sample size
+(required when \code{design} is \code{'controlled'} or
+\code{'external'}).}
 
-\item{m1}{Positive integer or \code{NULL}. Pivotal study sample size for
-the treatment arm (required when \code{prob = 'predictive'}).}
+\item{m1}{Positive integer or \code{NULL}. Future treatment arm size
+(required when \code{prob = 'predictive'}).}
 
-\item{m2}{Positive integer or \code{NULL}. Pivotal study sample size for
-the control arm (required when \code{prob = 'predictive'} and
-\code{design != 'uncontrolled'}).}
+\item{m2}{Positive integer or \code{NULL}. Future control arm size
+(required when \code{prob = 'predictive'}).}
 
-\item{mu1}{Numeric matrix with \eqn{K} rows and 2 columns. Each row
-specifies the true treatment mean vector for one scenario.}
+\item{mu1}{Numeric matrix with 2 columns. Each row gives the true treatment
+mean vector for one scenario.  A length-2 vector is coerced to a
+1-row matrix.}
 
-\item{Sigma1}{A 2x2 positive-definite numeric matrix. True covariance
-matrix for the treatment arm (shared across scenarios).}
+\item{Sigma1}{A 2x2 positive-definite matrix. True treatment covariance.}
 
-\item{mu2}{Numeric matrix with \eqn{K} rows and 2 columns or a length-2
-vector. True control mean vector(s). For
-\code{design = 'uncontrolled'}, only a single row or vector is
-used (hypothetical control mean, not used in simulation).}
+\item{mu2}{Numeric matrix with 2 columns or a length-2 vector. True control
+(or hypothetical control) mean vector(s).}
 
-\item{Sigma2}{A 2x2 positive-definite numeric matrix. True covariance
-matrix for the control arm. Set to a diagonal matrix or any valid
-matrix for \code{design = 'uncontrolled'} (not used in simulation).}
+\item{Sigma2}{A 2x2 positive-definite matrix. True control covariance.}
 
-\item{kappa01}{Positive numeric scalar. NIW prior concentration for the
-treatment arm (required when \code{prior = 'N-Inv-Wishart'}).}
+\item{kappa01}{Positive numeric or \code{NULL}. NIW prior pseudo sample
+size for treatment (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{nu01}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
-the treatment arm (required when \code{prior = 'N-Inv-Wishart'}).}
+\item{nu01}{Positive numeric or \code{NULL}. NIW prior degrees of freedom
+for treatment (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{mu01}{Length-2 numeric vector. NIW prior mean for the treatment arm
-(required when \code{prior = 'N-Inv-Wishart'}).}
+\item{mu01}{Length-2 numeric vector or \code{NULL}. NIW prior mean for
+treatment (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{Lambda01}{A 2x2 positive-definite numeric matrix. NIW prior scale
-matrix for the treatment arm (required when
+\item{Lambda01}{A 2x2 numeric matrix or \code{NULL}. NIW prior scale matrix
+for treatment (required when \code{prior = 'N-Inv-Wishart'}).}
+
+\item{kappa02}{Positive numeric or \code{NULL}. NIW prior pseudo sample
+size for control (required when \code{design} is
+\code{'controlled'} or \code{'external'} and
 \code{prior = 'N-Inv-Wishart'}).}
 
-\item{kappa02}{Positive numeric scalar. NIW prior concentration for the
-control arm (required for controlled/external when
-\code{prior = 'N-Inv-Wishart'}).}
+\item{nu02}{Positive numeric or \code{NULL}. NIW prior degrees of freedom
+for control.}
 
-\item{nu02}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
-the control arm.}
+\item{mu02}{Length-2 numeric vector or \code{NULL}. NIW prior mean for
+control, or the hypothetical control mean when
+\code{design = 'uncontrolled'}.}
 
-\item{mu02}{Length-2 numeric vector. NIW prior mean for the control arm
-or hypothetical control location
-(required when \code{design = 'uncontrolled'}).}
+\item{Lambda02}{A 2x2 numeric matrix or \code{NULL}. NIW prior scale matrix
+for control.}
 
-\item{Lambda02}{A 2x2 positive-definite numeric matrix. NIW prior scale
-matrix for the control arm.}
-
-\item{r}{Positive numeric scalar. Variance scaling factor for the
-hypothetical control (required when
+\item{r}{Positive numeric or \code{NULL}. Variance scaling ratio for the
+hypothetical control arm (required when
 \code{design = 'uncontrolled'}).}
 
 \item{ne1}{Positive integer or \code{NULL}. External treatment sample size
@@ -170,12 +165,16 @@ external control data.}
 
 \item{Se2}{A 2x2 numeric matrix. External control sum-of-squares matrix.}
 
-\item{nMC}{Positive integer. Number of Monte Carlo draws used by
-\code{\link{pbayespostpred2cont}} to compute region probabilities
-for each simulated dataset. Default \code{1000L}.}
+\item{nMC}{Positive integer or \code{NULL}. Number of Monte Carlo draws
+passed to \code{\link{pbayespostpred2cont}} to compute region
+probabilities for each simulated dataset.  Required when
+\code{method = 'MC'}; may be set to \code{NULL} when
+\code{method = 'MM'} (the MM method uses analytical
+\code{mvtnorm::pmvt} and does not require MC draws).
+Default \code{NULL}.}
 
-\item{method}{Character scalar: \code{'MC'} (default) or \code{'MM'}
-(Moment-Matching via \code{mvtnorm::pmvt}).}
+\item{method}{Character scalar: \code{'MC'} or \code{'MM'}
+(Moment-Matching via \code{mvtnorm::pmvt}). Default \code{'MC'}.}
 
 \item{error_if_Miss}{Logical scalar. If \code{TRUE} (default), the function
 stops when any scenario yields a positive Miss probability.}
@@ -195,11 +194,9 @@ controlled/external), \code{Go}, \code{Gray}, \code{NoGo}, and optionally
 parameters attached as attributes.
 }
 \description{
-Estimates Go, NoGo, and Gray operating characteristics for a two-endpoint
-continuous Bayesian Go/NoGo decision framework by Monte Carlo simulation.
-For each simulated dataset, region probabilities are computed by calling
-\code{\link{pbayespostpred2cont}} in vectorised mode, consistent with the
-single-endpoint analogue \code{\link{pbayesdecisionprob1cont}}.
+Computes the operating characteristics (Go, NoGo, Gray, and optionally Miss
+probabilities) for a two-continuous-endpoint Bayesian Go/NoGo decision
+framework by Monte Carlo simulation over treatment scenarios.
 }
 \details{
 The function follows the same structure as
@@ -241,7 +238,8 @@ pbayesdecisionprob2cont(
   r = NULL,
   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1L
+  nMC = 500L, method = 'MC',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1L
 )
 
 # Example 2: Controlled design, posterior probability, NIW prior
@@ -265,7 +263,8 @@ pbayesdecisionprob2cont(
   r = NULL,
   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2L
+  nMC = 500L, method = 'MC',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2L
 )
 
 # Example 3: Uncontrolled design, posterior probability, NIW prior
@@ -289,7 +288,8 @@ pbayesdecisionprob2cont(
   r = 1.0,
   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3L
+  nMC = 500L, method = 'MC',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3L
 )
 
 # Example 4: Controlled design, predictive probability, NIW prior
@@ -313,7 +313,8 @@ pbayesdecisionprob2cont(
   r = NULL,
   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4L
+  nMC = 500L, method = 'MC',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4L
 )
 
 # Example 5: External design (control only), posterior probability, NIW prior
@@ -339,11 +340,13 @@ pbayesdecisionprob2cont(
   r = NULL,
   ne1 = NULL, ne2 = 15L, alpha01e = NULL, alpha02e = 0.5,
   ybar_e1 = NULL, ybar_e2 = c(0.2, 0.1), Se1 = NULL, Se2 = Se2,
-  nMC = 500L, error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
+  nMC = 500L, method = 'MC',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
 )
 }
 
 # Example 6: Controlled design, posterior probability, NIW prior, MM method
+# method = 'MM' uses analytical mvtnorm::pmvt; nMC = NULL is accepted.
 \dontrun{
 Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
 L0    <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
@@ -365,8 +368,35 @@ pbayesdecisionprob2cont(
   r = NULL,
   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, method = 'MM',
+  nMC = NULL, method = 'MM',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 6L
+)
+}
+
+# Example 7: Uncontrolled design, posterior probability, vague prior, MM method
+# MM method with nMC = NULL: fully analytical, no Monte Carlo draws needed.
+\dontrun{
+Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
+pbayesdecisionprob2cont(
+  nsim = 100L, prob = 'posterior', design = 'uncontrolled',
+  prior = 'vague',
+  GoRegions = 1L, NoGoRegions = 9L,
+  gamma1 = 0.8, gamma2 = 0.8,
+  theta.TV1 = 1.5, theta.MAV1 = 0.5,
+  theta.TV2 = 1.0, theta.MAV2 = 0.3,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n1 = 20L, n2 = NULL, m1 = NULL, m2 = NULL,
+  mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+  Sigma1 = Sigma,
+  mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+  Sigma2 = Sigma,
+  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
+  kappa02 = NULL, nu02 = NULL, mu02 = c(0.0, 0.0), Lambda02 = NULL,
+  r = 1.0,
+  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  nMC = NULL, method = 'MM',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 7L
 )
 }
 

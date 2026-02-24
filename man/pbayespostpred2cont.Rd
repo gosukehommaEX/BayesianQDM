@@ -148,9 +148,12 @@ external control data.}
 
 \item{Se2}{A 2x2 numeric matrix. External control sum-of-squares matrix.}
 
-\item{nMC}{Positive integer. Number of Monte Carlo draws. Default
-\code{10000L}. Used when \code{method = 'MC'} or when
-\code{method = 'MM'} falls back to MC.}
+\item{nMC}{Positive integer or \code{NULL}. Number of Monte Carlo draws.
+Default \code{10000L}. Required when \code{method = 'MC'}.  May be
+set to \code{NULL} when \code{method = 'MM'} and \eqn{\nu_k > 4}
+(the MM method uses \code{mvtnorm::pmvt} analytically); if
+\code{method = 'MM'} but \eqn{\nu_k \le 4} causes a fallback to MC,
+\code{nMC} must be a positive integer.}
 
 \item{method}{Character scalar: \code{'MC'} (default) or \code{'MM'}
 (Moment-Matching via \code{mvtnorm::pmvt}). When
