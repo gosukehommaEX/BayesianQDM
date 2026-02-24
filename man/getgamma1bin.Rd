@@ -14,6 +14,10 @@ getgamma1bin(
   pi2 = NULL,
   target_go,
   target_nogo,
+  crit_go = "<",
+  crit_nogo = "<",
+  sel_go = "smallest",
+  sel_nogo = "largest",
   n1,
   n2,
   a1,
@@ -61,17 +65,35 @@ response rate for the scenario used to search for both
 response rate.  Set to \code{NULL} for
 \code{design = 'uncontrolled'}.}
 
-\item{target_go}{A numeric scalar in \code{(0, 1)} giving the upper bound
-on \eqn{\Pr(\mathrm{Go})}.  The optimal \eqn{\gamma_1} is the
-smallest value in \code{gamma_grid} such that
-\eqn{\Pr(\mathrm{Go} \mid \pi_1, \pi_2)} is strictly less than
-\code{target_go}.}
+\item{target_go}{A numeric scalar in \code{(0, 1)} giving the target value
+for \eqn{\Pr(\mathrm{Go})} used to determine the optimal
+\eqn{\gamma_1}.  The comparison operator applied is specified by
+\code{crit_go}.}
 
-\item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the upper bound
-on \eqn{\Pr(\mathrm{NoGo})}.  The optimal \eqn{\gamma_2} is the
-largest value in \code{gamma_grid} such that
-\eqn{\Pr(\mathrm{NoGo} \mid \pi_1, \pi_2)} is strictly less than
-\code{target_nogo}.}
+\item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the target
+value for \eqn{\Pr(\mathrm{NoGo})} used to determine the optimal
+\eqn{\gamma_2}.  The comparison operator applied is specified by
+\code{crit_nogo}.}
+
+\item{crit_go}{A character string specifying the comparison operator
+applied to \eqn{\Pr(\mathrm{Go})} when searching for
+\eqn{\gamma_1}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
+or \code{">="}. Default is \code{"<"}.}
+
+\item{crit_nogo}{A character string specifying the comparison operator
+applied to \eqn{\Pr(\mathrm{NoGo})} when searching for
+\eqn{\gamma_2}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
+or \code{">="}. Default is \code{"<"}.}
+
+\item{sel_go}{A character string specifying whether to select the
+\code{"smallest"} or \code{"largest"} value in \code{gamma_grid}
+among those satisfying the \code{crit_go} criterion.
+Default is \code{"smallest"}.}
+
+\item{sel_nogo}{A character string specifying whether to select the
+\code{"smallest"} or \code{"largest"} value in \code{gamma_grid}
+among those satisfying the \code{crit_nogo} criterion.
+Default is \code{"largest"}.}
 
 \item{n1}{A positive integer giving the number of patients in group 1
 (treatment) in the PoC trial.}
@@ -134,12 +156,12 @@ for group 2.  Required when \code{design = 'external'}; set to
 \value{
 A list of class \code{getgamma1bin} with the following elements:
 \describe{
-\item{gamma1}{Optimal Go threshold: the smallest value in
-\code{gamma_grid} such that \eqn{\Pr(\mathrm{Go})} is strictly less
-than \code{target_go}.  \code{NA} if no such value exists.}
-\item{gamma2}{Optimal NoGo threshold: the largest value in
-\code{gamma_grid} such that \eqn{\Pr(\mathrm{NoGo})} is strictly
-less than \code{target_nogo}.  \code{NA} if no such value exists.}
+\item{gamma1}{Optimal Go threshold selected from \code{gamma_grid}
+according to \code{crit_go} and \code{sel_go}.
+\code{NA} if no value satisfies the criterion.}
+\item{gamma2}{Optimal NoGo threshold selected from \code{gamma_grid}
+according to \code{crit_nogo} and \code{sel_nogo}.
+\code{NA} if no value satisfies the criterion.}
 \item{PrGo_at_gamma1}{Pr(Go) evaluated at the optimal \eqn{\gamma_1}.
 \code{NA} if \code{gamma1} is \code{NA}.}
 \item{PrNoGo_at_gamma2}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_2}.
@@ -178,14 +200,25 @@ evaluated at \code{theta.TV} (Go criterion, \code{lower.tail = FALSE}) and
 one at \code{theta.MAV} (NoGo criterion, \code{lower.tail = TRUE}).  For
 \code{prob = 'predictive'}, both criteria use \code{theta.NULL} with the
 respective tail direction.
+
+The optimal \eqn{\gamma_1} is the \code{sel_go} (\code{"smallest"} or
+\code{"largest"}) value in \code{gamma_grid} for which
+\eqn{\Pr(\mathrm{Go})} satisfies the \code{crit_go} comparison against
+\code{target_go}.  Analogously, the optimal \eqn{\gamma_2} is the
+\code{sel_nogo} value satisfying \code{crit_nogo} against
+\code{target_nogo}.
 }
 \examples{
 # Example 1: Controlled design, posterior probability
+# gamma1: smallest gamma such that Pr(Go) < 0.05
+# gamma2: largest  gamma such that Pr(NoGo) < 0.20
 getgamma1bin(
   prob = 'posterior', design = 'controlled',
   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
   pi1 = 0.15, pi2 = 0.15,
   target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
   n1 = 12L, n2 = 12L,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = NULL, m2 = NULL,
@@ -198,6 +231,8 @@ getgamma1bin(
   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
   pi1 = 0.15, pi2 = NULL,
   target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
   n1 = 12L, n2 = 12L,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = 3L, m1 = NULL, m2 = NULL,
@@ -210,6 +245,8 @@ getgamma1bin(
   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0.10,
   pi1 = 0.15, pi2 = 0.15,
   target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
   n1 = 12L, n2 = 12L,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = 30L, m2 = 30L,
@@ -222,6 +259,8 @@ getgamma1bin(
   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
   pi1 = 0.15, pi2 = 0.15,
   target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
   n1 = 12L, n2 = 12L,
   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
   z = NULL, m1 = NULL, m2 = NULL,

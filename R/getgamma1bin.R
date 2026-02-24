@@ -29,16 +29,30 @@
 #' @param pi2 A numeric scalar in \code{(0, 1)} giving the true control
 #'        response rate.  Set to \code{NULL} for
 #'        \code{design = 'uncontrolled'}.
-#' @param target_go A numeric scalar in \code{(0, 1)} giving the upper bound
-#'        on \eqn{\Pr(\mathrm{Go})}.  The optimal \eqn{\gamma_1} is the
-#'        smallest value in \code{gamma_grid} such that
-#'        \eqn{\Pr(\mathrm{Go} \mid \pi_1, \pi_2)} is strictly less than
-#'        \code{target_go}.
-#' @param target_nogo A numeric scalar in \code{(0, 1)} giving the upper bound
-#'        on \eqn{\Pr(\mathrm{NoGo})}.  The optimal \eqn{\gamma_2} is the
-#'        largest value in \code{gamma_grid} such that
-#'        \eqn{\Pr(\mathrm{NoGo} \mid \pi_1, \pi_2)} is strictly less than
-#'        \code{target_nogo}.
+#' @param target_go A numeric scalar in \code{(0, 1)} giving the target value
+#'        for \eqn{\Pr(\mathrm{Go})} used to determine the optimal
+#'        \eqn{\gamma_1}.  The comparison operator applied is specified by
+#'        \code{crit_go}.
+#' @param target_nogo A numeric scalar in \code{(0, 1)} giving the target
+#'        value for \eqn{\Pr(\mathrm{NoGo})} used to determine the optimal
+#'        \eqn{\gamma_2}.  The comparison operator applied is specified by
+#'        \code{crit_nogo}.
+#' @param crit_go A character string specifying the comparison operator
+#'        applied to \eqn{\Pr(\mathrm{Go})} when searching for
+#'        \eqn{\gamma_1}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
+#'        or \code{">="}. Default is \code{"<"}.
+#' @param crit_nogo A character string specifying the comparison operator
+#'        applied to \eqn{\Pr(\mathrm{NoGo})} when searching for
+#'        \eqn{\gamma_2}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
+#'        or \code{">="}. Default is \code{"<"}.
+#' @param sel_go A character string specifying whether to select the
+#'        \code{"smallest"} or \code{"largest"} value in \code{gamma_grid}
+#'        among those satisfying the \code{crit_go} criterion.
+#'        Default is \code{"smallest"}.
+#' @param sel_nogo A character string specifying whether to select the
+#'        \code{"smallest"} or \code{"largest"} value in \code{gamma_grid}
+#'        among those satisfying the \code{crit_nogo} criterion.
+#'        Default is \code{"largest"}.
 #' @param n1 A positive integer giving the number of patients in group 1
 #'        (treatment) in the PoC trial.
 #' @param n2 A positive integer giving the number of patients in group 2
@@ -84,12 +98,12 @@
 #'
 #' @return A list of class \code{getgamma1bin} with the following elements:
 #' \describe{
-#'   \item{gamma1}{Optimal Go threshold: the smallest value in
-#'         \code{gamma_grid} such that \eqn{\Pr(\mathrm{Go})} is strictly less
-#'         than \code{target_go}.  \code{NA} if no such value exists.}
-#'   \item{gamma2}{Optimal NoGo threshold: the largest value in
-#'         \code{gamma_grid} such that \eqn{\Pr(\mathrm{NoGo})} is strictly
-#'         less than \code{target_nogo}.  \code{NA} if no such value exists.}
+#'   \item{gamma1}{Optimal Go threshold selected from \code{gamma_grid}
+#'         according to \code{crit_go} and \code{sel_go}.
+#'         \code{NA} if no value satisfies the criterion.}
+#'   \item{gamma2}{Optimal NoGo threshold selected from \code{gamma_grid}
+#'         according to \code{crit_nogo} and \code{sel_nogo}.
+#'         \code{NA} if no value satisfies the criterion.}
 #'   \item{PrGo_at_gamma1}{Pr(Go) evaluated at the optimal \eqn{\gamma_1}.
 #'         \code{NA} if \code{gamma1} is \code{NA}.}
 #'   \item{PrNoGo_at_gamma2}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_2}.
@@ -120,13 +134,24 @@
 #' \code{prob = 'predictive'}, both criteria use \code{theta.NULL} with the
 #' respective tail direction.
 #'
+#' The optimal \eqn{\gamma_1} is the \code{sel_go} (\code{"smallest"} or
+#' \code{"largest"}) value in \code{gamma_grid} for which
+#' \eqn{\Pr(\mathrm{Go})} satisfies the \code{crit_go} comparison against
+#' \code{target_go}.  Analogously, the optimal \eqn{\gamma_2} is the
+#' \code{sel_nogo} value satisfying \code{crit_nogo} against
+#' \code{target_nogo}.
+#'
 #' @examples
 #' # Example 1: Controlled design, posterior probability
+#' # gamma1: smallest gamma such that Pr(Go) < 0.05
+#' # gamma2: largest  gamma such that Pr(NoGo) < 0.20
 #' getgamma1bin(
 #'   prob = 'posterior', design = 'controlled',
 #'   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
 #'   pi1 = 0.15, pi2 = 0.15,
 #'   target_go = 0.05, target_nogo = 0.20,
+#'   crit_go = '<', crit_nogo = '<',
+#'   sel_go = 'smallest', sel_nogo = 'largest',
 #'   n1 = 12L, n2 = 12L,
 #'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
 #'   z = NULL, m1 = NULL, m2 = NULL,
@@ -139,6 +164,8 @@
 #'   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
 #'   pi1 = 0.15, pi2 = NULL,
 #'   target_go = 0.05, target_nogo = 0.20,
+#'   crit_go = '<', crit_nogo = '<',
+#'   sel_go = 'smallest', sel_nogo = 'largest',
 #'   n1 = 12L, n2 = 12L,
 #'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
 #'   z = 3L, m1 = NULL, m2 = NULL,
@@ -151,6 +178,8 @@
 #'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0.10,
 #'   pi1 = 0.15, pi2 = 0.15,
 #'   target_go = 0.05, target_nogo = 0.20,
+#'   crit_go = '<', crit_nogo = '<',
+#'   sel_go = 'smallest', sel_nogo = 'largest',
 #'   n1 = 12L, n2 = 12L,
 #'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
 #'   z = NULL, m1 = 30L, m2 = 30L,
@@ -163,6 +192,8 @@
 #'   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
 #'   pi1 = 0.15, pi2 = 0.15,
 #'   target_go = 0.05, target_nogo = 0.20,
+#'   crit_go = '<', crit_nogo = '<',
+#'   sel_go = 'smallest', sel_nogo = 'largest',
 #'   n1 = 12L, n2 = 12L,
 #'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
 #'   z = NULL, m1 = NULL, m2 = NULL,
@@ -175,6 +206,8 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
                          theta.TV = NULL, theta.MAV = NULL, theta.NULL = NULL,
                          pi1, pi2 = NULL,
                          target_go, target_nogo,
+                         crit_go  = '<',        crit_nogo  = '<',
+                         sel_go   = 'smallest', sel_nogo   = 'largest',
                          n1, n2,
                          a1, a2, b1, b2,
                          z = NULL, m1 = NULL, m2 = NULL,
@@ -251,6 +284,26 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
     }
   }
 
+  valid_crit <- c('<', '<=', '>', '>=')
+  if (!is.character(crit_go) || length(crit_go) != 1L ||
+      !crit_go %in% valid_crit) {
+    stop("'crit_go' must be one of '<', '<=', '>', '>='")
+  }
+  if (!is.character(crit_nogo) || length(crit_nogo) != 1L ||
+      !crit_nogo %in% valid_crit) {
+    stop("'crit_nogo' must be one of '<', '<=', '>', '>='")
+  }
+
+  valid_sel <- c('smallest', 'largest')
+  if (!is.character(sel_go) || length(sel_go) != 1L ||
+      !sel_go %in% valid_sel) {
+    stop("'sel_go' must be either 'smallest' or 'largest'")
+  }
+  if (!is.character(sel_nogo) || length(sel_nogo) != 1L ||
+      !sel_nogo %in% valid_sel) {
+    stop("'sel_nogo' must be either 'smallest' or 'largest'")
+  }
+
   for (nm in c("n1", "n2")) {
     val <- get(nm)
     if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
@@ -322,7 +375,6 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
   theta0_nogo <- if (prob == 'posterior') theta.MAV else theta.NULL
 
   if (design == 'uncontrolled') {
-    # Enumerate y1 only; y2 is fixed at z inside pbayespostpred1bin
     all_y1 <- 0L:n1
 
     gPost_Go <- pbayespostpred1bin(
@@ -343,11 +395,9 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
       lower.tail = TRUE
     )
 
-    # Binomial weights under the specified scenario
     w <- dbinom(all_y1, n1, pi1)
 
   } else {
-    # Enumerate all (y1, y2) pairs for controlled and external designs
     grid    <- expand.grid(y1 = 0L:n1, y2 = 0L:n2)
     all_y1e <- grid$y1
     all_y2e <- grid$y2
@@ -370,7 +420,6 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
       lower.tail = TRUE
     )
 
-    # Binomial weights under the specified scenario
     w <- dbinom(all_y1e, n1, pi1) * dbinom(all_y2e, n2, pi2)
   }
 
@@ -386,27 +435,42 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
   PrNoGo_grid <- colSums(w * nogo_ind)
 
   # ---------------------------------------------------------------------------
-  # Stage 3: Find optimal gamma1 and gamma2
+  # Stage 3: Apply comparison operators and select optimal gamma values
   # ---------------------------------------------------------------------------
+  # Helper: apply comparison operator element-wise
+  .compare <- function(x, op, val) {
+    switch(op,
+           '<'  = x <  val,
+           '<=' = x <= val,
+           '>'  = x >  val,
+           '>=' = x >= val)
+  }
 
-  # gamma1: smallest gamma such that Pr(Go) < target_go
-  idx1 <- which(PrGo_grid < target_go)
-  if (length(idx1) == 0L) {
+  # Helper: select smallest or largest qualifying index
+  .select_idx <- function(mask, sel) {
+    idx <- which(mask)
+    if (length(idx) == 0L) return(NA_integer_)
+    if (sel == 'smallest') min(idx) else max(idx)
+  }
+
+  # gamma1
+  opt1 <- .select_idx(.compare(PrGo_grid,   crit_go,   target_go),   sel_go)
+  if (is.na(opt1)) {
     gamma1         <- NA_real_
     PrGo_at_gamma1 <- NA_real_
   } else {
-    gamma1         <- gamma_grid[min(idx1)]
-    PrGo_at_gamma1 <- PrGo_grid[min(idx1)]
+    gamma1         <- gamma_grid[opt1]
+    PrGo_at_gamma1 <- PrGo_grid[opt1]
   }
 
-  # gamma2: largest gamma such that Pr(NoGo) < target_nogo
-  idx2 <- which(PrNoGo_grid < target_nogo)
-  if (length(idx2) == 0L) {
+  # gamma2
+  opt2 <- .select_idx(.compare(PrNoGo_grid, crit_nogo, target_nogo), sel_nogo)
+  if (is.na(opt2)) {
     gamma2            <- NA_real_
     PrNoGo_at_gamma2  <- NA_real_
   } else {
-    gamma2            <- gamma_grid[max(idx2)]
-    PrNoGo_at_gamma2  <- PrNoGo_grid[max(idx2)]
+    gamma2            <- gamma_grid[opt2]
+    PrNoGo_at_gamma2  <- PrNoGo_grid[opt2]
   }
 
   # ---------------------------------------------------------------------------
