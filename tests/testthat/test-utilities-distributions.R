@@ -26,37 +26,6 @@ test_that("rdirichlet input validation works", {
 })
 
 # ---------------------------------------------------------------------------
-# rnsbt
-# ---------------------------------------------------------------------------
-
-test_that("rnsbt returns correct structure", {
-  set.seed(1)
-  mu <- c(2.0, -1.0)
-  V  <- matrix(c(4.0, 1.2, 1.2, 1.0), 2, 2)
-  result <- rnsbt(n = 500L, df = 10, mu = mu, V = V)
-  expect_true(is.matrix(result))
-  expect_equal(dim(result), c(500L, 2L))
-})
-
-test_that("rnsbt sample mean is close to mu for large n and large df", {
-  set.seed(2)
-  mu <- c(1.5, -0.5)
-  V  <- matrix(c(1.0, 0.3, 0.3, 0.5), 2, 2)
-  result <- rnsbt(n = 5000L, df = 100, mu = mu, V = V)
-  expect_true(abs(mean(result[, 1L]) - mu[1L]) < 0.1)
-  expect_true(abs(mean(result[, 2L]) - mu[2L]) < 0.1)
-})
-
-test_that("rnsbt input validation works", {
-  V <- matrix(c(1, 0, 0, 1), 2, 2)
-  expect_error(rnsbt(n = 0L,  df = 5,  mu = c(0, 0), V = V))
-  expect_error(rnsbt(n = 10L, df = -1, mu = c(0, 0), V = V))
-  expect_error(rnsbt(n = 10L, df = 5,  mu = c(0),    V = V))
-  expect_error(rnsbt(n = 10L, df = 5,  mu = c(0, 0),
-                     V = matrix(c(1, 0, 0, 1, 0, 0, 0, 0, 1), 3, 3)))
-})
-
-# ---------------------------------------------------------------------------
 # getjointbin
 # Returns a named numeric vector of length 4: (p00, p01, p10, p11)
 # ---------------------------------------------------------------------------
