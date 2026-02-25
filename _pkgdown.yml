@@ -51,7 +51,6 @@ reference:
 - title: Sampling Functions
   desc: Random samplers for multivariate distributions
   contents:
-  - rnsbt
   - rdirichlet
 
 - title: Utility Functions
