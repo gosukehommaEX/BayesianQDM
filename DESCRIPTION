@@ -25,7 +25,10 @@ Description: Provides comprehensive methods to calculate posterior probabilities
     continuous, Normal-Inverse-Wishart for two continuous, and Dirichlet for
     binary endpoints), enabling closed-form posterior computation without MCMC
     sampling. This approach significantly reduces computational burden while
-    preserving complete Bayesian rigor.
+    preserving complete Bayesian rigor. The package also provides grid-search
+    functions to find optimal Go and NoGo thresholds that satisfy user-specified
+    operating characteristic criteria for all supported endpoint types and
+    study designs.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

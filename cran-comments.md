@@ -19,6 +19,9 @@ for clinical trials, supporting both single and two-endpoint analyses for binary
 continuous outcomes. The package implements Go/NoGo/Gray decision criteria using
 posterior probabilities and posterior predictive probabilities under conjugate Bayesian
 models, with support for controlled, uncontrolled, and external control designs.
+The package also provides grid-search functions to find optimal Go and NoGo thresholds
+that satisfy user-specified operating characteristic criteria for all supported
+endpoint types and study designs.
 
 ## Dependencies
 

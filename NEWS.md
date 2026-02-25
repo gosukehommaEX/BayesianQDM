@@ -26,6 +26,17 @@ and continuous outcomes.
 * `pbayespostpred2bin()` - Joint region probabilities for two binary endpoints
 * `pbayespostpred2cont()` - Joint region probabilities for two continuous endpoints
 
+### Optimal Threshold Search Functions
+
+* `getgamma1bin()` - Find optimal Go/NoGo thresholds for a single binary endpoint
+  by grid search over candidate gamma values
+* `getgamma1cont()` - Find optimal Go/NoGo thresholds for a single continuous
+  endpoint by grid search over candidate gamma values
+* `getgamma2bin()` - Find optimal Go/NoGo thresholds for two binary endpoints by
+  grid search over candidate gamma value pairs
+* `getgamma2cont()` - Find optimal Go/NoGo thresholds for two continuous endpoints
+  by grid search over candidate gamma value pairs
+
 ### Distribution Functions for Continuous Endpoints
 
 * `ptdiff_NI()` - CDF for the difference of two t-distributions via numerical
@@ -42,7 +53,6 @@ and continuous outcomes.
 
 ### Sampling Functions
 
-* `rnsbt()` - Random sampler for the bivariate non-standardised t-distribution
 * `rdirichlet()` - Random sampler for the Dirichlet distribution
 
 ### Utility Functions
