@@ -627,6 +627,8 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
 
       go_mask   <- (PrGo_hat   >= g1) & (PrNoGo_hat <  g2)
       nogo_mask <- (PrNoGo_hat >= g2) & (PrGo_hat   <  g1)
+      go_mask[is.na(go_mask)]     <- FALSE
+      nogo_mask[is.na(nogo_mask)] <- FALSE
 
       PrGo_grid[k1, k2]   <- sum(w_mat[go_mask])
       PrNoGo_grid[k1, k2] <- sum(w_mat[nogo_mask])

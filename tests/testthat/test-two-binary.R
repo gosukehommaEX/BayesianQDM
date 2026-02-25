@@ -181,3 +181,144 @@ test_that("pbayesdecisionprob2bin input validation works", {
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE
   ))
 })
+
+# ---------------------------------------------------------------------------
+# getgamma2bin
+# Note: n1 = n2 = 4L keeps allmultinom() at C(7,3) = 35 rows per arm,
+#       giving 35 x 35 = 1225 combinations vs 165^2 = 27225 for n=8,
+#       which is necessary to keep test runtime under 10s for CRAN.
+# ---------------------------------------------------------------------------
+
+test_that("getgamma2bin posterior controlled returns correct class and structure", {
+  result <- getgamma2bin(
+    prob = 'posterior', design = 'controlled',
+    GoRegions = 1L, NoGoRegions = 9L,
+    pi_t1 = 0.30, pi_t2 = 0.25, rho_t = 0.0,
+    pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
+    target_go = 0.05, target_nogo = 0.20,
+    crit_go = '<', crit_nogo = '<',
+    sel_go = 'smallest', sel_nogo = 'largest',
+    n1 = 4L, n2 = 4L,
+    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+    theta.TV1   = 0.15, theta.MAV1  = 0.05,
+    theta.TV2   = 0.10, theta.MAV2  = 0.03,
+    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    m1 = NULL, m2 = NULL,
+    z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+    ae1 = NULL, ae2 = NULL,
+    nMC = 50L, method = 'Exact',
+    nsim = 100L,
+    gamma1_grid = seq(0.05, 0.95, by = 0.05),
+    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+  )
+  expect_s3_class(result, "getgamma2bin")
+  expect_true(all(c("gamma1", "gamma2", "PrGo_at_gamma", "PrNoGo_at_gamma",
+                    "gamma1_grid", "gamma2_grid",
+                    "PrGo_grid", "PrNoGo_grid") %in% names(result)))
+})
+
+test_that("getgamma2bin posterior controlled PrGo_grid and PrNoGo_grid in [0, 1]", {
+  result <- getgamma2bin(
+    prob = 'posterior', design = 'controlled',
+    GoRegions = 1L, NoGoRegions = 9L,
+    pi_t1 = 0.30, pi_t2 = 0.25, rho_t = 0.0,
+    pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
+    target_go = 0.05, target_nogo = 0.20,
+    crit_go = '<', crit_nogo = '<',
+    sel_go = 'smallest', sel_nogo = 'largest',
+    n1 = 4L, n2 = 4L,
+    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+    theta.TV1   = 0.15, theta.MAV1  = 0.05,
+    theta.TV2   = 0.10, theta.MAV2  = 0.03,
+    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    m1 = NULL, m2 = NULL,
+    z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+    ae1 = NULL, ae2 = NULL,
+    nMC = 50L, method = 'Exact',
+    nsim = 100L,
+    gamma1_grid = seq(0.05, 0.95, by = 0.05),
+    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+  )
+  expect_true(all(result$PrGo_grid >= 0 & result$PrGo_grid <= 1))
+  expect_true(all(result$PrNoGo_grid >= 0 & result$PrNoGo_grid <= 1))
+  expect_equal(dim(result$PrGo_grid),
+               c(length(result$gamma1_grid), length(result$gamma2_grid)))
+})
+
+test_that("getgamma2bin posterior controlled gamma values in (0, 1) or NA", {
+  result <- getgamma2bin(
+    prob = 'posterior', design = 'controlled',
+    GoRegions = 1L, NoGoRegions = 9L,
+    pi_t1 = 0.30, pi_t2 = 0.25, rho_t = 0.0,
+    pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
+    target_go = 0.05, target_nogo = 0.20,
+    crit_go = '<', crit_nogo = '<',
+    sel_go = 'smallest', sel_nogo = 'largest',
+    n1 = 4L, n2 = 4L,
+    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+    theta.TV1   = 0.15, theta.MAV1  = 0.05,
+    theta.TV2   = 0.10, theta.MAV2  = 0.03,
+    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    m1 = NULL, m2 = NULL,
+    z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+    ae1 = NULL, ae2 = NULL,
+    nMC = 50L, method = 'Exact',
+    nsim = 100L,
+    gamma1_grid = seq(0.05, 0.95, by = 0.05),
+    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+  )
+  if (!is.na(result$gamma1)) expect_true(result$gamma1 > 0 && result$gamma1 < 1)
+  if (!is.na(result$gamma2)) expect_true(result$gamma2 > 0 && result$gamma2 < 1)
+})
+
+test_that("getgamma2bin predictive controlled returns correct class", {
+  result <- getgamma2bin(
+    prob = 'predictive', design = 'controlled',
+    GoRegions = 1L, NoGoRegions = 4L,
+    pi_t1 = 0.30, pi_t2 = 0.25, rho_t = 0.0,
+    pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
+    target_go = 0.05, target_nogo = 0.20,
+    crit_go = '<', crit_nogo = '<',
+    sel_go = 'smallest', sel_nogo = 'largest',
+    n1 = 4L, n2 = 4L,
+    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+    theta.TV1   = NULL, theta.MAV1  = NULL,
+    theta.TV2   = NULL, theta.MAV2  = NULL,
+    theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+    m1 = 20L, m2 = 20L,
+    z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+    ae1 = NULL, ae2 = NULL,
+    nMC = 50L, method = 'Exact',
+    nsim = 100L,
+    gamma1_grid = seq(0.05, 0.95, by = 0.05),
+    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+  )
+  expect_s3_class(result, "getgamma2bin")
+})
+
+test_that("getgamma2bin input validation: invalid prob", {
+  expect_error(getgamma2bin(
+    prob = 'invalid', design = 'controlled',
+    GoRegions = 1L, NoGoRegions = 9L,
+    pi_t1 = 0.30, pi_t2 = 0.25, rho_t = 0.0,
+    pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
+    target_go = 0.05, target_nogo = 0.20,
+    n1 = 4L, n2 = 4L,
+    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+    theta.TV1 = 0.15, theta.MAV1 = 0.05,
+    theta.TV2 = 0.10, theta.MAV2 = 0.03
+  ))
+})
