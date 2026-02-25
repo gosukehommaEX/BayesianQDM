@@ -15,20 +15,29 @@
 #'        Must be \code{'controlled'}, \code{'uncontrolled'}, or
 #'        \code{'external'}.
 #' @param theta.TV1 A numeric scalar giving the target value (TV) threshold
-#'        for Endpoint 1.  For \code{prob = 'posterior'}, must satisfy
-#'        \code{theta.TV1 > theta.MAV1}.  For \code{prob = 'predictive'},
-#'        serves as the null hypothesis value and must equal
-#'        \code{theta.MAV1}.
+#'        for Endpoint 1.  Required when \code{prob = 'posterior'}; must
+#'        satisfy \code{theta.TV1 > theta.MAV1}.  Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
 #' @param theta.MAV1 A numeric scalar giving the minimum acceptable value
-#'        (MAV) threshold for Endpoint 1.  For \code{prob = 'predictive'},
-#'        must equal \code{theta.TV1}.
+#'        (MAV) threshold for Endpoint 1.  Required when
+#'        \code{prob = 'posterior'}; must satisfy
+#'        \code{theta.TV1 > theta.MAV1}.  Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
 #' @param theta.TV2 A numeric scalar giving the target value (TV) threshold
-#'        for Endpoint 2.  For \code{prob = 'posterior'}, must satisfy
-#'        \code{theta.TV2 > theta.MAV2}.  For \code{prob = 'predictive'},
-#'        must equal \code{theta.MAV2}.
+#'        for Endpoint 2.  Required when \code{prob = 'posterior'}; must
+#'        satisfy \code{theta.TV2 > theta.MAV2}.  Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
 #' @param theta.MAV2 A numeric scalar giving the minimum acceptable value
-#'        (MAV) threshold for Endpoint 2.  For \code{prob = 'predictive'},
-#'        must equal \code{theta.TV2}.
+#'        (MAV) threshold for Endpoint 2.  Required when
+#'        \code{prob = 'posterior'}; must satisfy
+#'        \code{theta.TV2 > theta.MAV2}.  Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta.NULL1 A numeric scalar giving the null hypothesis threshold
+#'        for Endpoint 1.  Required when \code{prob = 'predictive'};
+#'        set to \code{NULL} when \code{prob = 'posterior'}.
+#' @param theta.NULL2 A numeric scalar giving the null hypothesis threshold
+#'        for Endpoint 2.  Required when \code{prob = 'predictive'};
+#'        set to \code{NULL} when \code{prob = 'posterior'}.
 #' @param x1_00 A non-negative integer giving the count of (0,0) responses
 #'        in group 1 (Endpoint 1 = 0, Endpoint 2 = 0).
 #' @param x1_01 A non-negative integer giving the count of (0,1) responses
@@ -93,19 +102,19 @@
 #'        otherwise set to \code{NULL}.
 #' @param xe1_00 A non-negative integer giving the external group 1 count
 #'        for pattern (0,0).  Required when \code{design = 'external'} and
-#'        external treatment data are used; otherwise set to \code{NULL}.
+#'        external treatment data are used; otherwise \code{NULL}.
 #' @param xe1_01 A non-negative integer giving the external group 1 count
-#'        for pattern (0,1).  Required for external treatment data; otherwise
-#'        \code{NULL}.
+#'        for pattern (0,1).  Required for external treatment data;
+#'        otherwise \code{NULL}.
 #' @param xe1_10 A non-negative integer giving the external group 1 count
-#'        for pattern (1,0).  Required for external treatment data; otherwise
-#'        \code{NULL}.
+#'        for pattern (1,0).  Required for external treatment data;
+#'        otherwise \code{NULL}.
 #' @param xe1_11 A non-negative integer giving the external group 1 count
-#'        for pattern (1,1).  Required for external treatment data; otherwise
-#'        \code{NULL}.
+#'        for pattern (1,1).  Required for external treatment data;
+#'        otherwise \code{NULL}.
 #' @param xe2_00 A non-negative integer giving the external group 2 count
 #'        for pattern (0,0).  Required when \code{design = 'external'} and
-#'        external control data are used; otherwise set to \code{NULL}.
+#'        external control data are used; otherwise \code{NULL}.
 #' @param xe2_01 A non-negative integer giving the external group 2 count
 #'        for pattern (0,1).  Required for external control data; otherwise
 #'        \code{NULL}.
@@ -207,6 +216,7 @@
 #'   prob = 'posterior', design = 'controlled',
 #'   theta.TV1 = 0.20, theta.MAV1 = 0.10,
 #'   theta.TV2 = 0.20, theta.MAV2 = 0.10,
+#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
 #'   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
 #'   x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
 #'   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
@@ -222,8 +232,9 @@
 #' # Example 2: Posterior predictive probability, controlled design
 #' pbayespostpred2bin(
 #'   prob = 'predictive', design = 'controlled',
-#'   theta.TV1 = 0.15, theta.MAV1 = 0.15,
-#'   theta.TV2 = 0.15, theta.MAV2 = 0.15,
+#'   theta.TV1 = NULL, theta.MAV1 = NULL,
+#'   theta.TV2 = NULL, theta.MAV2 = NULL,
+#'   theta.NULL1 = 0.15, theta.NULL2 = 0.15,
 #'   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
 #'   x2_00 = 6, x2_01 = 3, x2_10 = 4, x2_11 = 2,
 #'   a1_00 = 1, a1_01 = 1, a1_10 = 1, a1_11 = 1,
@@ -239,53 +250,18 @@
 #' # Example 3: Posterior probability, external control design
 #' pbayespostpred2bin(
 #'   prob = 'posterior', design = 'external',
-#'   theta.TV1 = 0.15, theta.MAV1 = 0.08,
-#'   theta.TV2 = 0.15, theta.MAV2 = 0.08,
-#'   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
-#'   x2_00 = 5, x2_01 = 3, x2_10 = 4, x2_11 = 3,
+#'   theta.TV1 = 0.20, theta.MAV1 = 0.10,
+#'   theta.TV2 = 0.20, theta.MAV2 = 0.10,
+#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
+#'   x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
 #'   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
 #'   a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
 #'   m1 = NULL, m2 = NULL,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-#'   xe1_00 = 2, xe1_01 = 2, xe1_10 = 3, xe1_11 = 8,
-#'   xe2_00 = 8, xe2_01 = 4, xe2_10 = 6, xe2_11 = 2,
-#'   ae1 = 0.5, ae2 = 0.5,
-#'   nMC = 10000
-#' )
-#'
-#' # Example 4: Posterior probability, uncontrolled design
-#' # Hypothetical control: a2_* specifies the prior, z* specifies
-#' # pseudo-counts reflecting external knowledge about control response
-#' pbayespostpred2bin(
-#'   prob = 'posterior', design = 'uncontrolled',
-#'   theta.TV1 = 0.20, theta.MAV1 = 0.10,
-#'   theta.TV2 = 0.20, theta.MAV2 = 0.10,
-#'   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
-#'   x2_00 = NULL, x2_01 = NULL, x2_10 = NULL, x2_11 = NULL,
-#'   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-#'   a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-#'   m1 = NULL, m2 = NULL,
-#'   z00 = 2, z01 = 1, z10 = 2, z11 = 1,
 #'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = NULL, ae2 = NULL,
-#'   nMC = 10000
-#' )
-#'
-#' # Example 5: Posterior predictive probability, uncontrolled design
-#' pbayespostpred2bin(
-#'   prob = 'predictive', design = 'uncontrolled',
-#'   theta.TV1 = 0.15, theta.MAV1 = 0.15,
-#'   theta.TV2 = 0.15, theta.MAV2 = 0.15,
-#'   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
-#'   x2_00 = NULL, x2_01 = NULL, x2_10 = NULL, x2_11 = NULL,
-#'   a1_00 = 1, a1_01 = 1, a1_10 = 1, a1_11 = 1,
-#'   a2_00 = 1, a2_01 = 1, a2_10 = 1, a2_11 = 1,
-#'   m1 = 50, m2 = 50,
-#'   z00 = 2, z01 = 1, z10 = 2, z11 = 1,
-#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = NULL, ae2 = NULL,
+#'   xe2_00 = 3L, xe2_01 = 2L, xe2_10 = 3L, xe2_11 = 2L,
+#'   ae1 = NULL, ae2 = 0.5,
 #'   nMC = 10000
 #' )
 #'
@@ -293,8 +269,9 @@
 #' @export
 pbayespostpred2bin <- function(prob    = 'posterior',
                                design  = 'controlled',
-                               theta.TV1, theta.MAV1,
-                               theta.TV2, theta.MAV2,
+                               theta.TV1   = NULL, theta.MAV1  = NULL,
+                               theta.TV2   = NULL, theta.MAV2  = NULL,
+                               theta.NULL1 = NULL, theta.NULL2 = NULL,
                                x1_00, x1_01, x1_10, x1_11,
                                x2_00  = NULL, x2_01  = NULL,
                                x2_10  = NULL, x2_11  = NULL,
@@ -331,28 +308,35 @@ pbayespostpred2bin <- function(prob    = 'posterior',
   nMC <- as.integer(nMC)
 
   # --- Threshold parameters ---
-  for (nm in c("theta.TV1", "theta.MAV1", "theta.TV2", "theta.MAV2")) {
-    val <- get(nm)
-    if (!is.numeric(val) || length(val) != 1L || is.na(val)) {
-      stop(paste0("'", nm, "' must be a single numeric value"))
-    }
-  }
-
   if (prob == 'posterior') {
+    for (nm in c("theta.TV1", "theta.MAV1", "theta.TV2", "theta.MAV2")) {
+      val <- get(nm)
+      if (is.null(val)) {
+        stop(paste0("'", nm, "' must be non-NULL when prob = 'posterior'"))
+      }
+      if (!is.numeric(val) || length(val) != 1L || is.na(val)) {
+        stop(paste0("'", nm, "' must be a single numeric value"))
+      }
+    }
     if (theta.TV1 <= theta.MAV1) {
-      stop("'theta.TV1' must be strictly greater than 'theta.MAV1' when prob = 'posterior'")
+      stop("'theta.TV1' must be strictly greater than 'theta.MAV1'")
     }
     if (theta.TV2 <= theta.MAV2) {
-      stop("'theta.TV2' must be strictly greater than 'theta.MAV2' when prob = 'posterior'")
+      stop("'theta.TV2' must be strictly greater than 'theta.MAV2'")
     }
   } else {
-    # For predictive, TV and MAV both serve as the null threshold
-    if (theta.TV1 != theta.MAV1) {
-      stop("'theta.TV1' must equal 'theta.MAV1' when prob = 'predictive'")
+    for (nm in c("theta.NULL1", "theta.NULL2")) {
+      val <- get(nm)
+      if (is.null(val)) {
+        stop(paste0("'", nm, "' must be non-NULL when prob = 'predictive'"))
+      }
+      if (!is.numeric(val) || length(val) != 1L || is.na(val)) {
+        stop(paste0("'", nm, "' must be a single numeric value"))
+      }
     }
-    if (theta.TV2 != theta.MAV2) {
-      stop("'theta.TV2' must equal 'theta.MAV2' when prob = 'predictive'")
-    }
+    # Convert null thresholds: TV = MAV = NULL for predictive probability
+    theta.TV1  <- theta.NULL1;  theta.MAV1 <- theta.NULL1
+    theta.TV2  <- theta.NULL2;  theta.MAV2 <- theta.NULL2
   }
 
   # --- Group 1 observed counts (always required) ---

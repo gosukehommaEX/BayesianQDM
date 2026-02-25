@@ -717,9 +717,10 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
         for (i in seq_len(K)) {
           Pr_R <- pbayespostpred2bin(
-            prob    = prob,  design  = design,
-            theta.TV1 = theta.TV1,   theta.MAV1 = theta.MAV1,
-            theta.TV2 = theta.TV2,   theta.MAV2 = theta.MAV2,
+            prob        = prob,        design      = design,
+            theta.TV1   = theta.TV1,   theta.MAV1  = theta.MAV1,
+            theta.TV2   = theta.TV2,   theta.MAV2  = theta.MAV2,
+            theta.NULL1 = theta.NULL1, theta.NULL2 = theta.NULL2,
             x1_00 = xt_uniq[i, 1L], x1_01 = xt_uniq[i, 2L],
             x1_10 = xt_uniq[i, 3L], x1_11 = xt_uniq[i, 4L],
             x2_00 = NULL, x2_01 = NULL, x2_10 = NULL, x2_11 = NULL,
@@ -763,9 +764,10 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
         for (i in seq_len(K)) {
           Pr_R <- pbayespostpred2bin(
-            prob    = prob,  design  = design,
-            theta.TV1 = theta.TV1,   theta.MAV1 = theta.MAV1,
-            theta.TV2 = theta.TV2,   theta.MAV2 = theta.MAV2,
+            prob        = prob,        design      = design,
+            theta.TV1   = theta.TV1,   theta.MAV1  = theta.MAV1,
+            theta.TV2   = theta.TV2,   theta.MAV2  = theta.MAV2,
+            theta.NULL1 = theta.NULL1, theta.NULL2 = theta.NULL2,
             x1_00 = xt_uniq[i, 1L], x1_01 = xt_uniq[i, 2L],
             x1_10 = xt_uniq[i, 3L], x1_11 = xt_uniq[i, 4L],
             x2_00 = xc_uniq[i, 1L], x2_01 = xc_uniq[i, 2L],
