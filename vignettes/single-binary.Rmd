@@ -1,0 +1,675 @@
+---
+title: "Single Binary Endpoint"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Single Binary Endpoint}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  fig.width  = 7,
+  fig.height = 4.5
+)
+library(BayesianQDM)
+```
+
+## Motivating Scenario
+
+We use a hypothetical Phase IIa proof-of-concept (PoC) trial in
+moderate-to-severe rheumatoid arthritis (RA). The investigational drug
+is compared with placebo in a 1:1 randomised controlled trial with
+$n_1 = n_2 = 12$ patients per arm.
+
+**Endpoint**: ACR20 response rate (proportion of patients achieving
+$\ge 20\%$ improvement in ACR criteria).
+
+**Clinically meaningful thresholds** (posterior probability):
+
+- Target Value (TV) = 0.20 (treatment–control difference)
+- Minimum Acceptable Value (MAV) = 0.05
+
+**Null hypothesis threshold** (predictive probability):
+$\theta_{\mathrm{NULL}} = 0.10$.
+
+**Decision thresholds**: $\gamma_1 = 0.80$ (Go), $\gamma_2 = 0.20$ (NoGo).
+
+**Observed data** (used in Sections 2–4):
+$y_1 = 8$ responders out of $n_1 = 12$ (treatment);
+$y_2 = 3$ responders out of $n_2 = 12$ (control).
+
+---
+
+## 1. Bayesian Model: Beta-Binomial Conjugate
+
+### 1.1 Prior Distribution
+
+Let $\pi_j$ denote the true response rate in group $j$
+($j = 1$: treatment, $j = 2$: control). We model the number of
+responders as
+
+$$y_j \mid \pi_j \;\sim\; \mathrm{Binomial}(n_j,\, \pi_j),$$
+
+and place independent Beta priors on each rate:
+
+$$\pi_j \;\sim\; \mathrm{Beta}(a_j,\, b_j),$$
+
+where $a_j > 0$ and $b_j > 0$ are the shape parameters.
+
+The **Jeffreys prior** corresponds to $a_j = b_j = 0.5$, giving a
+weakly informative, symmetric prior on $(0, 1)$.
+The **uniform prior** corresponds to $a_j = b_j = 1$.
+
+### 1.2 Posterior Distribution
+
+By conjugacy of the Beta-Binomial model, the posterior after observing
+$y_j$ responders among $n_j$ patients is
+
+$$\pi_j \mid y_j \;\sim\; \mathrm{Beta}(a_j^*,\, b_j^*),$$
+
+where the posterior shape parameters are
+
+$$a_j^* = a_j + y_j, \qquad b_j^* = b_j + n_j - y_j.$$
+
+The posterior mean and variance are
+
+$$E[\pi_j \mid y_j] = \frac{a_j^*}{a_j^* + b_j^*}, \qquad
+  \mathrm{Var}(\pi_j \mid y_j) =
+  \frac{a_j^*\, b_j^*}{(a_j^* + b_j^*)^2\,(a_j^* + b_j^* + 1)}.$$
+
+### 1.3 Posterior of the Treatment Effect
+
+The treatment effect is $\theta = \pi_1 - \pi_2$.  Since the two
+groups are independent,
+$\theta \mid \mathbf{y}$ follows the distribution of the difference
+of two independent Beta random variables:
+
+$$\pi_1 \mid y_1 \;\sim\; \mathrm{Beta}(a_1^*,\, b_1^*), \qquad
+  \pi_2 \mid y_2 \;\sim\; \mathrm{Beta}(a_2^*,\, b_2^*).$$
+
+There is no closed-form CDF for $\theta = \pi_1 - \pi_2$, so the
+posterior probability
+
+$$P(\theta > \theta_0 \mid \mathbf{y}) = P(\pi_1 - \pi_2 > \theta_0
+  \mid \mathbf{y})$$
+
+is evaluated by the convolution integral implemented in `pbetadiff()`:
+
+$$P(\pi_1 - \pi_2 > \theta_0) =
+  \int_0^1
+  F_{\mathrm{Beta}(a_2^*, b_2^*)}\!\left(x - \theta_0\right)\,
+  f_{\mathrm{Beta}(a_1^*, b_1^*)}\!(x)\; dx,$$
+
+where $F_{\mathrm{Beta}(\alpha,\beta)}$ is the Beta CDF and
+$f_{\mathrm{Beta}(\alpha,\beta)}$ is the Beta PDF.
+This one-dimensional integral is evaluated by adaptive Gauss-Kronrod
+quadrature via `stats::integrate()`.
+
+---
+
+## 2. Posterior Predictive Probability
+
+### 2.1 Beta-Binomial Predictive Distribution
+
+Let $\tilde{y}_j \mid \pi_j \sim \mathrm{Binomial}(m_j, \pi_j)$ be
+future trial counts with $m_j$ future patients. Integrating out $\pi_j$
+over its Beta posterior gives the Beta-Binomial predictive distribution:
+
+$$P(\tilde{y}_j = k \mid y_j) =
+  \binom{m_j}{k}
+  \frac{B(a_j^* + k,\; b_j^* + m_j - k)}{B(a_j^*,\; b_j^*)},
+  \quad k = 0, 1, \ldots, m_j,$$
+
+where $B(\cdot, \cdot)$ is the Beta function.
+
+### 2.2 Posterior Predictive Probability of Future Success
+
+The posterior predictive probability that the future treatment difference
+exceeds $\theta_{\mathrm{NULL}}$ is
+
+$$P\!\left(\frac{\tilde{y}_1}{m_1} - \frac{\tilde{y}_2}{m_2}
+  > \theta_{\mathrm{NULL}} \;\Big|\; \mathbf{y}\right)
+  = \sum_{k_1=0}^{m_1} \sum_{k_2=0}^{m_2}
+  \mathbf{1}\!\left[\frac{k_1}{m_1} - \frac{k_2}{m_2} >
+  \theta_{\mathrm{NULL}}\right]\,
+  P(\tilde{y}_1 = k_1 \mid y_1)\,
+  P(\tilde{y}_2 = k_2 \mid y_2).$$
+
+This double sum over all $(m_1 + 1)(m_2 + 1)$ outcome combinations is
+evaluated exactly by `pbetabinomdiff()`.
+
+---
+
+## 3. Study Designs
+
+### 3.1 Controlled Design
+
+Standard parallel-group RCT with observed data from both arms.  The
+posterior shape parameters for group $j$ are
+
+$$a_j^* = a_j + y_j, \qquad b_j^* = b_j + n_j - y_j,$$
+
+and the posterior probability is $P(\pi_1 - \pi_2 > \theta_0 \mid \mathbf{y})$
+computed via `pbetadiff()`.
+
+**Posterior probability at TV and MAV**:
+
+```{r ctrl-post}
+# P(pi1 - pi2 > TV  | data)
+p_tv <- pbayespostpred1bin(
+  prob = 'posterior', design = 'controlled', theta0 = 0.20,
+  n1 = 12, n2 = 12, y1 = 8, y2 = 3,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, z = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  lower.tail = FALSE
+)
+
+# P(pi1 - pi2 > MAV | data)
+p_mav <- pbayespostpred1bin(
+  prob = 'posterior', design = 'controlled', theta0 = 0.05,
+  n1 = 12, n2 = 12, y1 = 8, y2 = 3,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, z = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  lower.tail = FALSE
+)
+
+cat(sprintf("P(theta > TV  | data) = %.4f  -> Go  criterion (>= 0.80): %s\n",
+            p_tv,  ifelse(p_tv  >= 0.80, "YES", "NO")))
+cat(sprintf("P(theta > MAV | data) = %.4f  -> NoGo criterion (<= 0.20): %s\n",
+            p_mav, ifelse(p_mav <= 0.20, "YES", "NO")))
+cat(sprintf("Decision: %s\n",
+            ifelse(p_tv >= 0.80, "Go",
+                   ifelse(p_mav <= 0.20, "NoGo", "Gray"))))
+```
+
+**Posterior predictive probability** (future Phase III: $m_1 = m_2 = 40$):
+
+```{r ctrl-pred}
+p_pred <- pbayespostpred1bin(
+  prob = 'predictive', design = 'controlled', theta0 = 0.10,
+  n1 = 12, n2 = 12, y1 = 8, y2 = 3,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  m1 = 40, m2 = 40, z = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  lower.tail = FALSE
+)
+cat(sprintf("Predictive probability (m1 = m2 = 40) = %.4f\n", p_pred))
+```
+
+**Vectorised computation over all possible outcomes**:
+
+The function accepts vectors for `y1` and `y2`, enabling efficient
+computation of the posterior probability for every possible outcome pair
+$(y_1, y_2) \in \{0,\ldots,n_1\} \times \{0,\ldots,n_2\}$.
+
+```{r ctrl-vector}
+grid <- expand.grid(y1 = 0:12, y2 = 0:12)
+p_all <- pbayespostpred1bin(
+  prob = 'posterior', design = 'controlled', theta0 = 0.20,
+  n1 = 12, n2 = 12, y1 = grid$y1, y2 = grid$y2,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, z = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  lower.tail = FALSE
+)
+# Show results for a selection of outcome pairs
+sel <- data.frame(y1 = grid$y1, y2 = grid$y2, P_gt_TV = round(p_all, 4))
+head(sel[order(-sel$P_gt_TV), ], 10)
+```
+
+### 3.2 Uncontrolled Design (Single-Arm)
+
+When no concurrent control arm is enrolled, a **hypothetical control
+responder count** $z$ is specified from historical knowledge. The
+control posterior is then
+
+$$\pi_2 \mid z \;\sim\; \mathrm{Beta}(a_2 + z,\; b_2 + n_2 - z),$$
+
+where $n_2$ is the hypothetical control sample size and $z$ is the
+assumed number of hypothetical responders ($0 \le z \le n_2$). Only the
+treatment arm data $y_1$ are observed; $y_2$ is set to `NULL`.
+
+```{r unctrl-post}
+# Hypothetical control: z = 2 responders out of n2 = 12
+p_unctrl <- pbayespostpred1bin(
+  prob = 'posterior', design = 'uncontrolled', theta0 = 0.20,
+  n1 = 12, n2 = 12, y1 = 8, y2 = NULL,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, z = 2L,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  lower.tail = FALSE
+)
+cat(sprintf("P(theta > TV | data, uncontrolled, z=2) = %.4f\n", p_unctrl))
+```
+
+**Effect of the hypothetical control count**: varying $z$ shows the
+sensitivity to the assumed control rate.
+
+```{r unctrl-z-sens}
+z_seq <- 0:12
+p_z   <- sapply(z_seq, function(z) {
+  pbayespostpred1bin(
+    prob = 'posterior', design = 'uncontrolled', theta0 = 0.20,
+    n1 = 12, n2 = 12, y1 = 8, y2 = NULL,
+    a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+    m1 = NULL, m2 = NULL, z = z,
+    ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+    lower.tail = FALSE
+  )
+})
+data.frame(z = z_seq, P_gt_TV = round(p_z, 4))
+```
+
+### 3.3 External Control Design (Power Prior)
+
+Historical or external data are incorporated via a **power prior** with
+borrowing weight $\alpha_{ej} \in (0, 1]$. The augmented prior shape
+parameters are
+
+$$\alpha_j^* = a_j + \alpha_{ej}\, y_{ej}, \qquad
+  \beta_j^* = b_j + \alpha_{ej}\,(n_{ej} - y_{ej}),$$
+
+where $n_{ej}$ and $y_{ej}$ are the external sample size and responder
+count for group $j$. These serve as the prior for the current PoC data,
+yielding a closed-form posterior:
+
+$$\pi_j \mid y_j \;\sim\;
+  \mathrm{Beta}\!\left(\alpha_j^* + y_j,\; \beta_j^* + n_j - y_j\right).$$
+
+Setting $\alpha_{ej} = 1$ corresponds to full borrowing (the external
+data are treated as if they came from the current trial); $\alpha_{ej} \to 0$
+recovers the result from the current data alone with the original prior.
+
+Here, external data for both arms: $n_{e1} = 15$, $y_{e1} = 5$,
+$n_{e2} = 15$, $y_{e2} = 4$, borrowing weights $\alpha_{e1} = \alpha_{e2} = 0.5$:
+
+```{r ext-post}
+p_ext <- pbayespostpred1bin(
+  prob = 'posterior', design = 'external', theta0 = 0.20,
+  n1 = 12, n2 = 12, y1 = 8, y2 = 3,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  m1 = NULL, m2 = NULL, z = NULL,
+  ne1 = 15L, ne2 = 15L, ye1 = 5L, ye2 = 4L, ae1 = 0.5, ae2 = 0.5,
+  lower.tail = FALSE
+)
+cat(sprintf("P(theta > TV | data, external, ae=0.5) = %.4f\n", p_ext))
+```
+
+**Effect of the borrowing weight**: varying $\alpha_{e2}$ (control arm
+only) with fixed $\alpha_{e1} = 0.5$:
+
+```{r ext-borrowing}
+# ae must be in (0, 1]; avoid ae = 0
+ae_seq <- c(0.01, seq(0.1, 1.0, by = 0.1))
+p_ae   <- sapply(ae_seq, function(ae) {
+  pbayespostpred1bin(
+    prob = 'posterior', design = 'external', theta0 = 0.20,
+    n1 = 12, n2 = 12, y1 = 8, y2 = 3,
+    a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+    m1 = NULL, m2 = NULL, z = NULL,
+    ne1 = 15L, ne2 = 15L, ye1 = 5L, ye2 = 4L, ae1 = 0.5, ae2 = ae,
+    lower.tail = FALSE
+  )
+})
+data.frame(ae2 = ae_seq, P_gt_TV = round(p_ae, 4))
+```
+
+---
+
+## 4. Operating Characteristics
+
+### 4.1 Definition
+
+For given true response rates $(\pi_1, \pi_2)$, the operating
+characteristics are computed by **exact enumeration** over all
+$(n_1 + 1)(n_2 + 1)$ possible outcome pairs
+$(y_1, y_2) \in \{0,\ldots,n_1\} \times \{0,\ldots,n_2\}$:
+
+$$\Pr(\mathrm{Go}) =
+  \sum_{y_1=0}^{n_1} \sum_{y_2=0}^{n_2}
+  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma_1\right]\,
+  \binom{n_1}{y_1} \pi_1^{y_1}(1-\pi_1)^{n_1-y_1}\,
+  \binom{n_2}{y_2} \pi_2^{y_2}(1-\pi_2)^{n_2-y_2},$$
+
+where
+
+$$g_{\mathrm{Go}}(y_1, y_2) = P(\pi_1 - \pi_2 > \mathrm{TV} \mid y_1, y_2),$$
+$$g_{\mathrm{NoGo}}(y_1, y_2) = P(\pi_1 - \pi_2 > \mathrm{MAV} \mid y_1, y_2),$$
+
+and the decision outcomes are classified as:
+
+- **Go**: $g_{\mathrm{Go}} \ge \gamma_1$ and $g_{\mathrm{NoGo}} > \gamma_2$
+- **NoGo**: $g_{\mathrm{Go}} < \gamma_1$ and $g_{\mathrm{NoGo}} \le \gamma_2$
+- **Gray**: all remaining outcomes
+
+### 4.2 Controlled Design — Multiple Scenarios
+
+```{r oc-controlled}
+oc_ctrl <- pbayesdecisionprob1bin(
+  prob      = 'posterior',
+  design    = 'controlled',
+  theta.TV  = 0.20,  theta.MAV = 0.05,  theta.NULL = NULL,
+  gamma1    = 0.80,  gamma2    = 0.20,
+  pi1       = c(0.10, 0.20, 0.30, 0.40, 0.55, 0.70),
+  pi2       = rep(0.10, 6),
+  n1 = 12,  n2 = 12,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+print(oc_ctrl)
+```
+
+### 4.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment Effect
+
+```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect (pi1 - pi2). Controlled design, Jeffreys prior, exact enumeration. True pi2 = 0.10, n1 = n2 = 12, gamma1 = 0.80, gamma2 = 0.20."}
+pi1_seq <- seq(0.05, 0.75, by = 0.05)
+
+oc_grid <- pbayesdecisionprob1bin(
+  prob      = 'posterior',
+  design    = 'controlled',
+  theta.TV  = 0.20,  theta.MAV = 0.05,  theta.NULL = NULL,
+  gamma1    = 0.80,  gamma2    = 0.20,
+  pi1       = pi1_seq,
+  pi2       = rep(0.10, length(pi1_seq)),
+  n1 = 12,  n2 = 12,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+delta <- oc_grid$pi1 - 0.10   # true treatment effect
+
+old_par <- par(mar = c(4.5, 4.5, 3, 1))
+
+plot(delta, oc_grid$Go,
+     type = "b", pch = 16, lwd = 2, col = "#2166AC",
+     ylim = c(0, 1),
+     xlab = expression(pi[1] - pi[2]),
+     ylab = "Probability",
+     main = "Operating Characteristics: Controlled Design (Posterior Prob.)",
+     las  = 1)
+lines(delta, oc_grid$NoGo,
+      type = "b", pch = 17, lwd = 2, col = "#D6604D")
+lines(delta, oc_grid$Gray,
+      type = "b", pch = 15, lwd = 2, col = "#878787")
+
+abline(h = c(0.20, 0.80), lty = 2, col = "gray50")
+abline(v = c(0.05, 0.20), lty = 3, col = "gray70")
+
+text(0.05 + 0.01, 0.04, "MAV", col = "gray40", cex = 0.8, adj = 0)
+text(0.20 + 0.01, 0.04, "TV",  col = "gray40", cex = 0.8, adj = 0)
+
+legend("right",
+       legend = c("Pr(Go)", "Pr(NoGo)", "Pr(Gray)"),
+       col    = c("#2166AC", "#D6604D", "#878787"),
+       pch    = c(16, 17, 15), lwd = 2, bty = "n")
+
+par(old_par)
+```
+
+### 4.4 Uncontrolled Design — Operating Characteristics
+
+For the uncontrolled design, `pbayesdecisionprob1bin()` fixes the
+hypothetical control count at $z$ and enumerates only $y_1 \in \{0,\ldots,n_1\}$,
+weighting by $\mathrm{Binomial}(n_1, \pi_1)$.
+
+```{r oc-uncontrolled}
+oc_unctrl <- pbayesdecisionprob1bin(
+  prob      = 'posterior',
+  design    = 'uncontrolled',
+  theta.TV  = 0.20,  theta.MAV = 0.05,  theta.NULL = NULL,
+  gamma1    = 0.80,  gamma2    = 0.20,
+  pi1       = c(0.20, 0.30, 0.40, 0.55, 0.70),
+  pi2       = rep(0.10, 5),   # not used, but required
+  n1 = 12,  n2 = 12,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = 2L,
+  m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+print(oc_unctrl)
+```
+
+### 4.5 External Control Design — Operating Characteristics
+
+```{r oc-external}
+oc_ext <- pbayesdecisionprob1bin(
+  prob      = 'posterior',
+  design    = 'external',
+  theta.TV  = 0.20,  theta.MAV = 0.05,  theta.NULL = NULL,
+  gamma1    = 0.80,  gamma2    = 0.20,
+  pi1       = c(0.20, 0.30, 0.40, 0.55, 0.70),
+  pi2       = rep(0.10, 5),
+  n1 = 12,  n2 = 12,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = 15L, ne2 = 15L, ye1 = 5L, ye2 = 4L, ae1 = 0.5, ae2 = 0.5,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+print(oc_ext)
+```
+
+### 4.6 Predictive Probability — Operating Characteristics
+
+```{r oc-predictive}
+oc_pred <- pbayesdecisionprob1bin(
+  prob      = 'predictive',
+  design    = 'controlled',
+  theta.TV  = NULL, theta.MAV = NULL, theta.NULL = 0.10,
+  gamma1    = 0.80, gamma2    = 0.20,
+  pi1       = c(0.10, 0.20, 0.30, 0.40, 0.55, 0.70),
+  pi2       = rep(0.10, 6),
+  n1 = 12,  n2 = 12,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = NULL, m1 = 40L, m2 = 40L,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+print(oc_pred)
+```
+
+---
+
+## 5. Optimal Threshold Search
+
+### 5.1 Objective and Algorithm
+
+The `getgamma1bin()` function finds the optimal pair
+$(\gamma_1^*, \gamma_2^*)$ by grid search over
+$\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\} \subset (0, 1)$ at a
+**null scenario** $(\pi_1^{\mathrm{null}}, \pi_2^{\mathrm{null}})$.
+
+A **two-stage precompute-then-sweep** strategy is used:
+
+**Stage 1 (Precompute)**: all posterior/predictive probabilities
+$g_{\mathrm{Go}}(y_1, y_2)$ and $g_{\mathrm{NoGo}}(y_1, y_2)$ are
+computed once over all $(n_1 + 1)(n_2 + 1)$ outcome pairs — independently
+of $\gamma$.
+
+**Stage 2 (Sweep)**: for each candidate $\gamma \in \Gamma$,
+$\Pr(\mathrm{Go} \mid \gamma)$ and $\Pr(\mathrm{NoGo} \mid \gamma)$
+are obtained as weighted sums of indicator functions:
+
+$$\Pr(\mathrm{Go} \mid \gamma) = \sum_{y_1, y_2}
+  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma\right]\,
+  w(y_1, y_2),$$
+
+$$\Pr(\mathrm{NoGo} \mid \gamma) = \sum_{y_1, y_2}
+  \mathbf{1}\!\left[g_{\mathrm{NoGo}}(y_1, y_2) \le \gamma\right]\,
+  w(y_1, y_2),$$
+
+where $w(y_1, y_2) = \mathrm{Binom}(y_1; n_1, \pi_1)\,\mathrm{Binom}(y_2; n_2, \pi_2)$
+are the binomial weights under the null scenario.  No further calls to
+`pbayespostpred1bin()` are required at this stage.
+
+The sweep is vectorised using `outer()`, making the full grid search
+computationally negligible once Stage 1 is complete.
+
+The optimal $\gamma_1^*$ is the **smallest** (or largest, depending on
+`sel_go`) value in $\Gamma$ such that
+$\Pr(\mathrm{Go} \mid \gamma_1^*)$ satisfies the criterion against a
+target (e.g., $\Pr(\mathrm{Go}) < 0.05$). Analogously for $\gamma_2^*$.
+
+### 5.2 Example: Controlled Design, Posterior Probability
+
+```{r getgamma-ctrl}
+res_gamma <- getgamma1bin(
+  prob      = 'posterior',
+  design    = 'controlled',
+  theta.TV  = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
+  pi1 = 0.10, pi2 = 0.10,          # null scenario: no treatment effect
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go   = '<',  crit_nogo   = '<',
+  sel_go    = 'smallest', sel_nogo = 'largest',
+  n1 = 12L, n2 = 12L,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  gamma_grid = seq(0.01, 0.99, by = 0.01)
+)
+print(res_gamma)
+```
+
+### 5.3 Figure: Pr(Go) and Pr(NoGo) Over the Gamma Grid
+
+```{r gamma-plot, fig.cap = "Pr(Go) and Pr(NoGo) as a function of the candidate threshold gamma under the null scenario (pi1 = pi2 = 0.10). The optimal gamma1 (blue dashed line) is the smallest gamma satisfying Pr(Go) < 0.05. The optimal gamma2 (red dashed line) is the largest gamma satisfying Pr(NoGo) < 0.20."}
+grid_df <- data.frame(
+  gamma  = res_gamma$gamma_grid,
+  PrGo   = res_gamma$PrGo_grid,
+  PrNoGo = res_gamma$PrNoGo_grid
+)
+
+old_par2 <- par(mar = c(4.5, 4.5, 3, 1))
+
+plot(grid_df$gamma, grid_df$PrGo,
+     type = "l", lwd = 2, col = "#2166AC",
+     ylim = c(0, 1),
+     xlab = expression(gamma),
+     ylab = "Probability",
+     main = "Optimal Threshold Search: Pr(Go) and Pr(NoGo) vs. Gamma",
+     las  = 1)
+lines(grid_df$gamma, grid_df$PrNoGo,
+      lwd = 2, col = "#D6604D")
+
+abline(h = 0.05, lty = 2, col = "#2166AC", lwd = 1.2)
+abline(h = 0.20, lty = 2, col = "#D6604D", lwd = 1.2)
+
+if (!is.na(res_gamma$gamma1)) {
+  abline(v = res_gamma$gamma1, lty = 2, col = "#2166AC", lwd = 2)
+  text(res_gamma$gamma1 + 0.02, 0.88,
+       paste0("gamma1* = ", res_gamma$gamma1),
+       col = "#2166AC", cex = 0.85, adj = 0)
+}
+if (!is.na(res_gamma$gamma2)) {
+  abline(v = res_gamma$gamma2, lty = 2, col = "#D6604D", lwd = 2)
+  text(res_gamma$gamma2 - 0.02, 0.73,
+       paste0("gamma2* = ", res_gamma$gamma2),
+       col = "#D6604D", cex = 0.85, adj = 1)
+}
+
+legend("topright",
+       legend = c("Pr(Go | gamma)", "Pr(NoGo | gamma)",
+                  "Target Go = 0.05", "Target NoGo = 0.20"),
+       col    = c("#2166AC", "#D6604D", "#2166AC", "#D6604D"),
+       lty    = c(1, 1, 2, 2),
+       lwd    = c(2, 2, 1.2, 1.2),
+       bty    = "n", cex = 0.85)
+
+par(old_par2)
+```
+
+### 5.4 Example: Uncontrolled Design, Posterior Probability
+
+```{r getgamma-unctrl}
+res_gamma_unctrl <- getgamma1bin(
+  prob      = 'posterior',
+  design    = 'uncontrolled',
+  theta.TV  = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
+  pi1 = 0.10, pi2 = NULL,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go   = '<',  crit_nogo   = '<',
+  sel_go    = 'smallest', sel_nogo = 'largest',
+  n1 = 12L, n2 = 12L,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = 2L, m1 = NULL, m2 = NULL,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  gamma_grid = seq(0.01, 0.99, by = 0.01)
+)
+print(res_gamma_unctrl)
+```
+
+### 5.5 Example: External Control Design, Posterior Probability
+
+```{r getgamma-ext}
+res_gamma_ext <- getgamma1bin(
+  prob      = 'posterior',
+  design    = 'external',
+  theta.TV  = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
+  pi1 = 0.10, pi2 = 0.10,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go   = '<',  crit_nogo   = '<',
+  sel_go    = 'smallest', sel_nogo = 'largest',
+  n1 = 12L, n2 = 12L,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = NULL, m1 = NULL, m2 = NULL,
+  ne1 = 15L, ne2 = 15L, ye1 = 5L, ye2 = 4L, ae1 = 0.5, ae2 = 0.5,
+  gamma_grid = seq(0.01, 0.99, by = 0.01)
+)
+print(res_gamma_ext)
+```
+
+### 5.6 Example: Controlled Design, Predictive Probability
+
+```{r getgamma-pred}
+res_gamma_pred <- getgamma1bin(
+  prob      = 'predictive',
+  design    = 'controlled',
+  theta.TV  = NULL, theta.MAV = NULL, theta.NULL = 0.10,
+  pi1 = 0.10, pi2 = 0.10,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go   = '<',  crit_nogo   = '<',
+  sel_go    = 'smallest', sel_nogo = 'largest',
+  n1 = 12L, n2 = 12L,
+  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+  z = NULL, m1 = 40L, m2 = 40L,
+  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  gamma_grid = seq(0.01, 0.99, by = 0.01)
+)
+print(res_gamma_pred)
+```
+
+---
+
+## 6. Summary
+
+This vignette covered single binary endpoint analysis in BayesianQDM:
+
+1. **Bayesian model**: Beta-Binomial conjugate posterior with explicit
+   update formulae for $a_j^* = a_j + y_j$ and $b_j^* = b_j + n_j - y_j$;
+   Jeffreys prior ($a_j = b_j = 0.5$) as the recommended weakly
+   informative default.
+2. **Posterior probability**: evaluated via the convolution integral
+   in `pbetadiff()` — no closed-form CDF exists for the Beta difference.
+3. **Posterior predictive probability**: evaluated by exact enumeration
+   of the Beta-Binomial double sum in `pbetabinomdiff()`.
+4. **Three study designs**: controlled (both arms observed), uncontrolled
+   (hypothetical control count $z$ fixed from prior knowledge), external
+   control (power prior with borrowing weight $\alpha_{ej}$, augmenting
+   the prior by $\alpha_{ej}$ times the external sufficient statistics).
+5. **Operating characteristics**: computed by exact enumeration over all
+   $(n_1+1)(n_2+1)$ outcome pairs with binomial probability weights —
+   no simulation required for the binary endpoint.
+6. **Optimal threshold search**: two-stage precompute-then-sweep strategy
+   in `getgamma1bin()` using `outer()` for a fully vectorised gamma sweep.
+
+See `vignette("single-continuous")` for the analogous continuous endpoint
+analysis.

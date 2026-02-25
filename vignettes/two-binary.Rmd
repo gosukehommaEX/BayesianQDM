@@ -1,0 +1,846 @@
+---
+title: "Two Binary Endpoints"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Two Binary Endpoints}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  fig.width  = 7,
+  fig.height = 5.5
+)
+library(BayesianQDM)
+```
+
+## Motivating Scenario
+
+We extend the single-endpoint RA trial to a **bivariate binary** design
+with two co-primary binary endpoints:
+
+- **Endpoint 1**: ACR20 response (1 = responder, 0 = non-responder)
+- **Endpoint 2**: DAS28 remission (1 = achieved, 0 = not achieved)
+
+The trial enrolls $n_1 = n_2 = 10$ patients per arm in a 1:1 randomised
+controlled design.
+
+**Clinically meaningful thresholds** (posterior probability):
+
+|          | Endpoint 1 | Endpoint 2 |
+|----------|-----------|-----------|
+| TV       | 0.20      | 0.20      |
+| MAV      | 0.10      | 0.10      |
+
+**Null hypothesis thresholds** (predictive probability):
+$\theta_{\mathrm{NULL},1} = 0.15$, $\theta_{\mathrm{NULL},2} = 0.15$.
+
+**Decision thresholds**: $\gamma_1 = 0.80$ (Go), $\gamma_2 = 0.80$ (NoGo).
+
+**Observed data** (used in Sections 2--4): treatment arm counts for the
+four response patterns $(Y_1, Y_2) \in \{(0,0),(0,1),(1,0),(1,1)\}$:
+
+| Pattern | Treatment ($x_{1,lm}$) | Control ($x_{2,lm}$) |
+|---------|:---:|:---:|
+| (0, 0)  | 2   | 4   |
+| (0, 1)  | 1   | 2   |
+| (1, 0)  | 3   | 2   |
+| (1, 1)  | 4   | 2   |
+
+Marginal responder counts: treatment $y_{1,1} = 7$, $y_{1,2} = 5$;
+control $y_{2,1} = 4$, $y_{2,2} = 4$.
+
+---
+
+## 1. Bayesian Model: Dirichlet-Multinomial Conjugate
+
+### 1.1 Response Pattern Parameterisation
+
+Because the two endpoints within each patient are **correlated**, the
+bivariate binary outcome $(Y_{k1}, Y_{k2})$ is modelled jointly through
+its four-cell probability vector
+
+$$\mathbf{p}_k = (p_{k,00},\, p_{k,01},\, p_{k,10},\, p_{k,11})^\top,
+\qquad \mathbf{p}_k \in \Delta^3,$$
+
+where $\Delta^3$ denotes the 3-simplex (all entries non-negative and
+summing to 1), and the subscripts refer to the values of
+$(Y_{k1}, Y_{k2})$.
+
+The observed count vector $\mathbf{x}_k = (x_{k,00}, x_{k,01}, x_{k,10},
+x_{k,11})^\top$ with $\sum_{lm} x_{k,lm} = n_k$ follows:
+
+$$\mathbf{x}_k \mid \mathbf{p}_k \;\sim\;
+  \mathrm{Multinomial}(n_k,\, \mathbf{p}_k).$$
+
+The marginal response rates and treatment effects are obtained by summing:
+
+$$\pi_{k1} = p_{k,10} + p_{k,11}, \qquad
+  \pi_{k2} = p_{k,01} + p_{k,11},$$
+
+$$\theta_1 = \pi_{11} - \pi_{21}, \qquad
+  \theta_2 = \pi_{12} - \pi_{22}.$$
+
+### 1.2 Prior: Dirichlet Distribution
+
+The conjugate prior for $\mathbf{p}_k$ is the Dirichlet distribution:
+
+$$\mathbf{p}_k \;\sim\; \mathrm{Dir}(\alpha_{k,00},\, \alpha_{k,01},\,
+  \alpha_{k,10},\, \alpha_{k,11}),$$
+
+where all hyperparameters $\alpha_{k,lm} > 0$.  The symmetric choice
+$\alpha_{k,lm} = 0.25$ for all $lm$ is the natural extension of the
+Jeffreys prior to the four-cell multinomial and is used throughout
+this vignette.
+
+### 1.3 Posterior Distribution
+
+By conjugacy of the Dirichlet-Multinomial model, the posterior is:
+
+$$\mathbf{p}_k \mid \mathbf{x}_k \;\sim\;
+  \mathrm{Dir}(\alpha_{k,00}^*,\, \alpha_{k,01}^*,\,
+  \alpha_{k,10}^*,\, \alpha_{k,11}^*),$$
+
+where the posterior parameters are simply
+
+$$\alpha_{k,lm}^* = \alpha_{k,lm} + x_{k,lm}, \qquad
+  lm \in \{00, 01, 10, 11\}.$$
+
+The posterior mean for each cell is
+$E[p_{k,lm} \mid \mathbf{x}_k] = \alpha_{k,lm}^* / A_k^*$,
+where $A_k^* = \sum_{lm} \alpha_{k,lm}^*$.
+
+### 1.4 Within-Arm Correlation
+
+The within-arm Pearson correlation between Endpoint 1 and Endpoint 2 is
+
+$$\rho_k = \frac{p_{k,11} - \pi_{k1}\,\pi_{k2}}
+               {\sqrt{\pi_{k1}(1-\pi_{k1})\,\pi_{k2}(1-\pi_{k2})}}.$$
+
+When specifying operating characteristics scenarios, the true parameter
+vector $\mathbf{p}_k$ is specified via the reparameterisation
+$(\pi_{k1}, \pi_{k2}, \rho_k)$, with the feasibility constraint:
+
+$$\rho_{\min} = \frac{\max(0,\pi_{k1}+\pi_{k2}-1) - \pi_{k1}\pi_{k2}}
+                     {\sqrt{\pi_{k1}(1-\pi_{k1})\pi_{k2}(1-\pi_{k2})}}
+\;\le\; \rho_k \;\le\;
+\frac{\min(\pi_{k1},\pi_{k2}) - \pi_{k1}\pi_{k2}}
+     {\sqrt{\pi_{k1}(1-\pi_{k1})\pi_{k2}(1-\pi_{k2})}}
+= \rho_{\max}.$$
+
+The helper function `getjointbin()` converts $(\pi_{k1}, \pi_{k2}, \rho_k)$
+to $(p_{k,00}, p_{k,01}, p_{k,10}, p_{k,11})$:
+
+```{r getjointbin}
+# Convert marginal rates + correlation to cell probabilities
+getjointbin(pi1 = 0.30, pi2 = 0.35, rho = 0.20)
+getjointbin(pi1 = 0.20, pi2 = 0.20, rho = 0.00)   # independence
+```
+
+### 1.5 Nine-Region Grid (Posterior Probability)
+
+The bivariate threshold grid for $(\theta_1, \theta_2)$ creates the same
+$3 \times 3$ partition as for the two continuous endpoint case:
+
+| | $\theta_2 > \mathrm{TV}_2$ | $\mathrm{MAV}_2 < \theta_2 \le \mathrm{TV}_2$ | $\theta_2 \le \mathrm{MAV}_2$ |
+|---|:---:|:---:|:---:|
+| $\theta_1 > \mathrm{TV}_1$ | **R1** | R2 | R3 |
+| $\mathrm{MAV}_1 < \theta_1 \le \mathrm{TV}_1$ | R4 | R5 | R6 |
+| $\theta_1 \le \mathrm{MAV}_1$ | R7 | R8 | **R9** |
+
+Typical choices: **Go if $P(R1) \ge \gamma_1$**,
+**NoGo if $P(R9) \ge \gamma_2$**.
+
+### 1.6 Four-Region Grid (Predictive Probability)
+
+For the predictive probability, a $2 \times 2$ partition is used:
+
+| | $\tilde\theta_2 > \theta_{\mathrm{NULL},2}$ | $\tilde\theta_2 \le \theta_{\mathrm{NULL},2}$ |
+|---|:---:|:---:|
+| $\tilde\theta_1 > \theta_{\mathrm{NULL},1}$ | **R1** | R2 |
+| $\tilde\theta_1 \le \theta_{\mathrm{NULL},1}$ | R3 | **R4** |
+
+---
+
+## 2. Posterior Predictive Distribution
+
+### 2.1 Dirichlet-Multinomial Predictive Distribution
+
+Let $\tilde{\mathbf{x}}_k \sim \mathrm{Multinomial}(m_k, \mathbf{p}_k)$
+be the future count vector with $m_k$ future patients.  Integrating out
+$\mathbf{p}_k$ over its Dirichlet posterior gives the Dirichlet-Multinomial
+predictive distribution:
+
+$$P(\tilde{\mathbf{x}}_k = \mathbf{c} \mid \mathbf{x}_k) =
+  \binom{m_k}{\mathbf{c}}
+  \frac{B(\boldsymbol{\alpha}_k^* + \mathbf{c})}{B(\boldsymbol{\alpha}_k^*)},
+  \quad \sum_{lm} c_{lm} = m_k,$$
+
+where $B(\cdot)$ is the multivariate Beta function and
+$\binom{m_k}{\mathbf{c}} = m_k! / \prod_{lm} c_{lm}!$ is the multinomial
+coefficient.
+
+### 2.2 Monte Carlo Evaluation
+
+Because the Dirichlet-Multinomial does not yield a tractable closed form
+for the joint probability that $(\tilde\theta_1, \tilde\theta_2)$ falls
+in a given region, all region probabilities are estimated by Monte Carlo:
+
+$$\widehat{P}(R_j) = \frac{1}{n_\mathrm{MC}} \sum_{i=1}^{n_\mathrm{MC}}
+  \mathbf{1}\!\left[(p_1^{(i)} - p_2^{(i)}) \in R_j\right],$$
+
+where $p_k^{(i)} \sim \mathrm{Dir}(\boldsymbol{\alpha}_k^*)$ are draws
+from the Dirichlet posterior.  For the predictive probability, future
+proportion differences $\tilde\theta_\ell^{(i)} = \tilde{y}_{1\ell}^{(i)}/m_1
+- \tilde{y}_{2\ell}^{(i)}/m_2$ are computed from corresponding
+Binomial draws conditioned on the Dirichlet samples.
+
+---
+
+## 3. Study Designs
+
+### 3.1 Controlled Design
+
+Both arms are observed in the PoC trial.  The posterior parameters are:
+
+$$\alpha_{k,lm}^* = \alpha_{k,lm} + x_{k,lm}.$$
+
+```{r ctrl-post}
+set.seed(42)
+p_post_ctrl <- pbayespostpred2bin(
+  prob = 'posterior', design = 'controlled',
+  theta.TV1 = 0.20, theta.MAV1 = 0.10,
+  theta.TV2 = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  x1_00 = 2L, x1_01 = 1L, x1_10 = 3L, x1_11 = 4L,
+  x2_00 = 4L, x2_01 = 2L, x2_10 = 2L, x2_11 = 2L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 1000L
+)
+print(round(p_post_ctrl, 4))
+cat(sprintf(
+  "\nGo  region (R1): P = %.4f  >= gamma1 (0.80)? %s\n",
+  p_post_ctrl["R1"], ifelse(p_post_ctrl["R1"] >= 0.80, "YES -> Go", "NO")
+))
+cat(sprintf(
+  "NoGo region (R9): P = %.4f  >= gamma2 (0.80)? %s\n",
+  p_post_ctrl["R9"], ifelse(p_post_ctrl["R9"] >= 0.80, "YES -> NoGo", "NO")
+))
+```
+
+**Posterior predictive probability** (future Phase III: $m_1 = m_2 = 20$):
+
+```{r ctrl-pred}
+set.seed(42)
+p_pred_ctrl <- pbayespostpred2bin(
+  prob = 'predictive', design = 'controlled',
+  theta.TV1 = NULL, theta.MAV1 = NULL,
+  theta.TV2 = NULL, theta.MAV2 = NULL,
+  theta.NULL1 = 0.15, theta.NULL2 = 0.15,
+  x1_00 = 2L, x1_01 = 1L, x1_10 = 3L, x1_11 = 4L,
+  x2_00 = 4L, x2_01 = 2L, x2_10 = 2L, x2_11 = 2L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = 15L, m2 = 15L,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 1000L
+)
+print(round(p_pred_ctrl, 4))
+cat(sprintf(
+  "\nGo region (R1): P = %.4f  >= gamma1 (0.80)? %s\n",
+  p_pred_ctrl["R1"], ifelse(p_pred_ctrl["R1"] >= 0.80, "YES -> Go", "NO")
+))
+```
+
+### 3.2 Uncontrolled Design
+
+When no concurrent control arm is enrolled, the control distribution is
+specified via a **hypothetical count vector**
+$\mathbf{z} = (z_{00}, z_{01}, z_{10}, z_{11})$ combined with the
+Dirichlet prior:
+
+$$\mathbf{p}_2 \;\sim\;
+  \mathrm{Dir}(\alpha_{2,00} + z_{00},\; \alpha_{2,01} + z_{01},\;
+  \alpha_{2,10} + z_{10},\; \alpha_{2,11} + z_{11}).$$
+
+This specification encodes prior belief about the bivariate control
+response rates — including any assumed within-arm correlation — without
+requiring observed control data.
+
+```{r unctrl-post}
+set.seed(1)
+p_unctrl <- pbayespostpred2bin(
+  prob = 'posterior', design = 'uncontrolled',
+  theta.TV1 = 0.20, theta.MAV1 = 0.10,
+  theta.TV2 = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  x1_00 = 2L, x1_01 = 1L, x1_10 = 3L, x1_11 = 4L,
+  x2_00 = NULL, x2_01 = NULL, x2_10 = NULL, x2_11 = NULL,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 1000L
+)
+print(round(p_unctrl, 4))
+```
+
+### 3.3 External Control Design (Power Prior)
+
+External data for group $k$ (count vector $\mathbf{x}_{ek}$) are
+incorporated via a **Dirichlet power prior** with weight
+$a_{0k} \in (0, 1]$.  The augmented prior parameters are:
+
+$$\alpha_{k,lm}^{*} = \alpha_{k,lm} + a_{0k} \cdot x_{ek,lm}.$$
+
+Setting $a_{0k} = 1$ treats the external data as equivalent to current
+trial data; $a_{0k} \to 0$ recovers the original prior.  The current
+PoC data then update these augmented parameters in the usual way:
+
+$$\alpha_{k,lm}^{**} = \alpha_{k,lm}^{*} + x_{k,lm}
+  = \alpha_{k,lm} + a_{0k}\, x_{ek,lm} + x_{k,lm}.$$
+
+```{r ext-post}
+set.seed(2)
+p_ext <- pbayespostpred2bin(
+  prob = 'posterior', design = 'external',
+  theta.TV1 = 0.20, theta.MAV1 = 0.10,
+  theta.TV2 = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  x1_00 = 2L, x1_01 = 1L, x1_10 = 3L, x1_11 = 4L,
+  x2_00 = 4L, x2_01 = 2L, x2_10 = 2L, x2_11 = 2L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = 3L,   xe2_01 = 1L,   xe2_10 = 2L,   xe2_11 = 1L,
+  ae1 = NULL, ae2 = 0.5,
+  nMC = 1000L
+)
+print(round(p_ext, 4))
+```
+
+**Sensitivity to borrowing weight** $a_{0,2}$:
+
+```{r ext-borrowing}
+ae_seq <- c(0.01, seq(0.1, 1.0, by = 0.1))
+p_ae <- sapply(ae_seq, function(ae) {
+  set.seed(99)
+  res <- pbayespostpred2bin(
+    prob = 'posterior', design = 'external',
+    theta.TV1 = 0.20, theta.MAV1 = 0.10,
+    theta.TV2 = 0.20, theta.MAV2 = 0.10,
+    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    x1_00 = 2L, x1_01 = 1L, x1_10 = 3L, x1_11 = 4L,
+    x2_00 = 4L, x2_01 = 2L, x2_10 = 2L, x2_11 = 2L,
+    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+    m1 = NULL, m2 = NULL,
+    z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+    xe2_00 = 3L,   xe2_01 = 1L,   xe2_10 = 2L,   xe2_11 = 1L,
+    ae1 = NULL, ae2 = ae, nMC = 500L   # fast: single posterior call per ae
+  )
+  res["R1"]
+})
+data.frame(ae2 = ae_seq, P_R1 = round(p_ae, 4))
+```
+
+---
+
+## 4. Operating Characteristics
+
+### 4.1 Definition
+
+For given true parameters $(\mathbf{p}_1, \mathbf{p}_2)$, the operating
+characteristics are computed by **exact enumeration** over all possible
+multinomial count combinations via a two-stage strategy.
+
+**Stage 1 (precomputation)**: All count combinations
+$\mathbf{x}_{t,i}$ ($K_t$ combinations) and $\mathbf{x}_{c,j}$ ($K_c$
+combinations) are enumerated by `allmultinom()`.  For each pair $(i, j)$,
+`pbayespostpred2bin()` computes the region probability vector once,
+yielding $\hat{g}_{\mathrm{Go},ij}$ and $\hat{g}_{\mathrm{NoGo},ij}$
+independent of any decision threshold.
+
+**Stage 2 (weighting)**: For given thresholds $(\gamma_1, \gamma_2)$:
+
+$$\Pr(\mathrm{Go}) = \sum_{i=1}^{K_t} \sum_{j=1}^{K_c}
+  w_{ij}\, \mathbf{1}\!\left[\hat{g}_{\mathrm{Go},ij} \ge \gamma_1
+  \text{ and } \hat{g}_{\mathrm{NoGo},ij} < \gamma_2\right],$$
+
+$$\Pr(\mathrm{NoGo}) = \sum_{i=1}^{K_t} \sum_{j=1}^{K_c}
+  w_{ij}\, \mathbf{1}\!\left[\hat{g}_{\mathrm{NoGo},ij} \ge \gamma_2
+  \text{ and } \hat{g}_{\mathrm{Go},ij} < \gamma_1\right],$$
+
+where $w_{ij} = P_\mathrm{Mult}(\mathbf{x}_{t,i};\, n_1, \mathbf{p}_1)
+\times P_\mathrm{Mult}(\mathbf{x}_{c,j};\, n_2, \mathbf{p}_2)$.
+
+For large $n_1$ or $n_2$, the `method = 'MC'` option replaces full
+enumeration with $n_\mathrm{sim}$ multinomial draws, deduplicates them
+into $K \ll n_\mathrm{sim}$ unique pairs, and evaluates
+`pbayespostpred2bin()` only for those unique pairs.
+
+> **Note on computation time.** The number of multinomial count
+> combinations grows rapidly with $n$: for $n_k$ patients and 4 response
+> categories the number of combinations is $\binom{n_k + 3}{3}$, which
+> equals 286 for $n_k = 10$ and 1771 for $n_k = 20$.  For the Exact method
+> with two arms this means up to $286^2 \approx 82{,}000$ unique pairs each
+> requiring `nMC` Dirichlet draws.  When predictive probability is used
+> ($m_k > 0$), an additional layer of Multinomial sampling is added inside
+> each Dirichlet draw, further multiplying computation time.  Use small
+> `nMC` (100--500) and `n1 = n2 = 10` for demonstration; switch to
+> `method = 'MC'` with moderate `nsim` for larger sample sizes.
+
+### 4.2 Controlled Design --- Multiple Scenarios
+
+```{r oc-controlled}
+oc_ctrl <- pbayesdecisionprob2bin(
+  prob = 'posterior', design = 'controlled',
+  GoRegions = 1L, NoGoRegions = 9L,
+  gamma1 = 0.80, gamma2 = 0.80,
+  pi_t1 = c(0.15, 0.30, 0.50),
+  pi_t2 = c(0.15, 0.30, 0.50),
+  rho_t = c(0.0,  0.0,  0.0),
+  pi_c1 = rep(0.15, 3),
+  pi_c2 = rep(0.15, 3),
+  rho_c = rep(0.0,  3),
+  n1 = 10L, n2 = 10L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1  = 0.20, theta.MAV1 = 0.10,
+  theta.TV2  = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 500L, method = 'Exact',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+print(oc_ctrl)
+```
+
+### 4.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment Effect
+
+```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect on Endpoint 1 (pi_t1 - pi_c1) with equal effects on both endpoints and independence (rho = 0). Controlled design, Jeffreys prior, Exact method. n1 = n2 = 10, gamma1 = gamma2 = 0.80."}
+pi_t_seq <- seq(0.15, 0.55, by = 0.10)
+n_scen   <- length(pi_t_seq)
+
+oc_grid <- pbayesdecisionprob2bin(
+  prob = 'posterior', design = 'controlled',
+  GoRegions = 1L, NoGoRegions = 9L,
+  gamma1 = 0.80, gamma2 = 0.80,
+  pi_t1 = pi_t_seq, pi_t2 = pi_t_seq,
+  rho_t = rep(0.0, n_scen),
+  pi_c1 = rep(0.15, n_scen),
+  pi_c2 = rep(0.15, n_scen),
+  rho_c = rep(0.0,  n_scen),
+  n1 = 10L, n2 = 10L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1  = 0.20, theta.MAV1 = 0.10,
+  theta.TV2  = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 500L, method = 'Exact',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+delta1 <- oc_grid$pi_t1 - 0.15
+
+old_par <- par(mar = c(4.5, 4.5, 3, 1))
+
+plot(delta1, oc_grid$Go,
+     type = "b", pch = 16, lwd = 2, col = "#2166AC",
+     ylim = c(0, 1),
+     xlab = expression(pi[t1] - pi[c1]),
+     ylab = "Probability",
+     main = "Operating Characteristics: Two Binary Endpoints",
+     las  = 1)
+lines(delta1, oc_grid$NoGo,
+      type = "b", pch = 17, lwd = 2, col = "#D6604D")
+lines(delta1, oc_grid$Gray,
+      type = "b", pch = 15, lwd = 2, col = "#878787")
+
+abline(h = c(0.20, 0.80), lty = 2, col = "gray50")
+abline(v = c(0.10, 0.20), lty = 3, col = "gray70")
+
+text(0.10 + 0.005, 0.04, "MAV1", col = "gray40", cex = 0.8, adj = 0)
+text(0.20 + 0.005, 0.04, "TV1",  col = "gray40", cex = 0.8, adj = 0)
+
+legend("right",
+       legend = c("Pr(Go)", "Pr(NoGo)", "Pr(Gray)"),
+       col    = c("#2166AC", "#D6604D", "#878787"),
+       pch    = c(16, 17, 15), lwd = 2, bty = "n")
+
+par(old_par)
+```
+
+### 4.4 Effect of Within-Arm Correlation
+
+The within-arm correlation $\rho_t$ affects the operating characteristics
+because it changes the joint cell probabilities and hence the multinomial
+weight distribution.
+
+```{r oc-correlation}
+rho_seq <- c(-0.3, 0.0, 0.3)
+
+oc_rho <- pbayesdecisionprob2bin(
+  prob = 'posterior', design = 'controlled',
+  GoRegions = 1L, NoGoRegions = 9L,
+  gamma1 = 0.80, gamma2 = 0.80,
+  pi_t1 = rep(0.40, 3), pi_t2 = rep(0.40, 3),
+  rho_t = rho_seq,
+  pi_c1 = rep(0.15, 3), pi_c2 = rep(0.15, 3),
+  rho_c = rep(0.0,  3),
+  n1 = 10L, n2 = 10L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1  = 0.20, theta.MAV1 = 0.10,
+  theta.TV2  = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 500L, method = 'Exact',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+print(oc_rho)
+```
+
+### 4.5 Uncontrolled Design --- Operating Characteristics
+
+```{r oc-uncontrolled}
+oc_unctrl <- pbayesdecisionprob2bin(
+  prob = 'posterior', design = 'uncontrolled',
+  GoRegions = 1L, NoGoRegions = 9L,
+  gamma1 = 0.80, gamma2 = 0.80,
+  pi_t1 = c(0.15, 0.30, 0.50),
+  pi_t2 = c(0.15, 0.30, 0.50),
+  rho_t = c(0.0,  0.0,  0.0),
+  pi_c1 = rep(0.15, 3),
+  pi_c2 = rep(0.15, 3),
+  rho_c = rep(0.0,  3),
+  n1 = 10L, n2 = 10L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1  = 0.20, theta.MAV1 = 0.10,
+  theta.TV2  = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  z00 = 3L, z01 = 2L, z10 = 2L, z11 = 1L,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 500L, method = 'Exact',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+print(oc_unctrl)
+```
+
+### 4.6 External Control Design --- Operating Characteristics
+
+```{r oc-external}
+oc_ext <- pbayesdecisionprob2bin(
+  prob = 'posterior', design = 'external',
+  GoRegions = 1L, NoGoRegions = 9L,
+  gamma1 = 0.80, gamma2 = 0.80,
+  pi_t1 = c(0.15, 0.30, 0.50),
+  pi_t2 = c(0.15, 0.30, 0.50),
+  rho_t = c(0.0,  0.0,  0.0),
+  pi_c1 = rep(0.15, 3),
+  pi_c2 = rep(0.15, 3),
+  rho_c = rep(0.0,  3),
+  n1 = 10L, n2 = 10L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  m1 = NULL, m2 = NULL,
+  theta.TV1  = 0.20, theta.MAV1 = 0.10,
+  theta.TV2  = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = 3L,   xe2_01 = 2L,   xe2_10 = 3L,   xe2_11 = 2L,
+  ae1 = NULL, ae2 = 0.5,
+  nMC = 500L, method = 'Exact',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+print(oc_ext)
+```
+
+---
+
+## 5. Optimal Threshold Search
+
+### 5.1 Objective and Algorithm
+
+`getgamma2bin()` finds the optimal pair $(\gamma_1^*, \gamma_2^*)$ by
+the same **two-stage precompute-then-sweep** strategy as
+`pbayesdecisionprob2bin()`, but sweeps over the two-dimensional grid
+$\Gamma_1 \times \Gamma_2$.
+
+**Stage 1 (precomputation)**: `pbayespostpred2bin()` is called for every
+unique multinomial outcome combination $(x_{t,i}, x_{c,j})$ enumerated
+by `allmultinom()`.  The region probability vector is summed over
+`GoRegions` and `NoGoRegions` to obtain $\hat{g}_{\mathrm{Go},ij}$ and
+$\hat{g}_{\mathrm{NoGo},ij}$, independent of $(\gamma_1, \gamma_2)$.
+
+**Stage 2 (gamma sweep)**: For every pair
+$(\gamma_1, \gamma_2) \in \Gamma_1 \times \Gamma_2$:
+
+$$\Pr(\mathrm{Go} \mid \gamma_1, \gamma_2) =
+  \sum_{i,j} w_{ij}\,
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{Go},ij} \ge \gamma_1 \text{ and }
+  \hat{g}_{\mathrm{NoGo},ij} < \gamma_2\right],$$
+
+$$\Pr(\mathrm{NoGo} \mid \gamma_1, \gamma_2) =
+  \sum_{i,j} w_{ij}\,
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{NoGo},ij} \ge \gamma_2 \text{ and }
+  \hat{g}_{\mathrm{Go},ij} < \gamma_1\right].$$
+
+Results are stored in $|\Gamma_1| \times |\Gamma_2|$ matrices
+`PrGo_grid` and `PrNoGo_grid`.
+
+**Stage 3 (optimal selection)**: For each candidate $\gamma_1$, the
+worst-case $\Pr(\mathrm{Go})$ over all $\gamma_2$ is compared against
+`target_go`; analogously for $\gamma_2$.
+
+### 5.2 Example: Controlled Design, Posterior Probability
+
+Null scenario: $\pi_{t1} = \pi_{c1} = 0.15$, $\pi_{t2} = \pi_{c2} = 0.15$,
+$\rho_t = \rho_c = 0$ (no treatment effect, independence).
+
+```{r getgamma-ctrl}
+res_gamma <- getgamma2bin(
+  prob = 'posterior', design = 'controlled',
+  GoRegions = 1L, NoGoRegions = 9L,
+  pi_t1 = 0.15, pi_t2 = 0.15, rho_t = 0.0,
+  pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go   = '<',  crit_nogo   = '<',
+  sel_go    = 'smallest', sel_nogo = 'largest',
+  n1 = 10L, n2 = 10L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  theta.TV1  = 0.20, theta.MAV1 = 0.10,
+  theta.TV2  = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  m1 = NULL, m2 = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 200L, method = 'Exact',
+  gamma1_grid = seq(0.05, 0.95, by = 0.05),
+  gamma2_grid = seq(0.05, 0.95, by = 0.05)
+)
+cat(sprintf("Optimal gamma1* = %.2f  (Pr(Go) = %.4f)\n",
+            res_gamma$gamma1, res_gamma$PrGo_at_gamma))
+cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
+            res_gamma$gamma2, res_gamma$PrNoGo_at_gamma))
+```
+
+### 5.3 Figure: Contour Plot of Pr(Go) over $(\gamma_1, \gamma_2)$ Grid
+
+```{r gamma-contour-go, fig.cap = "Contour plot of Pr(Go) as a function of the candidate threshold pair (gamma1, gamma2) under the null scenario (pi_t = pi_c = (0.15, 0.15), rho = 0). The 0.05 target contour is highlighted in bold (blue). Dashed lines mark the optimal gamma1* (blue) and gamma2* (red)."}
+g1   <- res_gamma$gamma1_grid
+g2   <- res_gamma$gamma2_grid
+Z_go <- res_gamma$PrGo_grid   # rows = gamma1, cols = gamma2
+
+old_par2 <- par(mar = c(4.5, 4.5, 3.5, 1))
+
+filled.contour(
+  x = g1, y = g2, z = Z_go,
+  levels    = seq(0, 0.5, by = 0.05),
+  col       = hcl.colors(10, palette = "Blues", rev = TRUE),
+  xlab      = expression(gamma[1]),
+  ylab      = expression(gamma[2]),
+  main      = "Pr(Go) over (\u03b31, \u03b32) grid — Null scenario",
+  plot.axes = {
+    axis(1); axis(2)
+    contour(x = g1, y = g2, z = Z_go,
+            levels = 0.05, add = TRUE,
+            lwd = 2.5, col = "#2166AC", labcex = 0.9)
+    if (!is.na(res_gamma$gamma1))
+      abline(v = res_gamma$gamma1, lty = 2, lwd = 2, col = "#2166AC")
+    if (!is.na(res_gamma$gamma2))
+      abline(h = res_gamma$gamma2, lty = 2, lwd = 2, col = "#D6604D")
+    legend("topright",
+           legend = c(
+             paste0("gamma1* = ", res_gamma$gamma1),
+             paste0("gamma2* = ", res_gamma$gamma2),
+             "Pr(Go) = 0.05 contour"),
+           col  = c("#2166AC", "#D6604D", "#2166AC"),
+           lty  = c(2, 2, 1),
+           lwd  = c(2, 2, 2.5),
+           bty  = "n", cex = 0.85)
+  }
+)
+
+par(old_par2)
+```
+
+### 5.4 Figure: Contour Plot of Pr(NoGo) over $(\gamma_1, \gamma_2)$ Grid
+
+```{r gamma-contour-nogo, fig.cap = "Contour plot of Pr(NoGo) as a function of (gamma1, gamma2) under the null scenario. The 0.20 target contour is highlighted in bold (red). Dashed lines mark the optimal thresholds."}
+Z_nogo <- res_gamma$PrNoGo_grid
+
+old_par3 <- par(mar = c(4.5, 4.5, 3.5, 1))
+
+filled.contour(
+  x = g1, y = g2, z = Z_nogo,
+  levels    = seq(0, 1.0, by = 0.10),
+  col       = hcl.colors(10, palette = "Reds", rev = TRUE),
+  xlab      = expression(gamma[1]),
+  ylab      = expression(gamma[2]),
+  main      = "Pr(NoGo) over (\u03b31, \u03b32) grid — Null scenario",
+  plot.axes = {
+    axis(1); axis(2)
+    contour(x = g1, y = g2, z = Z_nogo,
+            levels = 0.20, add = TRUE,
+            lwd = 2.5, col = "#D6604D", labcex = 0.9)
+    if (!is.na(res_gamma$gamma1))
+      abline(v = res_gamma$gamma1, lty = 2, lwd = 2, col = "#2166AC")
+    if (!is.na(res_gamma$gamma2))
+      abline(h = res_gamma$gamma2, lty = 2, lwd = 2, col = "#D6604D")
+    legend("topright",
+           legend = c(
+             paste0("gamma1* = ", res_gamma$gamma1),
+             paste0("gamma2* = ", res_gamma$gamma2),
+             "Pr(NoGo) = 0.20 contour"),
+           col  = c("#2166AC", "#D6604D", "#D6604D"),
+           lty  = c(2, 2, 1),
+           lwd  = c(2, 2, 2.5),
+           bty  = "n", cex = 0.85)
+  }
+)
+
+par(old_par3)
+```
+
+### 5.5 Example: Uncontrolled Design, Posterior Probability
+
+```{r getgamma-unctrl}
+res_gamma_unctrl <- getgamma2bin(
+  prob = 'posterior', design = 'uncontrolled',
+  GoRegions = 1L, NoGoRegions = 9L,
+  pi_t1 = 0.15, pi_t2 = 0.15, rho_t = 0.0,
+  pi_c1 = NULL, pi_c2 = NULL, rho_c = NULL,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go   = '<',  crit_nogo   = '<',
+  sel_go    = 'smallest', sel_nogo = 'largest',
+  n1 = 10L, n2 = 10L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  theta.TV1  = 0.20, theta.MAV1 = 0.10,
+  theta.TV2  = 0.20, theta.MAV2 = 0.10,
+  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  m1 = NULL, m2 = NULL,
+  z00 = 3L, z01 = 2L, z10 = 2L, z11 = 1L,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 200L, method = 'Exact',
+  gamma1_grid = seq(0.05, 0.95, by = 0.05),
+  gamma2_grid = seq(0.05, 0.95, by = 0.05)
+)
+cat(sprintf("Optimal gamma1* = %.2f  (Pr(Go) = %.4f)\n",
+            res_gamma_unctrl$gamma1, res_gamma_unctrl$PrGo_at_gamma))
+cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
+            res_gamma_unctrl$gamma2, res_gamma_unctrl$PrNoGo_at_gamma))
+```
+
+### 5.6 Example: Controlled Design, Predictive Probability
+
+> **Note.** When `prob = 'predictive'`, `getgamma2bin()` must evaluate
+> `pbayespostpred2bin()` for every outcome combination $(x_{t,i}, x_{c,j})$
+> using `nMC` Dirichlet draws and $m_k$ future observations each.  This
+> substantially increases computation time relative to the posterior case.
+> The `method = 'MC'` option with moderate `nsim` and small `nMC` is
+> recommended for vignette-level demonstration.
+
+```{r getgamma-pred}
+res_gamma_pred <- getgamma2bin(
+  prob = 'predictive', design = 'controlled',
+  GoRegions = 1L, NoGoRegions = 4L,
+  pi_t1 = 0.15, pi_t2 = 0.15, rho_t = 0.0,
+  pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go   = '<',  crit_nogo   = '<',
+  sel_go    = 'smallest', sel_nogo = 'largest',
+  n1 = 10L, n2 = 10L,
+  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
+  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
+  theta.TV1  = NULL, theta.MAV1 = NULL,
+  theta.TV2  = NULL, theta.MAV2 = NULL,
+  theta.NULL1 = 0.15, theta.NULL2 = 0.15,
+  m1 = 15L, m2 = 15L,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
+  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
+  ae1 = NULL, ae2 = NULL,
+  nMC = 100L, method = 'MC', nsim = 1000L,
+  gamma1_grid = seq(0.05, 0.95, by = 0.05),
+  gamma2_grid = seq(0.05, 0.95, by = 0.05)
+)
+cat(sprintf("Optimal gamma1* = %.2f  (Pr(Go) = %.4f)\n",
+            res_gamma_pred$gamma1, res_gamma_pred$PrGo_at_gamma))
+cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
+            res_gamma_pred$gamma2, res_gamma_pred$PrNoGo_at_gamma))
+```
+
+---
+
+## 6. Summary
+
+This vignette covered two binary endpoint analysis in BayesianQDM:
+
+1. **Bayesian model**: Dirichlet-Multinomial conjugate, modelling the
+   bivariate binary outcome through the four-cell probability vector
+   $\mathbf{p}_k$.  Posterior update:
+   $\alpha_{k,lm}^* = \alpha_{k,lm} + x_{k,lm}$.  The symmetric
+   Jeffreys-type prior $\alpha_{k,lm} = 0.25$ is recommended.
+2. **Within-arm correlation**: parameterised via $\rho_k$ using the
+   moment-matching identity; feasible range enforced by `getjointbin()`.
+3. **Nine-region grid** for posterior probability and **four-region grid**
+   for predictive probability, identical in structure to the two continuous
+   endpoint case.
+4. **Monte Carlo evaluation** of region probabilities via Dirichlet draws;
+   no closed-form expression for the joint probability exists in the
+   bivariate binary case.
+5. **Three study designs**: controlled (standard posterior update),
+   uncontrolled (hypothetical count vector $\mathbf{z}$ fixes the control
+   Dirichlet distribution), external (Dirichlet power prior with
+   $\alpha_{k,lm}^* = \alpha_{k,lm} + a_{0k}\, x_{ek,lm}$).
+6. **Exact operating characteristics**: two-stage precomputation over all
+   multinomial count combinations via `allmultinom()`, with multinomial
+   probability weighting (no outer Monte Carlo needed for small $n$).
+7. **Optimal threshold search**: three-stage precompute-then-sweep in
+   `getgamma2bin()`, producing $|\Gamma_1| \times |\Gamma_2|$ matrices
+   `PrGo_grid` and `PrNoGo_grid`, visualised as contour plots.
+
+See `vignette("overview")` for a comparison across all four endpoint types.
