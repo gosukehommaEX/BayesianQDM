@@ -109,14 +109,26 @@ The `getgamma` family of functions finds optimal Go threshold $\gamma_1$ and NoG
 
 The package includes detailed vignettes with practical examples:
 
-- **Introduction to BayesianQDM**: Overview and framework description
-- **Single Endpoint Analysis**: Examples for single binary and continuous endpoint analyses
-- **Two Endpoint Analysis**: Examples for two binary and two continuous endpoint analyses
+**Getting Started**
+- [Overview of BayesianQDM](https://gosukehommaEX.github.io/BayesianQDM/articles/overview.html) - Framework overview and key concepts
+
+**Single Endpoint Analysis**
+- [Single Binary Endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/single-binary.html) - Binary endpoint analysis with Go/NoGo/Gray decisions
+- [Single Continuous Endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/single-continuous.html) - Continuous endpoint analysis with multiple computation methods
+
+**Two Endpoint Analysis**
+- [Two Binary Endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/two-binary.html) - Joint analysis of two binary endpoints
+- [Two Continuous Endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/two-continuous.html) - Joint analysis of two continuous endpoints
 
 Access vignettes locally after installation:
 
 ```r
 vignette(package = "BayesianQDM")
+vignette("overview", package = "BayesianQDM")
+vignette("single-binary", package = "BayesianQDM")
+vignette("single-continuous", package = "BayesianQDM")
+vignette("two-binary", package = "BayesianQDM")
+vignette("two-continuous", package = "BayesianQDM")
 ```
 
 ### Package Website
