@@ -352,9 +352,9 @@ getgamma2bin(
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
-  nMC = 1000L, method = 'Exact',
-  gamma1_grid = seq(0.20, 0.55, by = 0.01),
-  gamma2_grid = seq(0.30, 0.60, by = 0.01)
+  nMC = 100L, method = 'Exact',
+  gamma1_grid = seq(0.01, 0.99, by = 0.01),
+  gamma2_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 
@@ -379,9 +379,9 @@ getgamma2bin(
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
-  nMC = 1000L, method = 'Exact',
-  gamma1_grid = seq(0.20, 0.55, by = 0.01),
-  gamma2_grid = seq(0.30, 0.60, by = 0.01)
+  nMC = 100L, method = 'Exact',
+  gamma1_grid = seq(0.01, 0.99, by = 0.01),
+  gamma2_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 
@@ -406,9 +406,9 @@ getgamma2bin(
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = NULL, ae2 = NULL,
-  nMC = 1000L, method = 'Exact',
-  gamma1_grid = seq(0.20, 0.55, by = 0.01),
-  gamma2_grid = seq(0.30, 0.60, by = 0.01)
+  nMC = 100L, method = 'Exact',
+  gamma1_grid = seq(0.01, 0.99, by = 0.01),
+  gamma2_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 
@@ -433,9 +433,9 @@ getgamma2bin(
   xe1_00 = 3L, xe1_01 = 2L, xe1_10 = 3L, xe1_11 = 2L,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
   ae1 = 0.5, ae2 = NULL,
-  nMC = 1000L, method = 'Exact',
-  gamma1_grid = seq(0.20, 0.55, by = 0.01),
-  gamma2_grid = seq(0.30, 0.60, by = 0.01)
+  nMC = 100L, method = 'Exact',
+  gamma1_grid = seq(0.01, 0.99, by = 0.01),
+  gamma2_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 
