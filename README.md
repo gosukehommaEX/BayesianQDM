@@ -9,7 +9,7 @@
 
 ## Overview
 
-BayesianQDM provides a comprehensive framework for **Bayesian Quantitative Decision-Making** in clinical trials. The package enables researchers to compute posterior probabilities, posterior predictive probabilities, and **Go/NoGo/Gray** decision probabilities for both single and two-endpoint analyses with binary and continuous outcomes.
+BayesianQDM provides a comprehensive framework for **Bayesian Quantitative Decision-Making** in clinical trials. The package enables researchers to compute posterior probabilities, posterior predictive probabilities, and **Go/NoGo/Gray** decision probabilities for both single and two-endpoint analyses with binary and continuous outcomes. The package also provides functions to find optimal Go/NoGo thresholds that satisfy user-specified operating characteristic criteria.
 
 ## Key Features
 
@@ -19,6 +19,7 @@ BayesianQDM provides a comprehensive framework for **Bayesian Quantitative Decis
 - **Power Priors**: Exact conjugate representation for incorporating historical or external data without MCMC
 - **Multiple Calculation Methods**: Numerical integration (NI), Monte Carlo simulation (MC), and Moment-Matching approximation (MM) for continuous endpoints
 - **Three-Zone Decision Framework**: Go/NoGo/Gray probability calculation with user-defined thresholds (TV and MAV)
+- **Optimal Threshold Search**: Grid-search functions to find Go/NoGo thresholds satisfying target operating characteristics
 
 ## Installation
 
@@ -55,6 +56,15 @@ devtools::install_github("gosukehommaEX/BayesianQDM")
 | `pbayesdecisionprob2bin()` | Go/NoGo/Gray probabilities for two binary endpoints |
 | `pbayesdecisionprob2cont()` | Go/NoGo/Gray probabilities for two continuous endpoints |
 
+### Optimal Threshold Search Functions
+
+| Function | Description |
+|---|---|
+| `getgamma1bin()` | Find optimal Go/NoGo thresholds for a single binary endpoint |
+| `getgamma1cont()` | Find optimal Go/NoGo thresholds for a single continuous endpoint |
+| `getgamma2bin()` | Find optimal Go/NoGo thresholds for two binary endpoints |
+| `getgamma2cont()` | Find optimal Go/NoGo thresholds for two continuous endpoints |
+
 ### Distribution and Utility Functions
 
 | Function | Description |
@@ -64,7 +74,6 @@ devtools::install_github("gosukehommaEX/BayesianQDM")
 | `ptdiff_NI()` | CDF for the difference of two t-distributions via numerical integration |
 | `ptdiff_MC()` | CDF for the difference of two t-distributions via Monte Carlo simulation |
 | `ptdiff_MM()` | CDF for the difference of two t-distributions via Moment-Matching approximation |
-| `rnsbt()` | Random sampler for the bivariate non-standardised t-distribution |
 | `rdirichlet()` | Random sampler for the Dirichlet distribution |
 | `getjointbin()` | Joint binary probability from marginals and correlation |
 | `allmultinom()` | Enumerate all multinomial outcome combinations |
@@ -89,6 +98,10 @@ For single continuous endpoints, three methods are available for computing the C
 - **MM** (Moment-Matching): Closed-form approximation by matching the first two even moments of the difference distribution to a single t-distribution; fully vectorised and recommended for large-scale simulation studies
 
 For two continuous endpoints, MC and MM methods are available for computing joint rectangular region probabilities under a bivariate t-distribution approximation (Theorem 3, Homma and Yamaguchi, 2025).
+
+## Optimal Threshold Search
+
+The `getgamma` family of functions finds optimal Go threshold $\gamma_1$ and NoGo threshold $\gamma_2$ by grid search, given user-specified target operating characteristics (e.g., Pr(Go) and Pr(NoGo) under specified true parameter scenarios). The search follows a two-stage precompute-then-sweep strategy for computational efficiency.
 
 ## Documentation
 
