@@ -17,4 +17,5 @@
 ^\.pre-commit-config\.yaml$
 ^CRAN-SUBMISSION$
 ^doc$
+^docs$
 ^Meta$
