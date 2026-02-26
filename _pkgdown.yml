@@ -2,6 +2,11 @@ url: https://gosukehommaEX.github.io/BayesianQDM/
 template:
   bootstrap: 5
 
+home:
+  title: BayesianQDM
+  description: >
+    Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints.
+
 reference:
 - title: Decision Probability Functions
   desc: Go/NoGo/Gray decision probability calculation
@@ -97,8 +102,3 @@ navbar:
         href: articles/two-binary.html
       - text: Two Continuous Endpoints
         href: articles/two-continuous.html
-
-home:
-  title: BayesianQDM
-  description: >
-    Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints
