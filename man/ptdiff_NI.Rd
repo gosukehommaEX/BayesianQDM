@@ -65,7 +65,7 @@ Computational note: this method is substantially slower than the
 Moment-Matching approximation (\code{\link{pMM2tdiff}}) because it calls
 \code{integrate()} once per parameter set. For large-scale simulation
 (many parameter sets), prefer \code{CalcMethod = 'MM'} in
-\code{\link{pGNGsinglecontinuous}}.
+\code{\link{pbayesdecisionprob1cont}}.
 }
 \examples{
 # P(T1 - T2 > 3) with equal parameters

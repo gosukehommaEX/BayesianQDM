@@ -63,7 +63,7 @@ All operations are matrix-based (no R-level loop over parameter sets), so
 performance scales well with \eqn{n}. However, note that the matrix size is
 \code{nMC x n}, so memory usage grows linearly with both \code{nMC} and
 \eqn{n}. When \eqn{n} is large (e.g., \code{nsim x n_scenarios} in
-\code{\link{pGNGsinglecontinuous}}), memory requirements can become prohibitive;
+\code{\link{pbayesdecisionprob1cont}}), memory requirements can become prohibitive;
 in such cases prefer \code{CalcMethod = 'MM'}.
 
 Monte Carlo error is approximately \eqn{\sqrt{p(1-p)/\mathrm{nMC}}};

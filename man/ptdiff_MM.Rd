@@ -58,7 +58,7 @@ The approximation requires \eqn{\nu_1 > 4} and \eqn{\nu_2 > 4} for finite
 fourth moments. It is exact in the normal limit (\eqn{\nu \to \infty}) and
 works well in practice when \eqn{\nu > 10}. Because it reduces to a single
 call to \code{pt()}, it is orders of magnitude faster than the numerical
-integration method (\code{\link{pNI2tdiff}}) and fully vectorised.
+integration method (\code{\link{ptdiff_NI}}) and fully vectorised.
 }
 \examples{
 # P(T1 - T2 > 3) with equal parameters
