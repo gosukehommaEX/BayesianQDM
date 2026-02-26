@@ -31,6 +31,7 @@ Description: Provides comprehensive methods to calculate posterior probabilities
     study designs.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Language: en-US
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
