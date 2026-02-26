@@ -15,14 +15,16 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/BayesianQDM.html">Get started</a></li>
-<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/BayesianQDM.html">Introduction to BayesianQDM</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides"><li><a class="dropdown-item" href="../articles/overview.html">Overview of BayesianQDM</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/binary-endpoints.html">Binary Endpoints</a></li>
-    <li><a class="dropdown-item" href="../articles/continuous-endpoints.html">Continuous Endpoints</a></li>
+    <li><a class="dropdown-item" href="../articles/single-binary.html">Single Binary Endpoint</a></li>
+    <li><a class="dropdown-item" href="../articles/single-continuous.html">Single Continuous Endpoint</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/two-binary.html">Two Binary Endpoints</a></li>
+    <li><a class="dropdown-item" href="../articles/two-continuous.html">Two Continuous Endpoints</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -40,9 +42,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="decision-making-functions">Decision Making Functions<a class="anchor" aria-label="anchor" href="#decision-making-functions"></a></h2>
+      <h2 id="decision-probability-functions">Decision Probability Functions<a class="anchor" aria-label="anchor" href="#decision-probability-functions"></a></h2>
 
-      <div class="section-desc"><p>Main functions for Go/NoGo/Gray decision making</p></div>
+      <div class="section-desc"><p>Go/NoGo/Gray decision probability calculation</p></div>
 
 
     </div><div class="section level2">
@@ -52,20 +54,32 @@
 
       <dl><dt>
 
-          <code><a href="pGNGsinglebinary.html">pGNGsinglebinary()</a></code>
+          <code><a href="pbayesdecisionprob1bin.html">pbayesdecisionprob1bin()</a></code>
 
         </dt>
-        <dd>Calculate Go, NoGo, and Gray Probabilities for a Clinical Trial with a Single Binary Endpoint Under the Bayesian Framework Using Two Metrics</dd>
+        <dd>Go/NoGo/Gray Decision Probabilities for a Clinical Trial with a Single Binary Endpoint</dd>
       </dl><dl><dt>
 
-          <code><a href="pGNGsinglecontinuous.html">pGNGsinglecontinuous()</a></code>
+          <code><a href="pbayesdecisionprob1cont.html">pbayesdecisionprob1cont()</a></code>
 
         </dt>
-        <dd>Calculate the Go, NoGo and Gray Probabilities for a Clinical Trial When Outcome is Continuous Under the Bayesian Framework Using Two Metrics</dd>
+        <dd>Calculate Go, NoGo, and Gray Probabilities for a Clinical Trial with a Single Continuous Endpoint Under the Bayesian Framework Using Two Metrics</dd>
+      </dl><dl><dt>
+
+          <code><a href="pbayesdecisionprob2bin.html">pbayesdecisionprob2bin()</a></code>
+
+        </dt>
+        <dd>Go/NoGo/Gray Decision Probabilities for a Clinical Trial with Two Binary Endpoints</dd>
+      </dl><dl><dt>
+
+          <code><a href="pbayesdecisionprob2cont.html">pbayesdecisionprob2cont()</a></code>
+
+        </dt>
+        <dd>Go/NoGo/Gray Decision Probabilities for Two Continuous Endpoints</dd>
       </dl></div><div class="section level2">
-      <h2 id="probability-calculation-functions">Probability Calculation Functions<a class="anchor" aria-label="anchor" href="#probability-calculation-functions"></a></h2>
+      <h2 id="print-methods">Print Methods<a class="anchor" aria-label="anchor" href="#print-methods"></a></h2>
 
-      <div class="section-desc"><p>Functions for posterior and posterior predictive probabilities</p></div>
+      <div class="section-desc"><p>S3 print methods for decision probability objects</p></div>
 
 
     </div><div class="section level2">
@@ -75,20 +89,102 @@
 
       <dl><dt>
 
-          <code><a href="pPPsinglebinary.html">pPPsinglebinary()</a></code>
+          <code><a href="print.pbayesdecisionprob1bin.html">print(<i>&lt;pbayesdecisionprob1bin&gt;</i>)</a></code>
 
         </dt>
-        <dd>Calculate Bayesian Posterior Probability or Posterior Predictive Probability for a Clinical Trial with a Single Binary Endpoint</dd>
+        <dd>Print Method for pbayesdecisionprob1bin Objects</dd>
       </dl><dl><dt>
 
-          <code><a href="pPPsinglecontinuous.html">pPPsinglecontinuous()</a></code>
+          <code><a href="print.pbayesdecisionprob1cont.html">print(<i>&lt;pbayesdecisionprob1cont&gt;</i>)</a></code>
 
         </dt>
-        <dd>Calculate Bayesian Posterior Probability or Bayesian Posterior Predictive Probability for a Clinical Trial When Outcome is Continuous</dd>
+        <dd>Print Method for pbayesdecisionprob1cont Objects</dd>
+      </dl><dl><dt>
+
+          <code><a href="print.pbayesdecisionprob2bin.html">print(<i>&lt;pbayesdecisionprob2bin&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print Method for pbayesdecisionprob2bin Objects</dd>
+      </dl><dl><dt>
+
+          <code><a href="print.pbayesdecisionprob2cont.html">print(<i>&lt;pbayesdecisionprob2cont&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print Method for pbayesdecisionprob2cont Objects</dd>
+      </dl></div><div class="section level2">
+      <h2 id="posterior-and-predictive-probability-functions">Posterior and Predictive Probability Functions<a class="anchor" aria-label="anchor" href="#posterior-and-predictive-probability-functions"></a></h2>
+
+      <div class="section-desc"><p>Posterior and posterior predictive probability calculation</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="pbayespostpred1bin.html">pbayespostpred1bin()</a></code>
+
+        </dt>
+        <dd>Bayesian Posterior or Posterior Predictive Probability for a Single Binary Endpoint</dd>
+      </dl><dl><dt>
+
+          <code><a href="pbayespostpred1cont.html">pbayespostpred1cont()</a></code>
+
+        </dt>
+        <dd>Bayesian Posterior or Posterior Predictive Probability for a Clinical Trial with a Single Continuous Endpoint</dd>
+      </dl><dl><dt>
+
+          <code><a href="pbayespostpred2bin.html">pbayespostpred2bin()</a></code>
+
+        </dt>
+        <dd>Bayesian Posterior or Posterior Predictive Probability for a Clinical Trial with Two Binary Endpoints</dd>
+      </dl><dl><dt>
+
+          <code><a href="pbayespostpred2cont.html">pbayespostpred2cont()</a></code>
+
+        </dt>
+        <dd>Region Probabilities for Two Continuous Endpoints</dd>
+      </dl></div><div class="section level2">
+      <h2 id="optimal-threshold-search-functions">Optimal Threshold Search Functions<a class="anchor" aria-label="anchor" href="#optimal-threshold-search-functions"></a></h2>
+
+      <div class="section-desc"><p>Grid-search functions for optimal Go/NoGo thresholds</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="getgamma1bin.html">getgamma1bin()</a></code>
+
+        </dt>
+        <dd>Find Optimal Go/NoGo Thresholds for a Single Binary Endpoint</dd>
+      </dl><dl><dt>
+
+          <code><a href="getgamma1cont.html">getgamma1cont()</a></code>
+
+        </dt>
+        <dd>Find Optimal Go/NoGo Thresholds for a Single Continuous Endpoint</dd>
+      </dl><dl><dt>
+
+          <code><a href="getgamma2bin.html">getgamma2bin()</a></code>
+
+        </dt>
+        <dd>Find Optimal Go/NoGo Thresholds for Two Binary Endpoints</dd>
+      </dl><dl><dt>
+
+          <code><a href="getgamma2cont.html">getgamma2cont()</a></code>
+
+        </dt>
+        <dd>Find Optimal Go/NoGo Thresholds for Two Continuous Endpoints</dd>
       </dl></div><div class="section level2">
       <h2 id="distribution-functions-for-continuous-endpoints">Distribution Functions for Continuous Endpoints<a class="anchor" aria-label="anchor" href="#distribution-functions-for-continuous-endpoints"></a></h2>
 
-      <div class="section-desc"><p>Functions for calculating differences of t-distributions</p></div>
+      <div class="section-desc"><p>CDF for the difference of two t-distributions</p></div>
 
 
     </div><div class="section level2">
@@ -98,26 +194,26 @@
 
       <dl><dt>
 
-          <code><a href="pNI2tdiff.html">pNI2tdiff()</a></code>
+          <code><a href="ptdiff_NI.html">ptdiff_NI()</a></code>
 
         </dt>
         <dd>Cumulative Distribution Function of the Difference of Two t-Distributed Variables by Numerical Integration</dd>
       </dl><dl><dt>
 
-          <code><a href="pWS2tdiff.html">pWS2tdiff()</a></code>
-
-        </dt>
-        <dd>Cumulative Distribution Function of the Difference of Two t-Distributed Variables Using the Welch-Satterthwaite Approximation</dd>
-      </dl><dl><dt>
-
-          <code><a href="pMC2tdiff.html">pMC2tdiff()</a></code>
+          <code><a href="ptdiff_MC.html">ptdiff_MC()</a></code>
 
         </dt>
         <dd>Cumulative Distribution Function of the Difference of Two t-Distributed Variables by Monte Carlo Simulation</dd>
+      </dl><dl><dt>
+
+          <code><a href="ptdiff_MM.html">ptdiff_MM()</a></code>
+
+        </dt>
+        <dd>Cumulative Distribution Function of the Difference of Two t-Distributed Variables by the Moment-Matching Approximation</dd>
       </dl></div><div class="section level2">
       <h2 id="distribution-functions-for-binary-endpoints">Distribution Functions for Binary Endpoints<a class="anchor" aria-label="anchor" href="#distribution-functions-for-binary-endpoints"></a></h2>
 
-      <div class="section-desc"><p>Functions for calculating differences of beta distributions</p></div>
+      <div class="section-desc"><p>CDF and related functions for Beta and Beta-binomial distributions</p></div>
 
 
     </div><div class="section level2">
@@ -127,26 +223,20 @@
 
       <dl><dt>
 
-          <code><a href="p2betadiff.html">p2betadiff()</a></code>
+          <code><a href="pbetadiff.html">pbetadiff()</a></code>
 
         </dt>
         <dd>Cumulative Distribution Function of the Difference Between Two Beta Variables</dd>
       </dl><dl><dt>
 
-          <code><a href="p2betabinomdiff.html">p2betabinomdiff()</a></code>
+          <code><a href="pbetabinomdiff.html">pbetabinomdiff()</a></code>
 
         </dt>
-        <dd>Cumulative Distribution Function of the Difference Between Two Beta-Binomial Variables</dd>
-      </dl><dl><dt>
-
-          <code><a href="d2betadiff.html">d2betadiff()</a></code>
-
-        </dt>
-        <dd>Probability Density Function of the Difference Between Two Beta Variables</dd>
+        <dd>Cumulative Distribution Function of the Difference Between Two Beta-Binomial Proportions</dd>
       </dl></div><div class="section level2">
-      <h2 id="utility-functions">Utility Functions<a class="anchor" aria-label="anchor" href="#utility-functions"></a></h2>
+      <h2 id="sampling-functions">Sampling Functions<a class="anchor" aria-label="anchor" href="#sampling-functions"></a></h2>
 
-      <div class="section-desc"><p>Supporting mathematical functions</p></div>
+      <div class="section-desc"><p>Random samplers for multivariate distributions</p></div>
 
 
     </div><div class="section level2">
@@ -156,10 +246,33 @@
 
       <dl><dt>
 
-          <code><a href="AppellsF1.html">AppellsF1()</a></code>
+          <code><a href="rdirichlet.html">rdirichlet()</a></code>
 
         </dt>
-        <dd>Calculate Appell's First Hypergeometric Function of Two Variables</dd>
+        <dd>Generate Random Samples from a Dirichlet Distribution</dd>
+      </dl></div><div class="section level2">
+      <h2 id="utility-functions">Utility Functions<a class="anchor" aria-label="anchor" href="#utility-functions"></a></h2>
+
+      <div class="section-desc"><p>Supporting functions for joint probability and multinomial enumeration</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="getjointbin.html">getjointbin()</a></code>
+
+        </dt>
+        <dd>Compute Joint Bivariate Binary Probabilities from Marginal Rates and Correlation</dd>
+      </dl><dl><dt>
+
+          <code><a href="allmultinom.html">allmultinom()</a></code>
+
+        </dt>
+        <dd>Enumerate All Multinomial Count Vectors for a Bivariate Binary Outcome</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

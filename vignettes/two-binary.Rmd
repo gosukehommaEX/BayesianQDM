@@ -12,7 +12,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment  = "#>",
   fig.width  = 7,
-  fig.height = 5.5
+  fig.height = 5.5,
+  fig.path = "figures/2bin-"
 )
 library(BayesianQDM)
 ```
@@ -760,14 +761,16 @@ go_upper  <- max(go_upper, 0.10)
 go_breaks <- seq(0, go_upper, length.out = 11)
 go_cols   <- hcl.colors(10, palette = "Blues", rev = TRUE)
 
-old_par2 <- par(mar = c(4.5, 4.5, 3.5, 5))
+layout(matrix(1:2, nrow = 1), widths = c(8, 2))
+par(mar = c(4.5, 4.5, 3.5, 1))
 
 image(x = g1, y = g2, z = pmin(Z_go, go_upper),
       breaks = go_breaks, col = go_cols,
       xlab = expression(gamma[1]),
       ylab = expression(gamma[2]),
-      main = expression("Pr(Go) over (" * gamma[1] * ", " * gamma[2] * ") grid \u2014 Null scenario"),
-      las  = 1)
+      main = expression("Pr(Go) over (" * gamma[1] * ", " * gamma[2] * ") grid"),
+      las  = 1,
+      useRaster = TRUE)
 contour(x = g1, y = g2, z = Z_go,
         levels = 0.05, add = TRUE,
         lwd = 2.5, col = "#2166AC", labcex = 0.9)
@@ -785,15 +788,16 @@ legend("topright",
        bty = "n", cex = 0.85)
 
 # Color bar
-par(new = TRUE, mar = c(4.5, 0, 3.5, 3))
-barplot(rep(1, 10), col = go_cols, border = NA,
-        horiz = FALSE, axes = FALSE, space = 0,
-        width = 1, xlim = c(0, 10))
-axis(4, at = seq(0, 10, length.out = 6),
-     labels = round(seq(0, go_upper, length.out = 6), 2),
-     las = 1, cex.axis = 0.8)
+par(mar = c(4.5, 0.5, 3.5, 3)) 
+plot(NULL, xlim = c(0, 1), ylim = c(0, go_upper), type = "n", 
+     axes = FALSE, xlab = "", ylab = "")
+rect(0, go_breaks[-11], 1, go_breaks[-1], 
+     col = go_cols, 
+     border = NA)
+axis(4, at = seq(0, go_upper, length.out = 6), las = 1, cex.axis = 0.8)
 
-par(old_par2)
+layout(1)
+par(mar = c(5, 4, 4, 2) + 0.1) 
 ```
 
 ### 5.4 Figure: Contour Plot of Pr(NoGo) over $(\gamma_1, \gamma_2)$ Grid
@@ -806,7 +810,8 @@ nogo_upper  <- max(nogo_upper, 0.30)
 nogo_breaks <- seq(0, nogo_upper, length.out = 11)
 nogo_cols   <- hcl.colors(10, palette = "Reds", rev = TRUE)
 
-old_par3 <- par(mar = c(4.5, 4.5, 3.5, 5))
+layout(matrix(1:2, nrow = 1), widths = c(8, 2))
+par(mar = c(4.5, 4.5, 3.5, 1))
 
 image(x = g1, y = g2, z = pmin(Z_nogo, nogo_upper),
       breaks = nogo_breaks, col = nogo_cols,
@@ -831,15 +836,16 @@ legend("topright",
        bty = "n", cex = 0.85)
 
 # Color bar
-par(new = TRUE, mar = c(4.5, 0, 3.5, 3))
-barplot(rep(1, 10), col = nogo_cols, border = NA,
-        horiz = FALSE, axes = FALSE, space = 0,
-        width = 1, xlim = c(0, 10))
-axis(4, at = seq(0, 10, length.out = 6),
-     labels = round(seq(0, nogo_upper, length.out = 6), 2),
-     las = 1, cex.axis = 0.8)
+par(mar = c(4.5, 0.5, 3.5, 3)) 
+plot(NULL, xlim = c(0, 1), ylim = c(0, nogo_upper), type = "n", 
+     axes = FALSE, xlab = "", ylab = "")
+rect(0, nogo_breaks[-11], 1, nogo_breaks[-1], 
+     col = nogo_cols, 
+     border = NA)
+axis(4, at = seq(0, nogo_upper, length.out = 6), las = 1, cex.axis = 0.8)
 
-par(old_par3)
+layout(1)
+par(mar = c(5, 4, 4, 2) + 0.1) 
 ```
 
 ### 5.5 Example: Uncontrolled Design, Posterior Probability

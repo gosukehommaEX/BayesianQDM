@@ -31,15 +31,17 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="articles/BayesianQDM.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/BayesianQDM.html">Introduction to BayesianQDM</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-guides" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Guides</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-guides">
+<li><a class="dropdown-item" href="articles/overview.html">Overview of BayesianQDM</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="articles/binary-endpoints.html">Binary Endpoints</a></li>
-    <li><a class="dropdown-item" href="articles/continuous-endpoints.html">Continuous Endpoints</a></li>
+    <li><a class="dropdown-item" href="articles/single-binary.html">Single Binary Endpoint</a></li>
+    <li><a class="dropdown-item" href="articles/single-continuous.html">Single Continuous Endpoint</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="articles/two-binary.html">Two Binary Endpoints</a></li>
+    <li><a class="dropdown-item" href="articles/two-continuous.html">Two Continuous Endpoints</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -57,24 +59,33 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="bayesianqdm-">BayesianQDM <img src="reference/figures/logo.png" align="right" height="139" alt=""><a class="anchor" aria-label="anchor" href="#bayesianqdm-"></a>
+<div class="page-header"><h1 id="bayesianqdm-">BayesianQDM <img src="reference/figures/badge-BayesianQDM.png" align="right" height="139" alt="BayesianQDM package logo"><a class="anchor" aria-label="anchor" href="#bayesianqdm-"></a>
 </h1></div>
 <!-- badges: start -->
 
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>BayesianQDM provides a comprehensive framework for <strong>Bayesian Quantitative Decision-Making</strong> in clinical trials. The package enables researchers to make <strong>Go/NoGo/Gray</strong> decisions using posterior and predictive probabilities for both binary and continuous endpoints.</p>
+<p>BayesianQDM provides a comprehensive framework for <strong>Bayesian Quantitative Decision-Making</strong> in clinical trials. The package enables researchers to compute posterior probabilities, posterior predictive probabilities, and <strong>Go/NoGo/Gray</strong> decision probabilities for both single and two-endpoint analyses with binary and continuous outcomes. The package also provides functions to find optimal Go/NoGo thresholds that satisfy user-specified operating characteristic criteria.</p>
 </div>
 <div class="section level2">
 <h2 id="key-features">Key Features<a class="anchor" aria-label="anchor" href="#key-features"></a>
 </h2>
 <ul>
-<li>✅ <strong>Multiple Study Designs</strong>: Controlled, uncontrolled, and external control designs</li>
-<li>📊 <strong>Flexible Endpoints</strong>: Support for both binary and continuous outcomes</li>
-<li>🔢 <strong>Multiple Calculation Methods</strong>: For continuous endpoints (Numerical Integration, Monte Carlo, Welch-Satterthwaite)</li>
-<li>🎯 <strong>Three-Zone Decision Framework</strong>: Go/NoGo/Gray probability calculation</li>
-<li>📈 <strong>Power Priors</strong>: Incorporation of historical/external data</li>
+<li>
+<strong>Single and Two Endpoints</strong>: Supports single binary, single continuous, two binary, and two continuous endpoint analyses</li>
+<li>
+<strong>Multiple Study Designs</strong>: Controlled, uncontrolled (hypothetical control), and external control designs</li>
+<li>
+<strong>Flexible Prior Specification</strong>: Vague (Jeffreys) priors and conjugate priors (Beta, Normal-Inverse-Chi-squared, Normal-Inverse-Wishart, Dirichlet)</li>
+<li>
+<strong>Power Priors</strong>: Exact conjugate representation for incorporating historical or external data without MCMC</li>
+<li>
+<strong>Multiple Calculation Methods</strong>: Numerical integration (NI), Monte Carlo simulation (MC), and Moment-Matching approximation (MM) for continuous endpoints</li>
+<li>
+<strong>Three-Zone Decision Framework</strong>: Go/NoGo/Gray probability calculation with user-defined thresholds (TV and MAV)</li>
+<li>
+<strong>Optimal Threshold Search</strong>: Grid-search functions to find Go/NoGo thresholds satisfying target operating characteristics</li>
 </ul>
 </div>
 <div class="section level2">
@@ -95,146 +106,151 @@
 </div>
 </div>
 <div class="section level2">
-<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
-</h2>
-<div class="section level3">
-<h3 id="binary-endpoint-example">Binary Endpoint Example<a class="anchor" aria-label="anchor" href="#binary-endpoint-example"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gosukehommaEX.github.io/BayesianQDM/">BayesianQDM</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Calculate Go/NoGo/Gray probabilities for binary endpoint</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pGNGsinglebinary.html">pGNGsinglebinary</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
-<span>  design <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  theta.TV <span class="op">=</span> <span class="fl">0.3</span>, theta.MAV <span class="op">=</span> <span class="fl">0.1</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>  pi1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span><span class="op">)</span>, </span>
-<span>  pi2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="continuous-endpoint-example">Continuous Endpoint Example<a class="anchor" aria-label="anchor" href="#continuous-endpoint-example"></a>
-</h3>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Calculate Go/NoGo/Gray probabilities for continuous endpoint</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous</a></span><span class="op">(</span></span>
-<span>  nsim <span class="op">=</span> <span class="fl">100</span>, </span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
-<span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
-<span>  prior <span class="op">=</span> <span class="st">'vague'</span>, </span>
-<span>  CalcMethod <span class="op">=</span> <span class="st">'NI'</span>,</span>
-<span>  theta.TV <span class="op">=</span> <span class="fl">1.5</span>, theta.MAV <span class="op">=</span> <span class="fl">0.5</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  nMC <span class="op">=</span> <span class="cn">NULL</span>, gamma1 <span class="op">=</span> <span class="fl">0.8</span>, gamma2 <span class="op">=</span> <span class="fl">0.3</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">15</span>, n2 <span class="op">=</span> <span class="fl">15</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  kappa01 <span class="op">=</span> <span class="cn">NULL</span>, kappa02 <span class="op">=</span> <span class="cn">NULL</span>, nu01 <span class="op">=</span> <span class="cn">NULL</span>, nu02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mu01 <span class="op">=</span> <span class="cn">NULL</span>, mu02 <span class="op">=</span> <span class="cn">NULL</span>, sigma01 <span class="op">=</span> <span class="cn">NULL</span>, sigma02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mu1 <span class="op">=</span> <span class="fl">4.0</span>, mu2 <span class="op">=</span> <span class="fl">2.0</span>, sigma1 <span class="op">=</span> <span class="fl">1.5</span>, sigma2 <span class="op">=</span> <span class="fl">1.3</span>,</span>
-<span>  r <span class="op">=</span> <span class="cn">NULL</span>, ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, alpha01 <span class="op">=</span> <span class="cn">NULL</span>, alpha02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  bar.ye1 <span class="op">=</span> <span class="cn">NULL</span>, bar.ye2 <span class="op">=</span> <span class="cn">NULL</span>, se1 <span class="op">=</span> <span class="cn">NULL</span>, se2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  seed <span class="op">=</span> <span class="fl">123</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
-</h2>
-<div class="section level3">
-<h3 id="id_-vignettes">📚 Vignettes<a class="anchor" aria-label="anchor" href="#id_-vignettes"></a>
-</h3>
-<p>The package includes detailed vignettes with practical examples:</p>
-<ul>
-<li>
-<strong><a href="https://gosukehommaEX.github.io/BayesianQDM/articles/BayesianQDM.html">Introduction to BayesianQDM</a></strong>: Overview and quick start guide</li>
-<li>
-<strong><a href="https://gosukehommaEX.github.io/BayesianQDM/articles/binary-endpoints.html">Binary Endpoints</a></strong>: Detailed examples for binary outcome analysis</li>
-<li>
-<strong><a href="https://gosukehommaEX.github.io/BayesianQDM/articles/continuous-endpoints.html">Continuous Endpoints</a></strong>: Comprehensive guide for continuous outcome analysis</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="id_-function-documentation">📖 Function Documentation<a class="anchor" aria-label="anchor" href="#id_-function-documentation"></a>
-</h3>
-<ul>
-<li>
-<strong><a href="https://gosukehommaEX.github.io/BayesianQDM/reference/index.html">Full Reference</a></strong>: Complete function documentation with examples</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="id_-package-website">🌐 Package Website<a class="anchor" aria-label="anchor" href="#id_-package-website"></a>
-</h3>
-<p>Visit our <a href="https://gosukehommaEX.github.io/BayesianQDM/">pkgdown website</a> for: - Interactive documentation - Downloadable examples - Method comparisons - Best practice guides</p>
-</div>
-<div class="section level3">
-<h3 id="local-access">Local Access<a class="anchor" aria-label="anchor" href="#local-access"></a>
-</h3>
-<p>Access vignettes locally after installation:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># View available vignettes</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Open specific vignettes</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"BayesianQDM"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"binary-endpoints"</span>, package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span>  </span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"continuous-endpoints"</span>, package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
 <h2 id="core-functions">Core Functions<a class="anchor" aria-label="anchor" href="#core-functions"></a>
 </h2>
 <div class="section level3">
-<h3 id="decision-making-functions">Decision Making Functions<a class="anchor" aria-label="anchor" href="#decision-making-functions"></a>
+<h3 id="posterior--posterior-predictive-probability-functions">Posterior / Posterior Predictive Probability Functions<a class="anchor" aria-label="anchor" href="#posterior--posterior-predictive-probability-functions"></a>
 </h3>
-<ul>
-<li>
-<code><a href="reference/pGNGsinglebinary.html">pGNGsinglebinary()</a></code> - Go/NoGo/Gray probabilities for binary endpoints</li>
-<li>
-<code><a href="reference/pGNGsinglecontinuous.html">pGNGsinglecontinuous()</a></code> - Go/NoGo/Gray probabilities for continuous endpoints</li>
-</ul>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="reference/pbayespostpred1bin.html">pbayespostpred1bin()</a></code></td>
+<td>Posterior or predictive probability for a single binary endpoint</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/pbayespostpred1cont.html">pbayespostpred1cont()</a></code></td>
+<td>Posterior or predictive probability for a single continuous endpoint</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/pbayespostpred2bin.html">pbayespostpred2bin()</a></code></td>
+<td>Joint region probabilities for two binary endpoints</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/pbayespostpred2cont.html">pbayespostpred2cont()</a></code></td>
+<td>Joint region probabilities for two continuous endpoints</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
-<h3 id="probability-calculation-functions">Probability Calculation Functions<a class="anchor" aria-label="anchor" href="#probability-calculation-functions"></a>
+<h3 id="decision-probability-functions">Decision Probability Functions<a class="anchor" aria-label="anchor" href="#decision-probability-functions"></a>
 </h3>
-<ul>
-<li>
-<code><a href="reference/pPPsinglebinary.html">pPPsinglebinary()</a></code> - Posterior/predictive probabilities for binary endpoints</li>
-<li>
-<code><a href="reference/pPPsinglecontinuous.html">pPPsinglecontinuous()</a></code> - Posterior/predictive probabilities for continuous endpoints</li>
-</ul>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin()</a></code></td>
+<td>Go/NoGo/Gray probabilities for a single binary endpoint</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/pbayesdecisionprob1cont.html">pbayesdecisionprob1cont()</a></code></td>
+<td>Go/NoGo/Gray probabilities for a single continuous endpoint</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/pbayesdecisionprob2bin.html">pbayesdecisionprob2bin()</a></code></td>
+<td>Go/NoGo/Gray probabilities for two binary endpoints</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/pbayesdecisionprob2cont.html">pbayesdecisionprob2cont()</a></code></td>
+<td>Go/NoGo/Gray probabilities for two continuous endpoints</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
-<h3 id="distribution-functions">Distribution Functions<a class="anchor" aria-label="anchor" href="#distribution-functions"></a>
+<h3 id="optimal-threshold-search-functions">Optimal Threshold Search Functions<a class="anchor" aria-label="anchor" href="#optimal-threshold-search-functions"></a>
 </h3>
-<ul>
-<li>
-<code><a href="reference/p2betadiff.html">p2betadiff()</a></code> - CDF for difference of two beta distributions</li>
-<li>
-<code><a href="reference/p2betabinomdiff.html">p2betabinomdiff()</a></code> - Beta-binomial posterior predictive probability</li>
-<li>
-<code><a href="reference/pNI2tdiff.html">pNI2tdiff()</a></code> - Numerical integration for t-distribution differences</li>
-<li>
-<code><a href="reference/pMC2tdiff.html">pMC2tdiff()</a></code> - Monte Carlo for t-distribution differences</li>
-<li>
-<code><a href="reference/pWS2tdiff.html">pWS2tdiff()</a></code> - Welch-Satterthwaite approximation for t-distribution differences</li>
-<li>
-<code><a href="reference/d2betadiff.html">d2betadiff()</a></code> - Density function for difference of two beta distributions</li>
-</ul>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="reference/getgamma1bin.html">getgamma1bin()</a></code></td>
+<td>Find optimal Go/NoGo thresholds for a single binary endpoint</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/getgamma1cont.html">getgamma1cont()</a></code></td>
+<td>Find optimal Go/NoGo thresholds for a single continuous endpoint</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/getgamma2bin.html">getgamma2bin()</a></code></td>
+<td>Find optimal Go/NoGo thresholds for two binary endpoints</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/getgamma2cont.html">getgamma2cont()</a></code></td>
+<td>Find optimal Go/NoGo thresholds for two continuous endpoints</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
-<h3 id="utility-functions">Utility Functions<a class="anchor" aria-label="anchor" href="#utility-functions"></a>
+<h3 id="distribution-and-utility-functions">Distribution and Utility Functions<a class="anchor" aria-label="anchor" href="#distribution-and-utility-functions"></a>
 </h3>
-<ul>
-<li>
-<code><a href="reference/AppellsF1.html">AppellsF1()</a></code> - Appell’s hypergeometric function F1</li>
-</ul>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="reference/pbetadiff.html">pbetadiff()</a></code></td>
+<td>CDF for the difference of two independent Beta distributions</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/pbetabinomdiff.html">pbetabinomdiff()</a></code></td>
+<td>Beta-binomial posterior predictive probability</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/ptdiff_NI.html">ptdiff_NI()</a></code></td>
+<td>CDF for the difference of two t-distributions via numerical integration</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/ptdiff_MC.html">ptdiff_MC()</a></code></td>
+<td>CDF for the difference of two t-distributions via Monte Carlo simulation</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/ptdiff_MM.html">ptdiff_MM()</a></code></td>
+<td>CDF for the difference of two t-distributions via Moment-Matching approximation</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/rdirichlet.html">rdirichlet()</a></code></td>
+<td>Random sampler for the Dirichlet distribution</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/getjointbin.html">getjointbin()</a></code></td>
+<td>Joint binary probability from marginals and correlation</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/allmultinom.html">allmultinom()</a></code></td>
+<td>Enumerate all multinomial outcome combinations</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="section level2">
@@ -243,128 +259,62 @@
 <div class="section level3">
 <h3 id="controlled-design">Controlled Design<a class="anchor" aria-label="anchor" href="#controlled-design"></a>
 </h3>
-<p>Standard randomized controlled trials with treatment and control groups.</p>
+<p>Standard randomised controlled trials with concurrent treatment and control groups.</p>
 </div>
 <div class="section level3">
 <h3 id="uncontrolled-design">Uncontrolled Design<a class="anchor" aria-label="anchor" href="#uncontrolled-design"></a>
 </h3>
-<p>Single-arm studies using historical controls with beta priors (binary) or informative priors (continuous).</p>
+<p>Single-arm studies using a hypothetical control distribution specified through prior parameters or a variance scaling factor.</p>
 </div>
 <div class="section level3">
 <h3 id="external-control-design">External Control Design<a class="anchor" aria-label="anchor" href="#external-control-design"></a>
 </h3>
-<p>Incorporating historical/external data through power priors for enhanced decision making. For binary endpoints, use <code>ne1</code>, <code>ne2</code>, <code>ye1</code>, <code>ye2</code>, <code>ae1</code>, <code>ae2</code> parameters. For continuous endpoints, use <code>ne1</code>, <code>ne2</code>, <code>alpha01</code>, <code>alpha02</code>, <code>bar.ye1</code>, <code>bar.ye2</code>, <code>se1</code>, <code>se2</code> parameters.</p>
+<p>Incorporates historical or external control (and/or treatment) data through power priors using exact conjugate representations, enabling efficient Bayesian computation without MCMC sampling.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="calculation-methods">Calculation Methods<a class="anchor" aria-label="anchor" href="#calculation-methods"></a>
+<h2 id="statistical-methods-for-continuous-endpoints">Statistical Methods for Continuous Endpoints<a class="anchor" aria-label="anchor" href="#statistical-methods-for-continuous-endpoints"></a>
 </h2>
-<div class="section level3">
-<h3 id="for-continuous-endpoints">For Continuous Endpoints<a class="anchor" aria-label="anchor" href="#for-continuous-endpoints"></a>
-</h3>
-<table class="table">
-<colgroup>
-<col width="25%">
-<col width="41%">
-<col width="32%">
-</colgroup>
-<thead><tr class="header">
-<th>Method</th>
-<th>Description</th>
-<th>Use Case</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><strong>NI</strong></td>
-<td>Numerical Integration</td>
-<td>Most accurate, recommended for final analyses</td>
-</tr>
-<tr class="even">
-<td><strong>WS</strong></td>
-<td>Welch-Satterthwaite</td>
-<td>Fast approximation for unequal variances</td>
-</tr>
-<tr class="odd">
-<td><strong>MC</strong></td>
-<td>Monte Carlo</td>
-<td>Flexible simulation-based approach</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level3">
-<h3 id="method-comparison-example">Method Comparison Example<a class="anchor" aria-label="anchor" href="#method-comparison-example"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Compare calculation methods</span></span>
-<span><span class="va">mu1</span> <span class="op">&lt;-</span> <span class="fl">3.5</span>; <span class="va">mu2</span> <span class="op">&lt;-</span> <span class="fl">1.8</span>; <span class="va">sd1</span> <span class="op">&lt;-</span> <span class="fl">1.3</span>; <span class="va">sd2</span> <span class="op">&lt;-</span> <span class="fl">1.1</span>; <span class="va">nu1</span> <span class="op">&lt;-</span> <span class="fl">14</span>; <span class="va">nu2</span> <span class="op">&lt;-</span> <span class="fl">16</span></span>
-<span></span>
-<span><span class="co"># Numerical integration (exact)</span></span>
-<span><span class="va">prob_ni</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pNI2tdiff.html">pNI2tdiff</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">1.5</span>, mu.t1 <span class="op">=</span> <span class="va">mu1</span>, mu.t2 <span class="op">=</span> <span class="va">mu2</span>, </span>
-<span>                     sd.t1 <span class="op">=</span> <span class="va">sd1</span>, sd.t2 <span class="op">=</span> <span class="va">sd2</span>, nu.t1 <span class="op">=</span> <span class="va">nu1</span>, nu.t2 <span class="op">=</span> <span class="va">nu2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Welch-Satterthwaite approximation (fast)  </span></span>
-<span><span class="va">prob_ws</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pWS2tdiff.html">pWS2tdiff</a></span><span class="op">(</span>q <span class="op">=</span> <span class="fl">1.5</span>, mu.t1 <span class="op">=</span> <span class="va">mu1</span>, mu.t2 <span class="op">=</span> <span class="va">mu2</span>, </span>
-<span>                     sd.t1 <span class="op">=</span> <span class="va">sd1</span>, sd.t2 <span class="op">=</span> <span class="va">sd2</span>, nu.t1 <span class="op">=</span> <span class="va">nu1</span>, nu.t2 <span class="op">=</span> <span class="va">nu2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"NI:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">prob_ni</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"WS:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">prob_ws</span>, <span class="fl">4</span><span class="op">)</span>, </span>
-<span>    <span class="st">"Diff:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">prob_ni</span> <span class="op">-</span> <span class="va">prob_ws</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
+<p>For single continuous endpoints, three methods are available for computing the CDF of the difference between two independent t-distributions:</p>
+<ul>
+<li>
+<strong>NI</strong> (Numerical Integration): Exact computation via adaptive quadrature (<code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">stats::integrate</a></code>)</li>
+<li>
+<strong>MC</strong> (Monte Carlo): Simulation-based estimation; supports vectorised batch processing</li>
+<li>
+<strong>MM</strong> (Moment-Matching): Closed-form approximation by matching the first two even moments of the difference distribution to a single t-distribution; fully vectorised and recommended for large-scale simulation studies</li>
+</ul>
+<p>For two continuous endpoints, MC and MM methods are available for computing joint rectangular region probabilities under a bivariate t-distribution approximation (Theorem 3, Homma and Yamaguchi, 2025).</p>
 </div>
 <div class="section level2">
-<h2 id="study-design-examples">Study Design Examples<a class="anchor" aria-label="anchor" href="#study-design-examples"></a>
+<h2 id="optimal-threshold-search">Optimal Threshold Search<a class="anchor" aria-label="anchor" href="#optimal-threshold-search"></a>
 </h2>
-<div class="section level3">
-<h3 id="controlled-design-1">Controlled Design<a class="anchor" aria-label="anchor" href="#controlled-design-1"></a>
-</h3>
-<p>Standard two-arm randomized controlled trial.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Binary endpoint</span></span>
-<span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
-<span>  design <span class="op">=</span> <span class="st">'controlled'</span>, </span>
-<span>  theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">15</span>, y1 <span class="op">=</span> <span class="fl">7</span>, y2 <span class="op">=</span> <span class="fl">5</span>, </span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="uncontrolled-design-1">Uncontrolled Design<a class="anchor" aria-label="anchor" href="#uncontrolled-design-1"></a>
-</h3>
-<p>Single-arm study with historical control assumption.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
-<span>  design <span class="op">=</span> <span class="st">'uncontrolled'</span>, </span>
-<span>  theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, y1 <span class="op">=</span> <span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">3.5</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="external-control-design-1">External Control Design<a class="anchor" aria-label="anchor" href="#external-control-design-1"></a>
-</h3>
-<p>Incorporating historical data using power priors.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pPPsinglebinary.html">pPPsinglebinary</a></span><span class="op">(</span></span>
-<span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, </span>
-<span>  design <span class="op">=</span> <span class="st">'external'</span>, </span>
-<span>  theta0 <span class="op">=</span> <span class="fl">0.15</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">20</span>, n2 <span class="op">=</span> <span class="fl">20</span>, y1 <span class="op">=</span> <span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">8</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="fl">15</span>, ne2 <span class="op">=</span> <span class="fl">25</span>, ye1 <span class="op">=</span> <span class="fl">9</span>, ye2 <span class="op">=</span> <span class="fl">10</span>, ae1 <span class="op">=</span> <span class="fl">0.5</span>, ae2 <span class="op">=</span> <span class="fl">0.5</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
+<p>The <code>getgamma</code> family of functions finds optimal Go threshold <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\gamma_1</annotation></semantics></math> and NoGo threshold <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\gamma_2</annotation></semantics></math> by grid search, given user-specified target operating characteristics (e.g., Pr(Go) and Pr(NoGo) under specified true parameter scenarios). The search follows a two-stage precompute-then-sweep strategy for computational efficiency.</p>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
-<p>For theoretical background and methodology details, please refer to the package vignettes and function documentation.</p>
+<div class="section level3">
+<h3 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
+</h3>
+<p>The package includes detailed vignettes with practical examples:</p>
+<p><strong>Getting Started</strong> - <a href="https://gosukehommaEX.github.io/BayesianQDM/articles/overview.html">Overview of BayesianQDM</a> - Framework overview and key concepts</p>
+<p><strong>Single Endpoint Analysis</strong> - <a href="https://gosukehommaEX.github.io/BayesianQDM/articles/single-binary.html">Single Binary Endpoint</a> - Binary endpoint analysis with Go/NoGo/Gray decisions - <a href="https://gosukehommaEX.github.io/BayesianQDM/articles/single-continuous.html">Single Continuous Endpoint</a> - Continuous endpoint analysis with multiple computation methods</p>
+<p><strong>Two Endpoint Analysis</strong> - <a href="https://gosukehommaEX.github.io/BayesianQDM/articles/two-binary.html">Two Binary Endpoints</a> - Joint analysis of two binary endpoints - <a href="https://gosukehommaEX.github.io/BayesianQDM/articles/two-continuous.html">Two Continuous Endpoints</a> - Joint analysis of two continuous endpoints</p>
+<p>Access vignettes locally after installation:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"overview"</span>, package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"single-binary"</span>, package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"single-continuous"</span>, package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"two-binary"</span>, package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span><span class="st">"two-continuous"</span>, package <span class="op">=</span> <span class="st">"BayesianQDM"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="package-website">Package Website<a class="anchor" aria-label="anchor" href="#package-website"></a>
+</h3>
+<p>Visit the <a href="https://gosukehommaEX.github.io/BayesianQDM/">pkgdown website</a> for interactive documentation and the full function reference.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
@@ -383,7 +333,7 @@ R package version 0.1.0.</code></pre>
 <h2 id="authors">Authors<a class="anchor" aria-label="anchor" href="#authors"></a>
 </h2>
 <ul>
-<li>Gosuke Homma</li>
+<li>Gosuke Homma (maintainer)</li>
 <li>Yusuke Yamaguchi</li>
 </ul>
 </div>
@@ -405,7 +355,7 @@ R package version 0.1.0.</code></pre>
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li><small>GPL (&gt;= 3)</small></li>
 </ul>
 </div>
 
