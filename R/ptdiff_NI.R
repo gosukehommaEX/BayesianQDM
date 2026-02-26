@@ -46,7 +46,7 @@
 #'   \item Handles arbitrary parameter combinations.
 #' }
 #' Computational note: this method is substantially slower than the
-#' Moment-Matching approximation (\code{\link{pMM2tdiff}}) because it calls
+#' Moment-Matching approximation (\code{\link{ptdiff_MM}}) because it calls
 #' \code{integrate()} once per parameter set. For large-scale simulation
 #' (many parameter sets), prefer \code{CalcMethod = 'MM'} in
 #' \code{\link{pbayesdecisionprob1cont}}.
