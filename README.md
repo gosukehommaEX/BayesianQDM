@@ -1,7 +1,5 @@
 # BayesianQDM
 
-<img src="man/figures/badge-BayesianQDM.png" align="right" height="139" alt="BayesianQDM package logo" />
-
 <!-- badges: start -->
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/BayesianQDM)](http://cran.r-project.org/package=BayesianQDM)
 [![R-CMD-check](https://github.com/gosukehommaEX/BayesianQDM/workflows/R-CMD-check/badge.svg)](https://github.com/gosukehommaEX/BayesianQDM/actions)
