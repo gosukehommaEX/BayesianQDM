@@ -29,8 +29,8 @@ indicates greater improvement).
 
 **Clinically meaningful thresholds** (posterior probability):
 
-- Target Value (TV) = 1.5 (ambitious target)
-- Minimum Acceptable Value (MAV) = 0.5 (lower bar)
+- Target Value ($\theta_{\mathrm{TV}}$) = 1.5 (ambitious target)
+- Minimum Acceptable Value ($\theta_{\mathrm{MAV}}$) = 0.5 (lower bar)
 
 **Null hypothesis threshold** (predictive probability):
 $\theta_{\mathrm{NULL}} = 1.0$.
@@ -127,13 +127,13 @@ $t$-distribution:
 
 $$\bar{\tilde{y}}_j \mid \mathbf{y}_j \;\sim\;
   t_{\nu_{nj}}\!\!\left(\mu_{nj},\;
-  \sigma_{nj}\sqrt{\frac{1}{\kappa_{nj}} + \frac{1}{m_j}}\right).$$
+  \sigma_{nj}\sqrt{\frac{1 + \kappa_{nj}}{\kappa_{nj}\, m_j}}\right).$$
 
-Under the vague prior this becomes
+Under the vague prior ($\kappa_{nj} = n_j$, $\sigma_{nj} = s_j$) this becomes
 
 $$\bar{\tilde{y}}_j \mid \mathbf{y}_j \;\sim\;
   t_{n_j - 1}\!\!\left(\bar{y}_j,\;
-  s_j\sqrt{\frac{1}{n_j} + \frac{1}{m_j}}\right).$$
+  s_j\sqrt{\frac{n_j + 1}{n_j\, m_j}}\right).$$
 
 ### 2.2 Posterior Predictive Probability
 
@@ -282,7 +282,7 @@ Both posteriors are updated from the PoC data.
 **Vague prior — posterior probability**:
 
 ```{r ctrl-post}
-# P(mu1 - mu2 > TV | data) and P(mu1 - mu2 > MAV | data)
+# P(mu1 - mu2 > theta_TV | data) and P(mu1 - mu2 <= theta_MAV | data)
 p_tv <- pbayespostpred1cont(
   prob = 'posterior', design = 'controlled', prior = 'vague',
   CalcMethod = 'NI', theta0 = 1.5, nMC = NULL,
@@ -313,13 +313,14 @@ p_mav <- pbayespostpred1cont(
   lower.tail = FALSE
 )
 
-cat(sprintf("P(theta > TV  | data) = %.4f  -> Go  criterion: >= 0.80? %s\n",
+cat(sprintf("P(theta > theta_TV  | data) = %.4f  -> Go  criterion: >= 0.80? %s\n",
             p_tv, ifelse(p_tv >= 0.80, "YES", "NO")))
-cat(sprintf("P(theta > MAV | data) = %.4f  -> NoGo criterion: <= 0.20? %s\n",
-            p_mav, ifelse(p_mav <= 0.20, "YES", "NO")))
+cat(sprintf("P(theta <= theta_MAV | data) = %.4f  -> NoGo criterion: >= 0.20? %s\n",
+            1 - p_mav, ifelse((1 - p_mav) >= 0.20, "YES", "NO")))
 cat(sprintf("Decision: %s\n",
-            ifelse(p_tv >= 0.80, "Go",
-                   ifelse(p_mav <= 0.20, "NoGo", "Gray"))))
+            ifelse(p_tv >= 0.80 & (1 - p_mav) < 0.20, "Go",
+                   ifelse(p_tv < 0.80 & (1 - p_mav) >= 0.20, "NoGo",
+                          ifelse(p_tv >= 0.80 & (1 - p_mav) >= 0.20, "Miss", "Gray")))))
 ```
 
 **N-Inv-$\chi^2$ informative prior**:
@@ -345,7 +346,7 @@ p_tv_inf <- pbayespostpred1cont(
   bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
   lower.tail = FALSE
 )
-cat(sprintf("P(theta > TV | data, N-Inv-Chisq prior) = %.4f\n", p_tv_inf))
+cat(sprintf("P(theta > theta_TV | data, N-Inv-Chisq prior) = %.4f\n", p_tv_inf))
 ```
 
 **Posterior predictive probability** (future Phase III: $m_1 = m_2 = 60$):
@@ -395,7 +396,7 @@ p_unctrl <- pbayespostpred1cont(
   bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
   lower.tail = FALSE
 )
-cat(sprintf("P(theta > TV | data, uncontrolled) = %.4f\n", p_unctrl))
+cat(sprintf("P(theta > theta_TV | data, uncontrolled) = %.4f\n", p_unctrl))
 ```
 
 ### 4.3 External Control Design (Power Prior)
@@ -432,7 +433,7 @@ p_ext <- pbayespostpred1cont(
   bar.ye1 = NULL, se1 = NULL, bar.ye2 = 0.9, se2 = 1.8,
   lower.tail = FALSE
 )
-cat(sprintf("P(theta > TV | data, external control, alpha=0.5) = %.4f\n",
+cat(sprintf("P(theta > theta_TV | data, external control, alpha=0.5) = %.4f\n",
             p_ext))
 ```
 
@@ -469,24 +470,34 @@ data.frame(alpha_e2 = alpha_seq, P_gt_TV = round(p_alpha, 4))
 
 For a given true parameter $(\mu_1, \mu_2, \sigma_1, \sigma_2)$, the
 operating characteristics are the probabilities of each decision outcome
-under the Go/NoGo/Gray rule with thresholds $(\gamma_1, \gamma_2)$.
+under the Go/NoGo/Gray/Miss rule with thresholds $(\gamma_1, \gamma_2)$.
 These are estimated by Monte Carlo simulation over $n_{\mathrm{sim}}$
 replicates:
 
 $$\widehat{\Pr}(\mathrm{Go}) =
   \frac{1}{n_{\mathrm{sim}}} \sum_{i=1}^{n_{\mathrm{sim}}}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}^{(i)} \ge \gamma_1\right],$$
+  \mathbf{1}\!\left[g_{\mathrm{Go}}^{(i)} \ge \gamma_1
+    \;\text{ and }\; g_{\mathrm{NoGo}}^{(i)} < \gamma_2\right],$$
 
 $$\widehat{\Pr}(\mathrm{NoGo}) =
   \frac{1}{n_{\mathrm{sim}}} \sum_{i=1}^{n_{\mathrm{sim}}}
-  \mathbf{1}\!\left[g_{\mathrm{NoGo}}^{(i)} \le \gamma_2\right],$$
+  \mathbf{1}\!\left[g_{\mathrm{Go}}^{(i)} < \gamma_1
+    \;\text{ and }\; g_{\mathrm{NoGo}}^{(i)} \ge \gamma_2\right],$$
 
 $$\widehat{\Pr}(\mathrm{Gray}) = 1 -
-  \widehat{\Pr}(\mathrm{Go}) - \widehat{\Pr}(\mathrm{NoGo}),$$
+  \widehat{\Pr}(\mathrm{Go}) - \widehat{\Pr}(\mathrm{NoGo}) -
+  \widehat{\Pr}(\mathrm{Miss}),$$
 
-where $g_{\mathrm{Go}}^{(i)} = P(\theta > \mathrm{TV} \mid \mathbf{y}^{(i)})$
-and $g_{\mathrm{NoGo}}^{(i)} = P(\theta > \mathrm{MAV} \mid \mathbf{y}^{(i)})$
+where
+
+$$g_{\mathrm{Go}}^{(i)} = P(\theta > \theta_{\mathrm{TV}} \mid \mathbf{y}^{(i)}),
+\qquad
+g_{\mathrm{NoGo}}^{(i)} = P(\theta \le \theta_{\mathrm{MAV}} \mid \mathbf{y}^{(i)})$$
+
 are evaluated for the $i$-th simulated dataset $\mathbf{y}^{(i)}$.
+A Miss ($g_{\mathrm{Go}} \ge \gamma_1$ AND $g_{\mathrm{NoGo}} \ge \gamma_2$)
+indicates an inconsistent threshold configuration and triggers an error by
+default (`error_if_Miss = TRUE`).
 
 ### 5.2 Controlled Design — Multiple Scenarios
 
@@ -572,8 +583,8 @@ legend("right",
        col    = c("#2166AC", "#D6604D", "#878787"),
        pch    = c(16, 17, 15), lwd = 2, bty = "n")
 
-text(0.5,  0.05, "MAV", col = "gray40", cex = 0.8)
-text(1.5,  0.05, "TV",  col = "gray40", cex = 0.8)
+text(0.5,  0.05, expression(theta[MAV]), col = "gray40", cex = 0.8)
+text(1.5,  0.05, expression(theta[TV]),  col = "gray40", cex = 0.8)
 
 par(old_par)
 ```

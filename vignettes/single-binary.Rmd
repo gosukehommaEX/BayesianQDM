@@ -178,13 +178,14 @@ p_mav <- pbayespostpred1bin(
   lower.tail = FALSE
 )
 
-cat(sprintf("P(theta > TV  | data) = %.4f  -> Go  criterion (>= 0.80): %s\n",
-            p_tv,  ifelse(p_tv  >= 0.80, "YES", "NO")))
-cat(sprintf("P(theta > MAV | data) = %.4f  -> NoGo criterion (<= 0.20): %s\n",
-            p_mav, ifelse(p_mav <= 0.20, "YES", "NO")))
+cat(sprintf("P(theta > TV  | data) = %.4f  -> Go  criterion (>= %.2f): %s\n",
+            p_tv,  0.80, ifelse(p_tv  >= 0.80, "YES", "NO")))
+cat(sprintf("P(theta <= MAV | data) = %.4f  -> NoGo criterion (>= %.2f): %s\n",
+            1 - p_mav, 0.20, ifelse((1 - p_mav) >= 0.20, "YES", "NO")))
 cat(sprintf("Decision: %s\n",
-            ifelse(p_tv >= 0.80, "Go",
-                   ifelse(p_mav <= 0.20, "NoGo", "Gray"))))
+            ifelse(p_tv >= 0.80 & (1 - p_mav) < 0.20, "Go",
+                   ifelse(p_tv < 0.80 & (1 - p_mav) >= 0.20, "NoGo",
+                          ifelse(p_tv >= 0.80 & (1 - p_mav) >= 0.20, "Miss", "Gray")))))
 ```
 
 **Posterior predictive probability** (future Phase III: $m_1 = m_2 = 40$):
@@ -332,20 +333,22 @@ $(y_1, y_2) \in \{0,\ldots,n_1\} \times \{0,\ldots,n_2\}$:
 
 $$\Pr(\mathrm{Go}) =
   \sum_{y_1=0}^{n_1} \sum_{y_2=0}^{n_2}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma_1\right]\,
+  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma_1
+    \;\text{ and }\; g_{\mathrm{NoGo}}(y_1, y_2) < \gamma_2\right]\,
   \binom{n_1}{y_1} \pi_1^{y_1}(1-\pi_1)^{n_1-y_1}\,
   \binom{n_2}{y_2} \pi_2^{y_2}(1-\pi_2)^{n_2-y_2},$$
 
 where
 
-$$g_{\mathrm{Go}}(y_1, y_2) = P(\pi_1 - \pi_2 > \mathrm{TV} \mid y_1, y_2),$$
-$$g_{\mathrm{NoGo}}(y_1, y_2) = P(\pi_1 - \pi_2 > \mathrm{MAV} \mid y_1, y_2),$$
+$$g_{\mathrm{Go}}(y_1, y_2) = P(\pi_1 - \pi_2 > \theta_{\mathrm{TV}} \mid y_1, y_2),$$
+$$g_{\mathrm{NoGo}}(y_1, y_2) = P(\pi_1 - \pi_2 \le \theta_{\mathrm{MAV}} \mid y_1, y_2),$$
 
 and the decision outcomes are classified as:
 
-- **Go**: $g_{\mathrm{Go}} \ge \gamma_1$ and $g_{\mathrm{NoGo}} > \gamma_2$
-- **NoGo**: $g_{\mathrm{Go}} < \gamma_1$ and $g_{\mathrm{NoGo}} \le \gamma_2$
-- **Gray**: all remaining outcomes
+- **Go**: $g_{\mathrm{Go}} \ge \gamma_1$ AND $g_{\mathrm{NoGo}} < \gamma_2$
+- **NoGo**: $g_{\mathrm{Go}} < \gamma_1$ AND $g_{\mathrm{NoGo}} \ge \gamma_2$
+- **Miss**: $g_{\mathrm{Go}} \ge \gamma_1$ AND $g_{\mathrm{NoGo}} \ge \gamma_2$
+- **Gray**: neither Go nor NoGo criterion met
 
 ### 4.2 Controlled Design — Multiple Scenarios
 
@@ -504,7 +507,7 @@ $$\Pr(\mathrm{Go} \mid \gamma) = \sum_{y_1, y_2}
   w(y_1, y_2),$$
 
 $$\Pr(\mathrm{NoGo} \mid \gamma) = \sum_{y_1, y_2}
-  \mathbf{1}\!\left[g_{\mathrm{NoGo}}(y_1, y_2) \le \gamma\right]\,
+  \mathbf{1}\!\left[g_{\mathrm{NoGo}}(y_1, y_2) \ge \gamma\right]\,
   w(y_1, y_2),$$
 
 where $w(y_1, y_2) = \mathrm{Binom}(y_1; n_1, \pi_1)\,\mathrm{Binom}(y_2; n_2, \pi_2)$

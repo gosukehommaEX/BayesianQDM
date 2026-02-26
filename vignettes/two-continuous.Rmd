@@ -31,15 +31,15 @@ in a 1:1 randomised controlled design.
 
 **Clinically meaningful thresholds** (posterior probability):
 
-|          | Endpoint 1 | Endpoint 2 |
-|----------|-----------|-----------|
-| TV       | 1.5       | 1.0       |
-| MAV      | 0.5       | 0.3       |
+|                              | Endpoint 1 | Endpoint 2 |
+|------------------------------|:----------:|:----------:|
+| $\theta_{\mathrm{TV}}$       | 1.5        | 1.0        |
+| $\theta_{\mathrm{MAV}}$      | 0.5        | 0.3        |
 
 **Null hypothesis thresholds** (predictive probability):
 $\theta_{\mathrm{NULL},1} = 0.5$, $\theta_{\mathrm{NULL},2} = 0.3$.
 
-**Decision thresholds**: $\gamma_1 = 0.80$ (Go), $\gamma_2 = 0.80$ (NoGo).
+**Decision thresholds**: $\gamma_1 = 0.80$ (Go), $\gamma_2 = 0.20$ (NoGo).
 
 **Observed data** (used in Sections 2–4):
 
@@ -129,14 +129,55 @@ computed by one of two methods (MC or MM) described in Section 3.
 
 ### 1.4 Nine-Region Grid (Posterior Probability)
 
-The bivariate threshold grid for $(\theta_1, \theta_2)$ creates a
-$3 \times 3$ partition:
+The bivariate threshold grid for $(\theta_1, \theta_2)$ creates the same
+$3 \times 3$ partition as for the two binary endpoint case:
 
-| | $\theta_2 > \mathrm{TV}_2$ | $\mathrm{MAV}_2 < \theta_2 \le \mathrm{TV}_2$ | $\theta_2 \le \mathrm{MAV}_2$ |
-|---|:---:|:---:|:---:|
-| $\theta_1 > \mathrm{TV}_1$ | **R1** | R2 | R3 |
-| $\mathrm{MAV}_1 < \theta_1 \le \mathrm{TV}_1$ | R4 | R5 | R6 |
-| $\theta_1 \le \mathrm{MAV}_1$ | R7 | R8 | **R9** |
+```{r nine-region-cont, echo = FALSE, results = 'asis'}
+cat('
+<table style="border-collapse:collapse; text-align:center; font-size:0.9em;">
+<caption>Nine-region grid for two-endpoint posterior probability</caption>
+<thead>
+  <tr>
+    <th colspan="2" rowspan="2" style="border:1px solid #aaa; background:
+      linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
+      min-width:80px; min-height:60px; padding:4px;">
+    </th>
+    <th colspan="3" style="border:1px solid #aaa; padding:6px;">Endpoint 1</th>
+  </tr>
+  <tr>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &gt; &theta;<sub>TV1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>TV1</sub> &ge; &theta;<sub>1</sub> &gt; &theta;<sub>MAV1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>MAV1</sub> &ge; &theta;<sub>1</sub></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td rowspan="3" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
+        transform:rotate(180deg); font-weight:bold;">Endpoint 2</td>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>2</sub> &gt; &theta;<sub>TV2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R1</td>
+    <td style="border:1px solid #aaa; padding:6px;">R4</td>
+    <td style="border:1px solid #aaa; padding:6px;">R7</td>
+  </tr>
+  <tr>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>TV2</sub> &ge; &theta;<sub>2</sub> &gt; &theta;<sub>MAV2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R2</td>
+    <td style="border:1px solid #aaa; padding:6px;">R5</td>
+    <td style="border:1px solid #aaa; padding:6px;">R8</td>
+  </tr>
+  <tr>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>MAV2</sub> &ge; &theta;<sub>2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R3</td>
+    <td style="border:1px solid #aaa; padding:6px;">R6</td>
+    <td style="border:1px solid #aaa; padding:6px;">R9</td>
+  </tr>
+</tbody>
+</table>
+')
+```
 
 Typical choices: **Go if $P(R1) \ge \gamma_1$**,
 **NoGo if $P(R9) \ge \gamma_2$**.
@@ -145,10 +186,42 @@ Typical choices: **Go if $P(R1) \ge \gamma_1$**,
 
 For the predictive probability, a $2 \times 2$ partition is used:
 
-| | $\tilde\theta_2 > \theta_{\mathrm{NULL},2}$ | $\tilde\theta_2 \le \theta_{\mathrm{NULL},2}$ |
-|---|:---:|:---:|
-| $\tilde\theta_1 > \theta_{\mathrm{NULL},1}$ | **R1** | R2 |
-| $\tilde\theta_1 \le \theta_{\mathrm{NULL},1}$ | R3 | **R4** |
+```{r four-region-cont, echo = FALSE, results = 'asis'}
+cat('
+<table style="border-collapse:collapse; text-align:center; font-size:0.9em;">
+<caption>Four-region grid for two-endpoint predictive probability</caption>
+<thead>
+  <tr>
+    <th colspan="2" rowspan="2" style="border:1px solid #aaa; background:
+      linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
+      min-width:80px; min-height:60px; padding:4px;">
+    </th>
+    <th colspan="2" style="border:1px solid #aaa; padding:6px;">Endpoint 1</th>
+  </tr>
+  <tr>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &gt; &theta;<sub>NULL1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &le; &theta;<sub>NULL1</sub></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td rowspan="2" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
+        transform:rotate(180deg); font-weight:bold;">Endpoint 2</td>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>2</sub> &gt; &theta;<sub>NULL2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R1</td>
+    <td style="border:1px solid #aaa; padding:6px;">R3</td>
+  </tr>
+  <tr>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>2</sub> &le; &theta;<sub>NULL2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R2</td>
+    <td style="border:1px solid #aaa; padding:6px;">R4</td>
+  </tr>
+</tbody>
+</table>
+')
+```
 
 Typical choices: **Go if $P(R1) \ge \gamma_1$**,
 **NoGo if $P(R4) \ge \gamma_2$**.
@@ -246,12 +319,24 @@ p_post_vague <- pbayespostpred2cont(
 )
 print(round(p_post_vague, 4))
 cat(sprintf(
-  "\nGo  region (R1): P = %.4f  >= gamma1 (0.80)? %s\n",
-  p_post_vague["R1"], ifelse(p_post_vague["R1"] >= 0.80, "YES -> Go", "NO")
+  "g_Go  = P(R1 | data) = %.4f\n", p_post_vague["R1"]
 ))
 cat(sprintf(
-  "NoGo region (R9): P = %.4f  >= gamma2 (0.80)? %s\n",
-  p_post_vague["R9"], ifelse(p_post_vague["R9"] >= 0.80, "YES -> NoGo", "NO")
+  "g_NoGo = P(R9 | data) = %.4f\n\n", p_post_vague["R9"]
+))
+cat(sprintf(
+  "Go  criterion: g_Go  >= gamma1 (0.80)? %s\n",
+  ifelse(p_post_vague["R1"] >= 0.80, "YES", "NO")
+))
+cat(sprintf(
+  "NoGo criterion: g_NoGo >= gamma2 (0.20)? %s\n",
+  ifelse(p_post_vague["R9"] >= 0.20, "YES", "NO")
+))
+cat(sprintf("Decision: %s\n",
+  ifelse(p_post_vague["R1"] >= 0.80 & p_post_vague["R9"] <  0.20, "Go",
+  ifelse(p_post_vague["R1"] <  0.80 & p_post_vague["R9"] >= 0.20, "NoGo",
+  ifelse(p_post_vague["R1"] >= 0.80 & p_post_vague["R9"] >= 0.20, "Miss",
+                                                                    "Gray")))
 ))
 ```
 
@@ -303,7 +388,17 @@ p_pred <- pbayespostpred2cont(
 print(round(p_pred, 4))
 cat(sprintf(
   "\nGo  region (R1): P = %.4f  >= gamma1 (0.80)? %s\n",
-  p_pred["R1"], ifelse(p_pred["R1"] >= 0.80, "YES -> Go", "NO")
+  p_pred["R1"], ifelse(p_pred["R1"] >= 0.80, "YES", "NO")
+))
+cat(sprintf(
+  "NoGo region (R4): P = %.4f  >= gamma2 (0.20)? %s\n",
+  p_pred["R4"], ifelse(p_pred["R4"] >= 0.20, "YES", "NO")
+))
+cat(sprintf("Decision: %s\n",
+  ifelse(p_pred["R1"] >= 0.80 & p_pred["R4"] <  0.20, "Go",
+  ifelse(p_pred["R1"] <  0.80 & p_pred["R4"] >= 0.20, "NoGo",
+  ifelse(p_pred["R1"] >= 0.80 & p_pred["R4"] >= 0.20, "Miss",
+                                                        "Gray")))
 ))
 ```
 
@@ -405,16 +500,27 @@ for the $i$-th simulated dataset.  Then:
 
 $$\widehat{\Pr}(\mathrm{Go}) =
   \frac{1}{n_\mathrm{sim}} \sum_{i=1}^{n_\mathrm{sim}}
-  \mathbf{1}\!\left[\hat{g}_{\mathrm{Go},i} \ge \gamma_1 \text{ and }
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{Go},i} \ge \gamma_1 \;\text{and}\;
   \hat{g}_{\mathrm{NoGo},i} < \gamma_2\right],$$
 
 $$\widehat{\Pr}(\mathrm{NoGo}) =
   \frac{1}{n_\mathrm{sim}} \sum_{i=1}^{n_\mathrm{sim}}
-  \mathbf{1}\!\left[\hat{g}_{\mathrm{NoGo},i} \ge \gamma_2 \text{ and }
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{NoGo},i} \ge \gamma_2 \;\text{and}\;
   \hat{g}_{\mathrm{Go},i} < \gamma_1\right],$$
 
+$$\widehat{\Pr}(\mathrm{Miss}) =
+  \frac{1}{n_\mathrm{sim}} \sum_{i=1}^{n_\mathrm{sim}}
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{Go},i} \ge \gamma_1 \;\text{and}\;
+  \hat{g}_{\mathrm{NoGo},i} \ge \gamma_2\right],$$
+
 $$\widehat{\Pr}(\mathrm{Gray}) = 1 -
-  \widehat{\Pr}(\mathrm{Go}) - \widehat{\Pr}(\mathrm{NoGo}).$$
+  \widehat{\Pr}(\mathrm{Go}) - \widehat{\Pr}(\mathrm{NoGo}) -
+  \widehat{\Pr}(\mathrm{Miss}).$$
+
+A **Miss** ($\hat{g}_{\mathrm{Go}} \ge \gamma_1$ and
+$\hat{g}_{\mathrm{NoGo}} \ge \gamma_2$ simultaneously) indicates an
+inconsistent threshold configuration and triggers an error by default
+(`error_if_Miss = TRUE`).
 
 ### 5.2 Controlled Design — Multiple Scenarios
 
@@ -429,7 +535,7 @@ oc_ctrl <- pbayesdecisionprob2cont(
   nsim = 300L, prob = 'posterior', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
-  gamma1 = 0.80, gamma2 = 0.80,
+  gamma1 = 0.80, gamma2 = 0.20,
   theta.TV1  = 1.5, theta.MAV1 = 0.5,
   theta.TV2  = 1.0, theta.MAV2 = 0.3,
   theta.NULL1 = NULL, theta.NULL2 = NULL,
@@ -452,22 +558,23 @@ print(oc_ctrl)
 ### 5.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment Effect
 
 Operating characteristics are plotted as a function of the treatment
-effect on Endpoint 1 ($\mu_{1,1} - \mu_{2,1}$), holding the Endpoint 2
-effect fixed at 1.0.
+effect on Endpoint 1 ($\mu_{1,1} - \mu_{2,1}$). Both endpoints increase
+together ($\mu_{1,2} = 0.6 \times \mu_{1,1}$) to show the transition
+from NoGo through Gray to Go clearly.
 
-```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect on Endpoint 1 (mu1_1 - mu2_1), with Endpoint 2 effect fixed at 1.0. Controlled design, vague prior, MC method. n1 = n2 = 20, gamma1 = gamma2 = 0.80."}
-delta1_seq <- seq(0.5, 3.5, by = 0.5)
+```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect on Endpoint 1. Both endpoints increase proportionally (mu1_2 = 0.6 * mu1_1). Controlled design, vague prior, MC method. n1 = n2 = 20, gamma1 = 0.80, gamma2 = 0.20."}
+delta1_seq <- seq(0.0, 3.5, by = 0.25)
 
 oc_grid <- pbayesdecisionprob2cont(
   nsim = 300L, prob = 'posterior', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
-  gamma1 = 0.80, gamma2 = 0.80,
+  gamma1 = 0.80, gamma2 = 0.20,
   theta.TV1  = 1.5, theta.MAV1 = 0.5,
   theta.TV2  = 1.0, theta.MAV2 = 0.3,
   theta.NULL1 = NULL, theta.NULL2 = NULL,
   n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-  mu1    = cbind(delta1_seq, rep(1.0, length(delta1_seq))),
+  mu1    = cbind(delta1_seq, 0.6 * delta1_seq),
   Sigma1 = Sigma,
   mu2    = matrix(0, nrow = length(delta1_seq), ncol = 2),
   Sigma2 = Sigma,
@@ -497,8 +604,8 @@ lines(delta1_seq, oc_grid$Gray,
 abline(h = c(0.20, 0.80), lty = 2, col = "gray50")
 abline(v = c(0.5, 1.5),   lty = 3, col = "gray70")
 
-text(0.5 + 0.05, 0.04, "MAV1", col = "gray40", cex = 0.8, adj = 0)
-text(1.5 + 0.05, 0.04, "TV1",  col = "gray40", cex = 0.8, adj = 0)
+text(0.5 + 0.05, 0.04, expression(theta[MAV1]), col = "gray40", cex = 0.8, adj = 0)
+text(1.5 + 0.05, 0.04, expression(theta[TV1]),  col = "gray40", cex = 0.8, adj = 0)
 
 legend("right",
        legend = c("Pr(Go)", "Pr(NoGo)", "Pr(Gray)"),
@@ -515,7 +622,7 @@ oc_unctrl <- pbayesdecisionprob2cont(
   nsim = 300L, prob = 'posterior', design = 'uncontrolled',
   prior = 'N-Inv-Wishart',
   GoRegions = 1L, NoGoRegions = 9L,
-  gamma1 = 0.80, gamma2 = 0.80,
+  gamma1 = 0.80, gamma2 = 0.20,
   theta.TV1  = 1.5, theta.MAV1 = 0.5,
   theta.TV2  = 1.0, theta.MAV2 = 0.3,
   theta.NULL1 = NULL, theta.NULL2 = NULL,
@@ -544,7 +651,7 @@ oc_ext <- pbayesdecisionprob2cont(
   nsim = 300L, prob = 'posterior', design = 'external',
   prior = 'N-Inv-Wishart',
   GoRegions = 1L, NoGoRegions = 9L,
-  gamma1 = 0.80, gamma2 = 0.80,
+  gamma1 = 0.80, gamma2 = 0.20,
   theta.TV1  = 1.5, theta.MAV1 = 0.5,
   theta.TV2  = 1.0, theta.MAV2 = 0.3,
   theta.NULL1 = NULL, theta.NULL2 = NULL,
@@ -642,42 +749,48 @@ cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
 ### 6.3 Figure: Contour Plot of Pr(Go) over $(\gamma_1, \gamma_2)$ Grid
 
 ```{r gamma-contour-go, fig.cap = "Contour plot of Pr(Go) as a function of the candidate threshold pair (gamma1, gamma2) under the null scenario (mu1 = (0.5, 0.3), mu2 = (0, 0)). The dashed lines mark the optimal gamma1* (blue) and gamma2* (red). The 0.05 contour is highlighted in bold."}
-g1 <- res_gamma$gamma1_grid
-g2 <- res_gamma$gamma2_grid
+g1   <- res_gamma$gamma1_grid
+g2   <- res_gamma$gamma2_grid
 Z_go <- res_gamma$PrGo_grid   # rows = gamma1, cols = gamma2
 
-old_par2 <- par(mar = c(4.5, 4.5, 3.5, 1))
+# Cap upper limit at 95th percentile to avoid sparse high-value bands
+go_upper  <- ceiling(quantile(Z_go, 0.95, na.rm = TRUE) * 20) / 20
+go_upper  <- max(go_upper, 0.10)
+go_breaks <- seq(0, go_upper, length.out = 11)
+go_cols   <- hcl.colors(10, palette = "Blues", rev = TRUE)
 
-# Draw filled contour
-filled.contour(
-  x = g1, y = g2, z = Z_go,
-  levels   = seq(0, 0.5, by = 0.05),
-  col      = hcl.colors(10, palette = "Blues", rev = TRUE),
-  xlab     = expression(gamma[1]),
-  ylab     = expression(gamma[2]),
-  main     = "Pr(Go) over (\u03b31, \u03b32) grid — Null scenario",
-  plot.axes = {
-    axis(1); axis(2)
-    # Target contour line at 0.05
-    contour(x = g1, y = g2, z = Z_go,
-            levels = 0.05, add = TRUE,
-            lwd = 2.5, col = "#2166AC", labcex = 0.9)
-    # Optimal thresholds
-    if (!is.na(res_gamma$gamma1))
-      abline(v = res_gamma$gamma1, lty = 2, lwd = 2, col = "#2166AC")
-    if (!is.na(res_gamma$gamma2))
-      abline(h = res_gamma$gamma2, lty = 2, lwd = 2, col = "#D6604D")
-    legend("topright",
-           legend = c(
-             paste0("gamma1* = ", res_gamma$gamma1),
-             paste0("gamma2* = ", res_gamma$gamma2),
-             "Pr(Go) = 0.05 contour"),
-           col    = c("#2166AC", "#D6604D", "#2166AC"),
-           lty    = c(2, 2, 1),
-           lwd    = c(2, 2, 2.5),
-           bty    = "n", cex = 0.85)
-  }
-)
+old_par2 <- par(mar = c(4.5, 4.5, 3.5, 5))
+
+image(x = g1, y = g2, z = pmin(Z_go, go_upper),
+      breaks = go_breaks, col = go_cols,
+      xlab = expression(gamma[1]),
+      ylab = expression(gamma[2]),
+      main = expression("Pr(Go) over (" * gamma[1] * ", " * gamma[2] * ") grid \u2014 Null scenario"),
+      las  = 1)
+contour(x = g1, y = g2, z = Z_go,
+        levels = 0.05, add = TRUE,
+        lwd = 2.5, col = "#2166AC", labcex = 0.9)
+if (!is.na(res_gamma$gamma1))
+  abline(v = res_gamma$gamma1, lty = 2, lwd = 2, col = "#2166AC")
+if (!is.na(res_gamma$gamma2))
+  abline(h = res_gamma$gamma2, lty = 2, lwd = 2, col = "#D6604D")
+legend("topright",
+       legend = c(
+         paste0("gamma1* = ", res_gamma$gamma1),
+         paste0("gamma2* = ", res_gamma$gamma2),
+         "Pr(Go) = 0.05 contour"),
+       col = c("#2166AC", "#D6604D", "#2166AC"),
+       lty = c(2, 2, 1), lwd = c(2, 2, 2.5),
+       bty = "n", cex = 0.85)
+
+# Color bar
+par(new = TRUE, mar = c(4.5, 0, 3.5, 3))
+barplot(rep(1, 10), col = go_cols, border = NA,
+        horiz = FALSE, axes = FALSE, space = 0,
+        width = 1, xlim = c(0, 10))
+axis(4, at = seq(0, 10, length.out = 6),
+     labels = round(seq(0, go_upper, length.out = 6), 2),
+     las = 1, cex.axis = 0.8)
 
 par(old_par2)
 ```
@@ -687,37 +800,43 @@ par(old_par2)
 ```{r gamma-contour-nogo, fig.cap = "Contour plot of Pr(NoGo) as a function of (gamma1, gamma2) under the null scenario. The 0.20 contour is highlighted in bold."}
 Z_nogo <- res_gamma$PrNoGo_grid
 
-old_par3 <- par(mar = c(4.5, 4.5, 3.5, 1))
+nogo_upper  <- ceiling(quantile(Z_nogo, 0.95, na.rm = TRUE) * 20) / 20
+nogo_upper  <- max(nogo_upper, 0.30)
+nogo_breaks <- seq(0, nogo_upper, length.out = 11)
+nogo_cols   <- hcl.colors(10, palette = "Reds", rev = TRUE)
 
-filled.contour(
-  x = g1, y = g2, z = Z_nogo,
-  levels   = seq(0, 1.0, by = 0.10),
-  col      = hcl.colors(10, palette = "Reds", rev = TRUE),
-  xlab     = expression(gamma[1]),
-  ylab     = expression(gamma[2]),
-  main     = "Pr(NoGo) over (\u03b31, \u03b32) grid — Null scenario",
-  plot.axes = {
-    axis(1); axis(2)
-    # Target contour line at 0.20
-    contour(x = g1, y = g2, z = Z_nogo,
-            levels = 0.20, add = TRUE,
-            lwd = 2.5, col = "#D6604D", labcex = 0.9)
-    # Optimal thresholds
-    if (!is.na(res_gamma$gamma1))
-      abline(v = res_gamma$gamma1, lty = 2, lwd = 2, col = "#2166AC")
-    if (!is.na(res_gamma$gamma2))
-      abline(h = res_gamma$gamma2, lty = 2, lwd = 2, col = "#D6604D")
-    legend("topright",
-           legend = c(
-             paste0("gamma1* = ", res_gamma$gamma1),
-             paste0("gamma2* = ", res_gamma$gamma2),
-             "Pr(NoGo) = 0.20 contour"),
-           col    = c("#2166AC", "#D6604D", "#D6604D"),
-           lty    = c(2, 2, 1),
-           lwd    = c(2, 2, 2.5),
-           bty    = "n", cex = 0.85)
-  }
-)
+old_par3 <- par(mar = c(4.5, 4.5, 3.5, 5))
+
+image(x = g1, y = g2, z = pmin(Z_nogo, nogo_upper),
+      breaks = nogo_breaks, col = nogo_cols,
+      xlab = expression(gamma[1]),
+      ylab = expression(gamma[2]),
+      main = expression("Pr(NoGo) over (" * gamma[1] * ", " * gamma[2] * ") grid \u2014 Null scenario"),
+      las  = 1)
+contour(x = g1, y = g2, z = Z_nogo,
+        levels = 0.20, add = TRUE,
+        lwd = 2.5, col = "#D6604D", labcex = 0.9)
+if (!is.na(res_gamma$gamma1))
+  abline(v = res_gamma$gamma1, lty = 2, lwd = 2, col = "#2166AC")
+if (!is.na(res_gamma$gamma2))
+  abline(h = res_gamma$gamma2, lty = 2, lwd = 2, col = "#D6604D")
+legend("topright",
+       legend = c(
+         paste0("gamma1* = ", res_gamma$gamma1),
+         paste0("gamma2* = ", res_gamma$gamma2),
+         "Pr(NoGo) = 0.20 contour"),
+       col = c("#2166AC", "#D6604D", "#D6604D"),
+       lty = c(2, 2, 1), lwd = c(2, 2, 2.5),
+       bty = "n", cex = 0.85)
+
+# Color bar
+par(new = TRUE, mar = c(4.5, 0, 3.5, 3))
+barplot(rep(1, 10), col = nogo_cols, border = NA,
+        horiz = FALSE, axes = FALSE, space = 0,
+        width = 1, xlim = c(0, 10))
+axis(4, at = seq(0, 10, length.out = 6),
+     labels = round(seq(0, nogo_upper, length.out = 6), 2),
+     las = 1, cex.axis = 0.8)
 
 par(old_par3)
 ```
@@ -777,6 +896,8 @@ This vignette covered two continuous endpoint analysis in BayesianQDM:
    region probability computation.
 6. **Optimal threshold search**: three-stage strategy in `getgamma2cont()`
    producing $|\Gamma_1| \times |\Gamma_2|$ matrices `PrGo_grid` and
-   `PrNoGo_grid` — visualised as contour plots with target level curves.
+   `PrNoGo_grid` — visualised as contour plots with target level curves
+   ($\Pr(\mathrm{Go}) < 0.05$ under null, $\Pr(\mathrm{NoGo}) \ge 0.20$
+   under null).
 
 See `vignette("two-binary")` for the analogous two binary endpoint analysis.

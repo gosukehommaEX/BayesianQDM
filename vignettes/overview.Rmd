@@ -134,22 +134,21 @@ evaluated exactly by `pbetabinomdiff()`.
 
 ### 2.2 Continuous Endpoint
 
-The predictive distribution of the future sample mean
-$\bar{\tilde{y}}_j$ (based on $m_j$ future patients) under the
-N-Inv-$\chi^2$ posterior is again a non-standardised $t$-distribution:
+The predictive distribution of a single future observation
+$\tilde{y}_j$ under the N-Inv-$\chi^2$ posterior is a non-standardised
+$t$-distribution. For the future sample mean $\bar{\tilde{y}}_j$ based
+on $m_j$ future patients, the scale is reduced by $\sqrt{m_j}$:
 
 $$\bar{\tilde{y}}_j \mid \mathbf{y} \;\sim\;
   t_{\nu_{nj}}\!\left(\mu_{nj},\;
-  \sqrt{\frac{\sigma_{nj}^2}{\kappa_{nj}} + \frac{\sigma_{nj}^2}{m_j}}
-  \right)
-  = t_{\nu_{nj}}\!\left(\mu_{nj},\;
-  \sigma_{nj}\sqrt{\frac{1}{\kappa_{nj}} + \frac{1}{m_j}}\right).$$
+  \sigma_{nj}\sqrt{\frac{1 + \kappa_{nj}}{\kappa_{nj}\, m_j}}\right).$$
 
-Under the vague prior this simplifies to
+Under the vague prior ($\kappa_{0j} = \nu_{0j} = 0$, so $\kappa_{nj} = n_j$,
+$\sigma_{nj} = s_j$) this becomes
 
 $$\bar{\tilde{y}}_j \mid \mathbf{y} \;\sim\;
   t_{n_j - 1}\!\left(\bar{y}_j,\;
-  s_j\sqrt{\frac{1}{n_j} + \frac{1}{m_j}}\right).$$
+  s_j\sqrt{\frac{n_j + 1}{n_j\, m_j}}\right).$$
 
 The posterior predictive probability of the future treatment effect
 exceeding $\theta_0$ is
@@ -309,34 +308,40 @@ recovers the vague-prior result from the current data alone.
 
 ### 5.1 Single Endpoint
 
-Let $g$ denote either the posterior probability or the posterior predictive
-probability of the treatment effect exceeding a threshold. The Go/NoGo/Gray
-decision rule uses two pre-specified thresholds $\gamma_1 > \gamma_2$:
+The Go/NoGo/Gray decision rule uses two pre-specified thresholds
+$\gamma_1 > \gamma_2$ applied to a pair of probabilities
+$(g_{\mathrm{Go}},\, g_{\mathrm{NoGo}})$:
 
 $$\text{Decision} = \begin{cases}
-  \textbf{Go}   & \text{if } g \ge \gamma_1 \\
-  \textbf{NoGo} & \text{if } g \le \gamma_2 \\
-  \textbf{Gray} & \text{if } \gamma_2 < g < \gamma_1.
+  \textbf{Go}   & \text{if } g_{\mathrm{Go}}   \ge \gamma_1 \text{ AND }
+                              g_{\mathrm{NoGo}} <  \gamma_2 \\
+  \textbf{NoGo} & \text{if } g_{\mathrm{Go}}   <  \gamma_1 \text{ AND }
+                              g_{\mathrm{NoGo}} \ge \gamma_2 \\
+  \textbf{Miss} & \text{if } g_{\mathrm{Go}}   \ge \gamma_1 \text{ AND }
+                              g_{\mathrm{NoGo}} \ge \gamma_2 \\
+  \textbf{Gray} & \text{otherwise (neither Go nor NoGo criterion met).}
 \end{cases}$$
 
-For **posterior probability** with two clinical thresholds TV
-(Target Value) and MAV (Minimum Acceptable Value, TV $>$ MAV), two
-separate probabilities are evaluated:
+A Miss occurs when both Go and NoGo criteria are simultaneously satisfied,
+which indicates an inconsistent threshold configuration. By default the
+functions stop with an error if Miss probability $> 0$ (`error_if_Miss = TRUE`).
 
-$$g_{\mathrm{Go}} = P(\theta > \mathrm{TV} \mid \mathbf{y}), \qquad
-  g_{\mathrm{NoGo}} = P(\theta > \mathrm{MAV} \mid \mathbf{y}),$$
+For **posterior probability**, $\theta_{\mathrm{TV}}$ (Target Value) and
+$\theta_{\mathrm{MAV}}$ (Minimum Acceptable Value,
+$\theta_{\mathrm{TV}} > \theta_{\mathrm{MAV}}$) define two separate
+probabilities:
 
-and the decision rule becomes:
-
-$$\text{Decision} = \begin{cases}
-  \textbf{Go}   & \text{if } g_{\mathrm{Go}}   \ge \gamma_1 \\
-  \textbf{NoGo} & \text{if } g_{\mathrm{NoGo}} \le \gamma_2 \\
-  \textbf{Gray} & \text{otherwise}.
-\end{cases}$$
+$$g_{\mathrm{Go}} = P(\theta > \theta_{\mathrm{TV}} \mid \mathbf{y}), \qquad
+  g_{\mathrm{NoGo}} = P(\theta \le \theta_{\mathrm{MAV}} \mid \mathbf{y}).$$
 
 For **posterior predictive probability**, a single null threshold
-$\theta_{\mathrm{NULL}}$ is used, so $g = P(\tilde{\theta} > \theta_{\mathrm{NULL}} \mid \mathbf{y})$,
-and the same three-zone rule with $\gamma_1$, $\gamma_2$ applies.
+$\theta_{\mathrm{NULL}}$ is used and the same probability serves both roles:
+
+$$g_{\mathrm{Go}} = g_{\mathrm{NoGo}} =
+  P(\tilde{\theta} > \theta_{\mathrm{NULL}} \mid \mathbf{y}),$$
+
+so the decision reduces to Go if $g \ge \gamma_1$, NoGo if $g < \gamma_2$,
+and Gray otherwise (Miss cannot occur in this case).
 
 ### 5.2 Operating Characteristics
 
@@ -357,7 +362,8 @@ outcome pairs $(y_1, y_2) \in \{0,\ldots,n_1\} \times \{0,\ldots,n_2\}$ are
 computed by `pbayesdecisionprob1bin()` using binomial probability weights:
 
 $$\Pr(\mathrm{Go}) = \sum_{y_1=0}^{n_1} \sum_{y_2=0}^{n_2}
-  \mathbf{1}[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma_1]\;
+  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma_1
+    \;\text{ and }\; g_{\mathrm{NoGo}}(y_1, y_2) < \gamma_2\right]\;
   \binom{n_1}{y_1} \pi_1^{y_1}(1-\pi_1)^{n_1-y_1}\;
   \binom{n_2}{y_2} \pi_2^{y_2}(1-\pi_2)^{n_2-y_2}.$$
 
@@ -398,43 +404,106 @@ scenario), and $\gamma_2$ is selected analogously for the NoGo criterion.
 
 When two endpoints are evaluated jointly, the treatment effect vector is
 $\boldsymbol{\theta} = (\theta_1, \theta_2)$.  For each endpoint $k = 1, 2$,
-three zones are defined by TV$_k$ and MAV$_k$:
+three zones are defined by $\theta_{\mathrm{TV}k}$ and $\theta_{\mathrm{MAV}k}$:
 
-- **Go zone**: $\theta_k > \mathrm{TV}_k$
-- **Gray zone**: $\mathrm{MAV}_k < \theta_k \le \mathrm{TV}_k$
-- **NoGo zone**: $\theta_k \le \mathrm{MAV}_k$
+- **Go zone**: $\theta_k > \theta_{\mathrm{TV}k}$
+- **Gray zone**: $\theta_{\mathrm{MAV}k} < \theta_k \le \theta_{\mathrm{TV}k}$
+- **NoGo zone**: $\theta_k \le \theta_{\mathrm{MAV}k}$
 
 Their Cartesian product defines nine mutually exclusive regions
 $R_1, \ldots, R_9$:
 
-```{r nine-region, echo = FALSE}
-knitr::kable(data.frame(
-  Region = paste0("R", 1:9),
-  EP1 = c("> TV1", "> TV1", "> TV1",
-          "MAV1 < . <= TV1", "MAV1 < . <= TV1", "MAV1 < . <= TV1",
-          "<= MAV1", "<= MAV1", "<= MAV1"),
-  EP2 = c("> TV2", "MAV2 < . <= TV2", "<= MAV2",
-          "> TV2", "MAV2 < . <= TV2", "<= MAV2",
-          "> TV2", "MAV2 < . <= TV2", "<= MAV2")
-), col.names = c("Region", "Endpoint 1", "Endpoint 2"),
-caption = "Nine-region grid for two-endpoint posterior probability")
+```{r nine-region, echo = FALSE, results = 'asis'}
+cat('
+<table style="border-collapse:collapse; text-align:center; font-size:0.9em;">
+<caption>Nine-region grid for two-endpoint posterior probability</caption>
+<thead>
+  <tr>
+    <th colspan="2" rowspan="2" style="border:1px solid #aaa; background:
+      linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
+      min-width:80px; min-height:60px; padding:4px;">
+    </th>
+    <th colspan="3" style="border:1px solid #aaa; padding:6px;">Endpoint 1</th>
+  </tr>
+  <tr>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &gt; &theta;<sub>TV1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>TV1</sub> &ge; &theta;<sub>1</sub> &gt; &theta;<sub>MAV1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>MAV1</sub> &ge; &theta;<sub>1</sub></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td rowspan="3" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
+        transform:rotate(180deg); font-weight:bold;">Endpoint 2</td>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>2</sub> &gt; &theta;<sub>TV2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R1</td>
+    <td style="border:1px solid #aaa; padding:6px;">R4</td>
+    <td style="border:1px solid #aaa; padding:6px;">R7</td>
+  </tr>
+  <tr>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>TV2</sub> &ge; &theta;<sub>2</sub> &gt; &theta;<sub>MAV2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R2</td>
+    <td style="border:1px solid #aaa; padding:6px;">R5</td>
+    <td style="border:1px solid #aaa; padding:6px;">R8</td>
+  </tr>
+  <tr>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>MAV2</sub> &ge; &theta;<sub>2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R3</td>
+    <td style="border:1px solid #aaa; padding:6px;">R6</td>
+    <td style="border:1px solid #aaa; padding:6px;">R9</td>
+  </tr>
+</tbody>
+</table>
+')
 ```
 
-Region $R_1$ (both endpoints exceed TV) is typically designated as **Go**
-and $R_9$ (both endpoints below MAV) as **NoGo**.
+Region $R_1$ (both endpoints exceed $\theta_{\mathrm{TV}}$) is typically
+designated as **Go** and $R_9$ (both endpoints below $\theta_{\mathrm{MAV}}$)
+as **NoGo**.
 
 ### 6.2 Four-Region Grid (Predictive Probability)
 
 For the predictive probability, each endpoint has a binary success/failure
 outcome, yielding four regions:
 
-```{r four-region, echo = FALSE}
-knitr::kable(data.frame(
-  Region = paste0("Q", 1:4),
-  EP1 = c("> NULL1", "> NULL1", "<= NULL1", "<= NULL1"),
-  EP2 = c("> NULL2", "<= NULL2", "> NULL2", "<= NULL2")
-), col.names = c("Region", "Endpoint 1", "Endpoint 2"),
-caption = "Four-region grid for two-endpoint predictive probability")
+```{r four-region, echo = FALSE, results = 'asis'}
+cat('
+<table style="border-collapse:collapse; text-align:center; font-size:0.9em;">
+<caption>Four-region grid for two-endpoint predictive probability</caption>
+<thead>
+  <tr>
+    <th colspan="2" rowspan="2" style="border:1px solid #aaa; background:
+      linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
+      min-width:80px; min-height:60px; padding:4px;">
+    </th>
+    <th colspan="2" style="border:1px solid #aaa; padding:6px;">Endpoint 1</th>
+  </tr>
+  <tr>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &gt; &theta;<sub>NULL1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &le; &theta;<sub>NULL1</sub></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td rowspan="2" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
+        transform:rotate(180deg); font-weight:bold;">Endpoint 2</td>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>2</sub> &gt; &theta;<sub>NULL2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R1</td>
+    <td style="border:1px solid #aaa; padding:6px;">R3</td>
+  </tr>
+  <tr>
+    <td style="border:1px solid #aaa; padding:6px; text-align:left;">
+      &theta;<sub>2</sub> &le; &theta;<sub>NULL2</sub></td>
+    <td style="border:1px solid #aaa; padding:6px;">R2</td>
+    <td style="border:1px solid #aaa; padding:6px;">R4</td>
+  </tr>
+</tbody>
+</table>
+')
 ```
 
 ### 6.3 Joint Posterior for Two Binary Endpoints

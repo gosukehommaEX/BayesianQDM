@@ -27,14 +27,6 @@ reference:
   - pbayespostpred2bin
   - pbayespostpred2cont
 
-- title: Optimal Threshold Search Functions
-  desc: Grid-search functions for optimal Go/NoGo thresholds
-  contents:
-  - getgamma1bin
-  - getgamma1cont
-  - getgamma2bin
-  - getgamma2cont
-
 - title: Distribution Functions for Continuous Endpoints
   desc: CDF for the difference of two t-distributions
   contents:
@@ -51,6 +43,7 @@ reference:
 - title: Sampling Functions
   desc: Random samplers for multivariate distributions
   contents:
+  - rnsbt
   - rdirichlet
 
 - title: Utility Functions
@@ -65,13 +58,13 @@ articles:
   contents:
   - overview
 
-- title: Single Endpoint Analysis
+- title: Single Endpoint Guides
   navbar: Guides
   contents:
   - single-binary
   - single-continuous
 
-- title: Two Endpoint Analysis
+- title: Two Endpoint Guides
   navbar: Guides
   contents:
   - two-binary
@@ -79,11 +72,11 @@ articles:
 
 navbar:
   structure:
-    left:  [intro, reference, articles, news]
+    left:  [intro, reference, articles, tutorials, news]
     right: [search, github]
   components:
     articles:
-      text: Guides
+      text: Articles
       menu:
       - text: Overview of BayesianQDM
         href: articles/overview.html
