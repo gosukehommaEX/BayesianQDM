@@ -58,19 +58,21 @@
 #'
 #' @export
 pbetabinomdiff <- function(q, m1, m2, alpha1, alpha2, beta1, beta2,
-                            lower.tail = TRUE) {
+                           lower.tail = TRUE) {
 
   # --- Input validation ---
   if (!is.numeric(q) || length(q) != 1L || is.na(q)) {
     stop("'q' must be a single numeric value")
   }
 
-  for (arg in list(m1, m2)) {
-    nm <- deparse(substitute(arg))
-    if (!is.numeric(arg) || length(arg) != 1L || is.na(arg) ||
-        arg != floor(arg) || arg < 1L) {
-      stop(paste0("'", nm, "' must be a single positive integer"))
-    }
+  if (!is.numeric(m1) || length(m1) != 1L || is.na(m1) ||
+      m1 != floor(m1) || m1 < 1L) {
+    stop("'m1' must be a single positive integer")
+  }
+
+  if (!is.numeric(m2) || length(m2) != 1L || is.na(m2) ||
+      m2 != floor(m2) || m2 < 1L) {
+    stop("'m2' must be a single positive integer")
   }
 
   if (!is.numeric(alpha1) || length(alpha1) != 1L || is.na(alpha1) || alpha1 <= 0) {
