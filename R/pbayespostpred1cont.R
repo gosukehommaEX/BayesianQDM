@@ -300,11 +300,12 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
     if (!is.numeric(sigma01) || length(sigma01) != 1L || is.na(sigma01) || sigma01 <= 0) {
       stop("'sigma01' must be a single positive numeric value")
     }
-    if (design == "controlled") {
+    if (design %in% c("controlled", "external")) {
       for (nm in c("kappa02", "nu02", "mu02", "sigma02")) {
         val <- get(nm)
         if (is.null(val)) {
-          stop(paste0("'", nm, "' must be non-NULL when prior = 'N-Inv-Chisq' and design = 'controlled'"))
+          stop(paste0("'", nm, "' must be non-NULL when prior = 'N-Inv-Chisq' and design = '",
+                      design, "'"))
         }
       }
       if (!is.numeric(kappa02) || length(kappa02) != 1L || is.na(kappa02) || kappa02 <= 0) {
@@ -402,48 +403,113 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
   # bar.y2, s2; all arithmetic operates element-wise on vectors).
   # ---------------------------------------------------------------------------
 
-  if (design == 'external' && prior == 'vague') {
+  if (design == 'external') {
 
-    # --- External design with vague prior ---
-    # Group 1 (Treatment): apply power prior if external data available
-    if (!is.null(ne1) && !is.null(alpha01)) {
-      mu.t1          <- (alpha01 * ne1 * bar.ye1 + n1 * bar.y1) / (alpha01 * ne1 + n1)
-      kappa.star.n1  <- alpha01 * ne1 + n1
-      nu.t1          <- alpha01 * ne1 + n1 - 1
-      sigma2.star.n1 <- (alpha01 * (ne1 - 1) * se1 ^ 2 + (n1 - 1) * s1 ^ 2 +
-                           (alpha01 * ne1 * n1 * (bar.ye1 - bar.y1) ^ 2) /
-                           (alpha01 * ne1 + n1)) / (alpha01 * ne1 + n1)
-    } else {
-      # No external treatment data: use vague prior
-      mu.t1          <- bar.y1
-      kappa.star.n1  <- n1
-      nu.t1          <- n1 - 1
-      sigma2.star.n1 <- s1 ^ 2
-    }
+    if (prior == 'N-Inv-Chisq') {
 
-    # Group 2 (Control): apply power prior if external data available
-    if (!is.null(ne2) && !is.null(alpha02)) {
-      mu.t2          <- (alpha02 * ne2 * bar.ye2 + n2 * bar.y2) / (alpha02 * ne2 + n2)
-      kappa.star.n2  <- alpha02 * ne2 + n2
-      nu.t2          <- alpha02 * ne2 + n2 - 1
-      sigma2.star.n2 <- (alpha02 * (ne2 - 1) * se2 ^ 2 + (n2 - 1) * s2 ^ 2 +
-                           (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) /
-                           (alpha02 * ne2 + n2)) / (alpha02 * ne2 + n2)
-    } else {
-      # No external control data: use vague prior
-      mu.t2          <- bar.y2
-      kappa.star.n2  <- n2
-      nu.t2          <- n2 - 1
-      sigma2.star.n2 <- s2 ^ 2
-    }
+      # --- External design with N-Inv-Chisq prior ---
+      # Power prior for normal data is conjugate with the N-Inv-Chisq prior.
+      # The posterior hyperparameters incorporate both the N-Inv-Chisq prior
+      # and the external data via the power prior weight.
 
-    # Scale parameters depend on probability type
-    if (prob == 'posterior') {
-      sd.t1 <- sqrt(sigma2.star.n1 / kappa.star.n1)
-      sd.t2 <- sqrt(sigma2.star.n2 / kappa.star.n2)
+      # Group 1 (Treatment): incorporate external data if available
+      if (!is.null(ne1) && !is.null(alpha01)) {
+        # Intermediate: N-Inv-Chisq prior updated with power-weighted external data
+        kappa.e1  <- kappa01 + alpha01 * ne1
+        nu.e1     <- nu01 + alpha01 * ne1
+        mu.e1     <- (kappa01 * mu01 + alpha01 * ne1 * bar.ye1) / kappa.e1
+        var.e1    <- (nu01 * sigma01 ^ 2 + alpha01 * (ne1 - 1) * se1 ^ 2 +
+                        alpha01 * ne1 * kappa01 * (bar.ye1 - mu01) ^ 2 / kappa.e1) / nu.e1
+        # Final update with PoC data
+        kappa.n1  <- kappa.e1 + n1
+        nu.t1     <- nu.e1 + n1
+        mu.t1     <- (kappa.e1 * mu.e1 + n1 * bar.y1) / kappa.n1
+        var.n1    <- (nu.e1 * var.e1 + (n1 - 1) * s1 ^ 2 +
+                        n1 * kappa.e1 * (mu.e1 - bar.y1) ^ 2 / kappa.n1) / nu.t1
+      } else {
+        # No external treatment data: N-Inv-Chisq prior updated with PoC data only
+        kappa.n1  <- kappa01 + n1
+        nu.t1     <- nu01 + n1
+        mu.t1     <- (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
+        var.n1    <- (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 +
+                        n1 * kappa01 * (mu01 - bar.y1) ^ 2 / kappa.n1) / nu.t1
+      }
+
+      # Group 2 (Control): incorporate external data if available
+      if (!is.null(ne2) && !is.null(alpha02)) {
+        # Intermediate: N-Inv-Chisq prior updated with power-weighted external data
+        kappa.e2  <- kappa02 + alpha02 * ne2
+        nu.e2     <- nu02 + alpha02 * ne2
+        mu.e2     <- (kappa02 * mu02 + alpha02 * ne2 * bar.ye2) / kappa.e2
+        var.e2    <- (nu02 * sigma02 ^ 2 + alpha02 * (ne2 - 1) * se2 ^ 2 +
+                        alpha02 * ne2 * kappa02 * (bar.ye2 - mu02) ^ 2 / kappa.e2) / nu.e2
+        # Final update with PoC data
+        kappa.n2  <- kappa.e2 + n2
+        nu.t2     <- nu.e2 + n2
+        mu.t2     <- (kappa.e2 * mu.e2 + n2 * bar.y2) / kappa.n2
+        var.n2    <- (nu.e2 * var.e2 + (n2 - 1) * s2 ^ 2 +
+                        n2 * kappa.e2 * (mu.e2 - bar.y2) ^ 2 / kappa.n2) / nu.t2
+      } else {
+        # No external control data: N-Inv-Chisq prior updated with PoC data only
+        kappa.n2  <- kappa02 + n2
+        nu.t2     <- nu02 + n2
+        mu.t2     <- (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
+        var.n2    <- (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 +
+                        n2 * kappa02 * (mu02 - bar.y2) ^ 2 / kappa.n2) / nu.t2
+      }
+
+      # Scale parameters depend on probability type
+      if (prob == 'posterior') {
+        sd.t1 <- sqrt(var.n1 / kappa.n1)
+        sd.t2 <- sqrt(var.n2 / kappa.n2)
+      } else {
+        sd.t1 <- sqrt((1 + 1 / kappa.n1) * var.n1 / m1)
+        sd.t2 <- sqrt((1 + 1 / kappa.n2) * var.n2 / m2)
+      }
+
     } else {
-      sd.t1 <- sqrt((1 + 1 / kappa.star.n1) * sigma2.star.n1 / m1)
-      sd.t2 <- sqrt((1 + 1 / kappa.star.n2) * sigma2.star.n2 / m2)
+
+      # --- External design with vague prior ---
+      # Group 1 (Treatment): apply power prior if external data available
+      if (!is.null(ne1) && !is.null(alpha01)) {
+        mu.t1          <- (alpha01 * ne1 * bar.ye1 + n1 * bar.y1) / (alpha01 * ne1 + n1)
+        kappa.star.n1  <- alpha01 * ne1 + n1
+        nu.t1          <- alpha01 * ne1 + n1 - 1
+        sigma2.star.n1 <- (alpha01 * (ne1 - 1) * se1 ^ 2 + (n1 - 1) * s1 ^ 2 +
+                             (alpha01 * ne1 * n1 * (bar.ye1 - bar.y1) ^ 2) /
+                             (alpha01 * ne1 + n1)) / (alpha01 * ne1 + n1)
+      } else {
+        # No external treatment data: use vague prior
+        mu.t1          <- bar.y1
+        kappa.star.n1  <- n1
+        nu.t1          <- n1 - 1
+        sigma2.star.n1 <- s1 ^ 2
+      }
+
+      # Group 2 (Control): apply power prior if external data available
+      if (!is.null(ne2) && !is.null(alpha02)) {
+        mu.t2          <- (alpha02 * ne2 * bar.ye2 + n2 * bar.y2) / (alpha02 * ne2 + n2)
+        kappa.star.n2  <- alpha02 * ne2 + n2
+        nu.t2          <- alpha02 * ne2 + n2 - 1
+        sigma2.star.n2 <- (alpha02 * (ne2 - 1) * se2 ^ 2 + (n2 - 1) * s2 ^ 2 +
+                             (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) /
+                             (alpha02 * ne2 + n2)) / (alpha02 * ne2 + n2)
+      } else {
+        # No external control data: use vague prior
+        mu.t2          <- bar.y2
+        kappa.star.n2  <- n2
+        nu.t2          <- n2 - 1
+        sigma2.star.n2 <- s2 ^ 2
+      }
+
+      # Scale parameters depend on probability type
+      if (prob == 'posterior') {
+        sd.t1 <- sqrt(sigma2.star.n1 / kappa.star.n1)
+        sd.t2 <- sqrt(sigma2.star.n2 / kappa.star.n2)
+      } else {
+        sd.t1 <- sqrt((1 + 1 / kappa.star.n1) * sigma2.star.n1 / m1)
+        sd.t2 <- sqrt((1 + 1 / kappa.star.n2) * sigma2.star.n2 / m2)
+      }
     }
 
   } else {
