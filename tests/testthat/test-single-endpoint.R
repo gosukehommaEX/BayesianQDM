@@ -202,6 +202,54 @@ test_that("pbayespostpred1cont input validation works", {
   ))
 })
 
+test_that("pbayespostpred1cont external N-Inv-Chisq posterior returns scalar in [0, 1]", {
+  result <- pbayespostpred1cont(
+    prob = 'posterior', design = 'external', prior = 'N-Inv-Chisq',
+    CalcMethod = 'MM', theta0 = 1, nMC = NULL,
+    n1 = 20, n2 = 10, m1 = NULL, m2 = NULL,
+    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+    mu01 = 0, mu02 = 0, sigma01 = 30, sigma02 = 30,
+    bar.y1 = 5, s1 = 20, bar.y2 = 2, s2 = 18, r = NULL,
+    ne1 = NULL, ne2 = 10L, alpha01 = NULL, alpha02 = 0.5,
+    bar.ye1 = NULL, se1 = NULL, bar.ye2 = -2, se2 = 25
+  )
+  expect_type(result, "double")
+  expect_length(result, 1L)
+  expect_true(result >= 0 && result <= 1)
+})
+
+test_that("pbayespostpred1cont external N-Inv-Chisq predictive returns scalar in [0, 1]", {
+  result <- pbayespostpred1cont(
+    prob = 'predictive', design = 'external', prior = 'N-Inv-Chisq',
+    CalcMethod = 'MM', theta0 = 0, nMC = NULL,
+    n1 = 20, n2 = 10, m1 = 30, m2 = 30,
+    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+    mu01 = 0, mu02 = 0, sigma01 = 30, sigma02 = 30,
+    bar.y1 = 5, s1 = 20, bar.y2 = 2, s2 = 18, r = NULL,
+    ne1 = NULL, ne2 = 10L, alpha01 = NULL, alpha02 = 0.5,
+    bar.ye1 = NULL, se1 = NULL, bar.ye2 = -2, se2 = 25
+  )
+  expect_type(result, "double")
+  expect_length(result, 1L)
+  expect_true(result >= 0 && result <= 1)
+})
+
+test_that("pbayespostpred1cont external N-Inv-Chisq with both arms returns scalar in [0, 1]", {
+  result <- pbayespostpred1cont(
+    prob = 'posterior', design = 'external', prior = 'N-Inv-Chisq',
+    CalcMethod = 'NI', theta0 = 1, nMC = NULL,
+    n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
+    kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
+    mu01 = 3, mu02 = 1, sigma01 = 1.5, sigma02 = 1.2,
+    bar.y1 = 3, s1 = 1.5, bar.y2 = 1, s2 = 1.2, r = NULL,
+    ne1 = 20L, ne2 = 20L, alpha01 = 0.5, alpha02 = 0.5,
+    bar.ye1 = 3, se1 = 1.5, bar.ye2 = 1, se2 = 1.2
+  )
+  expect_type(result, "double")
+  expect_length(result, 1L)
+  expect_true(result >= 0 && result <= 1)
+})
+
 # ---------------------------------------------------------------------------
 # pbayesdecisionprob1bin
 # Note: no nMC argument
