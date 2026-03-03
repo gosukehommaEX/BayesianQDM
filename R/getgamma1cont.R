@@ -212,9 +212,9 @@
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-#'   kappa01 = 2, kappa02 = 20, nu01 = 5, nu02 = 20,
-#'   mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.2,
+#'   n1 = 20L, n2 = NULL, m1 = NULL, m2 = NULL,
+#'   kappa01 = 2, kappa02 = NULL, nu01 = 5, nu02 = NULL,
+#'   mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = NULL,
 #'   r = 1.0, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
 #'   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 2L

@@ -250,6 +250,62 @@ test_that("pbayespostpred1cont external N-Inv-Chisq with both arms returns scala
   expect_true(result >= 0 && result <= 1)
 })
 
+test_that("pbayespostpred1cont posterior uncontrolled vague MM returns scalar in [0, 1]", {
+  result <- pbayespostpred1cont(
+    prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MM',
+    theta0 = 1, nMC = NULL,
+    n1 = 15, n2 = NULL, m1 = NULL, m2 = NULL,
+    kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+    mu01 = NULL, mu02 = 1.0, sigma01 = NULL, sigma02 = NULL,
+    bar.y1 = 3, s1 = 1.5, bar.y2 = NULL, s2 = NULL, r = 1.0,
+    ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+    bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL
+  )
+  expect_type(result, "double")
+  expect_length(result, 1L)
+  expect_true(result >= 0 && result <= 1)
+})
+
+test_that("pbayespostpred1cont posterior uncontrolled N-Inv-Chisq NI returns scalar in [0, 1]", {
+  result <- pbayespostpred1cont(
+    prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
+    theta0 = 1, nMC = NULL,
+    n1 = 15, n2 = NULL, m1 = NULL, m2 = NULL,
+    kappa01 = 2, kappa02 = NULL, nu01 = 5, nu02 = NULL,
+    mu01 = 3.0, mu02 = 1.0, sigma01 = 1.5, sigma02 = NULL,
+    bar.y1 = 3, s1 = 1.5, bar.y2 = NULL, s2 = NULL, r = 1.0,
+    ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+    bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL
+  )
+  expect_type(result, "double")
+  expect_length(result, 1L)
+  expect_true(result >= 0 && result <= 1)
+})
+
+test_that("pbayespostpred1cont uncontrolled NI and MM agree closely", {
+  p_ni <- pbayespostpred1cont(
+    prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'NI',
+    theta0 = 1, nMC = NULL,
+    n1 = 15, n2 = NULL, m1 = NULL, m2 = NULL,
+    kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+    mu01 = NULL, mu02 = 1.0, sigma01 = NULL, sigma02 = NULL,
+    bar.y1 = 3, s1 = 1.5, bar.y2 = NULL, s2 = NULL, r = 1.0,
+    ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+    bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL
+  )
+  p_mm <- pbayespostpred1cont(
+    prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MM',
+    theta0 = 1, nMC = NULL,
+    n1 = 15, n2 = NULL, m1 = NULL, m2 = NULL,
+    kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+    mu01 = NULL, mu02 = 1.0, sigma01 = NULL, sigma02 = NULL,
+    bar.y1 = 3, s1 = 1.5, bar.y2 = NULL, s2 = NULL, r = 1.0,
+    ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+    bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL
+  )
+  expect_equal(p_ni, p_mm, tolerance = 0.02)
+})
+
 # ---------------------------------------------------------------------------
 # pbayesdecisionprob1bin
 # Note: no nMC argument
@@ -553,7 +609,7 @@ test_that("getgamma1cont posterior uncontrolled vague MM returns correct class",
     target_go = 0.05, target_nogo = 0.20,
     crit_go = '<', crit_nogo = '<',
     sel_go = 'smallest', sel_nogo = 'largest',
-    n1 = 10L, n2 = 10L, m1 = NULL, m2 = NULL,
+    n1 = 10L, n2 = NULL, m1 = NULL, m2 = NULL,
     kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
     mu01 = NULL, mu02 = 0.0, sigma01 = NULL, sigma02 = NULL,
     r = 1.0, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,

@@ -13,7 +13,7 @@ pbayespostpred1cont(
   theta0,
   nMC = NULL,
   n1,
-  n2,
+  n2 = NULL,
   m1 = NULL,
   m2 = NULL,
   kappa01 = NULL,
@@ -67,8 +67,9 @@ Required when \code{CalcMethod = 'MC'}; otherwise \code{NULL}.}
 (treatment) in the proof-of-concept (PoC) trial.}
 
 \item{n2}{A positive integer giving the number of patients in group 2
-in the PoC trial. For \code{design = 'uncontrolled'}, set equal to
-\code{n1} (not used in calculations but required for consistency).}
+in the PoC trial.  Required for \code{design = 'controlled'} or
+\code{'external'}; set to \code{NULL} for
+\code{design = 'uncontrolled'}.}
 
 \item{m1}{A positive integer giving the future sample size for group 1.
 Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
@@ -208,7 +209,7 @@ pbayespostpred1cont(
 # Example 2: Uncontrolled design with hypothetical control and vague prior
 pbayespostpred1cont(
   prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MM',
-  theta0 = 1.5, n1 = 15, n2 = 15,
+  theta0 = 1.5, n1 = 15, n2 = NULL,
   bar.y1 = 3.5, bar.y2 = NULL, s1 = 1.2, s2 = NULL,
   mu02 = 1.5, r = 1.2,
   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
