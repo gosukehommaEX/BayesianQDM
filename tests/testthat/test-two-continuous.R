@@ -145,6 +145,30 @@ test_that("pbayespostpred2cont input validation works", {
   ))
 })
 
+test_that("pbayespostpred2cont posterior uncontrolled vague MM returns 9 named probs", {
+  result <- pbayespostpred2cont(
+    prob = 'posterior', design = 'uncontrolled', prior = 'vague',
+    theta.TV1 = 1.5, theta.MAV1 = 0.5,
+    theta.TV2 = 1.0, theta.MAV2 = 0.3,
+    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    n1 = 15L, n2 = NULL,
+    ybar1 = c(3.0, 2.0), S1 = .S_small,
+    ybar2 = NULL, S2 = NULL,
+    m1 = NULL, m2 = NULL,
+    kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
+    kappa02 = NULL, nu02 = NULL, mu02 = c(1.0, 0.8), Lambda02 = NULL,
+    r = 1.0,
+    ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+    ybar_e1 = NULL, Se1 = NULL, ybar_e2 = NULL, Se2 = NULL,
+    nMC = 100L, method = 'MM'
+  )
+  expect_type(result, "double")
+  expect_length(result, 9L)
+  expect_named(result, paste0("R", 1:9))
+  expect_true(all(result >= 0))
+  expect_equal(sum(result), 1, tolerance = 1e-6)
+})
+
 # ---------------------------------------------------------------------------
 # pbayesdecisionprob2cont
 # ---------------------------------------------------------------------------
@@ -233,6 +257,38 @@ test_that("pbayesdecisionprob2cont input validation works", {
     method = 'MM', nMC = 100L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1
   ))
+})
+
+test_that("pbayesdecisionprob2cont posterior uncontrolled vague MM returns correct class", {
+  skip_on_cran()
+  result <- pbayesdecisionprob2cont(
+    nsim = 5L,
+    prob = 'posterior', design = 'uncontrolled', prior = 'vague',
+    GoRegions = 1L, NoGoRegions = 9L,
+    gamma1 = 0.60, gamma2 = 0.60,
+    theta.TV1 = 1.5, theta.MAV1 = 0.5,
+    theta.TV2 = 1.0, theta.MAV2 = 0.3,
+    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    n1 = 15L, n2 = NULL, m1 = NULL, m2 = NULL,
+    mu1 = matrix(c(3.0, 2.0, 3.5, 2.5), nrow = 2, byrow = TRUE),
+    Sigma1 = .Sigma,
+    mu2 = NULL, Sigma2 = NULL,
+    kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
+    kappa02 = NULL, nu02 = NULL, mu02 = c(1.0, 0.8), Lambda02 = NULL,
+    r = 1.0,
+    ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
+    ybar_e1 = NULL, Se1 = NULL, ybar_e2 = NULL, Se2 = NULL,
+    method = 'MM', nMC = 100L,
+    error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 1
+  )
+  expect_s3_class(result, "pbayesdecisionprob2cont")
+  df <- as.data.frame(result)
+  expect_true(all(c("mu1_ep1", "mu1_ep2", "Go", "Gray", "NoGo") %in% names(df)))
+  expect_false(any(c("mu2_ep1", "mu2_ep2") %in% names(df)))
+  expect_equal(nrow(df), 2L)
+  expect_true(all(df$Go  >= 0 & df$Go  <= 1))
+  expect_true(all(df$NoGo >= 0 & df$NoGo <= 1))
+  expect_true(all(abs(df$Go + df$Gray + df$NoGo - 1) < 1e-6))
 })
 
 # ---------------------------------------------------------------------------

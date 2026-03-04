@@ -146,9 +146,11 @@
 #' @importFrom stats integrate
 #' @export
 pbayespostpred1bin <- function(prob = 'posterior', design = 'controlled', theta0,
-                               n1, n2, y1, y2, a1, a2, b1, b2,
-                               m1, m2, z = NULL,
-                               ne1, ne2, ye1, ye2, ae1, ae2,
+                               n1, n2, y1, y2 = NULL, a1, a2, b1, b2,
+                               m1 = NULL, m2 = NULL, z = NULL,
+                               ne1 = NULL, ne2 = NULL,
+                               ye1 = NULL, ye2 = NULL,
+                               ae1 = NULL, ae2 = NULL,
                                lower.tail = TRUE) {
 
   # --- Input validation ---

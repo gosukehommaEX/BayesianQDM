@@ -371,6 +371,27 @@ test_that("pbayesdecisionprob1bin input validation works", {
   ))
 })
 
+test_that("pbayesdecisionprob1bin posterior uncontrolled returns correct class", {
+  result <- pbayesdecisionprob1bin(
+    prob = 'posterior', design = 'uncontrolled',
+    theta.TV = 0.2, theta.MAV = 0.05, theta.NULL = NULL,
+    gamma1 = 0.8, gamma2 = 0.2,
+    pi1 = c(0.3, 0.5), pi2 = NULL,
+    n1 = 15, n2 = 15,
+    a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
+    z = 3L, m1 = NULL, m2 = NULL,
+    ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  )
+  expect_s3_class(result, "pbayesdecisionprob1bin")
+  df <- as.data.frame(result)
+  expect_true(all(c("pi1", "Go", "Gray", "NoGo") %in% names(df)))
+  expect_false("pi2" %in% names(df))
+  expect_equal(nrow(df), 2L)
+  expect_true(all(df$Go  >= 0 & df$Go  <= 1))
+  expect_true(all(df$NoGo >= 0 & df$NoGo <= 1))
+  expect_true(all(abs(df$Go + df$Gray + df$NoGo - 1) < 1e-6))
+})
+
 # ---------------------------------------------------------------------------
 # pbayesdecisionprob1cont
 # ---------------------------------------------------------------------------
@@ -434,6 +455,29 @@ test_that("pbayesdecisionprob1cont input validation works", {
   ))
 })
 
+
+test_that("pbayesdecisionprob1cont posterior uncontrolled vague MM returns correct class", {
+  result <- pbayesdecisionprob1cont(
+    nsim = 20L, prob = 'posterior', design = 'uncontrolled',
+    prior = 'vague', CalcMethod = 'MM',
+    theta.TV = 1.5, theta.MAV = 0.5, theta.NULL = NULL, nMC = NULL,
+    gamma1 = 0.8, gamma2 = 0.2,
+    n1 = 15, n2 = NULL, m1 = NULL, m2 = NULL,
+    kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
+    mu01 = NULL, mu02 = 0.0, sigma01 = NULL, sigma02 = NULL,
+    mu1 = c(2, 3), mu2 = NULL, sigma1 = 1.5, sigma2 = NULL, r = 1.0,
+    ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+    bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL, seed = 1
+  )
+  expect_s3_class(result, "pbayesdecisionprob1cont")
+  df <- as.data.frame(result)
+  expect_true(all(c("mu1", "Go", "Gray", "NoGo") %in% names(df)))
+  expect_false("mu2" %in% names(df))
+  expect_equal(nrow(df), 2L)
+  expect_true(all(df$Go  >= 0 & df$Go  <= 1))
+  expect_true(all(df$NoGo >= 0 & df$NoGo <= 1))
+  expect_true(all(abs(df$Go + df$Gray + df$NoGo - 1) < 1e-6))
+})
 
 # ---------------------------------------------------------------------------
 # getgamma1bin
