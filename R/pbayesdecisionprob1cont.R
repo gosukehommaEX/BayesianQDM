@@ -16,13 +16,17 @@
 #'        (Numerical Integration), \code{'MC'} (Monte Carlo), or \code{'MM'}
 #'        (Moment Matching).
 #' @param theta.TV A numeric value representing the target value (TV) threshold for the
-#'        Go decision. Required if \code{prob = 'posterior'}.
+#'        Go decision. Required if \code{prob = 'posterior'}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param theta.MAV A numeric value representing the minimum acceptable value (MAV) threshold
-#'        for the NoGo decision. Required if \code{prob = 'posterior'}.
+#'        for the NoGo decision. Required if \code{prob = 'posterior'}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param theta.NULL A numeric value representing the null hypothesis threshold.
-#'        Required if \code{prob = 'predictive'}.
+#'        Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param nMC A positive integer specifying the number of Monte Carlo draws for computing
-#'        posterior probabilities. Required if \code{CalcMethod = 'MC'}.
+#'        posterior probabilities. Required if \code{CalcMethod = 'MC'};
+#'        otherwise \code{NULL}.
 #' @param gamma1 A numeric value in (0, 1) representing the Go decision threshold.
 #' @param gamma2 A numeric value in (0, 1) representing the NoGo decision threshold.
 #'        Must be strictly less than \code{gamma1}.
@@ -31,39 +35,49 @@
 #'        Required if \code{design = 'controlled'} or \code{design = 'external'}.
 #'        Set to \code{NULL} if \code{design = 'uncontrolled'}.
 #' @param m1 A positive integer representing the future sample size for group 1.
-#'        Required if \code{prob = 'predictive'}.
+#'        Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param m2 A positive integer representing the future sample size for group 2.
-#'        Required if \code{prob = 'predictive'}.
+#'        Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param kappa01 A positive numeric value representing the prior hyperparameter kappa for
-#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}.
+#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param kappa02 A positive numeric value representing the prior hyperparameter kappa for
 #'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
-#'        \code{design \%in\% c('controlled', 'external')}.
+#'        \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param nu01 A positive numeric value representing the prior hyperparameter nu for
-#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}.
+#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param nu02 A positive numeric value representing the prior hyperparameter nu for
 #'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
-#'        \code{design \%in\% c('controlled', 'external')}.
+#'        \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param mu01 A numeric value representing the prior mean for group 1. Required if
-#'        \code{prior = 'N-Inv-Chisq'}.
+#'        \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}. Default is \code{NULL}.
 #' @param mu02 A numeric value representing the prior mean for group 2. For
 #'        \code{design = 'uncontrolled'}, this represents the hypothetical control mean.
 #'        Required if \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design \%in\% c('controlled', 'external')}, or if
-#'        \code{design = 'uncontrolled'}.
+#'        \code{design = 'uncontrolled'}; otherwise \code{NULL}. Default is \code{NULL}.
 #' @param sigma01 A positive numeric value representing the prior standard deviation for
-#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}.
+#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param sigma02 A positive numeric value representing the prior standard deviation for
 #'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
-#'        \code{design \%in\% c('controlled', 'external')}.
+#'        \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
+#'        Default is \code{NULL}.
 #' @param mu1 A numeric value representing the true mean for group 1 in the simulation.
 #' @param mu2 A numeric value representing the true mean for group 2 in the simulation.
 #'        For uncontrolled design, this represents the historical control mean.
+#'        Set to \code{NULL} if \code{design = 'uncontrolled'}.
 #' @param sigma1 A positive numeric value representing the true standard deviation
 #'        for group 1 in the simulation.
 #' @param sigma2 A positive numeric value representing the true standard deviation
 #'        for group 2 in the simulation. For uncontrolled design, this represents
 #'        the historical control standard deviation.
+#'        Set to \code{NULL} if \code{design = 'uncontrolled'}.
 #' @param r A positive numeric value representing the variance scaling factor that allows
 #'        the scale of hypothetical control to be different from treatment. Specifically,
 #'        \code{sd.control = sqrt(r) * sd.treatment}. Required if \code{design = 'uncontrolled'}.
@@ -256,11 +270,19 @@
 #'
 #' @importFrom stats rnorm
 #' @export
-pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
-                                    nMC = NULL, gamma1, gamma2, n1, n2 = NULL, m1, m2, kappa01, kappa02, nu01, nu02,
-                                    mu01, mu02, sigma01, sigma02, mu1, mu2 = NULL, sigma1, sigma2 = NULL,
-                                    r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-                                    bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
+                                    theta.TV = NULL, theta.MAV = NULL, theta.NULL = NULL,
+                                    nMC = NULL, gamma1, gamma2, n1, n2 = NULL,
+                                    m1 = NULL, m2 = NULL,
+                                    kappa01 = NULL, kappa02 = NULL,
+                                    nu01 = NULL, nu02 = NULL,
+                                    mu01 = NULL, mu02 = NULL,
+                                    sigma01 = NULL, sigma02 = NULL,
+                                    mu1, mu2 = NULL, sigma1, sigma2 = NULL,
+                                    r = NULL, ne1 = NULL, ne2 = NULL,
+                                    alpha01 = NULL, alpha02 = NULL,
+                                    bar.ye1 = NULL, bar.ye2 = NULL,
+                                    se1 = NULL, se2 = NULL,
                                     error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed) {
 
   # --- Input validation ---
@@ -405,6 +427,9 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta
       if (!is.numeric(nu02) || length(nu02) != 1L || is.na(nu02) || nu02 <= 0) {
         stop("'nu02' must be a single positive numeric value")
       }
+      if (!is.numeric(mu02) || length(mu02) != 1L || is.na(mu02)) {
+        stop("'mu02' must be a single numeric value")
+      }
       if (!is.numeric(sigma02) || length(sigma02) != 1L || is.na(sigma02) || sigma02 <= 0) {
         stop("'sigma02' must be a single positive numeric value")
       }
@@ -413,8 +438,14 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta
 
   # Validate design-specific parameters
   if (design == "uncontrolled") {
+    if (is.null(mu02)) {
+      stop("'mu02' must be non-NULL when design = 'uncontrolled'")
+    }
+    if (!is.numeric(mu02) || length(mu02) != 1L || is.na(mu02)) {
+      stop("'mu02' must be a single numeric value")
+    }
     if (is.null(r)) {
-      stop("'r' (variance scaling factor) must be non-NULL when design = 'uncontrolled'")
+      stop("'r' must be non-NULL when design = 'uncontrolled'")
     }
     if (!is.numeric(r) || length(r) != 1L || is.na(r) || r <= 0) {
       stop("'r' must be a single positive numeric value")
@@ -422,13 +453,14 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta
   }
 
   if (design == "external") {
-    if (is.null(ne1) && is.null(ne2)) {
-      stop("For design = 'external', at least one of 'ne1' or 'ne2' must be non-NULL")
+    has_ext1 <- !is.null(ne1) && !is.null(alpha01) && !is.null(bar.ye1) && !is.null(se1)
+    has_ext2 <- !is.null(ne2) && !is.null(alpha02) && !is.null(bar.ye2) && !is.null(se2)
+    if (!has_ext1 && !has_ext2) {
+      stop(paste0("For design = 'external', at least one complete set of external data ",
+                  "(ne1 + alpha01 + bar.ye1 + se1, or ne2 + alpha02 + bar.ye2 + se2) ",
+                  "must be provided"))
     }
     if (!is.null(ne1)) {
-      if (is.null(alpha01) || is.null(bar.ye1) || is.null(se1)) {
-        stop("'alpha01', 'bar.ye1', and 'se1' must all be non-NULL when 'ne1' is provided")
-      }
       if (!is.numeric(ne1) || length(ne1) != 1L || is.na(ne1) ||
           ne1 != floor(ne1) || ne1 < 1L) {
         stop("'ne1' must be a single positive integer")
@@ -437,11 +469,14 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta
           alpha01 <= 0 || alpha01 > 1) {
         stop("'alpha01' must be a single numeric value in (0, 1]")
       }
+      if (!is.numeric(bar.ye1) || length(bar.ye1) != 1L || is.na(bar.ye1)) {
+        stop("'bar.ye1' must be a single numeric value")
+      }
+      if (!is.numeric(se1) || length(se1) != 1L || is.na(se1) || se1 <= 0) {
+        stop("'se1' must be a single positive numeric value")
+      }
     }
     if (!is.null(ne2)) {
-      if (is.null(alpha02) || is.null(bar.ye2) || is.null(se2)) {
-        stop("'alpha02', 'bar.ye2', and 'se2' must all be non-NULL when 'ne2' is provided")
-      }
       if (!is.numeric(ne2) || length(ne2) != 1L || is.na(ne2) ||
           ne2 != floor(ne2) || ne2 < 1L) {
         stop("'ne2' must be a single positive integer")
@@ -450,18 +485,18 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta
           alpha02 <= 0 || alpha02 > 1) {
         stop("'alpha02' must be a single numeric value in (0, 1]")
       }
+      if (!is.numeric(bar.ye2) || length(bar.ye2) != 1L || is.na(bar.ye2)) {
+        stop("'bar.ye2' must be a single numeric value")
+      }
+      if (!is.numeric(se2) || length(se2) != 1L || is.na(se2) || se2 <= 0) {
+        stop("'se2' must be a single positive numeric value")
+      }
     }
   }
 
-  # Validate mu1 (true treatment mean vector)
-  if (!is.numeric(mu1) || length(mu1) < 1L || any(is.na(mu1))) {
-    stop("'mu1' must be a numeric scalar or vector with no missing values")
-  }
-
-  # Set seed for reproducible results
+  # --- Simulation setup ---
   set.seed(seed)
 
-  # Generate nsim x n1 matrix of standardized residuals for group 1 (mean=0, sd=sigma1).
   # Shared across all mu1 scenarios: bar.y1[scenario] = rowMeans(Z1) + mu1[scenario],
   # and s1 is independent of mu1, so it is computed once and reused.
   Z1 <- matrix(rnorm(nsim * n1, mean = 0, sd = sigma1), nrow = nsim)

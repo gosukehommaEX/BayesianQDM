@@ -10,24 +10,24 @@ pbayesdecisionprob1cont(
   design,
   prior,
   CalcMethod,
-  theta.TV,
-  theta.MAV,
-  theta.NULL,
+  theta.TV = NULL,
+  theta.MAV = NULL,
+  theta.NULL = NULL,
   nMC = NULL,
   gamma1,
   gamma2,
   n1,
   n2 = NULL,
-  m1,
-  m2,
-  kappa01,
-  kappa02,
-  nu01,
-  nu02,
-  mu01,
-  mu02,
-  sigma01,
-  sigma02,
+  m1 = NULL,
+  m2 = NULL,
+  kappa01 = NULL,
+  kappa02 = NULL,
+  nu01 = NULL,
+  nu02 = NULL,
+  mu01 = NULL,
+  mu02 = NULL,
+  sigma01 = NULL,
+  sigma02 = NULL,
   mu1,
   mu2 = NULL,
   sigma1,
@@ -63,16 +63,20 @@ pbayesdecisionprob1cont(
 (Moment Matching).}
 
 \item{theta.TV}{A numeric value representing the target value (TV) threshold for the
-Go decision. Required if \code{prob = 'posterior'}.}
+Go decision. Required if \code{prob = 'posterior'}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{theta.MAV}{A numeric value representing the minimum acceptable value (MAV) threshold
-for the NoGo decision. Required if \code{prob = 'posterior'}.}
+for the NoGo decision. Required if \code{prob = 'posterior'}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{theta.NULL}{A numeric value representing the null hypothesis threshold.
-Required if \code{prob = 'predictive'}.}
+Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{nMC}{A positive integer specifying the number of Monte Carlo draws for computing
-posterior probabilities. Required if \code{CalcMethod = 'MC'}.}
+posterior probabilities. Required if \code{CalcMethod = 'MC'};
+otherwise \code{NULL}.}
 
 \item{gamma1}{A numeric value in (0, 1) representing the Go decision threshold.}
 
@@ -86,52 +90,62 @@ Required if \code{design = 'controlled'} or \code{design = 'external'}.
 Set to \code{NULL} if \code{design = 'uncontrolled'}.}
 
 \item{m1}{A positive integer representing the future sample size for group 1.
-Required if \code{prob = 'predictive'}.}
+Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{m2}{A positive integer representing the future sample size for group 2.
-Required if \code{prob = 'predictive'}.}
+Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{kappa01}{A positive numeric value representing the prior hyperparameter kappa for
-group 1. Required if \code{prior = 'N-Inv-Chisq'}.}
+group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{kappa02}{A positive numeric value representing the prior hyperparameter kappa for
 group 2. Required if \code{prior = 'N-Inv-Chisq'} and
-\code{design \%in\% c('controlled', 'external')}.}
+\code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{nu01}{A positive numeric value representing the prior hyperparameter nu for
-group 1. Required if \code{prior = 'N-Inv-Chisq'}.}
+group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{nu02}{A positive numeric value representing the prior hyperparameter nu for
 group 2. Required if \code{prior = 'N-Inv-Chisq'} and
-\code{design \%in\% c('controlled', 'external')}.}
+\code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{mu01}{A numeric value representing the prior mean for group 1. Required if
-\code{prior = 'N-Inv-Chisq'}.}
+\code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}. Default is \code{NULL}.}
 
 \item{mu02}{A numeric value representing the prior mean for group 2. For
 \code{design = 'uncontrolled'}, this represents the hypothetical control mean.
 Required if \code{prior = 'N-Inv-Chisq'} and
 \code{design \%in\% c('controlled', 'external')}, or if
-\code{design = 'uncontrolled'}.}
+\code{design = 'uncontrolled'}; otherwise \code{NULL}. Default is \code{NULL}.}
 
 \item{sigma01}{A positive numeric value representing the prior standard deviation for
-group 1. Required if \code{prior = 'N-Inv-Chisq'}.}
+group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{sigma02}{A positive numeric value representing the prior standard deviation for
 group 2. Required if \code{prior = 'N-Inv-Chisq'} and
-\code{design \%in\% c('controlled', 'external')}.}
+\code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
+Default is \code{NULL}.}
 
 \item{mu1}{A numeric value representing the true mean for group 1 in the simulation.}
 
 \item{mu2}{A numeric value representing the true mean for group 2 in the simulation.
-For uncontrolled design, this represents the historical control mean.}
+For uncontrolled design, this represents the historical control mean.
+Set to \code{NULL} if \code{design = 'uncontrolled'}.}
 
 \item{sigma1}{A positive numeric value representing the true standard deviation
 for group 1 in the simulation.}
 
 \item{sigma2}{A positive numeric value representing the true standard deviation
 for group 2 in the simulation. For uncontrolled design, this represents
-the historical control standard deviation.}
+the historical control standard deviation.
+Set to \code{NULL} if \code{design = 'uncontrolled'}.}
 
 \item{r}{A positive numeric value representing the variance scaling factor that allows
 the scale of hypothetical control to be different from treatment. Specifically,
