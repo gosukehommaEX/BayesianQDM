@@ -291,8 +291,8 @@
 #'   n1 = 20L, n2 = NULL, m1 = NULL, m2 = NULL,
 #'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
 #'   Sigma1 = Sigma,
-#'   mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-#'   Sigma2 = Sigma,
+#'   mu2 = NULL,
+#'   Sigma2 = NULL,
 #'   kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
 #'   kappa02 = NULL, nu02 = NULL, mu02 = c(0.0, 0.0), Lambda02 = NULL,
 #'   r = 1.0,
@@ -317,7 +317,7 @@ pbayesdecisionprob2cont <- function(nsim,
                                     n1, n2      = NULL,
                                     m1          = NULL, m2          = NULL,
                                     mu1, Sigma1,
-                                    mu2, Sigma2,
+                                    mu2 = NULL, Sigma2 = NULL,
                                     kappa01     = NULL, nu01        = NULL,
                                     mu01        = NULL, Lambda01    = NULL,
                                     kappa02     = NULL, nu02        = NULL,
@@ -417,32 +417,32 @@ pbayesdecisionprob2cont <- function(nsim,
     n2 <- as.integer(n2)
   }
 
-  # Coerce mu1 / mu2 to matrix if needed
+  # Coerce mu1 to matrix if needed
   if (is.vector(mu1) && length(mu1) == 2L) mu1 <- matrix(mu1, nrow = 1L)
   if (!is.matrix(mu1) || ncol(mu1) != 2L)
     stop("'mu1' must be a matrix with 2 columns (or a length-2 vector)")
 
-  if (is.vector(mu2) && length(mu2) == 2L) mu2 <- matrix(mu2, nrow = 1L)
-  if (!is.matrix(mu2) || ncol(mu2) != 2L)
-    stop("'mu2' must be a matrix with 2 columns (or a length-2 vector)")
-
   n_scen1 <- nrow(mu1)
-  n_scen2 <- nrow(mu2)
 
   if (design == 'uncontrolled') {
-    if (n_scen2 != 1L && n_scen2 != n_scen1)
-      stop("'mu2' must have 1 row or the same number of rows as 'mu1'")
-    if (n_scen2 == 1L) mu2 <- mu2[rep(1L, n_scen1), , drop = FALSE]
+    # mu2 is not used in simulation; n_scen is determined by mu1 alone
+    n_scen <- n_scen1
   } else {
+    if (is.vector(mu2) && length(mu2) == 2L) mu2 <- matrix(mu2, nrow = 1L)
+    if (!is.matrix(mu2) || ncol(mu2) != 2L)
+      stop("'mu2' must be a matrix with 2 columns (or a length-2 vector)")
+    n_scen2 <- nrow(mu2)
     if (n_scen2 != n_scen1)
       stop("'mu1' and 'mu2' must have the same number of rows")
+    n_scen <- n_scen1
   }
-  n_scen <- n_scen1
 
   if (!is.matrix(Sigma1) || nrow(Sigma1) != 2L || ncol(Sigma1) != 2L)
     stop("'Sigma1' must be a 2x2 numeric matrix")
-  if (!is.matrix(Sigma2) || nrow(Sigma2) != 2L || ncol(Sigma2) != 2L)
-    stop("'Sigma2' must be a 2x2 numeric matrix")
+  if (design != 'uncontrolled') {
+    if (!is.matrix(Sigma2) || nrow(Sigma2) != 2L || ncol(Sigma2) != 2L)
+      stop("'Sigma2' must be a 2x2 numeric matrix")
+  }
 
   if (prior == 'N-Inv-Wishart') {
     for (nm in c('kappa01', 'nu01')) {

@@ -297,10 +297,10 @@
 #'   pi_t1       = c(0.15, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.35, 0.45),
 #'   rho_t       = rep(0.0, 3),
-#'   pi_c1       = rep(0.15, 3),
-#'   pi_c2       = rep(0.20, 3),
-#'   rho_c       = rep(0.0, 3),
-#'   n1 = 10, n2 = 10,
+#'   pi_c1       = NULL,
+#'   pi_c2       = NULL,
+#'   rho_c       = NULL,
+#'   n1 = 10, n2 = NULL,
 #'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
 #'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
 #'   m1 = NULL, m2 = NULL,
@@ -476,8 +476,8 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
                                    gamma1,
                                    gamma2,
                                    pi_t1, pi_t2, rho_t,
-                                   pi_c1, pi_c2, rho_c,
-                                   n1, n2,
+                                   pi_c1 = NULL, pi_c2 = NULL, rho_c = NULL,
+                                   n1, n2 = NULL,
                                    a1_00, a1_01, a1_10, a1_11,
                                    a2_00, a2_01, a2_10, a2_11,
                                    m1          = NULL,
@@ -575,24 +575,33 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
     stop("'pi_t2' must have the same length as 'pi_t1' with all elements in (0, 1)")
   if (length(rho_t) != n_scen || any(is.na(rho_t)))
     stop("'rho_t' must have the same length as 'pi_t1'")
-  if (length(pi_c1) != n_scen || any(is.na(pi_c1)) ||
-      any(pi_c1 <= 0) || any(pi_c1 >= 1))
-    stop("'pi_c1' must have the same length as 'pi_t1' with all elements in (0, 1)")
-  if (length(pi_c2) != n_scen || any(is.na(pi_c2)) ||
-      any(pi_c2 <= 0) || any(pi_c2 >= 1))
-    stop("'pi_c2' must have the same length as 'pi_t1' with all elements in (0, 1)")
-  if (length(rho_c) != n_scen || any(is.na(rho_c)))
-    stop("'rho_c' must have the same length as 'pi_t1'")
+
+  if (design != 'uncontrolled') {
+    pi_c1 <- as.numeric(pi_c1)
+    pi_c2 <- as.numeric(pi_c2)
+    rho_c  <- as.numeric(rho_c)
+    if (length(pi_c1) != n_scen || any(is.na(pi_c1)) ||
+        any(pi_c1 <= 0) || any(pi_c1 >= 1))
+      stop("'pi_c1' must have the same length as 'pi_t1' with all elements in (0, 1)")
+    if (length(pi_c2) != n_scen || any(is.na(pi_c2)) ||
+        any(pi_c2 <= 0) || any(pi_c2 >= 1))
+      stop("'pi_c2' must have the same length as 'pi_t1' with all elements in (0, 1)")
+    if (length(rho_c) != n_scen || any(is.na(rho_c)))
+      stop("'rho_c' must have the same length as 'pi_t1'")
+  }
 
   # --- Sample sizes ---
-  for (nm in c("n1", "n2")) {
-    val <- get(nm)
-    if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
-        val != floor(val) || val < 1L)
-      stop(paste0("'", nm, "' must be a single positive integer"))
-  }
+  if (!is.numeric(n1) || length(n1) != 1L || is.na(n1) ||
+      n1 != floor(n1) || n1 < 1L)
+    stop("'n1' must be a single positive integer")
   n1 <- as.integer(n1)
-  n2 <- as.integer(n2)
+
+  if (design != 'uncontrolled') {
+    if (!is.numeric(n2) || length(n2) != 1L || is.na(n2) ||
+        n2 != floor(n2) || n2 < 1L)
+      stop("'n2' must be a single positive integer")
+    n2 <- as.integer(n2)
+  }
 
   # --- Dirichlet prior parameters ---
   for (nm in c("a1_00", "a1_01", "a1_10", "a1_11",

@@ -172,9 +172,9 @@
 #'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
 #'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
 #'   n1 = 20, n2 = NULL, m1 = NULL, m2 = NULL,
-#'   kappa01 = 2, kappa02 = 20, nu01 = 5, nu02 = 20,
-#'   mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.2,
-#'   mu1 = 3.5, mu2 = 1.5, sigma1 = 1.3, sigma2 = 1.2,
+#'   kappa01 = 2, kappa02 = NULL, nu01 = 5, nu02 = NULL,
+#'   mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = NULL,
+#'   mu1 = 3.5, mu2 = NULL, sigma1 = 1.3, sigma2 = NULL,
 #'   r = 1, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
 #'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
@@ -257,8 +257,8 @@
 #' @importFrom stats rnorm
 #' @export
 pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
-                                    nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
-                                    mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
+                                    nMC = NULL, gamma1, gamma2, n1, n2 = NULL, m1, m2, kappa01, kappa02, nu01, nu02,
+                                    mu01, mu02, sigma01, sigma02, mu1, mu2 = NULL, sigma1, sigma2 = NULL,
                                     r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
                                     bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
                                     error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed) {
@@ -418,9 +418,6 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta
     }
     if (!is.numeric(r) || length(r) != 1L || is.na(r) || r <= 0) {
       stop("'r' must be a single positive numeric value")
-    }
-    if (!is.numeric(sigma2) || length(sigma2) != 1L || is.na(sigma2) || sigma2 <= 0) {
-      stop("'sigma2' must be a single positive numeric value")
     }
   }
 
