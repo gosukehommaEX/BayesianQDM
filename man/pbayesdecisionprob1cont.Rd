@@ -2,8 +2,7 @@
 % Please edit documentation in R/pbayesdecisionprob1cont.R
 \name{pbayesdecisionprob1cont}
 \alias{pbayesdecisionprob1cont}
-\title{Calculate Go, NoGo, and Gray Probabilities for a Clinical Trial with a Single Continuous Endpoint
-Under the Bayesian Framework Using Two Metrics}
+\title{Bayesian Go/NoGo/Gray Decision Probabilities for Single Continuous Endpoint}
 \usage{
 pbayesdecisionprob1cont(
   nsim,
@@ -48,85 +47,79 @@ pbayesdecisionprob1cont(
 )
 }
 \arguments{
-\item{nsim}{A positive integer representing the number of Monte Carlo simulations
-for evaluating operating characteristics.}
+\item{nsim}{A positive integer specifying the number of Monte Carlo simulation replicates.}
 
-\item{prob}{A character string specifying the type of probability to use for
-decision-making. Options are \code{'posterior'} for posterior probability
-or \code{'predictive'} for posterior predictive probability.}
+\item{prob}{A character string specifying the probability type: \code{'posterior'} or
+\code{'predictive'}.}
 
-\item{design}{A character string specifying the type of trial design. Options are
-\code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
-for single-arm studies with informative priors, or \code{'external'} for
-designs incorporating external data through power priors.}
+\item{design}{A character string specifying the trial design: \code{'controlled'},
+\code{'uncontrolled'}, or \code{'external'}.}
 
-\item{prior}{A character string specifying the prior distribution to use.
-Options are \code{'vague'} for a vague prior or \code{'N-Inv-Chisq'} for
-a Normal-Inverse-Chi-squared prior.}
+\item{prior}{A character string specifying the prior distribution: \code{'vague'} or
+\code{'N-Inv-Chisq'}.}
 
-\item{CalcMethod}{A character string specifying the calculation method for
-computing probabilities. Options are \code{'NI'} for numerical integration,
-\code{'MC'} for Monte Carlo simulation, or \code{'MM'} for the
-Moment-Matching approximation.}
+\item{CalcMethod}{A character string specifying the computation method: \code{'NI'}
+(Numerical Integration), \code{'MC'} (Monte Carlo), or \code{'MM'}
+(Moment Matching).}
 
-\item{theta.TV}{A numeric value representing the target value threshold for
-calculating Go probability when \code{prob = 'posterior'}. This represents
-the minimum clinically meaningful treatment effect.}
+\item{theta.TV}{A numeric value representing the target value (TV) threshold for the
+Go decision. Required if \code{prob = 'posterior'}.}
 
-\item{theta.MAV}{A numeric value representing the minimum acceptable value threshold
-for calculating NoGo probability when \code{prob = 'posterior'}. This represents
-the minimum effect size below which the treatment is not worth pursuing.}
+\item{theta.MAV}{A numeric value representing the minimum acceptable value (MAV) threshold
+for the NoGo decision. Required if \code{prob = 'posterior'}.}
 
-\item{theta.NULL}{A numeric value representing the null hypothesis value for
-calculating Go/NoGo probabilities when \code{prob = 'predictive'}.}
+\item{theta.NULL}{A numeric value representing the null hypothesis threshold.
+Required if \code{prob = 'predictive'}.}
 
-\item{nMC}{A positive integer representing the number of Monte Carlo samples for
-probability calculation when \code{CalcMethod = 'MC'} (required if
-\code{CalcMethod = 'MC'}).}
+\item{nMC}{A positive integer specifying the number of Monte Carlo draws for computing
+posterior probabilities. Required if \code{CalcMethod = 'MC'}.}
 
-\item{gamma1}{A numeric value in (0, 1) representing the threshold for Go decision.
-If P(treatment effect > threshold | data) >= gamma1, the decision is Go.}
+\item{gamma1}{A numeric value in (0, 1) representing the Go decision threshold.}
 
-\item{gamma2}{A numeric value in (0, 1) representing the threshold for NoGo decision.
-If P(treatment effect > threshold | data) <= gamma2, the decision is NoGo.
-Must satisfy gamma2 < gamma1.}
+\item{gamma2}{A numeric value in (0, 1) representing the NoGo decision threshold.
+Must be strictly less than \code{gamma1}.}
 
-\item{n1}{A positive integer representing the number of patients in group 1
-(treatment) for the proof-of-concept (PoC) trial.}
+\item{n1}{A positive integer representing the sample size for group 1 (treatment).}
 
-\item{n2}{A positive integer representing the number of patients in group 2
-(control) for the PoC trial. For uncontrolled design, this represents
-the effective sample size of the historical control (encoded in the prior).}
+\item{n2}{A positive integer representing the sample size for group 2 (control).
+Required if \code{design = 'controlled'} or \code{design = 'external'}.
+Set to \code{NULL} if \code{design = 'uncontrolled'}.}
 
-\item{m1}{A positive integer representing the number of patients in group 1 for
-the future trial (required if \code{prob = 'predictive'}).}
+\item{m1}{A positive integer representing the future sample size for group 1.
+Required if \code{prob = 'predictive'}.}
 
-\item{m2}{A positive integer representing the number of patients in group 2 for
-the future trial (required if \code{prob = 'predictive'}).}
+\item{m2}{A positive integer representing the future sample size for group 2.
+Required if \code{prob = 'predictive'}.}
 
-\item{kappa01}{A positive numeric value representing the prior sample size parameter
-for group 1 when \code{prior = 'N-Inv-Chisq'}.}
+\item{kappa01}{A positive numeric value representing the prior hyperparameter kappa for
+group 1. Required if \code{prior = 'N-Inv-Chisq'}.}
 
-\item{kappa02}{A positive numeric value representing the prior sample size parameter
-for group 2 when \code{prior = 'N-Inv-Chisq'}.}
+\item{kappa02}{A positive numeric value representing the prior hyperparameter kappa for
+group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+\code{design \%in\% c('controlled', 'external')}.}
 
-\item{nu01}{A positive numeric value representing the prior degrees of freedom
-for group 1 when \code{prior = 'N-Inv-Chisq'}.}
+\item{nu01}{A positive numeric value representing the prior hyperparameter nu for
+group 1. Required if \code{prior = 'N-Inv-Chisq'}.}
 
-\item{nu02}{A positive numeric value representing the prior degrees of freedom
-for group 2 when \code{prior = 'N-Inv-Chisq'}.}
+\item{nu02}{A positive numeric value representing the prior hyperparameter nu for
+group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+\code{design \%in\% c('controlled', 'external')}.}
 
-\item{mu01}{A numeric value representing the prior mean for group 1 when
+\item{mu01}{A numeric value representing the prior mean for group 1. Required if
 \code{prior = 'N-Inv-Chisq'}.}
 
-\item{mu02}{A numeric value representing the prior mean for group 2 when
-\code{prior = 'N-Inv-Chisq'}.}
+\item{mu02}{A numeric value representing the prior mean for group 2. For
+\code{design = 'uncontrolled'}, this represents the hypothetical control mean.
+Required if \code{prior = 'N-Inv-Chisq'} and
+\code{design \%in\% c('controlled', 'external')}, or if
+\code{design = 'uncontrolled'}.}
 
-\item{sigma01}{A positive numeric value representing the prior scale parameter
-for group 1 when \code{prior = 'N-Inv-Chisq'}.}
+\item{sigma01}{A positive numeric value representing the prior standard deviation for
+group 1. Required if \code{prior = 'N-Inv-Chisq'}.}
 
-\item{sigma02}{A positive numeric value representing the prior scale parameter
-for group 2 when \code{prior = 'N-Inv-Chisq'}.}
+\item{sigma02}{A positive numeric value representing the prior standard deviation for
+group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+\code{design \%in\% c('controlled', 'external')}.}
 
 \item{mu1}{A numeric value representing the true mean for group 1 in the simulation.}
 
@@ -192,11 +185,10 @@ Miss probability is also included as a separate column. For uncontrolled design,
 only mu1 is included (not mu2).
 }
 \description{
-This function calculates the Go, NoGo, and Gray probabilities for continuous outcome
-clinical trials using the Bayesian framework. The function evaluates operating
-characteristics by computing the probability of making each type of decision
-(Go, NoGo, or Gray) across different true mean values through Monte Carlo simulation.
-The function supports controlled, uncontrolled, and external control designs.
+Evaluates Go/NoGo/Gray decision probabilities for a single continuous endpoint
+via Monte Carlo simulation. Supports controlled (parallel control), uncontrolled
+(single-arm with informative priors), and external control (power prior borrowing)
+designs with both posterior and predictive probability approaches.
 }
 \details{
 The function performs Monte Carlo simulation to evaluate operating characteristics by:
@@ -266,7 +258,7 @@ pbayesdecisionprob1cont(
   nsim = 100, prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
-  n1 = 20, n2 = 20, m1 = NULL, m2 = NULL,
+  n1 = 20, n2 = NULL, m1 = NULL, m2 = NULL,
   kappa01 = 2, kappa02 = 20, nu01 = 5, nu02 = 20,
   mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.2,
   mu1 = 3.5, mu2 = 1.5, sigma1 = 1.3, sigma2 = 1.2,

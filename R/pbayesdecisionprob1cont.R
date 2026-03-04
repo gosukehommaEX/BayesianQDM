@@ -1,69 +1,61 @@
-#' Calculate Go, NoGo, and Gray Probabilities for a Clinical Trial with a Single Continuous Endpoint
-#' Under the Bayesian Framework Using Two Metrics
+#' Bayesian Go/NoGo/Gray Decision Probabilities for Single Continuous Endpoint
 #'
-#' This function calculates the Go, NoGo, and Gray probabilities for continuous outcome
-#' clinical trials using the Bayesian framework. The function evaluates operating
-#' characteristics by computing the probability of making each type of decision
-#' (Go, NoGo, or Gray) across different true mean values through Monte Carlo simulation.
-#' The function supports controlled, uncontrolled, and external control designs.
+#' Evaluates Go/NoGo/Gray decision probabilities for a single continuous endpoint
+#' via Monte Carlo simulation. Supports controlled (parallel control), uncontrolled
+#' (single-arm with informative priors), and external control (power prior borrowing)
+#' designs with both posterior and predictive probability approaches.
 #'
-#' @param nsim A positive integer representing the number of Monte Carlo simulations
-#'        for evaluating operating characteristics.
-#' @param prob A character string specifying the type of probability to use for
-#'        decision-making. Options are \code{'posterior'} for posterior probability
-#'        or \code{'predictive'} for posterior predictive probability.
-#' @param design A character string specifying the type of trial design. Options are
-#'        \code{'controlled'} for randomized controlled trials, \code{'uncontrolled'}
-#'        for single-arm studies with informative priors, or \code{'external'} for
-#'        designs incorporating external data through power priors.
-#' @param prior A character string specifying the prior distribution to use.
-#'        Options are \code{'vague'} for a vague prior or \code{'N-Inv-Chisq'} for
-#'        a Normal-Inverse-Chi-squared prior.
-#' @param CalcMethod A character string specifying the calculation method for
-#'        computing probabilities. Options are \code{'NI'} for numerical integration,
-#'        \code{'MC'} for Monte Carlo simulation, or \code{'MM'} for the
-#'        Moment-Matching approximation.
-#' @param theta.TV A numeric value representing the target value threshold for
-#'        calculating Go probability when \code{prob = 'posterior'}. This represents
-#'        the minimum clinically meaningful treatment effect.
-#' @param theta.MAV A numeric value representing the minimum acceptable value threshold
-#'        for calculating NoGo probability when \code{prob = 'posterior'}. This represents
-#'        the minimum effect size below which the treatment is not worth pursuing.
-#' @param theta.NULL A numeric value representing the null hypothesis value for
-#'        calculating Go/NoGo probabilities when \code{prob = 'predictive'}.
-#' @param nMC A positive integer representing the number of Monte Carlo samples for
-#'        probability calculation when \code{CalcMethod = 'MC'} (required if
-#'        \code{CalcMethod = 'MC'}).
-#' @param gamma1 A numeric value in (0, 1) representing the threshold for Go decision.
-#'        If P(treatment effect > threshold | data) >= gamma1, the decision is Go.
-#' @param gamma2 A numeric value in (0, 1) representing the threshold for NoGo decision.
-#'        If P(treatment effect > threshold | data) <= gamma2, the decision is NoGo.
-#'        Must satisfy gamma2 < gamma1.
-#' @param n1 A positive integer representing the number of patients in group 1
-#'        (treatment) for the proof-of-concept (PoC) trial.
-#' @param n2 A positive integer representing the number of patients in group 2
-#'        (control) for the PoC trial. For uncontrolled design, this represents
-#'        the effective sample size of the historical control (encoded in the prior).
-#' @param m1 A positive integer representing the number of patients in group 1 for
-#'        the future trial (required if \code{prob = 'predictive'}).
-#' @param m2 A positive integer representing the number of patients in group 2 for
-#'        the future trial (required if \code{prob = 'predictive'}).
-#' @param kappa01 A positive numeric value representing the prior sample size parameter
-#'        for group 1 when \code{prior = 'N-Inv-Chisq'}.
-#' @param kappa02 A positive numeric value representing the prior sample size parameter
-#'        for group 2 when \code{prior = 'N-Inv-Chisq'}.
-#' @param nu01 A positive numeric value representing the prior degrees of freedom
-#'        for group 1 when \code{prior = 'N-Inv-Chisq'}.
-#' @param nu02 A positive numeric value representing the prior degrees of freedom
-#'        for group 2 when \code{prior = 'N-Inv-Chisq'}.
-#' @param mu01 A numeric value representing the prior mean for group 1 when
+#' @param nsim A positive integer specifying the number of Monte Carlo simulation replicates.
+#' @param prob A character string specifying the probability type: \code{'posterior'} or
+#'        \code{'predictive'}.
+#' @param design A character string specifying the trial design: \code{'controlled'},
+#'        \code{'uncontrolled'}, or \code{'external'}.
+#' @param prior A character string specifying the prior distribution: \code{'vague'} or
+#'        \code{'N-Inv-Chisq'}.
+#' @param CalcMethod A character string specifying the computation method: \code{'NI'}
+#'        (Numerical Integration), \code{'MC'} (Monte Carlo), or \code{'MM'}
+#'        (Moment Matching).
+#' @param theta.TV A numeric value representing the target value (TV) threshold for the
+#'        Go decision. Required if \code{prob = 'posterior'}.
+#' @param theta.MAV A numeric value representing the minimum acceptable value (MAV) threshold
+#'        for the NoGo decision. Required if \code{prob = 'posterior'}.
+#' @param theta.NULL A numeric value representing the null hypothesis threshold.
+#'        Required if \code{prob = 'predictive'}.
+#' @param nMC A positive integer specifying the number of Monte Carlo draws for computing
+#'        posterior probabilities. Required if \code{CalcMethod = 'MC'}.
+#' @param gamma1 A numeric value in (0, 1) representing the Go decision threshold.
+#' @param gamma2 A numeric value in (0, 1) representing the NoGo decision threshold.
+#'        Must be strictly less than \code{gamma1}.
+#' @param n1 A positive integer representing the sample size for group 1 (treatment).
+#' @param n2 A positive integer representing the sample size for group 2 (control).
+#'        Required if \code{design = 'controlled'} or \code{design = 'external'}.
+#'        Set to \code{NULL} if \code{design = 'uncontrolled'}.
+#' @param m1 A positive integer representing the future sample size for group 1.
+#'        Required if \code{prob = 'predictive'}.
+#' @param m2 A positive integer representing the future sample size for group 2.
+#'        Required if \code{prob = 'predictive'}.
+#' @param kappa01 A positive numeric value representing the prior hyperparameter kappa for
+#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}.
+#' @param kappa02 A positive numeric value representing the prior hyperparameter kappa for
+#'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+#'        \code{design \%in\% c('controlled', 'external')}.
+#' @param nu01 A positive numeric value representing the prior hyperparameter nu for
+#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}.
+#' @param nu02 A positive numeric value representing the prior hyperparameter nu for
+#'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+#'        \code{design \%in\% c('controlled', 'external')}.
+#' @param mu01 A numeric value representing the prior mean for group 1. Required if
 #'        \code{prior = 'N-Inv-Chisq'}.
-#' @param mu02 A numeric value representing the prior mean for group 2 when
-#'        \code{prior = 'N-Inv-Chisq'}.
-#' @param sigma01 A positive numeric value representing the prior scale parameter
-#'        for group 1 when \code{prior = 'N-Inv-Chisq'}.
-#' @param sigma02 A positive numeric value representing the prior scale parameter
-#'        for group 2 when \code{prior = 'N-Inv-Chisq'}.
+#' @param mu02 A numeric value representing the prior mean for group 2. For
+#'        \code{design = 'uncontrolled'}, this represents the hypothetical control mean.
+#'        Required if \code{prior = 'N-Inv-Chisq'} and
+#'        \code{design \%in\% c('controlled', 'external')}, or if
+#'        \code{design = 'uncontrolled'}.
+#' @param sigma01 A positive numeric value representing the prior standard deviation for
+#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}.
+#' @param sigma02 A positive numeric value representing the prior standard deviation for
+#'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+#'        \code{design \%in\% c('controlled', 'external')}.
 #' @param mu1 A numeric value representing the true mean for group 1 in the simulation.
 #' @param mu2 A numeric value representing the true mean for group 2 in the simulation.
 #'        For uncontrolled design, this represents the historical control mean.
@@ -179,7 +171,7 @@
 #'   nsim = 100, prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
 #'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
 #'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
-#'   n1 = 20, n2 = 20, m1 = NULL, m2 = NULL,
+#'   n1 = 20, n2 = NULL, m1 = NULL, m2 = NULL,
 #'   kappa01 = 2, kappa02 = 20, nu01 = 5, nu02 = 20,
 #'   mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.2,
 #'   mu1 = 3.5, mu2 = 1.5, sigma1 = 1.3, sigma2 = 1.2,
@@ -265,11 +257,11 @@
 #' @importFrom stats rnorm
 #' @export
 pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta.TV, theta.MAV, theta.NULL,
-                                 nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
-                                 mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
-                                 r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-                                 bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
-                                 error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed) {
+                                    nMC = NULL, gamma1, gamma2, n1, n2, m1, m2, kappa01, kappa02, nu01, nu02,
+                                    mu01, mu02, sigma01, sigma02, mu1, mu2, sigma1, sigma2,
+                                    r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
+                                    bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+                                    error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed) {
 
   # --- Input validation ---
   if (!is.character(prob) || length(prob) != 1L ||
@@ -297,11 +289,17 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta
     stop("'nsim' must be a single positive integer")
   }
 
-  for (nm in c("n1", "n2")) {
-    val <- get(nm)
-    if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
-        val != floor(val) || val < 1L) {
-      stop(paste0("'", nm, "' must be a single positive integer"))
+  # Validate n1 (always required)
+  if (!is.numeric(n1) || length(n1) != 1L || is.na(n1) ||
+      n1 != floor(n1) || n1 < 1L) {
+    stop("'n1' must be a single positive integer")
+  }
+
+  # Validate n2 (required only for controlled and external designs)
+  if (design %in% c("controlled", "external")) {
+    if (!is.numeric(n2) || length(n2) != 1L || is.na(n2) ||
+        n2 != floor(n2) || n2 < 1L) {
+      stop("'n2' must be a single positive integer")
     }
   }
 
@@ -373,6 +371,43 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod, theta
     if (!is.numeric(m2) || length(m2) != 1L || is.na(m2) ||
         m2 != floor(m2) || m2 < 1L) {
       stop("'m2' must be a single positive integer")
+    }
+  }
+
+  # Validate prior-specific parameters
+  if (prior == "N-Inv-Chisq") {
+    if (is.null(kappa01) || is.null(nu01) || is.null(mu01) || is.null(sigma01)) {
+      stop("'kappa01', 'nu01', 'mu01', and 'sigma01' must be non-NULL when prior = 'N-Inv-Chisq'")
+    }
+    if (!is.numeric(kappa01) || length(kappa01) != 1L || is.na(kappa01) || kappa01 <= 0) {
+      stop("'kappa01' must be a single positive numeric value")
+    }
+    if (!is.numeric(nu01) || length(nu01) != 1L || is.na(nu01) || nu01 <= 0) {
+      stop("'nu01' must be a single positive numeric value")
+    }
+    if (!is.numeric(mu01) || length(mu01) != 1L || is.na(mu01)) {
+      stop("'mu01' must be a single numeric value")
+    }
+    if (!is.numeric(sigma01) || length(sigma01) != 1L || is.na(sigma01) || sigma01 <= 0) {
+      stop("'sigma01' must be a single positive numeric value")
+    }
+    if (design %in% c("controlled", "external")) {
+      for (nm in c("kappa02", "nu02", "mu02", "sigma02")) {
+        val <- get(nm)
+        if (is.null(val)) {
+          stop(paste0("'", nm, "' must be non-NULL when prior = 'N-Inv-Chisq' and design = '",
+                      design, "'"))
+        }
+      }
+      if (!is.numeric(kappa02) || length(kappa02) != 1L || is.na(kappa02) || kappa02 <= 0) {
+        stop("'kappa02' must be a single positive numeric value")
+      }
+      if (!is.numeric(nu02) || length(nu02) != 1L || is.na(nu02) || nu02 <= 0) {
+        stop("'nu02' must be a single positive numeric value")
+      }
+      if (!is.numeric(sigma02) || length(sigma02) != 1L || is.na(sigma02) || sigma02 <= 0) {
+        stop("'sigma02' must be a single positive numeric value")
+      }
     }
   }
 
@@ -665,69 +700,51 @@ print.pbayesdecisionprob1cont <- function(x, digits = 4, ...) {
     theta_str <- sprintf('NULL = %s', fmt(attr(x, 'theta.NULL')))
   }
 
-  # Build calculation method label (include nMC if CalcMethod = 'MC')
-  method_label <- switch(CalcMethod,
-                         'NI' = 'Numerical Integration (NI)',
-                         'MC' = sprintf('Monte Carlo (MC), nMC = %s', fmt(nMC)),
-                         'MM' = 'Moment-Matching (MM)'
-  )
-
-  # Prior label: vague or N-Inv-Chisq
-  prior_label <- if(prior == 'vague') 'Prior (vague)    ' else 'Prior (N-Inv-X2) '
-
   # Print header
   cat('Go/NoGo/Gray Decision Probabilities (Single Continuous Endpoint)\n')
   cat(strrep('-', 60), '\n')
   cat(sprintf('  Probability type : %s\n',   prob))
   cat(sprintf('  Design           : %s\n',   design))
-  cat(sprintf('  Method           : %s\n',   method_label))
-  cat(sprintf('  Simulations      : %s\n',   fmt(nsim)))
-  cat(sprintf('  Seed             : %s\n',   fmt(seed)))
+  cat(sprintf('  Prior            : %s\n',   prior))
+  cat(sprintf('  Calc method      : %s\n',   CalcMethod))
+  cat(sprintf('  Simulations      : nsim = %s\n', fmt(nsim)))
+  if (!is.null(nMC)) {
+    cat(sprintf('  MC draws         : nMC = %s\n', fmt(nMC)))
+  }
   cat(sprintf('  Threshold(s)     : %s\n',   theta_str))
   cat(sprintf('  Go  threshold    : gamma1 = %s\n', fmt(gamma1)))
   cat(sprintf('  NoGo threshold   : gamma2 = %s\n', fmt(gamma2)))
   cat(sprintf('  Sample size      : n1 = %s, n2 = %s\n', fmt(n1), fmt(n2)))
-  # True parameters: sigma only (mu1/mu2 are shown in the result table)
-  if(design == 'uncontrolled') {
-    cat(sprintf('  True parameters  : sigma1 = %s\n', fmt(sigma1)))
-  } else {
-    cat(sprintf('  True parameters  : sigma1 = %s, sigma2 = %s\n', fmt(sigma1), fmt(sigma2)))
+  cat(sprintf('  True SD          : sigma1 = %s, sigma2 = %s\n', fmt(sigma1), fmt(sigma2)))
+  if (design == 'uncontrolled') {
+    cat(sprintf('  Variance ratio   : r = %s\n', fmt(r)))
   }
-  # Prior parameters: always shown; N-Inv-Chisq shows hyperparameters
-  if(prior == 'vague') {
-    cat(sprintf('  %s: (no hyperparameters)\n', prior_label))
-  } else {
-    cat(sprintf('  %s: kappa01 = %s, kappa02 = %s, nu01 = %s, nu02 = %s\n',
-                prior_label, fmt(kappa01), fmt(kappa02), fmt(nu01), fmt(nu02)))
-    cat(sprintf('                     mu01 = %s, mu02 = %s, sigma01 = %s, sigma02 = %s\n',
-                fmt(mu01), fmt(mu02), fmt(sigma01), fmt(sigma02)))
+  if (!is.null(m1) || !is.null(m2)) {
+    cat(sprintf('  Future size      : m1 = %s, m2 = %s\n', fmt(m1), fmt(m2)))
   }
-  if(design == 'uncontrolled') {
-    cat(sprintf('  Uncontrolled     : r = %s\n', fmt(r)))
+  if (prior == 'N-Inv-Chisq') {
+    cat(sprintf('  Prior group 1    : kappa01 = %s, nu01 = %s, mu01 = %s, sigma01 = %s\n',
+                fmt(kappa01), fmt(nu01), fmt(mu01), fmt(sigma01)))
+    cat(sprintf('  Prior group 2    : kappa02 = %s, nu02 = %s, mu02 = %s, sigma02 = %s\n',
+                fmt(kappa02), fmt(nu02), fmt(mu02), fmt(sigma02)))
   }
-  if(prob == 'predictive') {
-    cat(sprintf('  Future trial     : m1 = %s, m2 = %s\n', fmt(m1), fmt(m2)))
+  if (design == 'external') {
+    cat(sprintf('  External grp 1   : ne1 = %s, alpha01 = %s, bar.ye1 = %s, se1 = %s\n',
+                fmt(ne1), fmt(alpha01), fmt(bar.ye1), fmt(se1)))
+    cat(sprintf('  External grp 2   : ne2 = %s, alpha02 = %s, bar.ye2 = %s, se2 = %s\n',
+                fmt(ne2), fmt(alpha02), fmt(bar.ye2), fmt(se2)))
   }
-  if(design == 'external') {
-    cat(sprintf('  External data    : ne1 = %s, ne2 = %s, alpha01 = %s, alpha02 = %s\n',
-                fmt(ne1), fmt(ne2), fmt(alpha01), fmt(alpha02)))
-    cat(sprintf('                     bar.ye1 = %s, bar.ye2 = %s, se1 = %s, se2 = %s\n',
-                fmt(bar.ye1), fmt(bar.ye2), fmt(se1), fmt(se2)))
-  }
-  cat(sprintf('  Miss handling    : error_if_Miss = %s, Gray_inc_Miss = %s\n',
-              fmt(error_if_Miss), fmt(Gray_inc_Miss)))
+  cat(sprintf('  error_if_Miss    : %s\n', fmt(error_if_Miss)))
+  cat(sprintf('  Gray_inc_Miss    : %s\n', fmt(Gray_inc_Miss)))
+  cat(sprintf('  Seed             : %s\n', fmt(seed)))
   cat(strrep('-', 60), '\n')
 
-  # Format numeric columns (probability columns only, not mu1/mu2)
-  prob_cols <- names(x)[!names(x) %in% c('mu1', 'mu2')]
-  x_print <- x
-  x_print[prob_cols] <- lapply(x[prob_cols], function(col) {
-    formatC(col, digits = digits, format = 'f')
-  })
-
-  # Print table without row names (call print.data.frame explicitly to avoid recursion)
-  print.data.frame(x_print, row.names = FALSE, quote = FALSE)
-  cat(strrep('-', 60), '\n')
+  # Print results table
+  df_print        <- as.data.frame(x)
+  prob_cols       <- names(df_print)[!names(df_print) %in% c('mu1', 'mu2')]
+  df_print[prob_cols] <- lapply(df_print[prob_cols],
+                                function(col) round(col, digits))
+  print.data.frame(df_print, row.names = FALSE)
 
   invisible(x)
 }
