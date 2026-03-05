@@ -14,38 +14,38 @@ pbayespostpred2bin(
   theta_MAV2 = NULL,
   theta_NULL1 = NULL,
   theta_NULL2 = NULL,
-  x1_00,
-  x1_01,
-  x1_10,
-  x1_11,
-  x2_00 = NULL,
-  x2_01 = NULL,
-  x2_10 = NULL,
-  x2_11 = NULL,
-  a1_00,
-  a1_01,
-  a1_10,
-  a1_11,
-  a2_00,
-  a2_01,
-  a2_10,
-  a2_11,
+  x_t_00,
+  x_t_01,
+  x_t_10,
+  x_t_11,
+  x_c_00 = NULL,
+  x_c_01 = NULL,
+  x_c_10 = NULL,
+  x_c_11 = NULL,
+  a_t_00,
+  a_t_01,
+  a_t_10,
+  a_t_11,
+  a_c_00,
+  a_c_01,
+  a_c_10,
+  a_c_11,
   m_t = NULL,
   m_c = NULL,
   z00 = NULL,
   z01 = NULL,
   z10 = NULL,
   z11 = NULL,
-  xe1_00 = NULL,
-  xe1_01 = NULL,
-  xe1_10 = NULL,
-  xe1_11 = NULL,
-  xe2_00 = NULL,
-  xe2_01 = NULL,
-  xe2_10 = NULL,
-  xe2_11 = NULL,
-  ae1 = NULL,
-  ae2 = NULL,
+  xe_t_00 = NULL,
+  xe_t_01 = NULL,
+  xe_t_10 = NULL,
+  xe_t_11 = NULL,
+  xe_c_00 = NULL,
+  xe_c_01 = NULL,
+  xe_c_10 = NULL,
+  xe_c_11 = NULL,
+  ae_t = NULL,
+  ae_c = NULL,
   nMC = 10000L
 )
 }
@@ -87,72 +87,72 @@ set to \code{NULL} when \code{prob = 'posterior'}.}
 for Endpoint 2.  Required when \code{prob = 'predictive'};
 set to \code{NULL} when \code{prob = 'posterior'}.}
 
-\item{x1_00}{A non-negative integer giving the count of (0,0) responses
-in group 1 (Endpoint 1 = 0, Endpoint 2 = 0).}
+\item{x_t_00}{A non-negative integer giving the count of (0,0) responses
+in the treatment group (Endpoint 1 = 0, Endpoint 2 = 0).}
 
-\item{x1_01}{A non-negative integer giving the count of (0,1) responses
-in group 1.}
+\item{x_t_01}{A non-negative integer giving the count of (0,1) responses
+in the treatment group.}
 
-\item{x1_10}{A non-negative integer giving the count of (1,0) responses
-in group 1.}
+\item{x_t_10}{A non-negative integer giving the count of (1,0) responses
+in the treatment group.}
 
-\item{x1_11}{A non-negative integer giving the count of (1,1) responses
-in group 1.}
+\item{x_t_11}{A non-negative integer giving the count of (1,1) responses
+in the treatment group.}
 
-\item{x2_00}{A non-negative integer giving the count of (0,0) responses
-in group 2.  Not used when \code{design = 'uncontrolled'}; set to
-\code{NULL} in that case.}
+\item{x_c_00}{A non-negative integer giving the count of (0,0) responses
+in the control group.  Not used when \code{design = 'uncontrolled'};
+set to \code{NULL} in that case.}
 
-\item{x2_01}{A non-negative integer giving the count of (0,1) responses
-in group 2.  Not used when \code{design = 'uncontrolled'}; set to
-\code{NULL} in that case.}
+\item{x_c_01}{A non-negative integer giving the count of (0,1) responses
+in the control group.  Not used when \code{design = 'uncontrolled'};
+set to \code{NULL} in that case.}
 
-\item{x2_10}{A non-negative integer giving the count of (1,0) responses
-in group 2.  Not used when \code{design = 'uncontrolled'}; set to
-\code{NULL} in that case.}
+\item{x_c_10}{A non-negative integer giving the count of (1,0) responses
+in the control group.  Not used when \code{design = 'uncontrolled'};
+set to \code{NULL} in that case.}
 
-\item{x2_11}{A non-negative integer giving the count of (1,1) responses
-in group 2.  Not used when \code{design = 'uncontrolled'}; set to
-\code{NULL} in that case.}
+\item{x_c_11}{A non-negative integer giving the count of (1,1) responses
+in the control group.  Not used when \code{design = 'uncontrolled'};
+set to \code{NULL} in that case.}
 
-\item{a1_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in group 1.}
+\item{a_t_00}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,0) response pattern in the treatment group.}
 
-\item{a1_01}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,1) response pattern in group 1.}
+\item{a_t_01}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,1) response pattern in the treatment group.}
 
-\item{a1_10}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,0) response pattern in group 1.}
+\item{a_t_10}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,0) response pattern in the treatment group.}
 
-\item{a1_11}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,1) response pattern in group 1.}
+\item{a_t_11}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,1) response pattern in the treatment group.}
 
-\item{a2_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in group 2.  For
+\item{a_c_00}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,0) response pattern in the control group.  For
 \code{design = 'uncontrolled'}, this serves as a hyperparameter
 of the hypothetical control distribution (see Details).}
 
-\item{a2_01}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,1) response pattern in group 2.  For
+\item{a_c_01}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,1) response pattern in the control group.  For
 \code{design = 'uncontrolled'}, serves as a hyperparameter of
 the hypothetical control distribution.}
 
-\item{a2_10}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,0) response pattern in group 2.  For
+\item{a_c_10}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,0) response pattern in the control group.  For
 \code{design = 'uncontrolled'}, serves as a hyperparameter of
 the hypothetical control distribution.}
 
-\item{a2_11}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,1) response pattern in group 2.  For
+\item{a_c_11}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,1) response pattern in the control group.  For
 \code{design = 'uncontrolled'}, serves as a hyperparameter of
 the hypothetical control distribution.}
 
-\item{m_t}{A positive integer giving the future sample size for group 1.
-Required when \code{prob = 'predictive'}; otherwise set to
+\item{m_t}{A positive integer giving the future sample size for the treatment
+group. Required when \code{prob = 'predictive'}; otherwise set to
 \code{NULL}.}
 
-\item{m_c}{A positive integer giving the future sample size for group 2.
-Required when \code{prob = 'predictive'}; otherwise set to
+\item{m_c}{A positive integer giving the future sample size for the control
+group. Required when \code{prob = 'predictive'}; otherwise set to
 \code{NULL}.}
 
 \item{z00}{A non-negative integer giving the hypothetical control count
@@ -171,44 +171,44 @@ otherwise set to \code{NULL}.}
 for pattern (1,1).  Required when \code{design = 'uncontrolled'};
 otherwise set to \code{NULL}.}
 
-\item{xe1_00}{A non-negative integer giving the external group 1 count
+\item{xe_t_00}{A non-negative integer giving the external treatment group count
 for pattern (0,0).  Required when \code{design = 'external'} and
 external treatment data are used; otherwise \code{NULL}.}
 
-\item{xe1_01}{A non-negative integer giving the external group 1 count
+\item{xe_t_01}{A non-negative integer giving the external treatment group count
 for pattern (0,1).  Required for external treatment data;
 otherwise \code{NULL}.}
 
-\item{xe1_10}{A non-negative integer giving the external group 1 count
+\item{xe_t_10}{A non-negative integer giving the external treatment group count
 for pattern (1,0).  Required for external treatment data;
 otherwise \code{NULL}.}
 
-\item{xe1_11}{A non-negative integer giving the external group 1 count
+\item{xe_t_11}{A non-negative integer giving the external treatment group count
 for pattern (1,1).  Required for external treatment data;
 otherwise \code{NULL}.}
 
-\item{xe2_00}{A non-negative integer giving the external group 2 count
+\item{xe_c_00}{A non-negative integer giving the external control group count
 for pattern (0,0).  Required when \code{design = 'external'} and
 external control data are used; otherwise \code{NULL}.}
 
-\item{xe2_01}{A non-negative integer giving the external group 2 count
+\item{xe_c_01}{A non-negative integer giving the external control group count
 for pattern (0,1).  Required for external control data; otherwise
 \code{NULL}.}
 
-\item{xe2_10}{A non-negative integer giving the external group 2 count
+\item{xe_c_10}{A non-negative integer giving the external control group count
 for pattern (1,0).  Required for external control data; otherwise
 \code{NULL}.}
 
-\item{xe2_11}{A non-negative integer giving the external group 2 count
+\item{xe_c_11}{A non-negative integer giving the external control group count
 for pattern (1,1).  Required for external control data; otherwise
 \code{NULL}.}
 
-\item{ae1}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for group 1.  Required when external treatment data are
-used; otherwise \code{NULL}.}
+\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the treatment group.  Required when external treatment data
+are used; otherwise \code{NULL}.}
 
-\item{ae2}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for group 2.  Required when external control data are
+\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the control group.  Required when external control data are
 used; otherwise \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Monte Carlo draws
@@ -238,7 +238,7 @@ endpoints.  Three study designs are supported: controlled, uncontrolled
 \details{
 \strong{Model.}
 The four response categories are ordered as (0,0), (0,1), (1,0), (1,1).
-For each arm \eqn{k \in \{1, 2\}}, the observed count vector follows a
+For each group \eqn{k \in \{1, 2\}}, the observed count vector follows a
 multinomial distribution, and a conjugate Dirichlet prior is placed on
 the cell probability vector \eqn{p_k}:
 \deqn{p_k \sim \mathrm{Dir}(\alpha_{k,00},\, \alpha_{k,01},\,
@@ -258,13 +258,13 @@ Treatment effects are
 When \code{design = 'uncontrolled'}, no concurrent control data are
 available.  The hypothetical control distribution is specified as a
 Dirichlet distribution directly via the prior hyperparameters
-\code{a2_00}, \code{a2_01}, \code{a2_10}, \code{a2_11}, augmented by
+\code{a_c_00}, \code{a_c_01}, \code{a_c_10}, \code{a_c_11}, augmented by
 hypothetical control counts \code{z00}, \code{z01}, \code{z10},
 \code{z11}:
 \deqn{p_2 \sim \mathrm{Dir}(\alpha_{2,00} + z_{00},\; \alpha_{2,01} +
       z_{01},\; \alpha_{2,10} + z_{10},\; \alpha_{2,11} + z_{11}).}
 Monte Carlo samples from this distribution replace data-derived posterior
-samples for group 2 in all subsequent computations.
+samples for the control group in all subsequent computations.
 
 \strong{External design.}
 When \code{design = 'external'}, the power prior augments the Dirichlet
@@ -308,15 +308,15 @@ pbayespostpred2bin(
   theta_TV1 = 0.20, theta_MAV1 = 0.10,
   theta_TV2 = 0.20, theta_MAV2 = 0.10,
   theta_NULL1 = NULL, theta_NULL2 = NULL,
-  x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
-  x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
-  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
+  x_t_00 = 5, x_t_01 = 3, x_t_10 = 4, x_t_11 = 8,
+  x_c_00 = 8, x_c_01 = 4, x_c_10 = 5, x_c_11 = 3,
+  a_t_00 = 0.5, a_t_01 = 0.5, a_t_10 = 0.5, a_t_11 = 0.5,
+  a_c_00 = 0.5, a_c_01 = 0.5, a_c_10 = 0.5, a_c_11 = 0.5,
   m_t = NULL, m_c = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 10000
 )
 
@@ -326,15 +326,15 @@ pbayespostpred2bin(
   theta_TV1 = NULL, theta_MAV1 = NULL,
   theta_TV2 = NULL, theta_MAV2 = NULL,
   theta_NULL1 = 0.15, theta_NULL2 = 0.15,
-  x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
-  x2_00 = 6, x2_01 = 3, x2_10 = 4, x2_11 = 2,
-  a1_00 = 1, a1_01 = 1, a1_10 = 1, a1_11 = 1,
-  a2_00 = 1, a2_01 = 1, a2_10 = 1, a2_11 = 1,
+  x_t_00 = 3, x_t_01 = 2, x_t_10 = 3, x_t_11 = 7,
+  x_c_00 = 6, x_c_01 = 3, x_c_10 = 4, x_c_11 = 2,
+  a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
+  a_c_00 = 1, a_c_01 = 1, a_c_10 = 1, a_c_11 = 1,
   m_t = 50, m_c = 50,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 10000
 )
 
@@ -344,15 +344,15 @@ pbayespostpred2bin(
   theta_TV1 = 0.20, theta_MAV1 = 0.10,
   theta_TV2 = 0.20, theta_MAV2 = 0.10,
   theta_NULL1 = NULL, theta_NULL2 = NULL,
-  x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
-  x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
-  a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
-  a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
+  x_t_00 = 5, x_t_01 = 3, x_t_10 = 4, x_t_11 = 8,
+  x_c_00 = 8, x_c_01 = 4, x_c_10 = 5, x_c_11 = 3,
+  a_t_00 = 0.5, a_t_01 = 0.5, a_t_10 = 0.5, a_t_11 = 0.5,
+  a_c_00 = 0.5, a_c_01 = 0.5, a_c_10 = 0.5, a_c_11 = 0.5,
   m_t = NULL, m_c = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = 3L, xe2_01 = 2L, xe2_10 = 3L, xe2_11 = 2L,
-  ae1 = NULL, ae2 = 0.5,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = 3L, xe_c_01 = 2L, xe_c_10 = 3L, xe_c_11 = 2L,
+  ae_t = NULL, ae_c = 0.5,
   nMC = 10000
 )
 

@@ -13,71 +13,71 @@
 #'        1--4 for predictive) that trigger a Go decision.
 #' @param NoGoRegions Integer vector. Region indices that trigger a NoGo
 #'        decision. Must be disjoint from \code{GoRegions}.
-#' @param gamma1 Numeric scalar in \code{(0, 1)}. Go threshold:
+#' @param gamma_go Numeric scalar in \code{(0, 1)}. Go threshold:
 #'        Go if \eqn{P(\mathrm{GoRegions}) \ge \gamma_1}.
-#' @param gamma2 Numeric scalar in \code{(0, 1)}. NoGo threshold:
+#' @param gamma_nogo Numeric scalar in \code{(0, 1)}. NoGo threshold:
 #'        NoGo if \eqn{P(\mathrm{NoGoRegions}) \ge \gamma_2}.
-#' @param theta.TV1 Numeric scalar or \code{NULL}. Target value for
+#' @param theta_TV1 Numeric scalar or \code{NULL}. Target value for
 #'        Endpoint 1 (required when \code{prob = 'posterior'}).
-#' @param theta.MAV1 Numeric scalar or \code{NULL}. Minimum acceptable value
+#' @param theta_MAV1 Numeric scalar or \code{NULL}. Minimum acceptable value
 #'        for Endpoint 1 (required when \code{prob = 'posterior'}).
-#' @param theta.TV2 Numeric scalar or \code{NULL}. Target value for
+#' @param theta_TV2 Numeric scalar or \code{NULL}. Target value for
 #'        Endpoint 2 (required when \code{prob = 'posterior'}).
-#' @param theta.MAV2 Numeric scalar or \code{NULL}. Minimum acceptable value
+#' @param theta_MAV2 Numeric scalar or \code{NULL}. Minimum acceptable value
 #'        for Endpoint 2 (required when \code{prob = 'posterior'}).
-#' @param theta.NULL1 Numeric scalar or \code{NULL}. Null value for Endpoint 1
+#' @param theta_NULL1 Numeric scalar or \code{NULL}. Null value for Endpoint 1
 #'        (required when \code{prob = 'predictive'}).
-#' @param theta.NULL2 Numeric scalar or \code{NULL}. Null value for Endpoint 2
+#' @param theta_NULL2 Numeric scalar or \code{NULL}. Null value for Endpoint 2
 #'        (required when \code{prob = 'predictive'}).
-#' @param n1 Positive integer. Treatment arm sample size.
-#' @param n2 Positive integer or \code{NULL}. Control arm sample size
+#' @param n_t Positive integer. Treatment group sample size.
+#' @param n_c Positive integer or \code{NULL}. Control group sample size
 #'        (required when \code{design} is \code{'controlled'} or
 #'        \code{'external'}).
-#' @param m1 Positive integer or \code{NULL}. Future treatment arm size
+#' @param m_t Positive integer or \code{NULL}. Future treatment group size
 #'        (required when \code{prob = 'predictive'}).
-#' @param m2 Positive integer or \code{NULL}. Future control arm size
+#' @param m_c Positive integer or \code{NULL}. Future control group size
 #'        (required when \code{prob = 'predictive'}).
-#' @param mu1 Numeric matrix with 2 columns. Each row gives the true treatment
+#' @param mu_t Numeric matrix with 2 columns. Each row gives the true treatment
 #'        mean vector for one scenario.  A length-2 vector is coerced to a
 #'        1-row matrix.
-#' @param Sigma1 A 2x2 positive-definite matrix. True treatment covariance.
-#' @param mu2 Numeric matrix with 2 columns or a length-2 vector. True control
+#' @param Sigma_t A 2x2 positive-definite matrix. True treatment covariance.
+#' @param mu_c Numeric matrix with 2 columns or a length-2 vector. True control
 #'        (or hypothetical control) mean vector(s).
-#' @param Sigma2 A 2x2 positive-definite matrix. True control covariance.
-#' @param kappa01 Positive numeric or \code{NULL}. NIW prior pseudo sample
+#' @param Sigma_c A 2x2 positive-definite matrix. True control covariance.
+#' @param kappa0_t Positive numeric or \code{NULL}. NIW prior pseudo sample
 #'        size for treatment (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param nu01 Positive numeric or \code{NULL}. NIW prior degrees of freedom
+#' @param nu0_t Positive numeric or \code{NULL}. NIW prior degrees of freedom
 #'        for treatment (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param mu01 Length-2 numeric vector or \code{NULL}. NIW prior mean for
+#' @param mu0_t Length-2 numeric vector or \code{NULL}. NIW prior mean for
 #'        treatment (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param Lambda01 A 2x2 numeric matrix or \code{NULL}. NIW prior scale matrix
+#' @param Lambda0_t A 2x2 numeric matrix or \code{NULL}. NIW prior scale matrix
 #'        for treatment (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param kappa02 Positive numeric or \code{NULL}. NIW prior pseudo sample
+#' @param kappa0_c Positive numeric or \code{NULL}. NIW prior pseudo sample
 #'        size for control (required when \code{design} is
 #'        \code{'controlled'} or \code{'external'} and
 #'        \code{prior = 'N-Inv-Wishart'}).
-#' @param nu02 Positive numeric or \code{NULL}. NIW prior degrees of freedom
+#' @param nu0_c Positive numeric or \code{NULL}. NIW prior degrees of freedom
 #'        for control.
-#' @param mu02 Length-2 numeric vector or \code{NULL}. NIW prior mean for
+#' @param mu0_c Length-2 numeric vector or \code{NULL}. NIW prior mean for
 #'        control, or the hypothetical control mean when
 #'        \code{design = 'uncontrolled'}.
-#' @param Lambda02 A 2x2 numeric matrix or \code{NULL}. NIW prior scale matrix
+#' @param Lambda0_c A 2x2 numeric matrix or \code{NULL}. NIW prior scale matrix
 #'        for control.
 #' @param r Positive numeric or \code{NULL}. Variance scaling ratio for the
-#'        hypothetical control arm (required when
+#'        hypothetical control group (required when
 #'        \code{design = 'uncontrolled'}).
-#' @param ne1 Positive integer or \code{NULL}. External treatment sample size
+#' @param ne_t Positive integer or \code{NULL}. External treatment sample size
 #'        (used when \code{design = 'external'}).
-#' @param ne2 Positive integer or \code{NULL}. External control sample size
+#' @param ne_c Positive integer or \code{NULL}. External control sample size
 #'        (used when \code{design = 'external'}).
-#' @param alpha01e Numeric scalar in \code{(0, 1]}. Power prior weight for
+#' @param alpha0e_t Numeric scalar in \code{(0, 1]}. Power prior weight for
 #'        external treatment data.
-#' @param alpha02e Numeric scalar in \code{(0, 1]}. Power prior weight for
+#' @param alpha0e_c Numeric scalar in \code{(0, 1]}. Power prior weight for
 #'        external control data.
-#' @param ybar_e1 Length-2 numeric vector. External treatment sample mean.
-#' @param ybar_e2 Length-2 numeric vector. External control sample mean.
-#' @param Se1 A 2x2 numeric matrix. External treatment sum-of-squares matrix.
-#' @param Se2 A 2x2 numeric matrix. External control sum-of-squares matrix.
+#' @param bar_ye_t Length-2 numeric vector. External treatment sample mean.
+#' @param bar_ye_c Length-2 numeric vector. External control sample mean.
+#' @param se_t A 2x2 numeric matrix. External treatment sum-of-squares matrix.
+#' @param se_c A 2x2 numeric matrix. External control sum-of-squares matrix.
 #' @param nMC Positive integer or \code{NULL}. Number of Monte Carlo draws
 #'        passed to \code{\link{pbayespostpred2cont}} to compute region
 #'        probabilities for each simulated dataset.  Required when
@@ -95,7 +95,7 @@
 #' @param seed A numeric value for reproducible random number generation.
 #'
 #' @return A \code{data.frame} with one row per scenario and columns
-#'   \code{mu1_ep1}, \code{mu1_ep2} (and \code{mu2_ep1}, \code{mu2_ep2} for
+#'   \code{mu_t1}, \code{mu_t2} (and \code{mu_c1}, \code{mu_c2} for
 #'   controlled/external), \code{Go}, \code{Gray}, \code{NoGo}, and optionally
 #'   \code{Miss}.  The object has S3 class
 #'   \code{c("pbayesdecisionprob2cont", "data.frame")} with all input
@@ -127,20 +127,20 @@
 #'   nsim = 100L, prob = 'posterior', design = 'controlled',
 #'   prior = 'vague',
 #'   GoRegions = 1L, NoGoRegions = 9L,
-#'   gamma1 = 0.8, gamma2 = 0.8,
-#'   theta.TV1 = 1.5, theta.MAV1 = 0.5,
-#'   theta.TV2 = 1.0, theta.MAV2 = 0.3,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
-#'   n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-#'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-#'   Sigma1 = Sigma,
-#'   mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-#'   Sigma2 = Sigma,
-#'   kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-#'   kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+#'   gamma_go = 0.8, gamma_nogo = 0.8,
+#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
+#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
+#'   n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
+#'   mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+#'   Sigma_t = Sigma,
+#'   mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+#'   Sigma_c = Sigma,
+#'   kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+#'   kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
 #'   r = NULL,
-#'   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-#'   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 500L, method = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1L
 #' )
@@ -152,20 +152,20 @@
 #'   nsim = 100L, prob = 'posterior', design = 'controlled',
 #'   prior = 'N-Inv-Wishart',
 #'   GoRegions = 1L, NoGoRegions = 9L,
-#'   gamma1 = 0.8, gamma2 = 0.8,
-#'   theta.TV1 = 1.5, theta.MAV1 = 0.5,
-#'   theta.TV2 = 1.0, theta.MAV2 = 0.3,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
-#'   n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-#'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-#'   Sigma1 = Sigma,
-#'   mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-#'   Sigma2 = Sigma,
-#'   kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-#'   kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0,
+#'   gamma_go = 0.8, gamma_nogo = 0.8,
+#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
+#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
+#'   n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
+#'   mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+#'   Sigma_t = Sigma,
+#'   mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+#'   Sigma_c = Sigma,
+#'   kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+#'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
 #'   r = NULL,
-#'   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-#'   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 500L, method = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2L
 #' )
@@ -177,20 +177,20 @@
 #'   nsim = 100L, prob = 'posterior', design = 'uncontrolled',
 #'   prior = 'N-Inv-Wishart',
 #'   GoRegions = 1L, NoGoRegions = 9L,
-#'   gamma1 = 0.8, gamma2 = 0.8,
-#'   theta.TV1 = 1.5, theta.MAV1 = 0.5,
-#'   theta.TV2 = 1.0, theta.MAV2 = 0.3,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
-#'   n1 = 20L, n2 = NULL, m1 = NULL, m2 = NULL,
-#'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-#'   Sigma1 = Sigma,
-#'   mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-#'   Sigma2 = Sigma,
-#'   kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-#'   kappa02 = NULL, nu02 = NULL, mu02 = c(0.0, 0.0), Lambda02 = NULL,
+#'   gamma_go = 0.8, gamma_nogo = 0.8,
+#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
+#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
+#'   n_t = 20L, n_c = NULL, m_t = NULL, m_c = NULL,
+#'   mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+#'   Sigma_t = Sigma,
+#'   mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+#'   Sigma_c = Sigma,
+#'   kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+#'   kappa0_c = NULL, nu0_c = NULL, mu0_c = c(0.0, 0.0), Lambda0_c = NULL,
 #'   r = 1.0,
-#'   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-#'   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 500L, method = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3L
 #' )
@@ -202,20 +202,20 @@
 #'   nsim = 100L, prob = 'predictive', design = 'controlled',
 #'   prior = 'N-Inv-Wishart',
 #'   GoRegions = 1L, NoGoRegions = 4L,
-#'   gamma1 = 0.8, gamma2 = 0.8,
-#'   theta.TV1 = NULL, theta.MAV1 = NULL,
-#'   theta.TV2 = NULL, theta.MAV2 = NULL,
-#'   theta.NULL1 = 0.5, theta.NULL2 = 0.3,
-#'   n1 = 20L, n2 = 20L, m1 = 60L, m2 = 60L,
-#'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-#'   Sigma1 = Sigma,
-#'   mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-#'   Sigma2 = Sigma,
-#'   kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-#'   kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0,
+#'   gamma_go = 0.8, gamma_nogo = 0.8,
+#'   theta_TV1 = NULL, theta_MAV1 = NULL,
+#'   theta_TV2 = NULL, theta_MAV2 = NULL,
+#'   theta_NULL1 = 0.5, theta_NULL2 = 0.3,
+#'   n_t = 20L, n_c = 20L, m_t = 60L, m_c = 60L,
+#'   mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+#'   Sigma_t = Sigma,
+#'   mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+#'   Sigma_c = Sigma,
+#'   kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+#'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
 #'   r = NULL,
-#'   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-#'   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 500L, method = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4L
 #' )
@@ -224,25 +224,25 @@
 #' \dontrun{
 #' Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
 #' L0    <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
-#' Se2   <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
+#' se_c   <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
 #' pbayesdecisionprob2cont(
 #'   nsim = 100L, prob = 'posterior', design = 'external',
 #'   prior = 'N-Inv-Wishart',
 #'   GoRegions = 1L, NoGoRegions = 9L,
-#'   gamma1 = 0.8, gamma2 = 0.8,
-#'   theta.TV1 = 1.5, theta.MAV1 = 0.5,
-#'   theta.TV2 = 1.0, theta.MAV2 = 0.3,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
-#'   n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-#'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-#'   Sigma1 = Sigma,
-#'   mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-#'   Sigma2 = Sigma,
-#'   kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-#'   kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0,
+#'   gamma_go = 0.8, gamma_nogo = 0.8,
+#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
+#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
+#'   n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
+#'   mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+#'   Sigma_t = Sigma,
+#'   mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+#'   Sigma_c = Sigma,
+#'   kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+#'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
 #'   r = NULL,
-#'   ne1 = NULL, ne2 = 15L, alpha01e = NULL, alpha02e = 0.5,
-#'   ybar_e1 = NULL, ybar_e2 = c(0.2, 0.1), Se1 = NULL, Se2 = Se2,
+#'   ne_t = NULL, ne_c = 15L, alpha0e_t = NULL, alpha0e_c = 0.5,
+#'   bar_ye_t = NULL, bar_ye_c = c(0.2, 0.1), se_t = NULL, se_c = se_c,
 #'   nMC = 500L, method = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
 #' )
@@ -257,20 +257,20 @@
 #'   nsim = 100L, prob = 'posterior', design = 'controlled',
 #'   prior = 'N-Inv-Wishart',
 #'   GoRegions = 1L, NoGoRegions = 9L,
-#'   gamma1 = 0.8, gamma2 = 0.8,
-#'   theta.TV1 = 1.5, theta.MAV1 = 0.5,
-#'   theta.TV2 = 1.0, theta.MAV2 = 0.3,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
-#'   n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-#'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-#'   Sigma1 = Sigma,
-#'   mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-#'   Sigma2 = Sigma,
-#'   kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-#'   kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0,
+#'   gamma_go = 0.8, gamma_nogo = 0.8,
+#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
+#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
+#'   n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
+#'   mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+#'   Sigma_t = Sigma,
+#'   mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+#'   Sigma_c = Sigma,
+#'   kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+#'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
 #'   r = NULL,
-#'   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-#'   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = NULL, method = 'MM',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 6L
 #' )
@@ -284,20 +284,20 @@
 #'   nsim = 100L, prob = 'posterior', design = 'uncontrolled',
 #'   prior = 'vague',
 #'   GoRegions = 1L, NoGoRegions = 9L,
-#'   gamma1 = 0.8, gamma2 = 0.8,
-#'   theta.TV1 = 1.5, theta.MAV1 = 0.5,
-#'   theta.TV2 = 1.0, theta.MAV2 = 0.3,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
-#'   n1 = 20L, n2 = NULL, m1 = NULL, m2 = NULL,
-#'   mu1 = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-#'   Sigma1 = Sigma,
-#'   mu2 = NULL,
-#'   Sigma2 = NULL,
-#'   kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-#'   kappa02 = NULL, nu02 = NULL, mu02 = c(0.0, 0.0), Lambda02 = NULL,
+#'   gamma_go = 0.8, gamma_nogo = 0.8,
+#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
+#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
+#'   n_t = 20L, n_c = NULL, m_t = NULL, m_c = NULL,
+#'   mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+#'   Sigma_t = Sigma,
+#'   mu_c = NULL,
+#'   Sigma_c = NULL,
+#'   kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+#'   kappa0_c = NULL, nu0_c = NULL, mu0_c = c(0.0, 0.0), Lambda0_c = NULL,
 #'   r = 1.0,
-#'   ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-#'   ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = NULL, method = 'MM',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 7L
 #' )
@@ -310,25 +310,25 @@ pbayesdecisionprob2cont <- function(nsim,
                                     design,
                                     prior,
                                     GoRegions, NoGoRegions,
-                                    gamma1, gamma2,
-                                    theta.TV1   = NULL, theta.MAV1  = NULL,
-                                    theta.TV2   = NULL, theta.MAV2  = NULL,
-                                    theta.NULL1 = NULL, theta.NULL2 = NULL,
-                                    n1, n2      = NULL,
-                                    m1          = NULL, m2          = NULL,
-                                    mu1, Sigma1,
-                                    mu2 = NULL, Sigma2 = NULL,
-                                    kappa01     = NULL, nu01        = NULL,
-                                    mu01        = NULL, Lambda01    = NULL,
-                                    kappa02     = NULL, nu02        = NULL,
-                                    mu02        = NULL, Lambda02    = NULL,
-                                    r           = NULL,
-                                    ne1         = NULL, ne2         = NULL,
-                                    alpha01e    = NULL, alpha02e    = NULL,
-                                    ybar_e1     = NULL, ybar_e2     = NULL,
-                                    Se1         = NULL, Se2         = NULL,
-                                    nMC         = NULL,
-                                    method      = 'MC',
+                                    gamma_go, gamma_nogo,
+                                    theta_TV1     = NULL, theta_MAV1  = NULL,
+                                    theta_TV2     = NULL, theta_MAV2  = NULL,
+                                    theta_NULL1   = NULL, theta_NULL2 = NULL,
+                                    n_t, n_c      = NULL,
+                                    m_t           = NULL, m_c         = NULL,
+                                    mu_t, Sigma_t,
+                                    mu_c = NULL, Sigma_c = NULL,
+                                    kappa0_t      = NULL, nu0_t       = NULL,
+                                    mu0_t         = NULL, Lambda0_t   = NULL,
+                                    kappa0_c      = NULL, nu0_c       = NULL,
+                                    mu0_c         = NULL, Lambda0_c   = NULL,
+                                    r             = NULL,
+                                    ne_t          = NULL, ne_c        = NULL,
+                                    alpha0e_t     = NULL, alpha0e_c   = NULL,
+                                    bar_ye_t      = NULL, bar_ye_c    = NULL,
+                                    se_t          = NULL, se_c        = NULL,
+                                    nMC           = NULL,
+                                    method        = 'MC',
                                     error_if_Miss = TRUE,
                                     Gray_inc_Miss = FALSE,
                                     seed) {
@@ -366,7 +366,7 @@ pbayesdecisionprob2cont <- function(nsim,
   if (any(GoRegions %in% NoGoRegions))
     stop("'GoRegions' and 'NoGoRegions' must be disjoint")
 
-  for (nm in c('gamma1', 'gamma2')) {
+  for (nm in c('gamma_go', 'gamma_nogo')) {
     val <- get(nm)
     if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
         val <= 0 || val >= 1)
@@ -374,28 +374,28 @@ pbayesdecisionprob2cont <- function(nsim,
   }
 
   if (prob == 'posterior') {
-    for (nm in c('theta.TV1', 'theta.MAV1', 'theta.TV2', 'theta.MAV2')) {
+    for (nm in c('theta_TV1', 'theta_MAV1', 'theta_TV2', 'theta_MAV2')) {
       val <- get(nm)
       if (is.null(val))
         stop(paste0("'", nm, "' must be non-NULL when prob = 'posterior'"))
       if (!is.numeric(val) || length(val) != 1L || is.na(val))
         stop(paste0("'", nm, "' must be a single numeric value"))
     }
-    if (theta.TV1 <= theta.MAV1)
-      stop("'theta.TV1' must be strictly greater than 'theta.MAV1'")
-    if (theta.TV2 <= theta.MAV2)
-      stop("'theta.TV2' must be strictly greater than 'theta.MAV2'")
+    if (theta_TV1 <= theta_MAV1)
+      stop("'theta_TV1' must be strictly greater than 'theta_MAV1'")
+    if (theta_TV2 <= theta_MAV2)
+      stop("'theta_TV2' must be strictly greater than 'theta_MAV2'")
   } else {
-    for (nm in c('theta.NULL1', 'theta.NULL2')) {
+    for (nm in c('theta_NULL1', 'theta_NULL2')) {
       val <- get(nm)
       if (is.null(val))
         stop(paste0("'", nm, "' must be non-NULL when prob = 'predictive'"))
       if (!is.numeric(val) || length(val) != 1L || is.na(val))
         stop(paste0("'", nm, "' must be a single numeric value"))
     }
-    if (is.null(m1) || is.null(m2))
-      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
-    for (nm in c('m1', 'm2')) {
+    if (is.null(m_t) || is.null(m_c))
+      stop("'m_t' and 'm_c' must be non-NULL when prob = 'predictive'")
+    for (nm in c('m_t', 'm_c')) {
       val <- get(nm)
       if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
           val != floor(val) || val < 1L)
@@ -403,85 +403,85 @@ pbayesdecisionprob2cont <- function(nsim,
     }
   }
 
-  if (!is.numeric(n1) || length(n1) != 1L || is.na(n1) ||
-      n1 != floor(n1) || n1 < 1L)
-    stop("'n1' must be a single positive integer")
-  n1 <- as.integer(n1)
+  if (!is.numeric(n_t) || length(n_t) != 1L || is.na(n_t) ||
+      n_t != floor(n_t) || n_t < 1L)
+    stop("'n_t' must be a single positive integer")
+  n_t <- as.integer(n_t)
 
   if (design %in% c('controlled', 'external')) {
-    if (is.null(n2))
-      stop("'n2' must be non-NULL when design is 'controlled' or 'external'")
-    if (!is.numeric(n2) || length(n2) != 1L || is.na(n2) ||
-        n2 != floor(n2) || n2 < 1L)
-      stop("'n2' must be a single positive integer")
-    n2 <- as.integer(n2)
+    if (is.null(n_c))
+      stop("'n_c' must be non-NULL when design is 'controlled' or 'external'")
+    if (!is.numeric(n_c) || length(n_c) != 1L || is.na(n_c) ||
+        n_c != floor(n_c) || n_c < 1L)
+      stop("'n_c' must be a single positive integer")
+    n_c <- as.integer(n_c)
   }
 
-  # Coerce mu1 to matrix if needed
-  if (is.vector(mu1) && length(mu1) == 2L) mu1 <- matrix(mu1, nrow = 1L)
-  if (!is.matrix(mu1) || ncol(mu1) != 2L)
-    stop("'mu1' must be a matrix with 2 columns (or a length-2 vector)")
+  # Coerce mu_t to matrix if needed
+  if (is.vector(mu_t) && length(mu_t) == 2L) mu_t <- matrix(mu_t, nrow = 1L)
+  if (!is.matrix(mu_t) || ncol(mu_t) != 2L)
+    stop("'mu_t' must be a matrix with 2 columns (or a length-2 vector)")
 
-  n_scen1 <- nrow(mu1)
+  n_scen_t <- nrow(mu_t)
 
   if (design == 'uncontrolled') {
-    # mu2 is not used in simulation; n_scen is determined by mu1 alone
-    n_scen <- n_scen1
+    # mu_c is not used in simulation; n_scen is determined by mu_t alone
+    n_scen <- n_scen_t
   } else {
-    if (is.vector(mu2) && length(mu2) == 2L) mu2 <- matrix(mu2, nrow = 1L)
-    if (!is.matrix(mu2) || ncol(mu2) != 2L)
-      stop("'mu2' must be a matrix with 2 columns (or a length-2 vector)")
-    n_scen2 <- nrow(mu2)
-    if (n_scen2 != n_scen1)
-      stop("'mu1' and 'mu2' must have the same number of rows")
-    n_scen <- n_scen1
+    if (is.vector(mu_c) && length(mu_c) == 2L) mu_c <- matrix(mu_c, nrow = 1L)
+    if (!is.matrix(mu_c) || ncol(mu_c) != 2L)
+      stop("'mu_c' must be a matrix with 2 columns (or a length-2 vector)")
+    n_scen_c <- nrow(mu_c)
+    if (n_scen_c != n_scen_t)
+      stop("'mu_t' and 'mu_c' must have the same number of rows")
+    n_scen <- n_scen_t
   }
 
-  if (!is.matrix(Sigma1) || nrow(Sigma1) != 2L || ncol(Sigma1) != 2L)
-    stop("'Sigma1' must be a 2x2 numeric matrix")
+  if (!is.matrix(Sigma_t) || nrow(Sigma_t) != 2L || ncol(Sigma_t) != 2L)
+    stop("'Sigma_t' must be a 2x2 numeric matrix")
   if (design != 'uncontrolled') {
-    if (!is.matrix(Sigma2) || nrow(Sigma2) != 2L || ncol(Sigma2) != 2L)
-      stop("'Sigma2' must be a 2x2 numeric matrix")
+    if (!is.matrix(Sigma_c) || nrow(Sigma_c) != 2L || ncol(Sigma_c) != 2L)
+      stop("'Sigma_c' must be a 2x2 numeric matrix")
   }
 
   if (prior == 'N-Inv-Wishart') {
-    for (nm in c('kappa01', 'nu01')) {
+    for (nm in c('kappa0_t', 'nu0_t')) {
       val <- get(nm)
       if (is.null(val) || !is.numeric(val) || length(val) != 1L ||
           is.na(val) || val <= 0)
         stop(paste0("'", nm, "' must be a single positive numeric for NIW prior"))
     }
-    if (is.null(mu01) || !is.numeric(mu01) || length(mu01) != 2L)
-      stop("'mu01' must be a length-2 numeric vector for NIW prior")
-    if (is.null(Lambda01) || !is.matrix(Lambda01) || nrow(Lambda01) != 2L)
-      stop("'Lambda01' must be a 2x2 numeric matrix for NIW prior")
+    if (is.null(mu0_t) || !is.numeric(mu0_t) || length(mu0_t) != 2L)
+      stop("'mu0_t' must be a length-2 numeric vector for NIW prior")
+    if (is.null(Lambda0_t) || !is.matrix(Lambda0_t) || nrow(Lambda0_t) != 2L)
+      stop("'Lambda0_t' must be a 2x2 numeric matrix for NIW prior")
     if (design %in% c('controlled', 'external')) {
-      for (nm in c('kappa02', 'nu02')) {
+      for (nm in c('kappa0_c', 'nu0_c')) {
         val <- get(nm)
         if (is.null(val) || !is.numeric(val) || length(val) != 1L ||
             is.na(val) || val <= 0)
           stop(paste0("'", nm, "' must be a single positive numeric for NIW prior"))
       }
-      if (is.null(mu02) || !is.numeric(mu02) || length(mu02) != 2L)
-        stop("'mu02' must be a length-2 numeric vector for NIW prior")
-      if (is.null(Lambda02) || !is.matrix(Lambda02) || nrow(Lambda02) != 2L)
-        stop("'Lambda02' must be a 2x2 numeric matrix for NIW prior")
+      if (is.null(mu0_c) || !is.numeric(mu0_c) || length(mu0_c) != 2L)
+        stop("'mu0_c' must be a length-2 numeric vector for NIW prior")
+      if (is.null(Lambda0_c) || !is.matrix(Lambda0_c) || nrow(Lambda0_c) != 2L)
+        stop("'Lambda0_c' must be a 2x2 numeric matrix for NIW prior")
     }
   }
 
   if (design == 'uncontrolled') {
     if (is.null(r) || !is.numeric(r) || length(r) != 1L || is.na(r) || r <= 0)
       stop("'r' must be a single positive numeric when design = 'uncontrolled'")
-    if (is.null(mu02) || !is.numeric(mu02) || length(mu02) != 2L)
-      stop("'mu02' must be a length-2 numeric vector when design = 'uncontrolled'")
+    if (is.null(mu0_c) || !is.numeric(mu0_c) || length(mu0_c) != 2L)
+      stop("'mu0_c' must be a length-2 numeric vector when design = 'uncontrolled'")
   }
 
   if (design == 'external') {
-    has_ext1 <- !is.null(ne1) && !is.null(alpha01e) &&
-      !is.null(ybar_e1) && !is.null(Se1)
-    has_ext2 <- !is.null(ne2) && !is.null(alpha02e) &&
-      !is.null(ybar_e2) && !is.null(Se2)
-    if (!has_ext1 && !has_ext2)
+    has_ext_t <- !is.null(ne_t) && !is.null(alpha0e_t) &&
+      !is.null(bar_ye_t) && !is.null(se_t)
+    has_ext_c <- !is.null(ne_c) && !is.null(alpha0e_c) &&
+      !is.null(bar_ye_c) && !is.null(se_c)
+    if (!has_ext_t && !has_ext_c)
       stop(paste0("For design = 'external', at least one complete set of ",
                   "external data must be provided"))
   }
@@ -527,33 +527,33 @@ pbayesdecisionprob2cont <- function(nsim,
 
   set.seed(seed)
 
-  R_Sigma1 <- chol(Sigma1)
-  Z1_raw   <- matrix(rnorm(nsim * n1 * 2L),
-                     nrow = nsim * n1, ncol = 2L) %*% R_Sigma1
-  block1   <- rep(seq_len(nsim), each = n1)
+  R_Sigma_t <- chol(Sigma_t)
+  Z_t_raw   <- matrix(rnorm(nsim * n_t * 2L),
+                      nrow = nsim * n_t, ncol = 2L) %*% R_Sigma_t
+  block_t   <- rep(seq_len(nsim), each = n_t)
 
-  Z1_colsums      <- apply(Z1_raw, 2L, function(col) tapply(col, block1, sum))
-  Z1_colmeans_rep <- Z1_colsums[block1, ] / n1
-  Z1_centered     <- Z1_raw - Z1_colmeans_rep
+  Z_t_colsums      <- apply(Z_t_raw, 2L, function(col) tapply(col, block_t, sum))
+  Z_t_colmeans_rep <- Z_t_colsums[block_t, ] / n_t
+  Z_t_centered     <- Z_t_raw - Z_t_colmeans_rep
 
-  # S1 stored as 3 unique elements per replicate (symmetric 2x2)
-  S1_11 <- tapply(Z1_centered[, 1L] ^ 2,                block1, sum)
-  S1_12 <- tapply(Z1_centered[, 1L] * Z1_centered[, 2L], block1, sum)
-  S1_22 <- tapply(Z1_centered[, 2L] ^ 2,                block1, sum)
+  # S_t stored as 3 unique elements per replicate (symmetric 2x2)
+  S_t_11 <- tapply(Z_t_centered[, 1L] ^ 2,                block_t, sum)
+  S_t_12 <- tapply(Z_t_centered[, 1L] * Z_t_centered[, 2L], block_t, sum)
+  S_t_22 <- tapply(Z_t_centered[, 2L] ^ 2,                block_t, sum)
 
   if (design %in% c('controlled', 'external')) {
-    R_Sigma2 <- chol(Sigma2)
-    Z2_raw   <- matrix(rnorm(nsim * n2 * 2L),
-                       nrow = nsim * n2, ncol = 2L) %*% R_Sigma2
-    block2   <- rep(seq_len(nsim), each = n2)
+    R_Sigma_c <- chol(Sigma_c)
+    Z_c_raw   <- matrix(rnorm(nsim * n_c * 2L),
+                        nrow = nsim * n_c, ncol = 2L) %*% R_Sigma_c
+    block_c   <- rep(seq_len(nsim), each = n_c)
 
-    Z2_colsums      <- apply(Z2_raw, 2L, function(col) tapply(col, block2, sum))
-    Z2_colmeans_rep <- Z2_colsums[block2, ] / n2
-    Z2_centered     <- Z2_raw - Z2_colmeans_rep
+    Z_c_colsums      <- apply(Z_c_raw, 2L, function(col) tapply(col, block_c, sum))
+    Z_c_colmeans_rep <- Z_c_colsums[block_c, ] / n_c
+    Z_c_centered     <- Z_c_raw - Z_c_colmeans_rep
 
-    S2_11 <- tapply(Z2_centered[, 1L] ^ 2,                block2, sum)
-    S2_12 <- tapply(Z2_centered[, 1L] * Z2_centered[, 2L], block2, sum)
-    S2_22 <- tapply(Z2_centered[, 2L] ^ 2,                block2, sum)
+    S_c_11 <- tapply(Z_c_centered[, 1L] ^ 2,                block_c, sum)
+    S_c_12 <- tapply(Z_c_centered[, 1L] * Z_c_centered[, 2L], block_c, sum)
+    S_c_22 <- tapply(Z_c_centered[, 2L] ^ 2,                block_c, sum)
   }
 
   # ---------------------------------------------------------------------------
@@ -562,8 +562,8 @@ pbayesdecisionprob2cont <- function(nsim,
   # For each scenario s:
   #   1. Construct nsim sufficient statistics by shifting the pre-generated
   #      residuals by the scenario mean.
-  #   2. Call pbayespostpred2cont once in vectorised mode (ybar1 as matrix,
-  #      S1 as list) to obtain an nsim x n_regions matrix of Pr_R values.
+  #   2. Call pbayespostpred2cont once in vectorised mode (ybar_t as matrix,
+  #      S_t as list) to obtain an nsim x n_regions matrix of Pr_R values.
   #   3. Compute PrGo and PrNoGo for each replicate and classify.
   # ---------------------------------------------------------------------------
 
@@ -572,26 +572,26 @@ pbayesdecisionprob2cont <- function(nsim,
   for (s in seq_len(n_scen)) {
 
     # Shift residual column sums by scenario mean (vectorised over nsim)
-    ybar1_sim <- sweep(Z1_colsums / n1, 2L, mu1[s, ], '+')
-    # ybar1_sim: nsim x 2 matrix
+    ybar_t_sim <- sweep(Z_t_colsums / n_t, 2L, mu_t[s, ], '+')
+    # ybar_t_sim: nsim x 2 matrix
 
-    # Build S1 list for this scenario (scenario-invariant values)
-    S1_list <- vector('list', nsim)
+    # Build S_t list for this scenario (scenario-invariant values)
+    S_t_list <- vector('list', nsim)
     for (i in seq_len(nsim)) {
-      S1_list[[i]] <- matrix(c(S1_11[i], S1_12[i], S1_12[i], S1_22[i]),
-                             nrow = 2L, ncol = 2L)
+      S_t_list[[i]] <- matrix(c(S_t_11[i], S_t_12[i], S_t_12[i], S_t_22[i]),
+                              nrow = 2L, ncol = 2L)
     }
 
     if (design %in% c('controlled', 'external')) {
-      ybar2_sim <- sweep(Z2_colsums / n2, 2L, mu2[s, ], '+')
-      S2_list <- vector('list', nsim)
+      ybar_c_sim <- sweep(Z_c_colsums / n_c, 2L, mu_c[s, ], '+')
+      S_c_list <- vector('list', nsim)
       for (i in seq_len(nsim)) {
-        S2_list[[i]] <- matrix(c(S2_11[i], S2_12[i], S2_12[i], S2_22[i]),
-                               nrow = 2L, ncol = 2L)
+        S_c_list[[i]] <- matrix(c(S_c_11[i], S_c_12[i], S_c_12[i], S_c_22[i]),
+                                nrow = 2L, ncol = 2L)
       }
     } else {
-      ybar2_sim <- NULL
-      S2_list   <- NULL
+      ybar_c_sim <- NULL
+      S_c_list   <- NULL
     }
 
     # Vectorised call: returns nsim x n_regions matrix
@@ -599,22 +599,22 @@ pbayesdecisionprob2cont <- function(nsim,
       prob        = prob,
       design      = design,
       prior       = prior,
-      theta.TV1   = theta.TV1,   theta.MAV1  = theta.MAV1,
-      theta.TV2   = theta.TV2,   theta.MAV2  = theta.MAV2,
-      theta.NULL1 = theta.NULL1, theta.NULL2 = theta.NULL2,
-      n1 = n1, n2 = n2,
-      ybar1 = ybar1_sim, S1 = S1_list,
-      ybar2 = ybar2_sim, S2 = S2_list,
-      m1 = m1, m2 = m2,
-      kappa01  = kappa01,  nu01     = nu01,
-      mu01     = mu01,     Lambda01 = Lambda01,
-      kappa02  = kappa02,  nu02     = nu02,
-      mu02     = mu02,     Lambda02 = Lambda02,
+      theta_TV1   = theta_TV1,   theta_MAV1  = theta_MAV1,
+      theta_TV2   = theta_TV2,   theta_MAV2  = theta_MAV2,
+      theta_NULL1 = theta_NULL1, theta_NULL2 = theta_NULL2,
+      n_t = n_t, n_c = n_c,
+      ybar_t = ybar_t_sim, S_t = S_t_list,
+      ybar_c = ybar_c_sim, S_c = S_c_list,
+      m_t = m_t, m_c = m_c,
+      kappa0_t  = kappa0_t,  nu0_t     = nu0_t,
+      mu0_t     = mu0_t,     Lambda0_t = Lambda0_t,
+      kappa0_c  = kappa0_c,  nu0_c     = nu0_c,
+      mu0_c     = mu0_c,     Lambda0_c = Lambda0_c,
       r        = r,
-      ne1 = ne1, ne2 = ne2,
-      alpha01e = alpha01e, alpha02e = alpha02e,
-      ybar_e1  = ybar_e1,  ybar_e2  = ybar_e2,
-      Se1      = Se1,      Se2      = Se2,
+      ne_t = ne_t, ne_c = ne_c,
+      alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
+      bar_ye_t  = bar_ye_t,  bar_ye_c  = bar_ye_c,
+      se_t      = se_t,      se_c      = se_c,
       nMC    = nMC,
       method = method
     )
@@ -625,9 +625,9 @@ pbayesdecisionprob2cont <- function(nsim,
     PrNoGo_vec <- rowSums(Pr_R_mat[, NoGoRegions, drop = FALSE])
 
     # Classify into Go, NoGo, Miss
-    ind_Go   <- (PrGo_vec >= gamma1) & (PrNoGo_vec <  gamma2)
-    ind_NoGo <- (PrGo_vec <  gamma1) & (PrNoGo_vec >= gamma2)
-    ind_Miss <- (PrGo_vec >= gamma1) & (PrNoGo_vec >= gamma2)
+    ind_Go   <- (PrGo_vec >= gamma_go) & (PrNoGo_vec <  gamma_nogo)
+    ind_NoGo <- (PrGo_vec <  gamma_go) & (PrNoGo_vec >= gamma_nogo)
+    ind_Miss <- (PrGo_vec >= gamma_go) & (PrNoGo_vec >= gamma_nogo)
 
     result_mat[s, 1L] <- mean(ind_Go)
     result_mat[s, 2L] <- mean(ind_NoGo)
@@ -651,18 +651,18 @@ pbayesdecisionprob2cont <- function(nsim,
 
   if (design == 'uncontrolled') {
     results <- data.frame(
-      mu1_ep1 = mu1[, 1L],
-      mu1_ep2 = mu1[, 2L],
+      mu_t1 = mu_t[, 1L],
+      mu_t2 = mu_t[, 2L],
       Go      = result_mat[, 1L],
       Gray    = GrayProb,
       NoGo    = result_mat[, 2L]
     )
   } else {
     results <- data.frame(
-      mu1_ep1 = mu1[, 1L],
-      mu1_ep2 = mu1[, 2L],
-      mu2_ep1 = mu2[, 1L],
-      mu2_ep2 = mu2[, 2L],
+      mu_t1 = mu_t[, 1L],
+      mu_t2 = mu_t[, 2L],
+      mu_c1 = mu_c[, 1L],
+      mu_c2 = mu_c[, 2L],
       Go      = result_mat[, 1L],
       Gray    = GrayProb,
       NoGo    = result_mat[, 2L]
@@ -680,48 +680,48 @@ pbayesdecisionprob2cont <- function(nsim,
   })
 
   # Attach metadata as attributes
-  attr(results, 'prob')          <- prob
-  attr(results, 'design')        <- design
-  attr(results, 'prior')         <- prior
-  attr(results, 'nsim')          <- nsim
-  attr(results, 'nMC')           <- nMC
-  attr(results, 'method')        <- method
-  attr(results, 'GoRegions')     <- GoRegions
-  attr(results, 'NoGoRegions')   <- NoGoRegions
-  attr(results, 'gamma1')        <- gamma1
-  attr(results, 'gamma2')        <- gamma2
-  attr(results, 'theta.TV1')     <- theta.TV1
-  attr(results, 'theta.MAV1')    <- theta.MAV1
-  attr(results, 'theta.TV2')     <- theta.TV2
-  attr(results, 'theta.MAV2')    <- theta.MAV2
-  attr(results, 'theta.NULL1')   <- theta.NULL1
-  attr(results, 'theta.NULL2')   <- theta.NULL2
-  attr(results, 'n1')            <- n1
-  attr(results, 'n2')            <- n2
-  attr(results, 'm1')            <- m1
-  attr(results, 'm2')            <- m2
-  attr(results, 'Sigma1')        <- Sigma1
-  attr(results, 'Sigma2')        <- Sigma2
-  attr(results, 'kappa01')       <- kappa01
-  attr(results, 'nu01')          <- nu01
-  attr(results, 'mu01')          <- mu01
-  attr(results, 'Lambda01')      <- Lambda01
-  attr(results, 'kappa02')       <- kappa02
-  attr(results, 'nu02')          <- nu02
-  attr(results, 'mu02')          <- mu02
-  attr(results, 'Lambda02')      <- Lambda02
-  attr(results, 'r')             <- r
-  attr(results, 'ne1')           <- ne1
-  attr(results, 'ne2')           <- ne2
-  attr(results, 'alpha01e')      <- alpha01e
-  attr(results, 'alpha02e')      <- alpha02e
-  attr(results, 'ybar_e1')       <- ybar_e1
-  attr(results, 'ybar_e2')       <- ybar_e2
-  attr(results, 'Se1')           <- Se1
-  attr(results, 'Se2')           <- Se2
-  attr(results, 'error_if_Miss') <- error_if_Miss
-  attr(results, 'Gray_inc_Miss') <- Gray_inc_Miss
-  attr(results, 'seed')          <- seed
+  attr(results, 'prob')           <- prob
+  attr(results, 'design')         <- design
+  attr(results, 'prior')          <- prior
+  attr(results, 'nsim')           <- nsim
+  attr(results, 'nMC')            <- nMC
+  attr(results, 'method')         <- method
+  attr(results, 'GoRegions')      <- GoRegions
+  attr(results, 'NoGoRegions')    <- NoGoRegions
+  attr(results, 'gamma_go')       <- gamma_go
+  attr(results, 'gamma_nogo')     <- gamma_nogo
+  attr(results, 'theta_TV1')      <- theta_TV1
+  attr(results, 'theta_MAV1')     <- theta_MAV1
+  attr(results, 'theta_TV2')      <- theta_TV2
+  attr(results, 'theta_MAV2')     <- theta_MAV2
+  attr(results, 'theta_NULL1')    <- theta_NULL1
+  attr(results, 'theta_NULL2')    <- theta_NULL2
+  attr(results, 'n_t')            <- n_t
+  attr(results, 'n_c')            <- n_c
+  attr(results, 'm_t')            <- m_t
+  attr(results, 'm_c')            <- m_c
+  attr(results, 'Sigma_t')        <- Sigma_t
+  attr(results, 'Sigma_c')        <- Sigma_c
+  attr(results, 'kappa0_t')       <- kappa0_t
+  attr(results, 'nu0_t')          <- nu0_t
+  attr(results, 'mu0_t')          <- mu0_t
+  attr(results, 'Lambda0_t')      <- Lambda0_t
+  attr(results, 'kappa0_c')       <- kappa0_c
+  attr(results, 'nu0_c')          <- nu0_c
+  attr(results, 'mu0_c')          <- mu0_c
+  attr(results, 'Lambda0_c')      <- Lambda0_c
+  attr(results, 'r')              <- r
+  attr(results, 'ne_t')           <- ne_t
+  attr(results, 'ne_c')           <- ne_c
+  attr(results, 'alpha0e_t')       <- alpha0e_t
+  attr(results, 'alpha0e_c')       <- alpha0e_c
+  attr(results, 'bar_ye_t')       <- bar_ye_t
+  attr(results, 'bar_ye_c')       <- bar_ye_c
+  attr(results, 'se_t')           <- se_t
+  attr(results, 'se_c')           <- se_c
+  attr(results, 'error_if_Miss')  <- error_if_Miss
+  attr(results, 'Gray_inc_Miss')  <- Gray_inc_Miss
+  attr(results, 'seed')           <- seed
 
   class(results) <- c('pbayesdecisionprob2cont', 'data.frame')
 
@@ -753,48 +753,48 @@ print.pbayesdecisionprob2cont <- function(x, digits = 4, ...) {
     as.character(v)
   }
 
-  prob          <- attr(x, 'prob')
-  design        <- attr(x, 'design')
-  prior         <- attr(x, 'prior')
-  nsim          <- attr(x, 'nsim')
-  nMC           <- attr(x, 'nMC')
-  GoRegions     <- attr(x, 'GoRegions')
-  NoGoRegions   <- attr(x, 'NoGoRegions')
-  gamma1        <- attr(x, 'gamma1')
-  gamma2        <- attr(x, 'gamma2')
-  n1            <- attr(x, 'n1')
-  n2            <- attr(x, 'n2')
-  m1            <- attr(x, 'm1')
-  m2            <- attr(x, 'm2')
-  Sigma1        <- attr(x, 'Sigma1')
-  Sigma2        <- attr(x, 'Sigma2')
-  kappa01       <- attr(x, 'kappa01')
-  nu01          <- attr(x, 'nu01')
-  mu01          <- attr(x, 'mu01')
-  Lambda01      <- attr(x, 'Lambda01')
-  kappa02       <- attr(x, 'kappa02')
-  nu02          <- attr(x, 'nu02')
-  mu02          <- attr(x, 'mu02')
-  Lambda02      <- attr(x, 'Lambda02')
-  r             <- attr(x, 'r')
-  ne1           <- attr(x, 'ne1')
-  ne2           <- attr(x, 'ne2')
-  alpha01e      <- attr(x, 'alpha01e')
-  alpha02e      <- attr(x, 'alpha02e')
-  ybar_e1       <- attr(x, 'ybar_e1')
-  ybar_e2       <- attr(x, 'ybar_e2')
-  error_if_Miss <- attr(x, 'error_if_Miss')
-  Gray_inc_Miss <- attr(x, 'Gray_inc_Miss')
-  seed          <- attr(x, 'seed')
-  method        <- attr(x, 'method')
+  prob           <- attr(x, 'prob')
+  design         <- attr(x, 'design')
+  prior          <- attr(x, 'prior')
+  nsim           <- attr(x, 'nsim')
+  nMC            <- attr(x, 'nMC')
+  GoRegions      <- attr(x, 'GoRegions')
+  NoGoRegions    <- attr(x, 'NoGoRegions')
+  gamma_go       <- attr(x, 'gamma_go')
+  gamma_nogo     <- attr(x, 'gamma_nogo')
+  n_t            <- attr(x, 'n_t')
+  n_c            <- attr(x, 'n_c')
+  m_t            <- attr(x, 'm_t')
+  m_c            <- attr(x, 'm_c')
+  Sigma_t        <- attr(x, 'Sigma_t')
+  Sigma_c        <- attr(x, 'Sigma_c')
+  kappa0_t       <- attr(x, 'kappa0_t')
+  nu0_t          <- attr(x, 'nu0_t')
+  mu0_t          <- attr(x, 'mu0_t')
+  Lambda0_t      <- attr(x, 'Lambda0_t')
+  kappa0_c       <- attr(x, 'kappa0_c')
+  nu0_c          <- attr(x, 'nu0_c')
+  mu0_c          <- attr(x, 'mu0_c')
+  Lambda0_c      <- attr(x, 'Lambda0_c')
+  r              <- attr(x, 'r')
+  ne_t           <- attr(x, 'ne_t')
+  ne_c           <- attr(x, 'ne_c')
+  alpha0e_t       <- attr(x, 'alpha0e_t')
+  alpha0e_c       <- attr(x, 'alpha0e_c')
+  bar_ye_t       <- attr(x, 'bar_ye_t')
+  bar_ye_c       <- attr(x, 'bar_ye_c')
+  error_if_Miss  <- attr(x, 'error_if_Miss')
+  Gray_inc_Miss  <- attr(x, 'Gray_inc_Miss')
+  seed           <- attr(x, 'seed')
+  method         <- attr(x, 'method')
 
   if (prob == 'posterior') {
     thresh_str <- sprintf('TV1 = %s, MAV1 = %s, TV2 = %s, MAV2 = %s',
-                          fmt(attr(x, 'theta.TV1')), fmt(attr(x, 'theta.MAV1')),
-                          fmt(attr(x, 'theta.TV2')), fmt(attr(x, 'theta.MAV2')))
+                          fmt(attr(x, 'theta_TV1')), fmt(attr(x, 'theta_MAV1')),
+                          fmt(attr(x, 'theta_TV2')), fmt(attr(x, 'theta_MAV2')))
   } else {
     thresh_str <- sprintf('NULL1 = %s, NULL2 = %s',
-                          fmt(attr(x, 'theta.NULL1')), fmt(attr(x, 'theta.NULL2')))
+                          fmt(attr(x, 'theta_NULL1')), fmt(attr(x, 'theta_NULL2')))
   }
 
   prior_label <- if (prior == 'vague') 'vague' else 'N-Inv-Wishart'
@@ -808,46 +808,46 @@ print.pbayesdecisionprob2cont <- function(x, digits = 4, ...) {
   cat(sprintf('  Method           : %s\n',   fmt(method)))
   cat(sprintf('  Seed             : %s\n',   fmt(seed)))
   cat(sprintf('  Threshold(s)     : %s\n',   thresh_str))
-  cat(sprintf('  Go  threshold    : gamma1 = %s\n', fmt(gamma1)))
-  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', fmt(gamma2)))
+  cat(sprintf('  Go  threshold    : gamma_go = %s\n', fmt(gamma_go)))
+  cat(sprintf('  NoGo threshold   : gamma_nogo = %s\n', fmt(gamma_nogo)))
   cat(sprintf('  Go  regions      : {%s}\n', paste(GoRegions,   collapse = ', ')))
   cat(sprintf('  NoGo regions     : {%s}\n', paste(NoGoRegions, collapse = ', ')))
-  cat(sprintf('  Sample size      : n1 = %s, n2 = %s\n', fmt(n1), fmt(n2)))
+  cat(sprintf('  Sample size      : n_t = %s, n_c = %s\n', fmt(n_t), fmt(n_c)))
 
   if (prior == 'N-Inv-Wishart') {
-    cat(sprintf('  Prior Grp1 (NIW) : kappa01 = %s, nu01 = %s\n',
-                fmt(kappa01), fmt(nu01)))
-    cat(sprintf('                     mu01 = %s, Lambda01 = %s\n',
-                fmt(mu01), fmt(Lambda01)))
+    cat(sprintf('  Prior (traetment): kappa0_t = %s, nu0_t = %s\n',
+                fmt(kappa0_t), fmt(nu0_t)))
+    cat(sprintf('                     mu0_t = %s, Lambda0_t = %s\n',
+                fmt(mu0_t), fmt(Lambda0_t)))
     if (design %in% c('controlled', 'external')) {
-      cat(sprintf('  Prior Grp2 (NIW) : kappa02 = %s, nu02 = %s\n',
-                  fmt(kappa02), fmt(nu02)))
-      cat(sprintf('                     mu02 = %s, Lambda02 = %s\n',
-                  fmt(mu02), fmt(Lambda02)))
+      cat(sprintf('  Prior (control)  : kappa0_c = %s, nu0_c = %s\n',
+                  fmt(kappa0_c), fmt(nu0_c)))
+      cat(sprintf('                     mu0_c = %s, Lambda0_c = %s\n',
+                  fmt(mu0_c), fmt(Lambda0_c)))
     }
   }
 
   if (design == 'uncontrolled')
-    cat(sprintf('  Hyp. control     : mu02 = %s, r = %s\n', fmt(mu02), fmt(r)))
+    cat(sprintf('  Hyp. control     : mu0_c = %s, r = %s\n', fmt(mu0_c), fmt(r)))
 
   if (prob == 'predictive')
-    cat(sprintf('  Future trial     : m1 = %s, m2 = %s\n', fmt(m1), fmt(m2)))
+    cat(sprintf('  Future trial     : m_t = %s, m_c = %s\n', fmt(m_t), fmt(m_c)))
 
   if (design == 'external') {
-    cat(sprintf('  External data    : ne1 = %s, ne2 = %s\n', fmt(ne1), fmt(ne2)))
-    cat(sprintf('                     alpha01e = %s, alpha02e = %s\n',
-                fmt(alpha01e), fmt(alpha02e)))
-    if (!is.null(ybar_e1))
-      cat(sprintf('                     ybar_e1 = %s\n', fmt(ybar_e1)))
-    if (!is.null(ybar_e2))
-      cat(sprintf('                     ybar_e2 = %s\n', fmt(ybar_e2)))
+    cat(sprintf('  External data    : ne_t = %s, ne_c = %s\n', fmt(ne_t), fmt(ne_c)))
+    cat(sprintf('                     alpha0e_t = %s, alpha0e_c = %s\n',
+                fmt(alpha0e_t), fmt(alpha0e_c)))
+    if (!is.null(bar_ye_t))
+      cat(sprintf('                     bar_ye_t = %s\n', fmt(bar_ye_t)))
+    if (!is.null(bar_ye_c))
+      cat(sprintf('                     bar_ye_c = %s\n', fmt(bar_ye_c)))
   }
 
   cat(sprintf('  Miss handling    : error_if_Miss = %s, Gray_inc_Miss = %s\n',
               fmt(error_if_Miss), fmt(Gray_inc_Miss)))
   cat(strrep('-', 65), '\n')
 
-  scenario_cols <- c('mu1_ep1', 'mu1_ep2', 'mu2_ep1', 'mu2_ep2')
+  scenario_cols <- c('mu_t1', 'mu_t2', 'mu_c1', 'mu_c2')
   prob_cols     <- names(x)[!names(x) %in% scenario_cols]
 
   x_print <- x

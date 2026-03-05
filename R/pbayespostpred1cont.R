@@ -79,10 +79,10 @@
 #' @param ne_c A positive integer giving the external control group sample size.
 #'        Required for \code{design = 'external'} with external control data;
 #'        otherwise \code{NULL}.
-#' @param alpha0_t A numeric scalar in \code{(0, 1]} giving the power prior weight
+#' @param alpha0e_t A numeric scalar in \code{(0, 1]} giving the power prior weight
 #'        for the treatment group. Required when \code{ne_t} is provided;
 #'        otherwise \code{NULL}.
-#' @param alpha0_c A numeric scalar in \code{(0, 1]} giving the power prior weight
+#' @param alpha0e_c A numeric scalar in \code{(0, 1]} giving the power prior weight
 #'        for the control group. Required when \code{ne_c} is provided;
 #'        otherwise \code{NULL}.
 #' @param bar_ye_t A numeric scalar giving the external treatment group sample mean.
@@ -130,7 +130,7 @@
 #'   mu0_t = 5, mu0_c = 5, sigma0_t = sqrt(5), sigma0_c = sqrt(5),
 #'   bar_y_t = 2, bar_y_c = 0, s_t = 1, s_c = 1,
 #'   m_t = NULL, m_c = NULL, r = NULL,
-#'   ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   lower.tail = FALSE
 #' )
@@ -144,7 +144,7 @@
 #'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
 #'   mu0_t = NULL, sigma0_t = NULL, sigma0_c = NULL,
 #'   m_t = NULL, m_c = NULL,
-#'   ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   lower.tail = FALSE
 #' )
@@ -156,7 +156,7 @@
 #'   kappa0_t = 3, kappa0_c = 3, nu0_t = 4, nu0_c = 4,
 #'   mu0_t = 2, mu0_c = 2, sigma0_t = 2, sigma0_c = 2,
 #'   bar_y_t = 2.5, bar_y_c = 1.8, s_t = 1.8, s_c = 1.6,
-#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   lower.tail = FALSE
 #' )
@@ -166,11 +166,11 @@
 #'   prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
 #'   theta0 = 1.5, n_t = 12, n_c = 12,
 #'   bar_y_t = 4, bar_y_c = 2, s_t = 1.2, s_c = 1.1,
-#'   ne_c = 20, alpha0_c = 0.5, bar_ye_c = 1.8, se_c = 1.0,
+#'   ne_c = 20, alpha0e_c = 0.5, bar_ye_c = 1.8, se_c = 1.0,
 #'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
 #'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
 #'   m_t = NULL, m_c = NULL, r = NULL,
-#'   ne_t = NULL, alpha0_t = NULL, bar_ye_t = NULL, se_t = NULL,
+#'   ne_t = NULL, alpha0e_t = NULL, bar_ye_t = NULL, se_t = NULL,
 #'   lower.tail = FALSE
 #' )
 #'
@@ -187,7 +187,7 @@
 #'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
 #'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
 #'   m_t = NULL, m_c = NULL, r = NULL,
-#'   ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   lower.tail = FALSE
 #' )
@@ -204,7 +204,7 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
                                 bar_y_t, bar_y_c = NULL, s_t, s_c = NULL,
                                 r = NULL,
                                 ne_t = NULL, ne_c = NULL,
-                                alpha0_t = NULL, alpha0_c = NULL,
+                                alpha0e_t = NULL, alpha0e_c = NULL,
                                 bar_ye_t = NULL, bar_ye_c = NULL,
                                 se_t = NULL, se_c = NULL,
                                 lower.tail = TRUE) {
@@ -346,16 +346,16 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
       stop("For design = 'external', at least one of 'ne_t' or 'ne_c' must be non-NULL")
     }
     if (!is.null(ne_t)) {
-      if (is.null(alpha0_t) || is.null(bar_ye_t) || is.null(se_t)) {
-        stop("'alpha0_t', 'bar_ye_t', and 'se_t' must all be non-NULL when 'ne_t' is provided")
+      if (is.null(alpha0e_t) || is.null(bar_ye_t) || is.null(se_t)) {
+        stop("'alpha0e_t', 'bar_ye_t', and 'se_t' must all be non-NULL when 'ne_t' is provided")
       }
       if (!is.numeric(ne_t) || length(ne_t) != 1L || is.na(ne_t) ||
           ne_t != floor(ne_t) || ne_t < 1L) {
         stop("'ne_t' must be a single positive integer")
       }
-      if (!is.numeric(alpha0_t) || length(alpha0_t) != 1L || is.na(alpha0_t) ||
-          alpha0_t <= 0 || alpha0_t > 1) {
-        stop("'alpha0_t' must be a single numeric value in (0, 1]")
+      if (!is.numeric(alpha0e_t) || length(alpha0e_t) != 1L || is.na(alpha0e_t) ||
+          alpha0e_t <= 0 || alpha0e_t > 1) {
+        stop("'alpha0e_t' must be a single numeric value in (0, 1]")
       }
       if (!is.numeric(bar_ye_t) || length(bar_ye_t) != 1L || is.na(bar_ye_t)) {
         stop("'bar_ye_t' must be a single numeric value")
@@ -365,16 +365,16 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
       }
     }
     if (!is.null(ne_c)) {
-      if (is.null(alpha0_c) || is.null(bar_ye_c) || is.null(se_c)) {
-        stop("'alpha0_c', 'bar_ye_c', and 'se_c' must all be non-NULL when 'ne_c' is provided")
+      if (is.null(alpha0e_c) || is.null(bar_ye_c) || is.null(se_c)) {
+        stop("'alpha0e_c', 'bar_ye_c', and 'se_c' must all be non-NULL when 'ne_c' is provided")
       }
       if (!is.numeric(ne_c) || length(ne_c) != 1L || is.na(ne_c) ||
           ne_c != floor(ne_c) || ne_c < 1L) {
         stop("'ne_c' must be a single positive integer")
       }
-      if (!is.numeric(alpha0_c) || length(alpha0_c) != 1L || is.na(alpha0_c) ||
-          alpha0_c <= 0 || alpha0_c > 1) {
-        stop("'alpha0_c' must be a single numeric value in (0, 1]")
+      if (!is.numeric(alpha0e_c) || length(alpha0e_c) != 1L || is.na(alpha0e_c) ||
+          alpha0e_c <= 0 || alpha0e_c > 1) {
+        stop("'alpha0e_c' must be a single numeric value in (0, 1]")
       }
       if (!is.numeric(bar_ye_c) || length(bar_ye_c) != 1L || is.na(bar_ye_c)) {
         stop("'bar_ye_c' must be a single numeric value")
@@ -418,13 +418,13 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
       # and the external data via the power prior weight.
 
       # Group 1 (Treatment): incorporate external data if available
-      if (!is.null(ne_t) && !is.null(alpha0_t)) {
+      if (!is.null(ne_t) && !is.null(alpha0e_t)) {
         # Intermediate: N-Inv-Chisq prior updated with power-weighted external data
-        kappa_e_t  <- kappa0_t + alpha0_t * ne_t
-        nu_e_t     <- nu0_t + alpha0_t * ne_t
-        mu_e_t     <- (kappa0_t * mu0_t + alpha0_t * ne_t * bar_ye_t) / kappa_e_t
-        var_e_t    <- (nu0_t * sigma0_t ^ 2 + alpha0_t * (ne_t - 1) * se_t ^ 2 +
-                         alpha0_t * ne_t * kappa0_t * (bar_ye_t - mu0_t) ^ 2 / kappa_e_t) / nu_e_t
+        kappa_e_t  <- kappa0_t + alpha0e_t * ne_t
+        nu_e_t     <- nu0_t + alpha0e_t * ne_t
+        mu_e_t     <- (kappa0_t * mu0_t + alpha0e_t * ne_t * bar_ye_t) / kappa_e_t
+        var_e_t    <- (nu0_t * sigma0_t ^ 2 + alpha0e_t * (ne_t - 1) * se_t ^ 2 +
+                         alpha0e_t * ne_t * kappa0_t * (bar_ye_t - mu0_t) ^ 2 / kappa_e_t) / nu_e_t
         # Final update with PoC data
         kappa_n_t  <- kappa_e_t + n_t
         nu_t     <- nu_e_t + n_t
@@ -441,13 +441,13 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
       }
 
       # Group 2 (Control): incorporate external data if available
-      if (!is.null(ne_c) && !is.null(alpha0_c)) {
+      if (!is.null(ne_c) && !is.null(alpha0e_c)) {
         # Intermediate: N-Inv-Chisq prior updated with power-weighted external data
-        kappa_e_c  <- kappa0_c + alpha0_c * ne_c
-        nu_e_c     <- nu0_c + alpha0_c * ne_c
-        mu_e_c     <- (kappa0_c * mu0_c + alpha0_c * ne_c * bar_ye_c) / kappa_e_c
-        var_e_c    <- (nu0_c * sigma0_c ^ 2 + alpha0_c * (ne_c - 1) * se_c ^ 2 +
-                         alpha0_c * ne_c * kappa0_c * (bar_ye_c - mu0_c) ^ 2 / kappa_e_c) / nu_e_c
+        kappa_e_c  <- kappa0_c + alpha0e_c * ne_c
+        nu_e_c     <- nu0_c + alpha0e_c * ne_c
+        mu_e_c     <- (kappa0_c * mu0_c + alpha0e_c * ne_c * bar_ye_c) / kappa_e_c
+        var_e_c    <- (nu0_c * sigma0_c ^ 2 + alpha0e_c * (ne_c - 1) * se_c ^ 2 +
+                         alpha0e_c * ne_c * kappa0_c * (bar_ye_c - mu0_c) ^ 2 / kappa_e_c) / nu_e_c
         # Final update with PoC data
         kappa_n_c  <- kappa_e_c + n_c
         nu_c     <- nu_e_c + n_c
@@ -476,13 +476,13 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
 
       # --- External design with vague prior ---
       # Group 1 (Treatment): apply power prior if external data available
-      if (!is.null(ne_t) && !is.null(alpha0_t)) {
-        mu_t          <- (alpha0_t * ne_t * bar_ye_t + n_t * bar_y_t) / (alpha0_t * ne_t + n_t)
-        kappa_star_n_t  <- alpha0_t * ne_t + n_t
-        nu_t          <- alpha0_t * ne_t + n_t - 1
-        sigma2_star_n_t <- (alpha0_t * (ne_t - 1) * se_t ^ 2 + (n_t - 1) * s_t ^ 2 +
-                              (alpha0_t * ne_t * n_t * (bar_ye_t - bar_y_t) ^ 2) /
-                              (alpha0_t * ne_t + n_t)) / (alpha0_t * ne_t + n_t)
+      if (!is.null(ne_t) && !is.null(alpha0e_t)) {
+        mu_t          <- (alpha0e_t * ne_t * bar_ye_t + n_t * bar_y_t) / (alpha0e_t * ne_t + n_t)
+        kappa_star_n_t  <- alpha0e_t * ne_t + n_t
+        nu_t          <- alpha0e_t * ne_t + n_t - 1
+        sigma2_star_n_t <- (alpha0e_t * (ne_t - 1) * se_t ^ 2 + (n_t - 1) * s_t ^ 2 +
+                              (alpha0e_t * ne_t * n_t * (bar_ye_t - bar_y_t) ^ 2) /
+                              (alpha0e_t * ne_t + n_t)) / (alpha0e_t * ne_t + n_t)
       } else {
         # No external treatment data: use vague prior
         mu_t          <- bar_y_t
@@ -492,13 +492,13 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
       }
 
       # Group 2 (Control): apply power prior if external data available
-      if (!is.null(ne_c) && !is.null(alpha0_c)) {
-        mu_c          <- (alpha0_c * ne_c * bar_ye_c + n_c * bar_y_c) / (alpha0_c * ne_c + n_c)
-        kappa_star_n_c  <- alpha0_c * ne_c + n_c
-        nu_c          <- alpha0_c * ne_c + n_c - 1
-        sigma2_star_n_c <- (alpha0_c * (ne_c - 1) * se_c ^ 2 + (n_c - 1) * s_c ^ 2 +
-                              (alpha0_c * ne_c * n_c * (bar_ye_c - bar_y_c) ^ 2) /
-                              (alpha0_c * ne_c + n_c)) / (alpha0_c * ne_c + n_c)
+      if (!is.null(ne_c) && !is.null(alpha0e_c)) {
+        mu_c          <- (alpha0e_c * ne_c * bar_ye_c + n_c * bar_y_c) / (alpha0e_c * ne_c + n_c)
+        kappa_star_n_c  <- alpha0e_c * ne_c + n_c
+        nu_c          <- alpha0e_c * ne_c + n_c - 1
+        sigma2_star_n_c <- (alpha0e_c * (ne_c - 1) * se_c ^ 2 + (n_c - 1) * s_c ^ 2 +
+                              (alpha0e_c * ne_c * n_c * (bar_ye_c - bar_y_c) ^ 2) /
+                              (alpha0e_c * ne_c + n_c)) / (alpha0e_c * ne_c + n_c)
       } else {
         # No external control data: use vague prior
         mu_c          <- bar_y_c

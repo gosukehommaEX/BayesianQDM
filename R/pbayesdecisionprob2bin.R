@@ -29,12 +29,12 @@
 #'        NoGo decision.  A common choice is \code{NoGoRegions = 9} (both
 #'        endpoints below MAV) for posterior, or \code{NoGoRegions = 4} for
 #'        predictive.  Must be disjoint from \code{GoRegions}.
-#' @param gamma1 A numeric scalar in \code{(0, 1)} giving the minimum
+#' @param gamma_go A numeric scalar in \code{(0, 1)} giving the minimum
 #'        posterior/predictive probability required for a Go decision.
-#' @param gamma2 A numeric scalar in \code{(0, 1)} giving the minimum
+#' @param gamma_nogo A numeric scalar in \code{(0, 1)} giving the minimum
 #'        posterior/predictive probability required for a NoGo decision.
-#'        Unlike single-endpoint designs, \code{gamma2} may be greater than,
-#'        equal to, or less than \code{gamma1}, because the Go and NoGo
+#'        Unlike single-endpoint designs, \code{gamma_nogo} may be greater than,
+#'        equal to, or less than \code{gamma_go}, because the Go and NoGo
 #'        regions are structurally asymmetric (e.g., Go = R1 only vs
 #'        NoGo = R9 only) and their calibrated thresholds are independent.
 #' @param pi_t1 A numeric vector of true treatment response probabilities
@@ -57,50 +57,50 @@
 #' @param rho_c A numeric vector of true within-control-arm correlations.
 #'        For \code{design = 'uncontrolled'}, not used in probability
 #'        calculations.  Must have the same length as \code{pi_t1}.
-#' @param n1 A positive integer giving the number of patients in group 1
-#'        (treatment) in the proof-of-concept (PoC) trial.
-#' @param n2 A positive integer giving the number of patients in group 2
-#'        (control) in the PoC trial.
-#' @param a1_00 A positive numeric scalar giving the Dirichlet prior
-#'        parameter for the (0,0) response pattern in group 1.
-#' @param a1_01 A positive numeric scalar giving the Dirichlet prior
-#'        parameter for the (0,1) response pattern in group 1.
-#' @param a1_10 A positive numeric scalar giving the Dirichlet prior
-#'        parameter for the (1,0) response pattern in group 1.
-#' @param a1_11 A positive numeric scalar giving the Dirichlet prior
-#'        parameter for the (1,1) response pattern in group 1.
-#' @param a2_00 A positive numeric scalar giving the Dirichlet prior
-#'        parameter for the (0,0) response pattern in group 2.  For
-#'        \code{design = 'uncontrolled'}, serves as a hyperparameter of
+#' @param n_t A positive integer giving the number of patients in the
+#'        treatment group (treatment) in the proof-of-concept (PoC) trial.
+#' @param n_c A positive integer giving the number of patients in the
+#'        control group (control) in the PoC trial.
+#' @param a_t_00 A positive numeric scalar giving the Dirichlet prior
+#'        parameter for the (0,0) response pattern in the treatment group.
+#' @param a_t_01 A positive numeric scalar giving the Dirichlet prior
+#'        parameter for the (0,1) response pattern in the treatment group.
+#' @param a_t_10 A positive numeric scalar giving the Dirichlet prior
+#'        parameter for the (1,0) response pattern in the treatment group.
+#' @param a_t_11 A positive numeric scalar giving the Dirichlet prior
+#'        parameter for the (1,1) response pattern in the treatment group.
+#' @param a_c_00 A positive numeric scalar giving the Dirichlet prior
+#'        parameter for the (0,0) response pattern in the control group.
+#'        For \code{design = 'uncontrolled'}, serves as a hyperparameter of
 #'        the hypothetical control distribution.
-#' @param a2_01 A positive numeric scalar giving the Dirichlet prior
-#'        parameter for the (0,1) response pattern in group 2.
-#' @param a2_10 A positive numeric scalar giving the Dirichlet prior
-#'        parameter for the (1,0) response pattern in group 2.
-#' @param a2_11 A positive numeric scalar giving the Dirichlet prior
-#'        parameter for the (1,1) response pattern in group 2.
-#' @param m1 A positive integer giving the future sample size for group 1.
-#'        Required when \code{prob = 'predictive'}; otherwise set to
-#'        \code{NULL}.
-#' @param m2 A positive integer giving the future sample size for group 2.
-#'        Required when \code{prob = 'predictive'}; otherwise set to
-#'        \code{NULL}.
-#' @param theta.TV1 A numeric scalar giving the TV threshold for Endpoint 1.
+#' @param a_c_01 A positive numeric scalar giving the Dirichlet prior
+#'        parameter for the (0,1) response pattern in the control group.
+#' @param a_c_10 A positive numeric scalar giving the Dirichlet prior
+#'        parameter for the (1,0) response pattern in the control group.
+#' @param a_c_11 A positive numeric scalar giving the Dirichlet prior
+#'        parameter for the (1,1) response pattern in the control group.
+#' @param m_t A positive integer giving the future sample size for the
+#'        treatment group. Required when \code{prob = 'predictive'};
+#'        otherwise set to \code{NULL}.
+#' @param m_c A positive integer giving the future sample size for the
+#'        control group. Required when \code{prob = 'predictive'};
+#'        otherwise set to \code{NULL}.
+#' @param theta_TV1 A numeric scalar giving the TV threshold for Endpoint 1.
 #'        Required when \code{prob = 'posterior'}; otherwise set to
 #'        \code{NULL}.
-#' @param theta.MAV1 A numeric scalar giving the MAV threshold for Endpoint
+#' @param theta_MAV1 A numeric scalar giving the MAV threshold for Endpoint
 #'        1.  Required when \code{prob = 'posterior'}; otherwise set to
 #'        \code{NULL}.
-#' @param theta.TV2 A numeric scalar giving the TV threshold for Endpoint 2.
+#' @param theta_TV2 A numeric scalar giving the TV threshold for Endpoint 2.
 #'        Required when \code{prob = 'posterior'}; otherwise set to
 #'        \code{NULL}.
-#' @param theta.MAV2 A numeric scalar giving the MAV threshold for Endpoint
+#' @param theta_MAV2 A numeric scalar giving the MAV threshold for Endpoint
 #'        2.  Required when \code{prob = 'posterior'}; otherwise set to
 #'        \code{NULL}.
-#' @param theta.NULL1 A numeric scalar giving the null hypothesis threshold
+#' @param theta_NULL1 A numeric scalar giving the null hypothesis threshold
 #'        for Endpoint 1.  Required when \code{prob = 'predictive'};
 #'        otherwise set to \code{NULL}.
-#' @param theta.NULL2 A numeric scalar giving the null hypothesis threshold
+#' @param theta_NULL2 A numeric scalar giving the null hypothesis threshold
 #'        for Endpoint 2.  Required when \code{prob = 'predictive'};
 #'        otherwise set to \code{NULL}.
 #' @param z00 A non-negative integer giving the hypothetical control count
@@ -115,24 +115,24 @@
 #' @param z11 A non-negative integer giving the hypothetical control count
 #'        for pattern (1,1).  Required when \code{design = 'uncontrolled'};
 #'        otherwise set to \code{NULL}.
-#' @param xe1_00 A non-negative integer giving the external group 1 count
-#'        for pattern (0,0).  Required when \code{design = 'external'} and
+#' @param xe_t_00 A non-negative integer giving the external treatment group
+#'        count for pattern (0,0).  Required when \code{design = 'external'} and
 #'        external treatment data are used; otherwise \code{NULL}.
-#' @param xe1_01 A non-negative integer; see \code{xe1_00}.
-#' @param xe1_10 A non-negative integer; see \code{xe1_00}.
-#' @param xe1_11 A non-negative integer; see \code{xe1_00}.
-#' @param xe2_00 A non-negative integer giving the external group 2 count
-#'        for pattern (0,0).  Required when \code{design = 'external'} and
+#' @param xe_t_01 A non-negative integer; see \code{xe_t_00}.
+#' @param xe_t_10 A non-negative integer; see \code{xe_t_00}.
+#' @param xe_t_11 A non-negative integer; see \code{xe_t_00}.
+#' @param xe_c_00 A non-negative integer giving the external control group
+#'        count for pattern (0,0).  Required when \code{design = 'external'} and
 #'        external control data are used; otherwise \code{NULL}.
-#' @param xe2_01 A non-negative integer; see \code{xe2_00}.
-#' @param xe2_10 A non-negative integer; see \code{xe2_00}.
-#' @param xe2_11 A non-negative integer; see \code{xe2_00}.
-#' @param ae1 A numeric scalar in \code{(0, 1]} giving the power prior
-#'        weight for group 1.  Required when external treatment data are
-#'        used; otherwise \code{NULL}.
-#' @param ae2 A numeric scalar in \code{(0, 1]} giving the power prior
-#'        weight for group 2.  Required when external control data are
-#'        used; otherwise \code{NULL}.
+#' @param xe_c_01 A non-negative integer; see \code{xe_c_00}.
+#' @param xe_c_10 A non-negative integer; see \code{xe_c_00}.
+#' @param xe_c_11 A non-negative integer; see \code{xe_c_00}.
+#' @param ae_t A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the treatment group.  Required when external treatment
+#'        data are used; otherwise \code{NULL}.
+#' @param ae_c A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the control group.  Required when external control
+#'        data are used; otherwise \code{NULL}.
 #' @param nsim A positive integer giving the number of PoC count vectors
 #'        sampled via \code{rmultinom} per arm per scenario when
 #'        \code{method = 'MC'} (outer loop).  The sampled vectors are
@@ -156,8 +156,8 @@
 #'        pair frequencies.  This reuses the same validated probability logic
 #'        as the Exact method, avoiding any duplication of computation.
 #'        The \code{'MC'} method trades some Monte Carlo variance for
-#'        substantially reduced computation time when \code{n1} and/or
-#'        \code{n2} are large.
+#'        substantially reduced computation time when \code{n_t} and/or
+#'        \code{n_c} are large.
 #' @param error_if_Miss A logical scalar; if \code{TRUE} (default), the
 #'        function stops with an error if the Miss probability is positive,
 #'        prompting reconsideration of the thresholds.
@@ -184,8 +184,8 @@
 #'               met.  Included when \code{error_if_Miss = FALSE} and
 #'               \code{Gray_inc_Miss = FALSE}.}
 #' }
-#' The returned object has S3 class \code{pbayesdecisionprob2bin} with an associated
-#' \code{print} method.
+#' The returned object has S3 class \code{pbayesdecisionprob2bin} with
+#' an associated \code{print} method.
 #'
 #' @details
 #' \strong{Two-stage computation.}
@@ -232,25 +232,25 @@
 #'   design      = 'controlled',
 #'   GoRegions   = 1L,
 #'   NoGoRegions = 9L,
-#'   gamma1      = 0.27,
-#'   gamma2      = 0.36,
+#'   gamma_go    = 0.27,
+#'   gamma_nogo  = 0.36,
 #'   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
 #'   rho_t       = rep(0.0, 4),
 #'   pi_c1       = rep(0.15, 4),
 #'   pi_c2       = rep(0.20, 4),
 #'   rho_c       = rep(0.0, 4),
-#'   n1 = 10, n2 = 10,
-#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-#'   m1 = NULL, m2 = NULL,
-#'   theta.TV1   = 0.15, theta.MAV1 = 0.10,
-#'   theta.TV2   = 0.15, theta.MAV2 = 0.10,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   n_t = 10, n_c = 10,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   m_t = NULL, m_c = NULL,
+#'   theta_TV1   = 0.15, theta_MAV1 = 0.10,
+#'   theta_TV2   = 0.15, theta_MAV2 = 0.10,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = NULL, ae2 = NULL,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+#'   ae_t = NULL, ae_c = NULL,
 #'   nMC = 100,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
@@ -262,25 +262,25 @@
 #'   design      = 'controlled',
 #'   GoRegions   = 1L,
 #'   NoGoRegions = 9L,
-#'   gamma1      = 0.52,
-#'   gamma2      = 0.52,
+#'   gamma_go    = 0.52,
+#'   gamma_nogo  = 0.52,
 #'   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
 #'   rho_t       = rep(0.6, 4),
 #'   pi_c1       = rep(0.15, 4),
 #'   pi_c2       = rep(0.20, 4),
 #'   rho_c       = rep(0.6, 4),
-#'   n1 = 10, n2 = 10,
-#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-#'   m1 = NULL, m2 = NULL,
-#'   theta.TV1   = 0.15, theta.MAV1 = 0.10,
-#'   theta.TV2   = 0.15, theta.MAV2 = 0.10,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   n_t = 10, n_c = 10,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   m_t = NULL, m_c = NULL,
+#'   theta_TV1   = 0.15, theta_MAV1 = 0.10,
+#'   theta_TV2   = 0.15, theta_MAV2 = 0.10,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = NULL, ae2 = NULL,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+#'   ae_t = NULL, ae_c = NULL,
 #'   nMC = 100,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
@@ -292,145 +292,145 @@
 #'   design      = 'uncontrolled',
 #'   GoRegions   = 1L,
 #'   NoGoRegions = 9L,
-#'   gamma1      = 0.27,
-#'   gamma2      = 0.36,
+#'   gamma_go    = 0.27,
+#'   gamma_nogo  = 0.36,
 #'   pi_t1       = c(0.15, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.35, 0.45),
 #'   rho_t       = rep(0.0, 3),
 #'   pi_c1       = NULL,
 #'   pi_c2       = NULL,
 #'   rho_c       = NULL,
-#'   n1 = 10, n2 = NULL,
-#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-#'   m1 = NULL, m2 = NULL,
-#'   theta.TV1   = 0.15, theta.MAV1 = 0.10,
-#'   theta.TV2   = 0.15, theta.MAV2 = 0.10,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   n_t = 10, n_c = NULL,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   m_t = NULL, m_c = NULL,
+#'   theta_TV1   = 0.15, theta_MAV1 = 0.10,
+#'   theta_TV2   = 0.15, theta_MAV2 = 0.10,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
-#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = NULL, ae2 = NULL,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+#'   ae_t = NULL, ae_c = NULL,
 #'   nMC = 100,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 4: Posterior probability, external control design
-#' # External control data incorporated via power prior (ae2 = 0.5).
+#' # External control data incorporated via power prior (ae_c = 0.5).
 #' pbayesdecisionprob2bin(
 #'   prob        = 'posterior',
 #'   design      = 'external',
 #'   GoRegions   = 1L,
 #'   NoGoRegions = 9L,
-#'   gamma1      = 0.27,
-#'   gamma2      = 0.36,
+#'   gamma_go    = 0.27,
+#'   gamma_nogo  = 0.36,
 #'   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
 #'   rho_t       = rep(0.0, 4),
 #'   pi_c1       = rep(0.15, 4),
 #'   pi_c2       = rep(0.20, 4),
 #'   rho_c       = rep(0.0, 4),
-#'   n1 = 10, n2 = 10,
-#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-#'   m1 = NULL, m2 = NULL,
-#'   theta.TV1   = 0.15, theta.MAV1 = 0.10,
-#'   theta.TV2   = 0.15, theta.MAV2 = 0.10,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   n_t = 10, n_c = 10,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   m_t = NULL, m_c = NULL,
+#'   theta_TV1   = 0.15, theta_MAV1 = 0.10,
+#'   theta_TV2   = 0.15, theta_MAV2 = 0.10,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = 4L,  xe2_01 = 2L,  xe2_10 = 3L,  xe2_11 = 1L,
-#'   ae1 = NULL, ae2 = 0.5,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = 4L,  xe_c_01 = 2L,  xe_c_10 = 3L,  xe_c_11 = 1L,
+#'   ae_t = NULL, ae_c = 0.5,
 #'   nMC = 100,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 5: Predictive probability, controlled design
-#' # Future trial has m1 = m2 = 30 patients per arm.
+#' # Future trial has m_t = m_c = 30 patients per arm.
 #' pbayesdecisionprob2bin(
 #'   prob        = 'predictive',
 #'   design      = 'controlled',
 #'   GoRegions   = 1L,
 #'   NoGoRegions = 4L,
-#'   gamma1      = 0.60,
-#'   gamma2      = 0.80,
+#'   gamma_go    = 0.60,
+#'   gamma_nogo  = 0.80,
 #'   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
 #'   rho_t       = rep(0.0, 4),
 #'   pi_c1       = rep(0.15, 4),
 #'   pi_c2       = rep(0.20, 4),
 #'   rho_c       = rep(0.0, 4),
-#'   n1 = 10, n2 = 10,
-#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-#'   m1 = 30L, m2 = 30L,
-#'   theta.TV1   = NULL, theta.MAV1 = NULL,
-#'   theta.TV2   = NULL, theta.MAV2 = NULL,
-#'   theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+#'   n_t = 10, n_c = 10,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   m_t = 30L, m_c = 30L,
+#'   theta_TV1   = NULL, theta_MAV1 = NULL,
+#'   theta_TV2   = NULL, theta_MAV2 = NULL,
+#'   theta_NULL1 = 0.10, theta_NULL2 = 0.10,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = NULL, ae2 = NULL,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+#'   ae_t = NULL, ae_c = NULL,
 #'   nMC = 100,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 6: Predictive probability, uncontrolled design
-#' # Hypothetical control specified via pseudo-counts; future trial m1 = m2 = 30.
+#' # Hypothetical control specified via pseudo-counts; future trial m_t = m_c = 30.
 #' pbayesdecisionprob2bin(
 #'   prob        = 'predictive',
 #'   design      = 'uncontrolled',
 #'   GoRegions   = 1L,
 #'   NoGoRegions = 4L,
-#'   gamma1      = 0.60,
-#'   gamma2      = 0.80,
+#'   gamma_go    = 0.60,
+#'   gamma_nogo  = 0.80,
 #'   pi_t1       = c(0.15, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.35, 0.45),
 #'   rho_t       = rep(0.0, 3),
 #'   pi_c1       = rep(0.15, 3),
 #'   pi_c2       = rep(0.20, 3),
 #'   rho_c       = rep(0.0, 3),
-#'   n1 = 10, n2 = 10,
-#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-#'   m1 = 30L, m2 = 30L,
-#'   theta.TV1   = NULL, theta.MAV1 = NULL,
-#'   theta.TV2   = NULL, theta.MAV2 = NULL,
-#'   theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+#'   n_t = 10, n_c = 10,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   m_t = 30L, m_c = 30L,
+#'   theta_TV1   = NULL, theta_MAV1 = NULL,
+#'   theta_TV2   = NULL, theta_MAV2 = NULL,
+#'   theta_NULL1 = 0.10, theta_NULL2 = 0.10,
 #'   z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
-#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = NULL, ae2 = NULL,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+#'   ae_t = NULL, ae_c = NULL,
 #'   nMC = 100,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
 #' # Example 7: Predictive probability, external treatment design
-#' # External treatment data incorporated via power prior (ae1 = 0.5).
+#' # External treatment data incorporated via power prior (ae_t = 0.5).
 #' pbayesdecisionprob2bin(
 #'   prob        = 'predictive',
 #'   design      = 'external',
 #'   GoRegions   = 1L,
 #'   NoGoRegions = 4L,
-#'   gamma1      = 0.60,
-#'   gamma2      = 0.80,
+#'   gamma_go    = 0.60,
+#'   gamma_nogo  = 0.80,
 #'   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
 #'   rho_t       = rep(0.0, 4),
 #'   pi_c1       = rep(0.15, 4),
 #'   pi_c2       = rep(0.20, 4),
 #'   rho_c       = rep(0.0, 4),
-#'   n1 = 10, n2 = 10,
-#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-#'   m1 = 30L, m2 = 30L,
-#'   theta.TV1   = NULL, theta.MAV1 = NULL,
-#'   theta.TV2   = NULL, theta.MAV2 = NULL,
-#'   theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+#'   n_t = 10, n_c = 10,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   m_t = 30L, m_c = 30L,
+#'   theta_TV1   = NULL, theta_MAV1 = NULL,
+#'   theta_TV2   = NULL, theta_MAV2 = NULL,
+#'   theta_NULL1 = 0.10, theta_NULL2 = 0.10,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-#'   xe1_00 = 3L, xe1_01 = 2L, xe1_10 = 3L, xe1_11 = 2L,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = 0.5, ae2 = NULL,
+#'   xe_t_00 = 3L, xe_t_01 = 2L, xe_t_10 = 3L, xe_t_11 = 2L,
+#'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+#'   ae_t = 0.5, ae_c = NULL,
 #'   nMC = 100,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
@@ -442,25 +442,25 @@
 #'   design      = 'controlled',
 #'   GoRegions   = 1L,
 #'   NoGoRegions = 9L,
-#'   gamma1      = 0.27,
-#'   gamma2      = 0.36,
+#'   gamma_go    = 0.27,
+#'   gamma_nogo  = 0.36,
 #'   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
 #'   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
 #'   rho_t       = rep(0.0, 4),
 #'   pi_c1       = rep(0.15, 4),
 #'   pi_c2       = rep(0.20, 4),
 #'   rho_c       = rep(0.0, 4),
-#'   n1 = 10, n2 = 10,
-#'   a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-#'   a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-#'   m1 = NULL, m2 = NULL,
-#'   theta.TV1   = 0.15, theta.MAV1 = 0.10,
-#'   theta.TV2   = 0.15, theta.MAV2 = 0.10,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   n_t = 10, n_c = 10,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   m_t = NULL, m_c = NULL,
+#'   theta_TV1   = 0.15, theta_MAV1 = 0.10,
+#'   theta_TV2   = 0.15, theta_MAV2 = 0.10,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-#'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-#'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-#'   ae1 = NULL, ae2 = NULL,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+#'   ae_t = NULL, ae_c = NULL,
 #'   nMC = 1000, nsim = 1000,
 #'   method = 'MC',
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
@@ -473,26 +473,26 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
                                    design      = 'controlled',
                                    GoRegions,
                                    NoGoRegions,
-                                   gamma1,
-                                   gamma2,
+                                   gamma_go,
+                                   gamma_nogo,
                                    pi_t1, pi_t2, rho_t,
                                    pi_c1 = NULL, pi_c2 = NULL, rho_c = NULL,
-                                   n1, n2 = NULL,
-                                   a1_00, a1_01, a1_10, a1_11,
-                                   a2_00, a2_01, a2_10, a2_11,
-                                   m1          = NULL,
-                                   m2          = NULL,
-                                   theta.TV1   = NULL, theta.MAV1  = NULL,
-                                   theta.TV2   = NULL, theta.MAV2  = NULL,
-                                   theta.NULL1 = NULL, theta.NULL2 = NULL,
+                                   n_t, n_c = NULL,
+                                   a_t_00, a_t_01, a_t_10, a_t_11,
+                                   a_c_00, a_c_01, a_c_10, a_c_11,
+                                   m_t          = NULL,
+                                   m_c          = NULL,
+                                   theta_TV1   = NULL, theta_MAV1  = NULL,
+                                   theta_TV2   = NULL, theta_MAV2  = NULL,
+                                   theta_NULL1 = NULL, theta_NULL2 = NULL,
                                    z00 = NULL, z01 = NULL,
                                    z10 = NULL, z11 = NULL,
-                                   xe1_00 = NULL, xe1_01 = NULL,
-                                   xe1_10 = NULL, xe1_11 = NULL,
-                                   xe2_00 = NULL, xe2_01 = NULL,
-                                   xe2_10 = NULL, xe2_11 = NULL,
-                                   ae1         = NULL,
-                                   ae2         = NULL,
+                                   xe_t_00 = NULL, xe_t_01 = NULL,
+                                   xe_t_10 = NULL, xe_t_11 = NULL,
+                                   xe_c_00 = NULL, xe_c_01 = NULL,
+                                   xe_c_10 = NULL, xe_c_11 = NULL,
+                                   ae_t         = NULL,
+                                   ae_c         = NULL,
                                    nMC         = 10000L,
                                    method      = 'Exact',
                                    error_if_Miss = TRUE,
@@ -544,17 +544,17 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
     stop("'GoRegions' and 'NoGoRegions' must be disjoint")
   }
 
-  if (!is.numeric(gamma1) || length(gamma1) != 1L || is.na(gamma1) ||
-      gamma1 <= 0 || gamma1 >= 1) {
-    stop("'gamma1' must be a single numeric value in (0, 1)")
+  if (!is.numeric(gamma_go) || length(gamma_go) != 1L || is.na(gamma_go) ||
+      gamma_go <= 0 || gamma_go >= 1) {
+    stop("'gamma_go' must be a single numeric value in (0, 1)")
   }
 
-  if (!is.numeric(gamma2) || length(gamma2) != 1L || is.na(gamma2) ||
-      gamma2 <= 0 || gamma2 >= 1) {
-    stop("'gamma2' must be a single numeric value in (0, 1)")
+  if (!is.numeric(gamma_nogo) || length(gamma_nogo) != 1L || is.na(gamma_nogo) ||
+      gamma_nogo <= 0 || gamma_nogo >= 1) {
+    stop("'gamma_nogo' must be a single numeric value in (0, 1)")
   }
 
-  # Note: gamma2 >= gamma1 is allowed for two-endpoint designs because
+  # Note: gamma_nogo >= gamma_go is allowed for two-endpoint designs because
   # GoRegions and NoGoRegions are asymmetric and their thresholds are
   # calibrated independently (see Table 3 of the reference).
 
@@ -591,21 +591,21 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
   }
 
   # --- Sample sizes ---
-  if (!is.numeric(n1) || length(n1) != 1L || is.na(n1) ||
-      n1 != floor(n1) || n1 < 1L)
-    stop("'n1' must be a single positive integer")
-  n1 <- as.integer(n1)
+  if (!is.numeric(n_t) || length(n_t) != 1L || is.na(n_t) ||
+      n_t != floor(n_t) || n_t < 1L)
+    stop("'n_t' must be a single positive integer")
+  n_t <- as.integer(n_t)
 
   if (design != 'uncontrolled') {
-    if (!is.numeric(n2) || length(n2) != 1L || is.na(n2) ||
-        n2 != floor(n2) || n2 < 1L)
-      stop("'n2' must be a single positive integer")
-    n2 <- as.integer(n2)
+    if (!is.numeric(n_c) || length(n_c) != 1L || is.na(n_c) ||
+        n_c != floor(n_c) || n_c < 1L)
+      stop("'n_c' must be a single positive integer")
+    n_c <- as.integer(n_c)
   }
 
   # --- Dirichlet prior parameters ---
-  for (nm in c("a1_00", "a1_01", "a1_10", "a1_11",
-               "a2_00", "a2_01", "a2_10", "a2_11")) {
+  for (nm in c("a_t_00", "a_t_01", "a_t_10", "a_t_11",
+               "a_c_00", "a_c_01", "a_c_10", "a_c_11")) {
     val <- get(nm)
     if (!is.numeric(val) || length(val) != 1L || is.na(val) || val <= 0)
       stop(paste0("'", nm, "' must be a single positive numeric value"))
@@ -613,19 +613,19 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
   # --- Threshold parameters ---
   if (prob == 'posterior') {
-    for (nm in c("theta.TV1", "theta.MAV1", "theta.TV2", "theta.MAV2")) {
+    for (nm in c("theta_TV1", "theta_MAV1", "theta_TV2", "theta_MAV2")) {
       val <- get(nm)
       if (is.null(val))
         stop(paste0("'", nm, "' must be non-NULL when prob = 'posterior'"))
       if (!is.numeric(val) || length(val) != 1L || is.na(val))
         stop(paste0("'", nm, "' must be a single numeric value"))
     }
-    if (theta.TV1 <= theta.MAV1)
-      stop("'theta.TV1' must be strictly greater than 'theta.MAV1'")
-    if (theta.TV2 <= theta.MAV2)
-      stop("'theta.TV2' must be strictly greater than 'theta.MAV2'")
+    if (theta_TV1 <= theta_MAV1)
+      stop("'theta_TV1' must be strictly greater than 'theta_MAV1'")
+    if (theta_TV2 <= theta_MAV2)
+      stop("'theta_TV2' must be strictly greater than 'theta_MAV2'")
   } else {
-    for (nm in c("theta.NULL1", "theta.NULL2")) {
+    for (nm in c("theta_NULL1", "theta_NULL2")) {
       val <- get(nm)
       if (is.null(val))
         stop(paste0("'", nm, "' must be non-NULL when prob = 'predictive'"))
@@ -633,21 +633,21 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
         stop(paste0("'", nm, "' must be a single numeric value"))
     }
     # For pbayespostpred2bin, predictive uses TV = MAV = NULL threshold
-    theta.TV1  <- theta.NULL1;  theta.MAV1 <- theta.NULL1
-    theta.TV2  <- theta.NULL2;  theta.MAV2 <- theta.NULL2
+    theta_TV1  <- theta_NULL1;  theta_MAV1 <- theta_NULL1
+    theta_TV2  <- theta_NULL2;  theta_MAV2 <- theta_NULL2
   }
 
   # --- Future sample sizes ---
   if (prob == 'predictive') {
-    if (is.null(m1) || is.null(m2))
-      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
-    for (nm in c("m1", "m2")) {
+    if (is.null(m_t) || is.null(m_c))
+      stop("'m_t' and 'm_c' must be non-NULL when prob = 'predictive'")
+    for (nm in c("m_t", "m_c")) {
       val <- get(nm)
       if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
           val != floor(val) || val < 1L)
         stop(paste0("'", nm, "' must be a single positive integer"))
     }
-    m1 <- as.integer(m1); m2 <- as.integer(m2)
+    m_t <- as.integer(m_t); m_c <- as.integer(m_c)
   }
 
   # --- Uncontrolled design: hypothetical control counts ---
@@ -664,11 +664,11 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
   # --- External design ---
   if (design == 'external') {
-    has_ext1 <- !is.null(xe1_00) && !is.null(xe1_01) &&
-      !is.null(xe1_10) && !is.null(xe1_11) && !is.null(ae1)
-    has_ext2 <- !is.null(xe2_00) && !is.null(xe2_01) &&
-      !is.null(xe2_10) && !is.null(xe2_11) && !is.null(ae2)
-    if (!has_ext1 && !has_ext2)
+    has_ext_t <- !is.null(xe_t_00) && !is.null(xe_t_01) &&
+      !is.null(xe_t_10) && !is.null(xe_t_11) && !is.null(ae_t)
+    has_ext_c <- !is.null(xe_c_00) && !is.null(xe_c_01) &&
+      !is.null(xe_c_10) && !is.null(xe_c_11) && !is.null(ae_c)
+    if (!has_ext_t && !has_ext_c)
       stop(paste0("For design = 'external', at least one complete set of ",
                   "external data must be provided"))
   }
@@ -710,7 +710,7 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
       # Sample nsim treatment count vectors
       p_t    <- getjointbin(pi1 = pi_t1[s], pi2 = pi_t2[s], rho = rho_t[s])
-      xt_raw <- t(rmultinom(nsim, size = n1, prob = p_t))   # nsim x 4
+      xt_raw <- t(rmultinom(nsim, size = n_t, prob = p_t))   # nsim x 4
 
       if (design == 'uncontrolled') {
 
@@ -727,21 +727,21 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
         for (i in seq_len(K)) {
           Pr_R <- pbayespostpred2bin(
             prob        = prob,        design      = design,
-            theta.TV1   = theta.TV1,   theta.MAV1  = theta.MAV1,
-            theta.TV2   = theta.TV2,   theta.MAV2  = theta.MAV2,
-            theta.NULL1 = theta.NULL1, theta.NULL2 = theta.NULL2,
-            x1_00 = xt_uniq[i, 1L], x1_01 = xt_uniq[i, 2L],
-            x1_10 = xt_uniq[i, 3L], x1_11 = xt_uniq[i, 4L],
-            x2_00 = NULL, x2_01 = NULL, x2_10 = NULL, x2_11 = NULL,
-            a1_00 = a1_00, a1_01 = a1_01, a1_10 = a1_10, a1_11 = a1_11,
-            a2_00 = a2_00, a2_01 = a2_01, a2_10 = a2_10, a2_11 = a2_11,
-            m1 = m1, m2 = m2,
+            theta_TV1   = theta_TV1,   theta_MAV1  = theta_MAV1,
+            theta_TV2   = theta_TV2,   theta_MAV2  = theta_MAV2,
+            theta_NULL1 = theta_NULL1, theta_NULL2 = theta_NULL2,
+            x_t_00 = xt_uniq[i, 1L], x_t_01 = xt_uniq[i, 2L],
+            x_t_10 = xt_uniq[i, 3L], x_t_11 = xt_uniq[i, 4L],
+            x_c_00 = NULL, x_c_01 = NULL, x_c_10 = NULL, x_c_11 = NULL,
+            a_t_00 = a_t_00, a_t_01 = a_t_01, a_t_10 = a_t_10, a_t_11 = a_t_11,
+            a_c_00 = a_c_00, a_c_01 = a_c_01, a_c_10 = a_c_10, a_c_11 = a_c_11,
+            m_t = m_t, m_c = m_c,
             z00 = z00, z01 = z01, z10 = z10, z11 = z11,
-            xe1_00 = xe1_00, xe1_01 = xe1_01,
-            xe1_10 = xe1_10, xe1_11 = xe1_11,
-            xe2_00 = xe2_00, xe2_01 = xe2_01,
-            xe2_10 = xe2_10, xe2_11 = xe2_11,
-            ae1 = ae1, ae2 = ae2,
+            xe_t_00 = xe_t_00, xe_t_01 = xe_t_01,
+            xe_t_10 = xe_t_10, xe_t_11 = xe_t_11,
+            xe_c_00 = xe_c_00, xe_c_01 = xe_c_01,
+            xe_c_10 = xe_c_10, xe_c_11 = xe_c_11,
+            ae_t = ae_t, ae_c = ae_c,
             nMC = nMC
           )
           PrGo_vec[i]   <- sum(Pr_R[GoRegions])
@@ -752,7 +752,7 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
         # Sample nsim control count vectors
         p_c    <- getjointbin(pi1 = pi_c1[s], pi2 = pi_c2[s], rho = rho_c[s])
-        xc_raw <- t(rmultinom(nsim, size = n2, prob = p_c))   # nsim x 4
+        xc_raw <- t(rmultinom(nsim, size = n_c, prob = p_c))   # nsim x 4
 
         # Deduplicate (x_t, x_c) pairs jointly
         pair_keys <- paste(
@@ -774,22 +774,22 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
         for (i in seq_len(K)) {
           Pr_R <- pbayespostpred2bin(
             prob        = prob,        design      = design,
-            theta.TV1   = theta.TV1,   theta.MAV1  = theta.MAV1,
-            theta.TV2   = theta.TV2,   theta.MAV2  = theta.MAV2,
-            theta.NULL1 = theta.NULL1, theta.NULL2 = theta.NULL2,
-            x1_00 = xt_uniq[i, 1L], x1_01 = xt_uniq[i, 2L],
-            x1_10 = xt_uniq[i, 3L], x1_11 = xt_uniq[i, 4L],
-            x2_00 = xc_uniq[i, 1L], x2_01 = xc_uniq[i, 2L],
-            x2_10 = xc_uniq[i, 3L], x2_11 = xc_uniq[i, 4L],
-            a1_00 = a1_00, a1_01 = a1_01, a1_10 = a1_10, a1_11 = a1_11,
-            a2_00 = a2_00, a2_01 = a2_01, a2_10 = a2_10, a2_11 = a2_11,
-            m1 = m1, m2 = m2,
+            theta_TV1   = theta_TV1,   theta_MAV1  = theta_MAV1,
+            theta_TV2   = theta_TV2,   theta_MAV2  = theta_MAV2,
+            theta_NULL1 = theta_NULL1, theta_NULL2 = theta_NULL2,
+            x_t_00 = xt_uniq[i, 1L], x_t_01 = xt_uniq[i, 2L],
+            x_t_10 = xt_uniq[i, 3L], x_t_11 = xt_uniq[i, 4L],
+            x_c_00 = xc_uniq[i, 1L], x_c_01 = xc_uniq[i, 2L],
+            x_c_10 = xc_uniq[i, 3L], x_c_11 = xc_uniq[i, 4L],
+            a_t_00 = a_t_00, a_t_01 = a_t_01, a_t_10 = a_t_10, a_t_11 = a_t_11,
+            a_c_00 = a_c_00, a_c_01 = a_c_01, a_c_10 = a_c_10, a_c_11 = a_c_11,
+            m_t = m_t, m_c = m_c,
             z00 = z00, z01 = z01, z10 = z10, z11 = z11,
-            xe1_00 = xe1_00, xe1_01 = xe1_01,
-            xe1_10 = xe1_10, xe1_11 = xe1_11,
-            xe2_00 = xe2_00, xe2_01 = xe2_01,
-            xe2_10 = xe2_10, xe2_11 = xe2_11,
-            ae1 = ae1, ae2 = ae2,
+            xe_t_00 = xe_t_00, xe_t_01 = xe_t_01,
+            xe_t_10 = xe_t_10, xe_t_11 = xe_t_11,
+            xe_c_00 = xe_c_00, xe_c_01 = xe_c_01,
+            xe_c_10 = xe_c_10, xe_c_11 = xe_c_11,
+            ae_t = ae_t, ae_c = ae_c,
             nMC = nMC
           )
           PrGo_vec[i]   <- sum(Pr_R[GoRegions])
@@ -798,9 +798,9 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
       }
 
       # Accumulate Go/NoGo/Miss using frequency weights
-      ind_Go   <- (PrGo_vec   >= gamma1) & (PrNoGo_vec <  gamma2)
-      ind_NoGo <- (PrGo_vec   <  gamma1) & (PrNoGo_vec >= gamma2)
-      ind_Miss <- (PrGo_vec   >= gamma1) & (PrNoGo_vec >= gamma2)
+      ind_Go   <- (PrGo_vec   >= gamma_go) & (PrNoGo_vec <  gamma_nogo)
+      ind_NoGo <- (PrGo_vec   <  gamma_go) & (PrNoGo_vec >= gamma_nogo)
+      ind_Miss <- (PrGo_vec   >= gamma_go) & (PrNoGo_vec >= gamma_nogo)
 
       result_mat[s, 1L] <- sum(ind_Go   * w_pairs)
       result_mat[s, 2L] <- sum(ind_NoGo * w_pairs)
@@ -824,59 +824,59 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
     # ---------------------------------------------------------------------------
 
     # Enumerate all possible count vectors for each arm
-    counts_t <- allmultinom(n1)   # (n_t x 4) integer matrix
-    n_t      <- nrow(counts_t)
+    counts_t <- allmultinom(n_t)   # (n_t x 4) integer matrix
+    n_row_t      <- nrow(counts_t)
 
     # For uncontrolled design, the control distribution is fixed (Dir(a2 + z))
     # and does not vary with observed control counts.  The Stage 1 probability
     # matrix therefore needs only a single column (n_c = 1), avoiding the
-    # generation of the full allmultinom(n2) table (C(n2+3,3) rows).
+    # generation of the full allmultinom(n_c) table (C(n_c+3,3) rows).
     if (design == 'uncontrolled') {
-      n_c <- 1L
+      n_row_c <- 1L
     } else {
-      counts_c <- allmultinom(n2)   # (n_c x 4) integer matrix
-      n_c      <- nrow(counts_c)
+      counts_c <- allmultinom(n_c)   # (n_c x 4) integer matrix
+      n_row_c      <- nrow(counts_c)
     }
 
     # --- Build posterior Dirichlet base parameters (prior + external data) ---
-    xe1_w <- if (!is.null(ae1) && design == 'external') ae1 else 0
-    xe2_w <- if (!is.null(ae2) && design == 'external') ae2 else 0
+    xe_t_w <- if (!is.null(ae_t) && design == 'external') ae_t else 0
+    xe_c_w <- if (!is.null(ae_c) && design == 'external') ae_c else 0
 
-    alpha1_base <- c(
-      a1_00 + xe1_w * ifelse(!is.null(xe1_00), xe1_00, 0),
-      a1_01 + xe1_w * ifelse(!is.null(xe1_01), xe1_01, 0),
-      a1_10 + xe1_w * ifelse(!is.null(xe1_10), xe1_10, 0),
-      a1_11 + xe1_w * ifelse(!is.null(xe1_11), xe1_11, 0)
+    alpha_t_base <- c(
+      a_t_00 + xe_t_w * ifelse(!is.null(xe_t_00), xe_t_00, 0),
+      a_t_01 + xe_t_w * ifelse(!is.null(xe_t_01), xe_t_01, 0),
+      a_t_10 + xe_t_w * ifelse(!is.null(xe_t_10), xe_t_10, 0),
+      a_t_11 + xe_t_w * ifelse(!is.null(xe_t_11), xe_t_11, 0)
     )
 
     if (design == 'uncontrolled') {
       # Hypothetical control: fixed Dir(a2 + z), no data component varies
-      alpha2_fixed <- c(a2_00 + z00, a2_01 + z01, a2_10 + z10, a2_11 + z11)
+      alpha_c_fixed <- c(a_c_00 + z00, a_c_01 + z01, a_c_10 + z10, a_c_11 + z11)
     } else {
-      alpha2_base <- c(
-        a2_00 + xe2_w * ifelse(!is.null(xe2_00), xe2_00, 0),
-        a2_01 + xe2_w * ifelse(!is.null(xe2_01), xe2_01, 0),
-        a2_10 + xe2_w * ifelse(!is.null(xe2_10), xe2_10, 0),
-        a2_11 + xe2_w * ifelse(!is.null(xe2_11), xe2_11, 0)
+      alpha_c_base <- c(
+        a_c_00 + xe_c_w * ifelse(!is.null(xe_c_00), xe_c_00, 0),
+        a_c_01 + xe_c_w * ifelse(!is.null(xe_c_01), xe_c_01, 0),
+        a_c_10 + xe_c_w * ifelse(!is.null(xe_c_10), xe_c_10, 0),
+        a_c_11 + xe_c_w * ifelse(!is.null(xe_c_11), xe_c_11, 0)
       )
     }
 
     # --- Batch Gamma sampling: prior component (nMC x 4) ---
-    # Y1[u, k] ~ Gamma(alpha1_base[k], 1),  shared across all x_t
-    # Y2[u, k] ~ Gamma(alpha2_base[k], 1),  shared across all x_c
-    Y1 <- matrix(rgamma(nMC * 4L, shape = rep(alpha1_base, each = nMC)),
-                 nrow = nMC, ncol = 4L)
+    # Y_t[u, k] ~ Gamma(alpha_t_base[k], 1),  shared across all x_t
+    # Y_c[u, k] ~ Gamma(alpha_c_base[k], 1),  shared across all x_c
+    Y_t <- matrix(rgamma(nMC * 4L, shape = rep(alpha_t_base, each = nMC)),
+                  nrow = nMC, ncol = 4L)
 
     if (design == 'uncontrolled') {
-      # Control is fixed: sample once from Dir(alpha2_fixed)
-      G2_fixed <- matrix(rgamma(nMC * 4L,
-                                shape = rep(alpha2_fixed, each = nMC)),
-                         nrow = nMC, ncol = 4L)
-      S2_fixed  <- rowSums(G2_fixed)
-      p2_fixed  <- G2_fixed / S2_fixed   # (nMC x 4) Dirichlet samples
+      # Control is fixed: sample once from Dir(alpha_c_fixed)
+      G_c_fixed <- matrix(rgamma(nMC * 4L,
+                                 shape = rep(alpha_c_fixed, each = nMC)),
+                          nrow = nMC, ncol = 4L)
+      S_c_fixed  <- rowSums(G_c_fixed)
+      p_c_fixed  <- G_c_fixed / S_c_fixed   # (nMC x 4) Dirichlet samples
     } else {
-      Y2 <- matrix(rgamma(nMC * 4L, shape = rep(alpha2_base, each = nMC)),
-                   nrow = nMC, ncol = 4L)
+      Y_c <- matrix(rgamma(nMC * 4L, shape = rep(alpha_c_base, each = nMC)),
+                    nrow = nMC, ncol = 4L)
     }
 
     # --- For predictive: pre-generate uniform random draws for future data ---
@@ -886,47 +886,47 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
     #  nMC-length p vectors produced per combo from the batch Gamma above.)
 
     # --- Precompute Gamma data components for all count combinations ---
-    # Z1[i, u, k] ~ Gamma(counts_t[i, k] + 1, 1) would be expensive;
+    # Z_t[i, u, k] ~ Gamma(counts_t[i, k] + 1, 1) would be expensive;
     # instead we use the additive property:
     #   Gamma(alpha + x, 1) = Gamma(alpha, 1) + Gamma(x, 1)  [in distribution]
-    # Z1_arr[i, u, k]: nMC draws of Gamma(counts_t[i,k], 1) for each i.
-    # We generate all at once: shape vector of length n_t * nMC * 4.
+    # Z_t_arr[i, u, k]: nMC draws of Gamma(counts_t[i,k], 1) for each i.
+    # We generate all at once: shape vector of length n_row_t * nMC * 4.
     # To avoid Gamma(0, 1) (undefined), we clamp shapes to a small epsilon
     # and note that Gamma(0,1) = 0 a.s., so we handle zeros separately.
 
     # Vectorised Gamma draws for treatment arm data component.
     # Replicate each row of counts_t nMC times: row block i holds counts_t[i, ]
-    # for nMC consecutive rows, giving the correct (n_t * nMC x 4) shape matrix.
-    shapes_t_rep <- counts_t[rep(seq_len(n_t), each = nMC), , drop = FALSE]
+    # for nMC consecutive rows, giving the correct (n_row_t * nMC x 4) shape matrix.
+    shapes_t_rep <- counts_t[rep(seq_len(n_row_t), each = nMC), , drop = FALSE]
     zero_mask_t  <- shapes_t_rep == 0L
     shapes_t_rep[zero_mask_t] <- 1L
-    raw_t <- rgamma(n_t * nMC * 4L, shape = shapes_t_rep, rate = 1)
+    raw_t <- rgamma(n_row_t * nMC * 4L, shape = shapes_t_rep, rate = 1)
     raw_t[zero_mask_t] <- 0   # Gamma(0,1) = 0 a.s.
-    Z1_mat <- matrix(raw_t, nrow = n_t * nMC, ncol = 4L)
+    Z_t_mat <- matrix(raw_t, nrow = n_row_t * nMC, ncol = 4L)
 
     if (design != 'uncontrolled') {
-      shapes_c_rep <- counts_c[rep(seq_len(n_c), each = nMC), , drop = FALSE]
+      shapes_c_rep <- counts_c[rep(seq_len(n_row_c), each = nMC), , drop = FALSE]
       zero_mask_c  <- shapes_c_rep == 0L
       shapes_c_rep[zero_mask_c] <- 1L
-      raw_c <- rgamma(n_c * nMC * 4L, shape = shapes_c_rep, rate = 1)
+      raw_c <- rgamma(n_row_c * nMC * 4L, shape = shapes_c_rep, rate = 1)
       raw_c[zero_mask_c] <- 0
-      Z2_mat <- matrix(raw_c, nrow = n_c * nMC, ncol = 4L)
+      Z_c_mat <- matrix(raw_c, nrow = n_row_c * nMC, ncol = 4L)
     }
 
-    # --- Helper: compute PrGo and PrNoGo from a set of (p1, p2) samples ---
-    # p1, p2: (nMC x 4) matrices of Dirichlet samples
-    .compute_PrGoNoGo <- function(p1, p2) {
+    # --- Helper: compute PrGo and PrNoGo from a set of (p_t, p_c) samples ---
+    # p_t, p_c: (nMC x 4) matrices of Dirichlet samples
+    .compute_PrGoNoGo <- function(p_t, p_c) {
 
       # Marginal response rates and treatment effects
-      theta1 <- (p1[, 3L] + p1[, 4L]) - (p2[, 3L] + p2[, 4L])
-      theta2 <- (p1[, 2L] + p1[, 4L]) - (p2[, 2L] + p2[, 4L])
+      theta1 <- (p_t[, 3L] + p_t[, 4L]) - (p_c[, 3L] + p_c[, 4L])
+      theta2 <- (p_t[, 2L] + p_t[, 4L]) - (p_c[, 2L] + p_c[, 4L])
 
       if (prob == 'posterior') {
         # Region index: row-major, Endpoint 1 slowest (3 x 3 grid -> 9 regions)
-        r1 <- 3L - as.integer(theta1 > theta.MAV1) -
-          as.integer(theta1 > theta.TV1)
-        r2 <- 3L - as.integer(theta2 > theta.MAV2) -
-          as.integer(theta2 > theta.TV2)
+        r1 <- 3L - as.integer(theta1 > theta_MAV1) -
+          as.integer(theta1 > theta_TV1)
+        r2 <- 3L - as.integer(theta2 > theta_MAV2) -
+          as.integer(theta2 > theta_TV2)
         region <- (r1 - 1L) * 3L + r2
         Pr_R   <- tabulate(region, nbins = 9L) / nMC
 
@@ -934,27 +934,27 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
         # Predictive: simulate future multinomial data via sequential binomials
         x1f <- matrix(0L, nrow = nMC, ncol = 4L)
         x2f <- matrix(0L, nrow = nMC, ncol = 4L)
-        rem1 <- rep(m1, nMC);  rem2 <- rep(m2, nMC)
+        rem1 <- rep(m_t, nMC);  rem2 <- rep(m_c, nMC)
         u1   <- rep(0,  nMC);  u2   <- rep(0,  nMC)
 
         for (jj in seq_len(3L)) {
           d1 <- pmax(1 - u1, 0);  d2 <- pmax(1 - u2, 0)
-          q1 <- pmin(pmax(ifelse(d1 > 0, p1[, jj] / d1, 0), 0), 1)
-          q2 <- pmin(pmax(ifelse(d2 > 0, p2[, jj] / d2, 0), 0), 1)
+          q1 <- pmin(pmax(ifelse(d1 > 0, p_t[, jj] / d1, 0), 0), 1)
+          q2 <- pmin(pmax(ifelse(d2 > 0, p_c[, jj] / d2, 0), 0), 1)
           b1 <- rbinom(nMC, rem1, q1);  b2 <- rbinom(nMC, rem2, q2)
           x1f[, jj] <- b1;  x2f[, jj] <- b2
           rem1 <- rem1 - b1;  rem2 <- rem2 - b2
-          u1   <- u1 + p1[, jj];  u2 <- u2 + p2[, jj]
+          u1   <- u1 + p_t[, jj];  u2 <- u2 + p_c[, jj]
         }
         x1f[, 4L] <- rem1;  x2f[, 4L] <- rem2
 
-        theta1 <- (x1f[, 3L] + x1f[, 4L]) / m1 -
-          (x2f[, 3L] + x2f[, 4L]) / m2
-        theta2 <- (x1f[, 2L] + x1f[, 4L]) / m1 -
-          (x2f[, 2L] + x2f[, 4L]) / m2
+        theta1 <- (x1f[, 3L] + x1f[, 4L]) / m_t -
+          (x2f[, 3L] + x2f[, 4L]) / m_c
+        theta2 <- (x1f[, 2L] + x1f[, 4L]) / m_t -
+          (x2f[, 2L] + x2f[, 4L]) / m_c
 
-        r1     <- 2L - as.integer(theta1 > theta.TV1)
-        r2     <- 2L - as.integer(theta2 > theta.TV2)
+        r1     <- 2L - as.integer(theta1 > theta_TV1)
+        r2     <- 2L - as.integer(theta2 > theta_TV2)
         region <- (r1 - 1L) * 2L + r2
         Pr_R   <- tabulate(region, nbins = 4L) / nMC
       }
@@ -965,38 +965,38 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
     # --- Main Stage 1 loop: iterate over treatment count combinations ---
     # For the controlled/external case, we eliminate the inner j-loop by
-    # computing region memberships for all n_c control combos simultaneously.
+    # computing region memberships for all n_row_c control combos simultaneously.
     #
     # For each treatment combo i:
-    #   p1[u, k] = (Y1[u,k] + Z1[i,u,k]) / rowSum  -- (nMC x 4)
+    #   p_t[u, k] = (Y_t[u,k] + Z_t[i,u,k]) / rowSum  -- (nMC x 4)
     #
-    # theta1_t[u] = p1[u,3] + p1[u,4]  (treatment marginal for Endpoint 1)
-    # theta2_t[u] = p1[u,2] + p1[u,4]  (treatment marginal for Endpoint 2)
+    # theta1_t[u] = p_t[u,3] + p_t[u,4]  (treatment marginal for Endpoint 1)
+    # theta2_t[u] = p_t[u,2] + p_t[u,4]  (treatment marginal for Endpoint 2)
     #
     # For each control combo j:
-    #   theta1_c[u] = p2[u,3] + p2[u,4]
-    #   theta2_c[u] = p2[u,2] + p2[u,4]
+    #   theta1_c[u] = p_c[u,3] + p_c[u,4]
+    #   theta2_c[u] = p_c[u,2] + p_c[u,4]
     #
     # region_ij = f(theta1_t[u] - theta1_c[u], theta2_t[u] - theta2_c[u])
     #
-    # Key vectorisation: pre-compute normalised p2 for ALL j at once:
-    #   p2_all: (n_c * nMC x 4)  -- all control combos stacked
+    # Key vectorisation: pre-compute normalised p_c for ALL j at once:
+    #   p_c_all: (n_row_c * nMC x 4)  -- all control combos stacked
     # Then for fixed i, broadcast theta_t (length nMC) against
-    # theta_c (n_c blocks of nMC) to get all n_c results in one pass.
+    # theta_c (n_row_c blocks of nMC) to get all n_row_c results in one pass.
 
-    PrGo_mat   <- matrix(0, nrow = n_t, ncol = n_c)
-    PrNoGo_mat <- matrix(0, nrow = n_t, ncol = n_c)
+    PrGo_mat   <- matrix(0, nrow = n_row_t, ncol = n_row_c)
+    PrNoGo_mat <- matrix(0, nrow = n_row_t, ncol = n_row_c)
 
     if (design == 'uncontrolled') {
 
       # --- Uncontrolled: single fixed control distribution ---
-      for (i in seq_len(n_t)) {
+      for (i in seq_len(n_row_t)) {
         idx1 <- ((i - 1L) * nMC + 1L):(i * nMC)
-        G1   <- Y1 + Z1_mat[idx1, , drop = FALSE]
-        p1   <- G1 / rowSums(G1)
+        G1   <- Y_t + Z_t_mat[idx1, , drop = FALSE]
+        p_t   <- G1 / rowSums(G1)
 
-        res <- .compute_PrGoNoGo(p1, p2_fixed)
-        # n_c = 1 for uncontrolled, so only column 1 exists
+        res <- .compute_PrGoNoGo(p_t, p_c_fixed)
+        # n_row_c = 1 for uncontrolled, so only column 1 exists
         PrGo_mat[i, 1L]   <- res$PrGo
         PrNoGo_mat[i, 1L] <- res$PrNoGo
       }
@@ -1005,116 +1005,115 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
       # --- Controlled / External: vectorise over all j for each i ---
 
-      # Pre-normalise all control combos: p2_all is (n_c * nMC) x 4
-      G2_all <- Y2[rep(seq_len(nMC), times = n_c), , drop = FALSE] +
-        Z2_mat
-      p2_all <- G2_all / rowSums(G2_all)
+      # Pre-normalise all control combos: p_c_all is (n_row_c * nMC) x 4
+      G_c_all <- Y_c[rep(seq_len(nMC), times = n_row_c), , drop = FALSE] + Z_c_mat
+      p_c_all <- G_c_all / rowSums(G_c_all)
 
-      # Pre-compute control marginals for all combos: each is length n_c * nMC
-      # theta_c1[j-block, u] = p2_all[(j-1)*nMC+u, 3] + p2_all[(j-1)*nMC+u, 4]
-      tc1_all <- p2_all[, 3L] + p2_all[, 4L]  # length n_c * nMC
-      tc2_all <- p2_all[, 2L] + p2_all[, 4L]  # length n_c * nMC
+      # Pre-compute control marginals for all combos: each is length n_row_c * nMC
+      # theta_c1[j-block, u] = p_c_all[(j-1)*nMC+u, 3] + p_c_all[(j-1)*nMC+u, 4]
+      tc1_all <- p_c_all[, 3L] + p_c_all[, 4L]  # length n_row_c * nMC
+      tc2_all <- p_c_all[, 2L] + p_c_all[, 4L]  # length n_row_c * nMC
 
-      # Pre-compute control marginals reshaped as (nMC x n_c) matrices.
+      # Pre-compute control marginals reshaped as (nMC x n_row_c) matrices.
       # tc1_mat[u, j] = marginal for Endpoint 1 in control combo j, MC draw u
       # tc2_mat[u, j] = marginal for Endpoint 2 in control combo j, MC draw u
       # This avoids rep() inside the i-loop (case B optimisation).
-      tc1_mat <- matrix(tc1_all, nrow = nMC, ncol = n_c)
-      tc2_mat <- matrix(tc2_all, nrow = nMC, ncol = n_c)
+      tc1_mat <- matrix(tc1_all, nrow = nMC, ncol = n_row_c)
+      tc2_mat <- matrix(tc2_all, nrow = nMC, ncol = n_row_c)
 
       if (prob == 'predictive') {
         # Pre-compute future multinomial draws for ALL control combos at once.
-        # Layout of p2_all: (n_c * nMC) x 4, blocks of nMC rows per combo j.
-        # Sequential binomial for all n_c * nMC rows simultaneously (case C).
-        x2f_all <- matrix(0L, nrow = n_c * nMC, ncol = 4L)
-        rem2_all <- rep(m2, n_c * nMC)
-        u2_all   <- rep(0,  n_c * nMC)
+        # Layout of p_c_all: (n_row_c * nMC) x 4, blocks of nMC rows per combo j.
+        # Sequential binomial for all n_row_c * nMC rows simultaneously (case C).
+        x2f_all <- matrix(0L, nrow = n_row_c * nMC, ncol = 4L)
+        rem2_all <- rep(m_c, n_row_c * nMC)
+        u2_all   <- rep(0,  n_row_c * nMC)
         for (jj in seq_len(3L)) {
           d2_all  <- pmax(1 - u2_all, 0)
           q2_all  <- pmin(pmax(
-            ifelse(d2_all > 0, p2_all[, jj] / d2_all, 0), 0), 1)
-          b2_all  <- rbinom(n_c * nMC, rem2_all, q2_all)
+            ifelse(d2_all > 0, p_c_all[, jj] / d2_all, 0), 0), 1)
+          b2_all  <- rbinom(n_row_c * nMC, rem2_all, q2_all)
           x2f_all[, jj] <- b2_all
           rem2_all <- rem2_all - b2_all
-          u2_all   <- u2_all + p2_all[, jj]
+          u2_all   <- u2_all + p_c_all[, jj]
         }
         x2f_all[, 4L] <- rem2_all
 
-        # Endpoint marginals for future control data: (nMC x n_c) matrices
-        # fut_tc1_mat[u, j] = (x2f_all[(j-1)*nMC+u, 3] + x2f_all[..., 4]) / m2
+        # Endpoint marginals for future control data: (nMC x n_row_c) matrices
+        # fut_tc1_mat[u, j] = (x2f_all[(j-1)*nMC+u, 3] + x2f_all[..., 4]) / m_c
         fut_tc1_mat <- matrix(
-          (x2f_all[, 3L] + x2f_all[, 4L]) / m2, nrow = nMC, ncol = n_c)
+          (x2f_all[, 3L] + x2f_all[, 4L]) / m_c, nrow = nMC, ncol = n_row_c)
         fut_tc2_mat <- matrix(
-          (x2f_all[, 2L] + x2f_all[, 4L]) / m2, nrow = nMC, ncol = n_c)
+          (x2f_all[, 2L] + x2f_all[, 4L]) / m_c, nrow = nMC, ncol = n_row_c)
       }
 
-      for (i in seq_len(n_t)) {
+      for (i in seq_len(n_row_t)) {
         idx1 <- ((i - 1L) * nMC + 1L):(i * nMC)
-        G1   <- Y1 + Z1_mat[idx1, , drop = FALSE]
-        p1   <- G1 / rowSums(G1)
+        G1   <- Y_t + Z_t_mat[idx1, , drop = FALSE]
+        p_t   <- G1 / rowSums(G1)
 
         # Treatment marginals: (nMC x 1) vectors
-        tt1 <- p1[, 3L] + p1[, 4L]
-        tt2 <- p1[, 2L] + p1[, 4L]
+        tt1 <- p_t[, 3L] + p_t[, 4L]
+        tt2 <- p_t[, 2L] + p_t[, 4L]
 
         if (prob == 'posterior') {
 
-          # th1_mat[u, j] = tt1[u] - tc1_mat[u, j]  (nMC x n_c, no rep())
-          th1_mat <- tt1 - tc1_mat   # R broadcasts (nMC) against (nMC x n_c)
+          # th1_mat[u, j] = tt1[u] - tc1_mat[u, j]  (nMC x n_row_c, no rep())
+          th1_mat <- tt1 - tc1_mat   # R broadcasts (nMC) against (nMC x n_row_c)
           th2_mat <- tt2 - tc2_mat
 
-          # Region classification: (nMC x n_c) integer matrices
-          r1_mat <- 3L - (th1_mat > theta.MAV1) - (th1_mat > theta.TV1)
-          r2_mat <- 3L - (th2_mat > theta.MAV2) - (th2_mat > theta.TV2)
+          # Region classification: (nMC x n_row_c) integer matrices
+          r1_mat <- 3L - (th1_mat > theta_MAV1) - (th1_mat > theta_TV1)
+          r2_mat <- 3L - (th2_mat > theta_MAV2) - (th2_mat > theta_TV2)
           reg_mat <- (r1_mat - 1L) * 3L + r2_mat   # values in 1..9
 
-          # Go/NoGo indicator matrices (nMC x n_c), then column means = PrGo[i,]
+          # Go/NoGo indicator matrices (nMC x n_row_c), then column means = PrGo[i,]
           # matrix() restores dimensions lost by %in% (which returns a plain vector)
           PrGo_mat[i, ]   <- colMeans(
-            matrix(reg_mat %in% GoRegions,   nrow = nMC, ncol = n_c))
+            matrix(reg_mat %in% GoRegions,   nrow = nMC, ncol = n_row_c))
           PrNoGo_mat[i, ] <- colMeans(
-            matrix(reg_mat %in% NoGoRegions, nrow = nMC, ncol = n_c))
+            matrix(reg_mat %in% NoGoRegions, nrow = nMC, ncol = n_row_c))
 
         } else {
 
           # Predictive: simulate future treatment data for this combo i
           x1f <- matrix(0L, nrow = nMC, ncol = 4L)
-          rem1 <- rep(m1, nMC)
+          rem1 <- rep(m_t, nMC)
           u1   <- rep(0,  nMC)
           for (jj in seq_len(3L)) {
             d1 <- pmax(1 - u1, 0)
-            q1 <- pmin(pmax(ifelse(d1 > 0, p1[, jj] / d1, 0), 0), 1)
+            q1 <- pmin(pmax(ifelse(d1 > 0, p_t[, jj] / d1, 0), 0), 1)
             b1 <- rbinom(nMC, rem1, q1)
             x1f[, jj] <- b1
             rem1 <- rem1 - b1
-            u1   <- u1 + p1[, jj]
+            u1   <- u1 + p_t[, jj]
           }
           x1f[, 4L] <- rem1
 
           # Future treatment marginals: (nMC x 1) vectors
-          fut_tt1 <- (x1f[, 3L] + x1f[, 4L]) / m1
-          fut_tt2 <- (x1f[, 2L] + x1f[, 4L]) / m1
+          fut_tt1 <- (x1f[, 3L] + x1f[, 4L]) / m_t
+          fut_tt2 <- (x1f[, 2L] + x1f[, 4L]) / m_t
 
-          # Difference matrices (nMC x n_c) using pre-computed control futures
+          # Difference matrices (nMC x n_row_c) using pre-computed control futures
           fth1_mat <- fut_tt1 - fut_tc1_mat
           fth2_mat <- fut_tt2 - fut_tc2_mat
 
-          r1_mat  <- 2L - (fth1_mat > theta.TV1)
-          r2_mat  <- 2L - (fth2_mat > theta.TV2)
+          r1_mat  <- 2L - (fth1_mat > theta_TV1)
+          r2_mat  <- 2L - (fth2_mat > theta_TV2)
           reg_mat <- (r1_mat - 1L) * 2L + r2_mat
 
           PrGo_mat[i, ]   <- colMeans(
-            matrix(reg_mat %in% GoRegions,   nrow = nMC, ncol = n_c))
+            matrix(reg_mat %in% GoRegions,   nrow = nMC, ncol = n_row_c))
           PrNoGo_mat[i, ] <- colMeans(
-            matrix(reg_mat %in% NoGoRegions, nrow = nMC, ncol = n_c))
+            matrix(reg_mat %in% NoGoRegions, nrow = nMC, ncol = n_row_c))
         }
       }
     }
 
     # Decision indicator matrices
-    ind_Go   <- (PrGo_mat   >= gamma1) & (PrNoGo_mat <  gamma2)
-    ind_NoGo <- (PrGo_mat   <  gamma1) & (PrNoGo_mat >= gamma2)
-    ind_Miss <- (PrGo_mat   >= gamma1) & (PrNoGo_mat >= gamma2)
+    ind_Go   <- (PrGo_mat   >= gamma_go) & (PrNoGo_mat <  gamma_nogo)
+    ind_NoGo <- (PrGo_mat   <  gamma_go) & (PrNoGo_mat >= gamma_nogo)
+    ind_Miss <- (PrGo_mat   >= gamma_go) & (PrNoGo_mat >= gamma_nogo)
 
     # ---------------------------------------------------------------------------
     # Section 3 (Exact): Stage 2 -- Compute operating characteristics per
@@ -1132,11 +1131,11 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
       if (design == 'uncontrolled') {
         # Control distribution is fixed (Dir(a2 + z)) and independent of x_c.
-        # Stage 1 was computed with n_c = 1, so ind_Go/ind_NoGo/ind_Miss have
+        # Stage 1 was computed with n_row_c = 1, so ind_Go/ind_NoGo/ind_Miss have
         # exactly one column.  Only treatment counts contribute multinomial
         # weights; the control column index is always 1.
         w_t <- apply(counts_t, 1L, function(x)
-          dmultinom(x, size = n1, prob = p_t))
+          dmultinom(x, size = n_t, prob = p_t))
 
         result_mat[s, 1L] <- sum(ind_Go[,   1L] * w_t)
         result_mat[s, 2L] <- sum(ind_NoGo[, 1L] * w_t)
@@ -1147,9 +1146,9 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
         p_c <- getjointbin(pi1 = pi_c1[s], pi2 = pi_c2[s], rho = rho_c[s])
 
         w_t <- apply(counts_t, 1L, function(x)
-          dmultinom(x, size = n1, prob = p_t))
+          dmultinom(x, size = n_t, prob = p_t))
         w_c <- apply(counts_c, 1L, function(x)
-          dmultinom(x, size = n2, prob = p_c))
+          dmultinom(x, size = n_c, prob = p_c))
 
         # Outer product of weights: w[i,j] = w_t[i] * w_c[j]
         w_mat <- outer(w_t, w_c)
@@ -1210,41 +1209,41 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
   }
 
   # Attach metadata as attributes for use in print()
-  attr(results, 'prob')          <- prob
-  attr(results, 'design')        <- design
-  attr(results, 'GoRegions')     <- GoRegions
-  attr(results, 'NoGoRegions')   <- NoGoRegions
-  attr(results, 'gamma1')        <- gamma1
-  attr(results, 'gamma2')        <- gamma2
-  attr(results, 'n1')            <- n1
-  attr(results, 'n2')            <- n2
-  attr(results, 'a1_00')         <- a1_00
-  attr(results, 'a1_01')         <- a1_01
-  attr(results, 'a1_10')         <- a1_10
-  attr(results, 'a1_11')         <- a1_11
-  attr(results, 'a2_00')         <- a2_00
-  attr(results, 'a2_01')         <- a2_01
-  attr(results, 'a2_10')         <- a2_10
-  attr(results, 'a2_11')         <- a2_11
-  attr(results, 'm1')            <- m1
-  attr(results, 'm2')            <- m2
-  attr(results, 'theta.TV1')     <- theta.TV1
-  attr(results, 'theta.MAV1')    <- theta.MAV1
-  attr(results, 'theta.TV2')     <- theta.TV2
-  attr(results, 'theta.MAV2')    <- theta.MAV2
-  attr(results, 'theta.NULL1')   <- theta.NULL1
-  attr(results, 'theta.NULL2')   <- theta.NULL2
-  attr(results, 'z00')           <- z00
-  attr(results, 'z01')           <- z01
-  attr(results, 'z10')           <- z10
-  attr(results, 'z11')           <- z11
-  attr(results, 'ae1')           <- ae1
-  attr(results, 'ae2')           <- ae2
-  attr(results, 'nMC')           <- nMC
-  attr(results, 'nsim')          <- nsim
-  attr(results, 'method')        <- method
-  attr(results, 'error_if_Miss') <- error_if_Miss
-  attr(results, 'Gray_inc_Miss') <- Gray_inc_Miss
+  attr(results, 'prob')           <- prob
+  attr(results, 'design')         <- design
+  attr(results, 'GoRegions')      <- GoRegions
+  attr(results, 'NoGoRegions')    <- NoGoRegions
+  attr(results, 'gamma_go')       <- gamma_go
+  attr(results, 'gamma_nogo')     <- gamma_nogo
+  attr(results, 'n_t')            <- n_t
+  attr(results, 'n_c')            <- n_c
+  attr(results, 'a_t_00')         <- a_t_00
+  attr(results, 'a_t_01')         <- a_t_01
+  attr(results, 'a_t_10')         <- a_t_10
+  attr(results, 'a_t_11')         <- a_t_11
+  attr(results, 'a_c_00')         <- a_c_00
+  attr(results, 'a_c_01')         <- a_c_01
+  attr(results, 'a_c_10')         <- a_c_10
+  attr(results, 'a_c_11')         <- a_c_11
+  attr(results, 'm_t')            <- m_t
+  attr(results, 'm_c')            <- m_c
+  attr(results, 'theta_TV1')      <- theta_TV1
+  attr(results, 'theta_MAV1')     <- theta_MAV1
+  attr(results, 'theta_TV2')      <- theta_TV2
+  attr(results, 'theta_MAV2')     <- theta_MAV2
+  attr(results, 'theta_NULL1')    <- theta_NULL1
+  attr(results, 'theta_NULL2')    <- theta_NULL2
+  attr(results, 'z00')            <- z00
+  attr(results, 'z01')            <- z01
+  attr(results, 'z10')            <- z10
+  attr(results, 'z11')            <- z11
+  attr(results, 'ae_t')           <- ae_t
+  attr(results, 'ae_c')           <- ae_c
+  attr(results, 'nMC')            <- nMC
+  attr(results, 'nsim')           <- nsim
+  attr(results, 'method')         <- method
+  attr(results, 'error_if_Miss')  <- error_if_Miss
+  attr(results, 'Gray_inc_Miss')  <- Gray_inc_Miss
 
   class(results) <- c('pbayesdecisionprob2bin', 'data.frame')
 
@@ -1272,60 +1271,60 @@ print.pbayesdecisionprob2bin <- function(x, digits = 4, ...) {
   fmt <- function(v) if (is.null(v)) 'NULL' else as.character(v)
 
   # Extract metadata
-  prob          <- attr(x, 'prob')
-  design        <- attr(x, 'design')
-  GoRegions     <- attr(x, 'GoRegions')
-  NoGoRegions   <- attr(x, 'NoGoRegions')
-  gamma1        <- attr(x, 'gamma1')
-  gamma2        <- attr(x, 'gamma2')
-  n1            <- attr(x, 'n1')
-  n2            <- attr(x, 'n2')
-  a1_00         <- attr(x, 'a1_00')
-  a1_01         <- attr(x, 'a1_01')
-  a1_10         <- attr(x, 'a1_10')
-  a1_11         <- attr(x, 'a1_11')
-  a2_00         <- attr(x, 'a2_00')
-  a2_01         <- attr(x, 'a2_01')
-  a2_10         <- attr(x, 'a2_10')
-  a2_11         <- attr(x, 'a2_11')
-  m1            <- attr(x, 'm1')
-  m2            <- attr(x, 'm2')
-  theta.TV1     <- attr(x, 'theta.TV1')
-  theta.MAV1    <- attr(x, 'theta.MAV1')
-  theta.TV2     <- attr(x, 'theta.TV2')
-  theta.MAV2    <- attr(x, 'theta.MAV2')
-  theta.NULL1   <- attr(x, 'theta.NULL1')
-  theta.NULL2   <- attr(x, 'theta.NULL2')
-  z00           <- attr(x, 'z00')
-  z01           <- attr(x, 'z01')
-  z10           <- attr(x, 'z10')
-  z11           <- attr(x, 'z11')
-  ae1           <- attr(x, 'ae1')
-  ae2           <- attr(x, 'ae2')
-  nMC           <- attr(x, 'nMC')
-  nsim          <- attr(x, 'nsim')
-  method        <- attr(x, 'method')
-  error_if_Miss <- attr(x, 'error_if_Miss')
-  Gray_inc_Miss <- attr(x, 'Gray_inc_Miss')
+  prob           <- attr(x, 'prob')
+  design         <- attr(x, 'design')
+  GoRegions      <- attr(x, 'GoRegions')
+  NoGoRegions    <- attr(x, 'NoGoRegions')
+  gamma_go       <- attr(x, 'gamma_go')
+  gamma_nogo     <- attr(x, 'gamma_nogo')
+  n_t            <- attr(x, 'n_t')
+  n_c            <- attr(x, 'n_c')
+  a_t_00         <- attr(x, 'a_t_00')
+  a_t_01         <- attr(x, 'a_t_01')
+  a_t_10         <- attr(x, 'a_t_10')
+  a_t_11         <- attr(x, 'a_t_11')
+  a_c_00         <- attr(x, 'a_c_00')
+  a_c_01         <- attr(x, 'a_c_01')
+  a_c_10         <- attr(x, 'a_c_10')
+  a_c_11         <- attr(x, 'a_c_11')
+  m_t            <- attr(x, 'm_t')
+  m_c            <- attr(x, 'm_c')
+  theta_TV1      <- attr(x, 'theta_TV1')
+  theta_MAV1     <- attr(x, 'theta_MAV1')
+  theta_TV2      <- attr(x, 'theta_TV2')
+  theta_MAV2     <- attr(x, 'theta_MAV2')
+  theta_NULL1    <- attr(x, 'theta_NULL1')
+  theta_NULL2    <- attr(x, 'theta_NULL2')
+  z00            <- attr(x, 'z00')
+  z01            <- attr(x, 'z01')
+  z10            <- attr(x, 'z10')
+  z11            <- attr(x, 'z11')
+  ae_t           <- attr(x, 'ae_t')
+  ae_c           <- attr(x, 'ae_c')
+  nMC            <- attr(x, 'nMC')
+  nsim           <- attr(x, 'nsim')
+  method         <- attr(x, 'method')
+  error_if_Miss  <- attr(x, 'error_if_Miss')
+  Gray_inc_Miss  <- attr(x, 'Gray_inc_Miss')
 
   # Build threshold string
   if (prob == 'posterior') {
     thresh_str <- sprintf(
       'TV1 = %s, MAV1 = %s, TV2 = %s, MAV2 = %s',
-      fmt(theta.TV1), fmt(theta.MAV1), fmt(theta.TV2), fmt(theta.MAV2)
+      fmt(theta_TV1), fmt(theta_MAV1), fmt(theta_TV2), fmt(theta_MAV2)
     )
   } else {
     thresh_str <- sprintf(
       'NULL1 = %s, NULL2 = %s',
-      fmt(theta.NULL1), fmt(theta.NULL2)
+      fmt(theta_NULL1), fmt(theta_NULL2)
     )
   }
 
   # Build Dirichlet prior string
   prior1_str <- sprintf('(%s, %s, %s, %s)',
-                        fmt(a1_00), fmt(a1_01), fmt(a1_10), fmt(a1_11))
+                        fmt(a_t_00), fmt(a_t_01), fmt(a_t_10), fmt(a_t_11))
   prior2_str <- sprintf('(%s, %s, %s, %s)',
-                        fmt(a2_00), fmt(a2_01), fmt(a2_10), fmt(a2_11))
+                        fmt(a_c_00), fmt(a_c_01), fmt(a_c_10), fmt(a_c_11))
 
   # Print header
   cat('Go/NoGo/Gray Decision Probabilities (Two Binary Endpoints)\n')
@@ -1333,15 +1332,15 @@ print.pbayesdecisionprob2bin <- function(x, digits = 4, ...) {
   cat(sprintf('  Probability type : %s\n', prob))
   cat(sprintf('  Design           : %s\n', design))
   cat(sprintf('  Threshold(s)     : %s\n', thresh_str))
-  cat(sprintf('  Go  threshold    : gamma1 = %s\n', fmt(gamma1)))
-  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', fmt(gamma2)))
+  cat(sprintf('  Go  threshold    : gamma_go = %s\n', fmt(gamma_go)))
+  cat(sprintf('  NoGo threshold   : gamma_nogo = %s\n', fmt(gamma_nogo)))
   cat(sprintf('  Go  regions      : {%s}\n',
               paste(GoRegions,   collapse = ', ')))
   cat(sprintf('  NoGo regions     : {%s}\n',
               paste(NoGoRegions, collapse = ', ')))
-  cat(sprintf('  Sample size      : n1 = %s, n2 = %s\n', fmt(n1), fmt(n2)))
-  cat(sprintf('  Prior Grp1 (Dir) : a = %s\n', prior1_str))
-  cat(sprintf('  Prior Grp2 (Dir) : a = %s\n', prior2_str))
+  cat(sprintf('  Sample size      : n_t = %s, n_c = %s\n', fmt(n_t), fmt(n_c)))
+  cat(sprintf('  Prior (traetment): a = %s\n', prior1_str))
+  cat(sprintf('  Prior (control)  : a = %s\n', prior2_str))
 
   if (design == 'uncontrolled') {
     cat(sprintf(
@@ -1350,11 +1349,11 @@ print.pbayesdecisionprob2bin <- function(x, digits = 4, ...) {
     ))
   }
   if (prob == 'predictive') {
-    cat(sprintf('  Future trial     : m1 = %s, m2 = %s\n', fmt(m1), fmt(m2)))
+    cat(sprintf('  Future trial     : m_t = %s, m_c = %s\n', fmt(m_t), fmt(m_c)))
   }
-  if (!is.null(ae1) || !is.null(ae2)) {
-    cat(sprintf('  Power prior      : ae1 = %s, ae2 = %s\n',
-                fmt(ae1), fmt(ae2)))
+  if (!is.null(ae_t) || !is.null(ae_c)) {
+    cat(sprintf('  Power prior      : ae_t = %s, ae_c = %s\n',
+                fmt(ae_t), fmt(ae_c)))
   }
   cat(sprintf('  MC draws  (nMC)  : %s\n', fmt(nMC)))
   if (method == 'MC')

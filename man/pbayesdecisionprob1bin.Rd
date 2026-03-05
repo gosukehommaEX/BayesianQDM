@@ -7,28 +7,28 @@
 pbayesdecisionprob1bin(
   prob = "posterior",
   design = "controlled",
-  theta.TV = NULL,
-  theta.MAV = NULL,
-  theta.NULL = NULL,
-  gamma1,
-  gamma2,
-  pi1,
-  pi2 = NULL,
-  n1,
-  n2,
-  a1,
-  a2,
-  b1,
-  b2,
+  theta_TV = NULL,
+  theta_MAV = NULL,
+  theta_NULL = NULL,
+  gamma_go,
+  gamma_nogo,
+  pi_t,
+  pi_c = NULL,
+  n_t,
+  n_c,
+  a_t,
+  a_c,
+  b_t,
+  b_c,
   z = NULL,
-  m1 = NULL,
-  m2 = NULL,
-  ne1 = NULL,
-  ne2 = NULL,
-  ye1 = NULL,
-  ye2 = NULL,
-  ae1 = NULL,
-  ae2 = NULL,
+  m_t = NULL,
+  m_c = NULL,
+  ne_t = NULL,
+  ne_c = NULL,
+  ye_t = NULL,
+  ye_c = NULL,
+  ae_t = NULL,
+  ae_c = NULL,
   error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE
 )
@@ -40,82 +40,84 @@ Must be \code{'posterior'} or \code{'predictive'}.}
 \item{design}{A character string specifying the trial design.
 Must be \code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.}
 
-\item{theta.TV}{A numeric scalar giving the target value (TV) threshold used for
+\item{theta_TV}{A numeric scalar giving the target value (TV) threshold used for
 the Go decision when \code{prob = 'posterior'}. Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
-\item{theta.MAV}{A numeric scalar giving the minimum acceptable value (MAV)
+\item{theta_MAV}{A numeric scalar giving the minimum acceptable value (MAV)
 threshold used for the NoGo decision when \code{prob = 'posterior'}.
-Must satisfy \code{theta.TV > theta.MAV}. Set to \code{NULL} when
+Must satisfy \code{theta_TV > theta_MAV}. Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
-\item{theta.NULL}{A numeric scalar giving the null hypothesis threshold used for
+\item{theta_NULL}{A numeric scalar giving the null hypothesis threshold used for
 both Go and NoGo decisions when \code{prob = 'predictive'}. Set to
 \code{NULL} when \code{prob = 'posterior'}.}
 
-\item{gamma1}{A numeric scalar in \code{(0, 1)} giving the minimum posterior/predictive
+\item{gamma_go}{A numeric scalar in \code{(0, 1)} giving the minimum posterior/predictive
 probability required for a Go decision. Typically 0.8 or higher.}
 
-\item{gamma2}{A numeric scalar in \code{(0, 1)} giving the maximum posterior/predictive
-probability that triggers a NoGo decision. Must satisfy \code{gamma2 < gamma1}.}
+\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the maximum posterior/predictive
+probability that triggers a NoGo decision. Must satisfy \code{gamma_nogo < gamma_go}.}
 
-\item{pi1}{A numeric value or vector giving the true response probability(s) for
-group 1 (treatment) used to evaluate operating characteristics. Each element
+\item{pi_t}{A numeric value or vector giving the true response probability(s) for
+the treatment group used to evaluate operating characteristics. Each element
 must be in \code{(0, 1)}.}
 
-\item{pi2}{A numeric value or vector giving the true response probability(s) for
-group 2 (control). For \code{design = 'uncontrolled'}, this parameter is
+\item{pi_c}{A numeric value or vector giving the true response probability(s) for
+the control group. For \code{design = 'uncontrolled'}, this parameter is
 not used in calculations but must be supplied; it is excluded from the output.
-When supplied as a vector, must have the same length as \code{pi1}.}
+When supplied as a vector, must have the same length as \code{pi_t}.}
 
-\item{n1}{A positive integer giving the number of patients in group 1 in the
+\item{n_t}{A positive integer giving the number of patients in the treatment group in the
 proof-of-concept (PoC) trial.}
 
-\item{n2}{A positive integer giving the number of patients in group 2 in the
+\item{n_c}{A positive integer giving the number of patients in the control group in the
 PoC trial (also used as the hypothetical control size for uncontrolled design).}
 
-\item{a1}{A positive numeric scalar giving the first shape parameter (alpha) of the
-prior Beta distribution for group 1.}
+\item{a_t}{A positive numeric scalar giving the first shape parameter (alpha) of the
+prior Beta distribution for the treatment group.}
 
-\item{a2}{A positive numeric scalar giving the first shape parameter (alpha) of the
-prior Beta distribution for group 2.}
+\item{a_c}{A positive numeric scalar giving the first shape parameter (alpha) of the
+prior Beta distribution for the control group.}
 
-\item{b1}{A positive numeric scalar giving the second shape parameter (beta) of the
-prior Beta distribution for group 1.}
+\item{b_t}{A positive numeric scalar giving the second shape parameter (beta) of the
+prior Beta distribution for the treatment group.}
 
-\item{b2}{A positive numeric scalar giving the second shape parameter (beta) of the
-prior Beta distribution for group 2.}
+\item{b_c}{A positive numeric scalar giving the second shape parameter (beta) of the
+prior Beta distribution for the control group.}
 
 \item{z}{A non-negative integer giving the hypothetical control responder count.
 Required when \code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
-\item{m1}{A positive integer giving the future sample size for group 1.
+\item{m_t}{A positive integer giving the future sample size for the treatment group.
 Required when \code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{m2}{A positive integer giving the future sample size for group 2.
+\item{m_c}{A positive integer giving the future sample size for the control group.
 Required when \code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{ne1}{A positive integer giving the number of patients in group 1 of the
-external data set. Required when \code{design = 'external'}; otherwise
+\item{ne_t}{A positive integer giving the number of patients in the treatment group
+of the external data set. Required when \code{design = 'external'}; otherwise
 \code{NULL}.}
 
-\item{ne2}{A positive integer giving the number of patients in group 2 of the
-external data set. Required when \code{design = 'external'}; otherwise
+\item{ne_c}{A positive integer giving the number of patients in the control group
+of the external data set. Required when \code{design = 'external'}; otherwise
 \code{NULL}.}
 
-\item{ye1}{A non-negative integer giving the number of responders in group 1 of
-the external data set. Required when \code{design = 'external'}; otherwise
-\code{NULL}.}
+\item{ye_t}{A non-negative integer giving the number of responders in the
+treatment group of the external data set. Required when
+\code{design = 'external'}; otherwise \code{NULL}.}
 
-\item{ye2}{A non-negative integer giving the number of responders in group 2 of
-the external data set. Required when \code{design = 'external'}; otherwise
-\code{NULL}.}
+\item{ye_c}{A non-negative integer giving the number of responders in the
+control group of the external data set. Required when
+\code{design = 'external'}; otherwise \code{NULL}.}
 
-\item{ae1}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
-group 1. Required when \code{design = 'external'}; otherwise \code{NULL}.}
+\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
+the treatment group. Required when \code{design = 'external'};
+otherwise \code{NULL}.}
 
-\item{ae2}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
-group 2. Required when \code{design = 'external'}; otherwise \code{NULL}.}
+\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
+the control group. Required when \code{design = 'external'};
+otherwise \code{NULL}.}
 
 \item{error_if_Miss}{A logical scalar; if \code{TRUE} (default), the function stops
 with an error if Miss probability > 0, prompting reconsideration of thresholds.}
@@ -125,10 +127,10 @@ to Gray probability. If \code{FALSE} (default), Miss is reported separately.
 Active only when \code{error_if_Miss = FALSE}.}
 }
 \value{
-A data frame with one row per \code{pi1} scenario and columns:
+A data frame with one row per \code{pi_t} scenario and columns:
 \describe{
-\item{pi1}{True treatment response probability.}
-\item{pi2}{True control response probability (omitted for uncontrolled design).}
+\item{pi_t}{True treatment response probability.}
+\item{pi_c}{True control response probability (omitted for uncontrolled design).}
 \item{Go}{Probability of making a Go decision.}
 \item{Gray}{Probability of making a Gray (inconclusive) decision.}
 \item{NoGo}{Probability of making a NoGo decision.}
@@ -147,8 +149,8 @@ outcomes. The function supports controlled, uncontrolled, and external designs.
 \details{
 Operating characteristics are computed by exact enumeration:
 \enumerate{
-\item All possible outcome pairs \eqn{(y_1, y_2)} with \eqn{y_1 \in \{0,\ldots,n_1\}}
-and \eqn{y_2 \in \{0,\ldots,n_2\}} (or fixed at \eqn{z} for uncontrolled) are
+\item All possible outcome pairs \eqn{(y_t, y_c)} with \eqn{y_t \in \{0,\ldots,n_t\}}
+and \eqn{y_c \in \{0,\ldots,n_c\}} (or fixed at \eqn{z} for uncontrolled) are
 evaluated.
 \item For each pair, \code{\link{pbayespostpred1bin}} computes the posterior or predictive
 probability at both thresholds (TV/MAV or NULL).
@@ -168,52 +170,52 @@ probability at both thresholds (TV/MAV or NULL).
 # Example 1: Controlled design with posterior probability
 pbayesdecisionprob1bin(
   prob = 'posterior', design = 'controlled',
-  theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
-  gamma1 = 0.8, gamma2 = 0.2,
-  pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
-  n1 = 12, n2 = 12,
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  z = NULL, m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  theta_TV = 0.4, theta_MAV = 0.2, theta_NULL = NULL,
+  gamma_go = 0.8, gamma_nogo = 0.2,
+  pi_t = c(0.2, 0.4, 0.6, 0.8), pi_c = rep(0.2, 4),
+  n_t = 12, n_c = 12,
+  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+  z = NULL, m_t = NULL, m_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
 # Example 2: Uncontrolled design with hypothetical control
 pbayesdecisionprob1bin(
   prob = 'posterior', design = 'uncontrolled',
-  theta.TV = 0.30, theta.MAV = 0.15, theta.NULL = NULL,
-  gamma1 = 0.75, gamma2 = 0.25,
-  pi1 = c(0.3, 0.5, 0.7), pi2 = NULL,
-  n1 = 15, n2 = 15,
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  z = 5, m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  theta_TV = 0.30, theta_MAV = 0.15, theta_NULL = NULL,
+  gamma_go = 0.75, gamma_nogo = 0.25,
+  pi_t = c(0.3, 0.5, 0.7), pi_c = NULL,
+  n_t = 15, n_c = 15,
+  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+  z = 5, m_t = NULL, m_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
 # Example 3: Posterior predictive probability for controlled design
 pbayesdecisionprob1bin(
   prob = 'predictive', design = 'controlled',
-  theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0,
-  gamma1 = 0.9, gamma2 = 0.3,
-  pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
-  n1 = 12, n2 = 12,
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  z = NULL, m1 = 30, m2 = 30,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0,
+  gamma_go = 0.9, gamma_nogo = 0.3,
+  pi_t = c(0.2, 0.4, 0.6, 0.8), pi_c = rep(0.2, 4),
+  n_t = 12, n_c = 12,
+  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+  z = NULL, m_t = 30, m_c = 30,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
 # Example 4: External design with 50 percent power prior borrowing
 pbayesdecisionprob1bin(
   prob = 'posterior', design = 'external',
-  theta.TV = 0.4, theta.MAV = 0.2, theta.NULL = NULL,
-  gamma1 = 0.8, gamma2 = 0.2,
-  pi1 = c(0.2, 0.4, 0.6, 0.8), pi2 = rep(0.2, 4),
-  n1 = 12, n2 = 12,
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  z = NULL, m1 = NULL, m2 = NULL,
-  ne1 = 15, ne2 = 15, ye1 = 6, ye2 = 4, ae1 = 0.5, ae2 = 0.5,
+  theta_TV = 0.4, theta_MAV = 0.2, theta_NULL = NULL,
+  gamma_go = 0.8, gamma_nogo = 0.2,
+  pi_t = c(0.2, 0.4, 0.6, 0.8), pi_c = rep(0.2, 4),
+  n_t = 12, n_c = 12,
+  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+  z = NULL, m_t = NULL, m_c = NULL,
+  ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, ae_t = 0.5, ae_c = 0.5,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 

@@ -11,46 +11,46 @@ pbayesdecisionprob2bin(
   design = "controlled",
   GoRegions,
   NoGoRegions,
-  gamma1,
-  gamma2,
+  gamma_go,
+  gamma_nogo,
   pi_t1,
   pi_t2,
   rho_t,
   pi_c1 = NULL,
   pi_c2 = NULL,
   rho_c = NULL,
-  n1,
-  n2 = NULL,
-  a1_00,
-  a1_01,
-  a1_10,
-  a1_11,
-  a2_00,
-  a2_01,
-  a2_10,
-  a2_11,
-  m1 = NULL,
-  m2 = NULL,
-  theta.TV1 = NULL,
-  theta.MAV1 = NULL,
-  theta.TV2 = NULL,
-  theta.MAV2 = NULL,
-  theta.NULL1 = NULL,
-  theta.NULL2 = NULL,
+  n_t,
+  n_c = NULL,
+  a_t_00,
+  a_t_01,
+  a_t_10,
+  a_t_11,
+  a_c_00,
+  a_c_01,
+  a_c_10,
+  a_c_11,
+  m_t = NULL,
+  m_c = NULL,
+  theta_TV1 = NULL,
+  theta_MAV1 = NULL,
+  theta_TV2 = NULL,
+  theta_MAV2 = NULL,
+  theta_NULL1 = NULL,
+  theta_NULL2 = NULL,
   z00 = NULL,
   z01 = NULL,
   z10 = NULL,
   z11 = NULL,
-  xe1_00 = NULL,
-  xe1_01 = NULL,
-  xe1_10 = NULL,
-  xe1_11 = NULL,
-  xe2_00 = NULL,
-  xe2_01 = NULL,
-  xe2_10 = NULL,
-  xe2_11 = NULL,
-  ae1 = NULL,
-  ae2 = NULL,
+  xe_t_00 = NULL,
+  xe_t_01 = NULL,
+  xe_t_10 = NULL,
+  xe_t_11 = NULL,
+  xe_c_00 = NULL,
+  xe_c_01 = NULL,
+  xe_c_10 = NULL,
+  xe_c_11 = NULL,
+  ae_t = NULL,
+  ae_c = NULL,
   nMC = 10000L,
   method = "Exact",
   error_if_Miss = TRUE,
@@ -85,13 +85,13 @@ NoGo decision.  A common choice is \code{NoGoRegions = 9} (both
 endpoints below MAV) for posterior, or \code{NoGoRegions = 4} for
 predictive.  Must be disjoint from \code{GoRegions}.}
 
-\item{gamma1}{A numeric scalar in \code{(0, 1)} giving the minimum
+\item{gamma_go}{A numeric scalar in \code{(0, 1)} giving the minimum
 posterior/predictive probability required for a Go decision.}
 
-\item{gamma2}{A numeric scalar in \code{(0, 1)} giving the minimum
+\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the minimum
 posterior/predictive probability required for a NoGo decision.
-Unlike single-endpoint designs, \code{gamma2} may be greater than,
-equal to, or less than \code{gamma1}, because the Go and NoGo
+Unlike single-endpoint designs, \code{gamma_nogo} may be greater than,
+equal to, or less than \code{gamma_go}, because the Go and NoGo
 regions are structurally asymmetric (e.g., Go = R1 only vs
 NoGo = R9 only) and their calibrated thresholds are independent.}
 
@@ -121,67 +121,67 @@ Endpoint 2.  For \code{design = 'uncontrolled'}, see note for
 For \code{design = 'uncontrolled'}, not used in probability
 calculations.  Must have the same length as \code{pi_t1}.}
 
-\item{n1}{A positive integer giving the number of patients in group 1
-(treatment) in the proof-of-concept (PoC) trial.}
+\item{n_t}{A positive integer giving the number of patients in the
+treatment group (treatment) in the proof-of-concept (PoC) trial.}
 
-\item{n2}{A positive integer giving the number of patients in group 2
-(control) in the PoC trial.}
+\item{n_c}{A positive integer giving the number of patients in the
+control group (control) in the PoC trial.}
 
-\item{a1_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in group 1.}
+\item{a_t_00}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,0) response pattern in the treatment group.}
 
-\item{a1_01}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,1) response pattern in group 1.}
+\item{a_t_01}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,1) response pattern in the treatment group.}
 
-\item{a1_10}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,0) response pattern in group 1.}
+\item{a_t_10}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,0) response pattern in the treatment group.}
 
-\item{a1_11}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,1) response pattern in group 1.}
+\item{a_t_11}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,1) response pattern in the treatment group.}
 
-\item{a2_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in group 2.  For
-\code{design = 'uncontrolled'}, serves as a hyperparameter of
+\item{a_c_00}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,0) response pattern in the control group.
+For \code{design = 'uncontrolled'}, serves as a hyperparameter of
 the hypothetical control distribution.}
 
-\item{a2_01}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,1) response pattern in group 2.}
+\item{a_c_01}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,1) response pattern in the control group.}
 
-\item{a2_10}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,0) response pattern in group 2.}
+\item{a_c_10}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,0) response pattern in the control group.}
 
-\item{a2_11}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,1) response pattern in group 2.}
+\item{a_c_11}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (1,1) response pattern in the control group.}
 
-\item{m1}{A positive integer giving the future sample size for group 1.
-Required when \code{prob = 'predictive'}; otherwise set to
-\code{NULL}.}
+\item{m_t}{A positive integer giving the future sample size for the
+treatment group. Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{m2}{A positive integer giving the future sample size for group 2.
-Required when \code{prob = 'predictive'}; otherwise set to
-\code{NULL}.}
+\item{m_c}{A positive integer giving the future sample size for the
+control group. Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{theta.TV1}{A numeric scalar giving the TV threshold for Endpoint 1.
+\item{theta_TV1}{A numeric scalar giving the TV threshold for Endpoint 1.
 Required when \code{prob = 'posterior'}; otherwise set to
 \code{NULL}.}
 
-\item{theta.MAV1}{A numeric scalar giving the MAV threshold for Endpoint
+\item{theta_MAV1}{A numeric scalar giving the MAV threshold for Endpoint
 1.  Required when \code{prob = 'posterior'}; otherwise set to
 \code{NULL}.}
 
-\item{theta.TV2}{A numeric scalar giving the TV threshold for Endpoint 2.
+\item{theta_TV2}{A numeric scalar giving the TV threshold for Endpoint 2.
 Required when \code{prob = 'posterior'}; otherwise set to
 \code{NULL}.}
 
-\item{theta.MAV2}{A numeric scalar giving the MAV threshold for Endpoint
+\item{theta_MAV2}{A numeric scalar giving the MAV threshold for Endpoint
 2.  Required when \code{prob = 'posterior'}; otherwise set to
 \code{NULL}.}
 
-\item{theta.NULL1}{A numeric scalar giving the null hypothesis threshold
+\item{theta_NULL1}{A numeric scalar giving the null hypothesis threshold
 for Endpoint 1.  Required when \code{prob = 'predictive'};
 otherwise set to \code{NULL}.}
 
-\item{theta.NULL2}{A numeric scalar giving the null hypothesis threshold
+\item{theta_NULL2}{A numeric scalar giving the null hypothesis threshold
 for Endpoint 2.  Required when \code{prob = 'predictive'};
 otherwise set to \code{NULL}.}
 
@@ -201,33 +201,33 @@ otherwise set to \code{NULL}.}
 for pattern (1,1).  Required when \code{design = 'uncontrolled'};
 otherwise set to \code{NULL}.}
 
-\item{xe1_00}{A non-negative integer giving the external group 1 count
-for pattern (0,0).  Required when \code{design = 'external'} and
+\item{xe_t_00}{A non-negative integer giving the external treatment group
+count for pattern (0,0).  Required when \code{design = 'external'} and
 external treatment data are used; otherwise \code{NULL}.}
 
-\item{xe1_01}{A non-negative integer; see \code{xe1_00}.}
+\item{xe_t_01}{A non-negative integer; see \code{xe_t_00}.}
 
-\item{xe1_10}{A non-negative integer; see \code{xe1_00}.}
+\item{xe_t_10}{A non-negative integer; see \code{xe_t_00}.}
 
-\item{xe1_11}{A non-negative integer; see \code{xe1_00}.}
+\item{xe_t_11}{A non-negative integer; see \code{xe_t_00}.}
 
-\item{xe2_00}{A non-negative integer giving the external group 2 count
-for pattern (0,0).  Required when \code{design = 'external'} and
+\item{xe_c_00}{A non-negative integer giving the external control group
+count for pattern (0,0).  Required when \code{design = 'external'} and
 external control data are used; otherwise \code{NULL}.}
 
-\item{xe2_01}{A non-negative integer; see \code{xe2_00}.}
+\item{xe_c_01}{A non-negative integer; see \code{xe_c_00}.}
 
-\item{xe2_10}{A non-negative integer; see \code{xe2_00}.}
+\item{xe_c_10}{A non-negative integer; see \code{xe_c_00}.}
 
-\item{xe2_11}{A non-negative integer; see \code{xe2_00}.}
+\item{xe_c_11}{A non-negative integer; see \code{xe_c_00}.}
 
-\item{ae1}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for group 1.  Required when external treatment data are
-used; otherwise \code{NULL}.}
+\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the treatment group.  Required when external treatment
+data are used; otherwise \code{NULL}.}
 
-\item{ae2}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for group 2.  Required when external control data are
-used; otherwise \code{NULL}.}
+\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the control group.  Required when external control
+data are used; otherwise \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Dirichlet draws used to
 evaluate the decision probability for each count combination in
@@ -246,8 +246,8 @@ Go/NoGo probabilities, and weights the decisions by the observed
 pair frequencies.  This reuses the same validated probability logic
 as the Exact method, avoiding any duplication of computation.
 The \code{'MC'} method trades some Monte Carlo variance for
-substantially reduced computation time when \code{n1} and/or
-\code{n2} are large.}
+substantially reduced computation time when \code{n_t} and/or
+\code{n_c} are large.}
 
 \item{error_if_Miss}{A logical scalar; if \code{TRUE} (default), the
 function stops with an error if the Miss probability is positive,
@@ -277,8 +277,8 @@ A data frame with one row per scenario and columns:
 met.  Included when \code{error_if_Miss = FALSE} and
 \code{Gray_inc_Miss = FALSE}.}
 }
-The returned object has S3 class \code{pbayesdecisionprob2bin} with an associated
-\code{print} method.
+The returned object has S3 class \code{pbayesdecisionprob2bin} with
+an associated \code{print} method.
 }
 \description{
 Evaluates operating characteristics (Go, NoGo, Gray probabilities) for
@@ -339,25 +339,25 @@ pbayesdecisionprob2bin(
   design      = 'controlled',
   GoRegions   = 1L,
   NoGoRegions = 9L,
-  gamma1      = 0.27,
-  gamma2      = 0.36,
+  gamma_go    = 0.27,
+  gamma_nogo  = 0.36,
   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
   rho_t       = rep(0.0, 4),
   pi_c1       = rep(0.15, 4),
   pi_c2       = rep(0.20, 4),
   rho_c       = rep(0.0, 4),
-  n1 = 10, n2 = 10,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = NULL, m2 = NULL,
-  theta.TV1   = 0.15, theta.MAV1 = 0.10,
-  theta.TV2   = 0.15, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n_t = 10, n_c = 10,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  m_t = NULL, m_c = NULL,
+  theta_TV1   = 0.15, theta_MAV1 = 0.10,
+  theta_TV2   = 0.15, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
@@ -369,25 +369,25 @@ pbayesdecisionprob2bin(
   design      = 'controlled',
   GoRegions   = 1L,
   NoGoRegions = 9L,
-  gamma1      = 0.52,
-  gamma2      = 0.52,
+  gamma_go    = 0.52,
+  gamma_nogo  = 0.52,
   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
   rho_t       = rep(0.6, 4),
   pi_c1       = rep(0.15, 4),
   pi_c2       = rep(0.20, 4),
   rho_c       = rep(0.6, 4),
-  n1 = 10, n2 = 10,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = NULL, m2 = NULL,
-  theta.TV1   = 0.15, theta.MAV1 = 0.10,
-  theta.TV2   = 0.15, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n_t = 10, n_c = 10,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  m_t = NULL, m_c = NULL,
+  theta_TV1   = 0.15, theta_MAV1 = 0.10,
+  theta_TV2   = 0.15, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
@@ -399,145 +399,145 @@ pbayesdecisionprob2bin(
   design      = 'uncontrolled',
   GoRegions   = 1L,
   NoGoRegions = 9L,
-  gamma1      = 0.27,
-  gamma2      = 0.36,
+  gamma_go    = 0.27,
+  gamma_nogo  = 0.36,
   pi_t1       = c(0.15, 0.30, 0.40),
   pi_t2       = c(0.20, 0.35, 0.45),
   rho_t       = rep(0.0, 3),
   pi_c1       = NULL,
   pi_c2       = NULL,
   rho_c       = NULL,
-  n1 = 10, n2 = NULL,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = NULL, m2 = NULL,
-  theta.TV1   = 0.15, theta.MAV1 = 0.10,
-  theta.TV2   = 0.15, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n_t = 10, n_c = NULL,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  m_t = NULL, m_c = NULL,
+  theta_TV1   = 0.15, theta_MAV1 = 0.10,
+  theta_TV2   = 0.15, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
   z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 4: Posterior probability, external control design
-# External control data incorporated via power prior (ae2 = 0.5).
+# External control data incorporated via power prior (ae_c = 0.5).
 pbayesdecisionprob2bin(
   prob        = 'posterior',
   design      = 'external',
   GoRegions   = 1L,
   NoGoRegions = 9L,
-  gamma1      = 0.27,
-  gamma2      = 0.36,
+  gamma_go    = 0.27,
+  gamma_nogo  = 0.36,
   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
   rho_t       = rep(0.0, 4),
   pi_c1       = rep(0.15, 4),
   pi_c2       = rep(0.20, 4),
   rho_c       = rep(0.0, 4),
-  n1 = 10, n2 = 10,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = NULL, m2 = NULL,
-  theta.TV1   = 0.15, theta.MAV1 = 0.10,
-  theta.TV2   = 0.15, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n_t = 10, n_c = 10,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  m_t = NULL, m_c = NULL,
+  theta_TV1   = 0.15, theta_MAV1 = 0.10,
+  theta_TV2   = 0.15, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = 4L,  xe2_01 = 2L,  xe2_10 = 3L,  xe2_11 = 1L,
-  ae1 = NULL, ae2 = 0.5,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = 4L,  xe_c_01 = 2L,  xe_c_10 = 3L,  xe_c_11 = 1L,
+  ae_t = NULL, ae_c = 0.5,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 5: Predictive probability, controlled design
-# Future trial has m1 = m2 = 30 patients per arm.
+# Future trial has m_t = m_c = 30 patients per arm.
 pbayesdecisionprob2bin(
   prob        = 'predictive',
   design      = 'controlled',
   GoRegions   = 1L,
   NoGoRegions = 4L,
-  gamma1      = 0.60,
-  gamma2      = 0.80,
+  gamma_go    = 0.60,
+  gamma_nogo  = 0.80,
   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
   rho_t       = rep(0.0, 4),
   pi_c1       = rep(0.15, 4),
   pi_c2       = rep(0.20, 4),
   rho_c       = rep(0.0, 4),
-  n1 = 10, n2 = 10,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = 30L, m2 = 30L,
-  theta.TV1   = NULL, theta.MAV1 = NULL,
-  theta.TV2   = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+  n_t = 10, n_c = 10,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  m_t = 30L, m_c = 30L,
+  theta_TV1   = NULL, theta_MAV1 = NULL,
+  theta_TV2   = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.10, theta_NULL2 = 0.10,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 6: Predictive probability, uncontrolled design
-# Hypothetical control specified via pseudo-counts; future trial m1 = m2 = 30.
+# Hypothetical control specified via pseudo-counts; future trial m_t = m_c = 30.
 pbayesdecisionprob2bin(
   prob        = 'predictive',
   design      = 'uncontrolled',
   GoRegions   = 1L,
   NoGoRegions = 4L,
-  gamma1      = 0.60,
-  gamma2      = 0.80,
+  gamma_go    = 0.60,
+  gamma_nogo  = 0.80,
   pi_t1       = c(0.15, 0.30, 0.40),
   pi_t2       = c(0.20, 0.35, 0.45),
   rho_t       = rep(0.0, 3),
   pi_c1       = rep(0.15, 3),
   pi_c2       = rep(0.20, 3),
   rho_c       = rep(0.0, 3),
-  n1 = 10, n2 = 10,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = 30L, m2 = 30L,
-  theta.TV1   = NULL, theta.MAV1 = NULL,
-  theta.TV2   = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+  n_t = 10, n_c = 10,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  m_t = 30L, m_c = 30L,
+  theta_TV1   = NULL, theta_MAV1 = NULL,
+  theta_TV2   = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.10, theta_NULL2 = 0.10,
   z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 7: Predictive probability, external treatment design
-# External treatment data incorporated via power prior (ae1 = 0.5).
+# External treatment data incorporated via power prior (ae_t = 0.5).
 pbayesdecisionprob2bin(
   prob        = 'predictive',
   design      = 'external',
   GoRegions   = 1L,
   NoGoRegions = 4L,
-  gamma1      = 0.60,
-  gamma2      = 0.80,
+  gamma_go    = 0.60,
+  gamma_nogo  = 0.80,
   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
   rho_t       = rep(0.0, 4),
   pi_c1       = rep(0.15, 4),
   pi_c2       = rep(0.20, 4),
   rho_c       = rep(0.0, 4),
-  n1 = 10, n2 = 10,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = 30L, m2 = 30L,
-  theta.TV1   = NULL, theta.MAV1 = NULL,
-  theta.TV2   = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+  n_t = 10, n_c = 10,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  m_t = 30L, m_c = 30L,
+  theta_TV1   = NULL, theta_MAV1 = NULL,
+  theta_TV2   = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.10, theta_NULL2 = 0.10,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = 3L, xe1_01 = 2L, xe1_10 = 3L, xe1_11 = 2L,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = 0.5, ae2 = NULL,
+  xe_t_00 = 3L, xe_t_01 = 2L, xe_t_10 = 3L, xe_t_11 = 2L,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = 0.5, ae_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
@@ -549,25 +549,25 @@ pbayesdecisionprob2bin(
   design      = 'controlled',
   GoRegions   = 1L,
   NoGoRegions = 9L,
-  gamma1      = 0.27,
-  gamma2      = 0.36,
+  gamma_go    = 0.27,
+  gamma_nogo  = 0.36,
   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
   rho_t       = rep(0.0, 4),
   pi_c1       = rep(0.15, 4),
   pi_c2       = rep(0.20, 4),
   rho_c       = rep(0.0, 4),
-  n1 = 10, n2 = 10,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  m1 = NULL, m2 = NULL,
-  theta.TV1   = 0.15, theta.MAV1 = 0.10,
-  theta.TV2   = 0.15, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  n_t = 10, n_c = 10,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  m_t = NULL, m_c = NULL,
+  theta_TV1   = 0.15, theta_MAV1 = 0.10,
+  theta_TV2   = 0.15, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 1000, nsim = 1000,
   method = 'MC',
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE

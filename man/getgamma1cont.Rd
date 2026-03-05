@@ -10,41 +10,41 @@ getgamma1cont(
   design = "controlled",
   prior = "vague",
   CalcMethod = "NI",
-  theta.TV = NULL,
-  theta.MAV = NULL,
-  theta.NULL = NULL,
+  theta_TV = NULL,
+  theta_MAV = NULL,
+  theta_NULL = NULL,
   nMC = NULL,
-  mu1,
-  mu2 = NULL,
-  sigma1,
-  sigma2 = NULL,
+  mu_t,
+  mu_c = NULL,
+  sigma_t,
+  sigma_c = NULL,
   target_go,
   target_nogo,
   crit_go = "<",
   crit_nogo = "<",
   sel_go = "smallest",
   sel_nogo = "largest",
-  n1,
-  n2 = NULL,
-  m1 = NULL,
-  m2 = NULL,
-  kappa01 = NULL,
-  kappa02 = NULL,
-  nu01 = NULL,
-  nu02 = NULL,
-  mu01 = NULL,
-  mu02 = NULL,
-  sigma01 = NULL,
-  sigma02 = NULL,
+  n_t,
+  n_c = NULL,
+  m_t = NULL,
+  m_c = NULL,
+  kappa0_t = NULL,
+  kappa0_c = NULL,
+  nu0_t = NULL,
+  nu0_c = NULL,
+  mu0_t = NULL,
+  mu0_c = NULL,
+  sigma0_t = NULL,
+  sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL,
-  ne2 = NULL,
-  alpha01 = NULL,
-  alpha02 = NULL,
-  bar.ye1 = NULL,
-  bar.ye2 = NULL,
-  se1 = NULL,
-  se2 = NULL,
+  ne_t = NULL,
+  ne_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
+  bar_ye_t = NULL,
+  bar_ye_c = NULL,
+  se_t = NULL,
+  se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01),
   seed
 )
@@ -67,15 +67,15 @@ Must be \code{'vague'} or \code{'N-Inv-Chisq'}.}
 for \code{\link{pbayespostpred1cont}}.
 Must be \code{'NI'}, \code{'MC'}, or \code{'MM'}.}
 
-\item{theta.TV}{A numeric scalar giving the Target Value (TV) threshold
+\item{theta_TV}{A numeric scalar giving the Target Value (TV) threshold
 for the treatment effect.  Required when \code{prob = 'posterior'};
 set to \code{NULL} otherwise.}
 
-\item{theta.MAV}{A numeric scalar giving the Minimum Acceptable Value (MAV)
-threshold.  Must satisfy \code{theta.TV > theta.MAV}.  Required when
+\item{theta_MAV}{A numeric scalar giving the Minimum Acceptable Value (MAV)
+threshold.  Must satisfy \code{theta_TV > theta_MAV}.  Required when
 \code{prob = 'posterior'}; set to \code{NULL} otherwise.}
 
-\item{theta.NULL}{A numeric scalar giving the null hypothesis threshold
+\item{theta_NULL}{A numeric scalar giving the null hypothesis threshold
 for the predictive probability.  Required when
 \code{prob = 'predictive'}; set to \code{NULL} otherwise.}
 
@@ -83,18 +83,19 @@ for the predictive probability.  Required when
 passed to \code{\link{pbayespostpred1cont}}.  Required when
 \code{CalcMethod = 'MC'}; set to \code{NULL} otherwise.}
 
-\item{mu1}{A numeric scalar giving the true mean for group 1 (treatment)
+\item{mu_t}{A numeric scalar giving the true mean for the treatment group
 for the scenario used to search for both \eqn{\gamma_1} and
 \eqn{\gamma_2}.}
 
-\item{mu2}{A numeric scalar giving the true mean for group 2 (control).
+\item{mu_c}{A numeric scalar giving the true mean for the control group.
 Set to \code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{sigma1}{A positive numeric scalar giving the true standard deviation
-for group 1.}
+\item{sigma_t}{A positive numeric scalar giving the true standard deviation
+for the treatment group.}
 
-\item{sigma2}{A positive numeric scalar giving the true standard deviation
-for group 2.  Set to \code{NULL} for \code{design = 'uncontrolled'}.}
+\item{sigma_c}{A positive numeric scalar giving the true standard deviation
+for the control group.  Set to \code{NULL}
+for \code{design = 'uncontrolled'}.}
 
 \item{target_go}{A numeric scalar in \code{(0, 1)} giving the target value
 for \eqn{\Pr(\mathrm{Go})} used to determine the optimal
@@ -126,52 +127,52 @@ Default is \code{"smallest"}.}
 among those satisfying the \code{crit_nogo} criterion.
 Default is \code{"largest"}.}
 
-\item{n1}{A positive integer giving the number of patients in group 1
-(treatment) in the PoC trial.}
+\item{n_t}{A positive integer giving the number of patients in the
+treatment group in the PoC trial.}
 
-\item{n2}{A positive integer giving the number of patients in group 2
-(control) in the PoC trial.  Required for \code{design = 'controlled'}
-or \code{'external'}; set to \code{NULL} for
-\code{design = 'uncontrolled'}.}
+\item{n_c}{A positive integer giving the number of patients in the
+control group in the PoC trial.  Required for
+\code{design = 'controlled'} or \code{'external'}; set to
+\code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{m1}{A positive integer giving the future sample size for group 1.
-Required when \code{prob = 'predictive'}; set to \code{NULL}
-otherwise.}
+\item{m_t}{A positive integer giving the future sample size for the
+treatment group. Required when \code{prob = 'predictive'};
+set to \code{NULL} otherwise.}
 
-\item{m2}{A positive integer giving the future sample size for group 2.
-Required when \code{prob = 'predictive'}; set to \code{NULL}
-otherwise.}
+\item{m_c}{A positive integer giving the future sample size for the
+control group. Required when \code{prob = 'predictive'};
+set to \code{NULL} otherwise.}
 
-\item{kappa01}{A positive numeric scalar giving the prior precision
-parameter for group 1 under the N-Inv-Chi-squared prior.  Required
-when \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
+\item{kappa0_t}{A positive numeric scalar giving the prior precision
+parameter for the treatment group under the N-Inv-Chi-squared prior.
+Required when \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
 
-\item{kappa02}{A positive numeric scalar giving the prior precision
-parameter for group 2.  Required when \code{prior = 'N-Inv-Chisq'}
+\item{kappa0_c}{A positive numeric scalar giving the prior precision
+parameter for the control group.  Required when \code{prior = 'N-Inv-Chisq'}
 and \code{design != 'uncontrolled'}; set to \code{NULL} otherwise.}
 
-\item{nu01}{A positive numeric scalar giving the prior degrees of freedom
-for group 1 under the N-Inv-Chi-squared prior.  Required when
+\item{nu0_t}{A positive numeric scalar giving the prior degrees of freedom
+for the treatment group under the N-Inv-Chi-squared prior.  Required when
 \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
 
-\item{nu02}{A positive numeric scalar giving the prior degrees of freedom
-for group 2.  Required when \code{prior = 'N-Inv-Chisq'} and
+\item{nu0_c}{A positive numeric scalar giving the prior degrees of freedom
+for the control group.  Required when \code{prior = 'N-Inv-Chisq'} and
 \code{design != 'uncontrolled'}; set to \code{NULL} otherwise.}
 
-\item{mu01}{A numeric scalar giving the prior mean for group 1 under the
+\item{mu0_t}{A numeric scalar giving the prior mean for the treatment group under the
 N-Inv-Chi-squared prior.  Required when \code{prior = 'N-Inv-Chisq'};
 set to \code{NULL} otherwise.}
 
-\item{mu02}{A numeric scalar giving the prior mean for group 2 (or the
+\item{mu0_c}{A numeric scalar giving the prior mean for the control group (or the
 fixed hypothetical control mean for uncontrolled design).  Required
 when \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
 
-\item{sigma01}{A positive numeric scalar giving the prior scale parameter
-for group 1 under the N-Inv-Chi-squared prior.  Required when
+\item{sigma0_t}{A positive numeric scalar giving the prior scale parameter
+for the treatment group under the N-Inv-Chi-squared prior.  Required when
 \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
 
-\item{sigma02}{A positive numeric scalar giving the prior scale parameter
-for group 2.  Required when \code{prior = 'N-Inv-Chisq'} and
+\item{sigma0_c}{A positive numeric scalar giving the prior scale parameter
+for the control group.  Required when \code{prior = 'N-Inv-Chisq'} and
 \code{design != 'uncontrolled'}; set to \code{NULL} otherwise.}
 
 \item{r}{A positive numeric scalar giving the variance ratio
@@ -179,40 +180,40 @@ for group 2.  Required when \code{prior = 'N-Inv-Chisq'} and
 Required when \code{design = 'uncontrolled'}; set to \code{NULL}
 otherwise.}
 
-\item{ne1}{A positive integer giving the number of patients in group 1
+\item{ne_t}{A positive integer giving the number of patients in the treatment group
 of the external data set.  Required when \code{design = 'external'}
 and external treatment data are available; otherwise set to
 \code{NULL}.}
 
-\item{ne2}{A positive integer giving the number of patients in group 2
+\item{ne_c}{A positive integer giving the number of patients in the control group
 of the external data set.  Required when \code{design = 'external'}
 and external control data are available; otherwise set to
 \code{NULL}.}
 
-\item{alpha01}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for external group 1 data.  Required when
-\code{design = 'external'} and \code{ne1} is non-NULL; set to
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for external treatment group data.  Required when
+\code{design = 'external'} and \code{ne_t} is non-NULL; set to
 \code{NULL} otherwise.}
 
-\item{alpha02}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for external group 2 data.  Required when
-\code{design = 'external'} and \code{ne2} is non-NULL; set to
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for external control group data.  Required when
+\code{design = 'external'} and \code{ne_c} is non-NULL; set to
 \code{NULL} otherwise.}
 
-\item{bar.ye1}{A numeric scalar giving the sample mean of the external
-group 1 data.  Required when \code{ne1} is non-NULL; set to
+\item{bar_ye_t}{A numeric scalar giving the sample mean of the external
+treatment group data.  Required when \code{ne_t} is non-NULL; set to
 \code{NULL} otherwise.}
 
-\item{bar.ye2}{A numeric scalar giving the sample mean of the external
-group 2 data.  Required when \code{ne2} is non-NULL; set to
+\item{bar_ye_c}{A numeric scalar giving the sample mean of the external
+control group data.  Required when \code{ne_c} is non-NULL; set to
 \code{NULL} otherwise.}
 
-\item{se1}{A positive numeric scalar giving the sample standard deviation
-of the external group 1 data.  Required when \code{ne1} is non-NULL;
+\item{se_t}{A positive numeric scalar giving the sample standard deviation
+of the external treatment group data.  Required when \code{ne_t} is non-NULL;
 set to \code{NULL} otherwise.}
 
-\item{se2}{A positive numeric scalar giving the sample standard deviation
-of the external group 2 data.  Required when \code{ne2} is non-NULL;
+\item{se_c}{A positive numeric scalar giving the sample standard deviation
+of the external control group data.  Required when \code{ne_c} is non-NULL;
 set to \code{NULL} otherwise.}
 
 \item{gamma_grid}{A numeric vector of candidate threshold values in
@@ -224,16 +225,16 @@ set to \code{NULL} otherwise.}
 \value{
 A list of class \code{getgamma1cont} with the following elements:
 \describe{
-\item{gamma1}{Optimal Go threshold selected from \code{gamma_grid}
+\item{gamma_go}{Optimal Go threshold selected from \code{gamma_grid}
 according to \code{crit_go} and \code{sel_go}.
 \code{NA} if no value satisfies the criterion.}
-\item{gamma2}{Optimal NoGo threshold selected from \code{gamma_grid}
+\item{gamma_nogo}{Optimal NoGo threshold selected from \code{gamma_grid}
 according to \code{crit_nogo} and \code{sel_nogo}.
 \code{NA} if no value satisfies the criterion.}
-\item{PrGo_at_gamma1}{Pr(Go) evaluated at the optimal \eqn{\gamma_1}.
-\code{NA} if \code{gamma1} is \code{NA}.}
-\item{PrNoGo_at_gamma2}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_2}.
-\code{NA} if \code{gamma2} is \code{NA}.}
+\item{PrGo_at_gamma_go}{Pr(Go) evaluated at the optimal \eqn{\gamma_1}.
+\code{NA} if \code{gamma_go} is \code{NA}.}
+\item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_2}.
+\code{NA} if \code{gamma_nogo} is \code{NA}.}
 \item{gamma_grid}{The candidate grid used for the search.}
 \item{PrGo_grid}{Numeric vector of Pr(Go) values over \code{gamma_grid}.}
 \item{PrNoGo_grid}{Numeric vector of Pr(NoGo) values over
@@ -254,13 +255,13 @@ The function uses a two-stage simulate-then-sweep strategy:
 \enumerate{
 \item \strong{Simulation}: \code{nsim} datasets are generated from the
 normal model with the specified true parameters.  Standardised
-residuals are generated once and shifted by \code{mu1} (and
-\code{mu2} for non-uncontrolled designs).  For each simulated
+residuals are generated once and shifted by \code{mu_t} (and
+\code{mu_c} for non-uncontrolled designs).  For each simulated
 dataset, \code{\link{pbayespostpred1cont}} is called twice to
 obtain the Go probability \eqn{g_{\mathrm{Go},i}} (at
-\code{theta.TV} or \code{theta.NULL}, \code{lower.tail = FALSE})
+\code{theta_TV} or \code{theta_NULL}, \code{lower.tail = FALSE})
 and the NoGo probability \eqn{g_{\mathrm{NoGo},i}} (at
-\code{theta.MAV} or \code{theta.NULL}, \code{lower.tail = TRUE}).
+\code{theta_MAV} or \code{theta_NULL}, \code{lower.tail = TRUE}).
 Both calls are fully vectorised over the \code{nsim} replicates.
 This step is independent of \eqn{\gamma}.
 \item \strong{Gamma sweep}: For each candidate \eqn{\gamma} in
@@ -278,21 +279,21 @@ The optimal \eqn{\gamma_1} is the \code{sel_go} (\code{"smallest"} or
 }
 \examples{
 # Example 1: Controlled design, vague prior, posterior probability
-# gamma1: smallest gamma such that Pr(Go) < 0.05
-# gamma2: largest  gamma such that Pr(NoGo) < 0.20
+# gamma_go: smallest gamma such that Pr(Go) < 0.05
+# gamma_nogo: largest  gamma such that Pr(NoGo) < 0.20
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'controlled',
   prior = 'vague', CalcMethod = 'MM',
-  theta.TV = 1.5, theta.MAV = 0.0, theta.NULL = NULL, nMC = NULL,
-  mu1 = 1.0, mu2 = 1.0, sigma1 = 2.0, sigma2 = 2.0,
+  theta_TV = 1.5, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
+  mu_t = 1.0, mu_c = 1.0, sigma_t = 2.0, sigma_c = 2.0,
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 15L, n2 = 15L, m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  n_t = 15L, n_c = 15L, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 1L
 )
 
@@ -300,16 +301,16 @@ getgamma1cont(
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'uncontrolled',
   prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-  theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL, nMC = NULL,
-  mu1 = 1.5, mu2 = NULL, sigma1 = 1.5, sigma2 = NULL,
+  theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
+  mu_t = 1.5, mu_c = NULL, sigma_t = 1.5, sigma_c = NULL,
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 20L, n2 = NULL, m1 = NULL, m2 = NULL,
-  kappa01 = 2, kappa02 = NULL, nu01 = 5, nu02 = NULL,
-  mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = NULL,
-  r = 1.0, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  n_t = 20L, n_c = NULL, m_t = NULL, m_c = NULL,
+  kappa0_t = 2, kappa0_c = NULL, nu0_t = 5, nu0_c = NULL,
+  mu0_t = 3.0, mu0_c = 1.5, sigma0_t = 1.5, sigma0_c = NULL,
+  r = 1.0, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 2L
 )
 
@@ -317,16 +318,16 @@ getgamma1cont(
 getgamma1cont(
   nsim = 1000L, prob = 'predictive', design = 'controlled',
   prior = 'vague', CalcMethod = 'MM',
-  theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1.0, nMC = NULL,
-  mu1 = 1.0, mu2 = 1.0, sigma1 = 2.0, sigma2 = 2.0,
+  theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.0, nMC = NULL,
+  mu_t = 1.0, mu_c = 1.0, sigma_t = 2.0, sigma_c = 2.0,
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 15L, n2 = 15L, m1 = 50L, m2 = 50L,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  n_t = 15L, n_c = 15L, m_t = 50L, m_c = 50L,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 3L
 )
 
@@ -335,16 +336,16 @@ getgamma1cont(
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'external',
   prior = 'vague', CalcMethod = 'MM',
-  theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL, nMC = NULL,
-  mu1 = 1.0, mu2 = 1.0, sigma1 = 1.5, sigma2 = 1.5,
+  theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
+  mu_t = 1.0, mu_c = 1.0, sigma_t = 1.5, sigma_c = 1.5,
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 12L, n2 = 12L, m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  r = NULL, ne1 = NULL, ne2 = 20L, alpha01 = NULL, alpha02 = 0.5,
-  bar.ye1 = NULL, bar.ye2 = 0.0, se1 = NULL, se2 = 1.5,
+  n_t = 12L, n_c = 12L, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  r = NULL, ne_t = NULL, ne_c = 20L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = 0.0, se_t = NULL, se_c = 1.5,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 4L
 )
 }

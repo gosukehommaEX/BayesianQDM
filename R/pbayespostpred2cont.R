@@ -71,10 +71,10 @@
 #'        external treatment data.
 #' @param alpha0e_c Numeric scalar in \code{(0, 1]}. Power prior weight for
 #'        external control data.
-#' @param ybar_e_t Length-2 numeric vector. External treatment sample mean.
-#' @param ybar_e_c Length-2 numeric vector. External control sample mean.
-#' @param Se_t A 2x2 numeric matrix. External treatment sum-of-squares matrix.
-#' @param Se_c A 2x2 numeric matrix. External control sum-of-squares matrix.
+#' @param bar_ye_t Length-2 numeric vector. External treatment sample mean.
+#' @param bar_ye_c Length-2 numeric vector. External control sample mean.
+#' @param se_t A 2x2 numeric matrix. External treatment sum-of-squares matrix.
+#' @param se_c A 2x2 numeric matrix. External control sum-of-squares matrix.
 #' @param nMC Positive integer or \code{NULL}. Number of Monte Carlo draws.
 #'        Default \code{10000L}. Required when \code{method = 'MC'}.  May be
 #'        set to \code{NULL} when \code{method = 'MM'} and \eqn{\nu_k > 4}
@@ -195,7 +195,7 @@
 #'   kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 1000L
 #' )
 #'
@@ -216,7 +216,7 @@
 #'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(1.0, 0.5), Lambda0_c = L0,
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 1000L
 #' )
 #'
@@ -237,7 +237,7 @@
 #'   kappa0_c = NULL, nu0_c = NULL, mu0_c = c(1.0, 0.5), Lambda0_c = NULL,
 #'   r = 1.0,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 1000L
 #' )
 #'
@@ -245,7 +245,7 @@
 #' S_t  <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
 #' S_c  <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 #' L0  <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
-#' Se_c <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
+#' se_c <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
 #' pbayespostpred2cont(
 #'   prob = 'posterior', design = 'external', prior = 'N-Inv-Wishart',
 #'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
@@ -259,7 +259,7 @@
 #'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(1.0, 0.5), Lambda0_c = L0,
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
-#'   ybar_e_t = NULL, ybar_e_c = c(1.5, 0.8), Se_t = NULL, Se_c = Se_c,
+#'   bar_ye_t = NULL, bar_ye_c = c(1.5, 0.8), se_t = NULL, se_c = se_c,
 #'   nMC = 1000L
 #' )
 #'
@@ -279,7 +279,7 @@
 #'   kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 1000L
 #' )
 #'
@@ -300,7 +300,7 @@
 #'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(1.0, 0.5), Lambda0_c = L0,
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 1000L, method = 'MM'
 #' )
 #'
@@ -330,7 +330,7 @@
 #'   kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   nMC = 1000L
 #' )
 #'
@@ -354,8 +354,8 @@ pbayespostpred2cont <- function(prob,
                                 r           = NULL,
                                 ne_t         = NULL, ne_c         = NULL,
                                 alpha0e_t    = NULL, alpha0e_c    = NULL,
-                                ybar_e_t     = NULL, ybar_e_c     = NULL,
-                                Se_t         = NULL, Se_c         = NULL,
+                                bar_ye_t     = NULL, bar_ye_c     = NULL,
+                                se_t         = NULL, se_c         = NULL,
                                 nMC         = 10000L,
                                 method      = 'MC') {
 
@@ -481,9 +481,9 @@ pbayespostpred2cont <- function(prob,
 
   if (design == 'external') {
     has_ext_t <- !is.null(ne_t) && !is.null(alpha0e_t) &&
-      !is.null(ybar_e_t) && !is.null(Se_t)
+      !is.null(bar_ye_t) && !is.null(se_t)
     has_ext_c <- !is.null(ne_c) && !is.null(alpha0e_c) &&
-      !is.null(ybar_e_c) && !is.null(Se_c)
+      !is.null(bar_ye_c) && !is.null(se_c)
     if (!has_ext_t && !has_ext_c)
       stop(paste0("For design = 'external', at least one complete set of ",
                   "external data must be provided"))
@@ -573,16 +573,16 @@ pbayespostpred2cont <- function(prob,
     if (!is.null(ne_t)) {
       kappa_e_t  <- alpha0e_t * ne_t + kappa0_t
       nu_e_t     <- alpha0e_t * ne_t + nu0_t
-      mu_e_t     <- (alpha0e_t * ne_t * ybar_e_t + kappa0_t * mu0_t) / kappa_e_t
-      Lambda_e_t <- alpha0e_t * Se_t + Lambda0_t +
-        (kappa0_t * alpha0e_t * ne_t / kappa_e_t) * tcrossprod(mu0_t - ybar_e_t)
+      mu_e_t     <- (alpha0e_t * ne_t * bar_ye_t + kappa0_t * mu0_t) / kappa_e_t
+      Lambda_e_t <- alpha0e_t * se_t + Lambda0_t +
+        (kappa0_t * alpha0e_t * ne_t / kappa_e_t) * tcrossprod(mu0_t - bar_ye_t)
     }
     if (!is.null(ne_c)) {
       kappa_e_c  <- alpha0e_c * ne_c + kappa0_c
       nu_e_c     <- alpha0e_c * ne_c + nu0_c
-      mu_e_c     <- (alpha0e_c * ne_c * ybar_e_c + kappa0_c * mu0_c) / kappa_e_c
-      Lambda_e_c <- alpha0e_c * Se_c + Lambda0_c +
-        (kappa0_c * alpha0e_c * ne_c / kappa_e_c) * tcrossprod(mu0_c - ybar_e_c)
+      mu_e_c     <- (alpha0e_c * ne_c * bar_ye_c + kappa0_c * mu0_c) / kappa_e_c
+      Lambda_e_c <- alpha0e_c * se_c + Lambda0_c +
+        (kappa0_c * alpha0e_c * ne_c / kappa_e_c) * tcrossprod(mu0_c - bar_ye_c)
     }
   }
 

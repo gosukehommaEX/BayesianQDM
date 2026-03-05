@@ -10,37 +10,37 @@ pbayesdecisionprob1cont(
   design,
   prior,
   CalcMethod,
-  theta.TV = NULL,
-  theta.MAV = NULL,
-  theta.NULL = NULL,
+  theta_TV = NULL,
+  theta_MAV = NULL,
+  theta_NULL = NULL,
   nMC = NULL,
-  gamma1,
-  gamma2,
-  n1,
-  n2 = NULL,
-  m1 = NULL,
-  m2 = NULL,
-  kappa01 = NULL,
-  kappa02 = NULL,
-  nu01 = NULL,
-  nu02 = NULL,
-  mu01 = NULL,
-  mu02 = NULL,
-  sigma01 = NULL,
-  sigma02 = NULL,
-  mu1,
-  mu2 = NULL,
-  sigma1,
-  sigma2 = NULL,
+  gamma_go,
+  gamma_nogo,
+  n_t,
+  n_c = NULL,
+  m_t = NULL,
+  m_c = NULL,
+  kappa0_t = NULL,
+  kappa0_c = NULL,
+  nu0_t = NULL,
+  nu0_c = NULL,
+  mu0_t = NULL,
+  mu0_c = NULL,
+  sigma0_t = NULL,
+  sigma0_c = NULL,
+  mu_t,
+  mu_c = NULL,
+  sigma_t,
+  sigma_c = NULL,
   r = NULL,
-  ne1 = NULL,
-  ne2 = NULL,
-  alpha01 = NULL,
-  alpha02 = NULL,
-  bar.ye1 = NULL,
-  bar.ye2 = NULL,
-  se1 = NULL,
-  se2 = NULL,
+  ne_t = NULL,
+  ne_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
+  bar_ye_t = NULL,
+  bar_ye_c = NULL,
+  se_t = NULL,
+  se_c = NULL,
   error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE,
   seed
@@ -62,15 +62,15 @@ pbayesdecisionprob1cont(
 (Numerical Integration), \code{'MC'} (Monte Carlo), or \code{'MM'}
 (Moment Matching).}
 
-\item{theta.TV}{A numeric value representing the target value (TV) threshold for the
+\item{theta_TV}{A numeric value representing the target value (TV) threshold for the
 Go decision. Required if \code{prob = 'posterior'}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{theta.MAV}{A numeric value representing the minimum acceptable value (MAV) threshold
+\item{theta_MAV}{A numeric value representing the minimum acceptable value (MAV) threshold
 for the NoGo decision. Required if \code{prob = 'posterior'}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{theta.NULL}{A numeric value representing the null hypothesis threshold.
+\item{theta_NULL}{A numeric value representing the null hypothesis threshold.
 Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
@@ -78,72 +78,72 @@ Default is \code{NULL}.}
 posterior probabilities. Required if \code{CalcMethod = 'MC'};
 otherwise \code{NULL}.}
 
-\item{gamma1}{A numeric value in (0, 1) representing the Go decision threshold.}
+\item{gamma_go}{A numeric value in (0, 1) representing the Go decision threshold.}
 
-\item{gamma2}{A numeric value in (0, 1) representing the NoGo decision threshold.
-Must be strictly less than \code{gamma1}.}
+\item{gamma_nogo}{A numeric value in (0, 1) representing the NoGo decision threshold.
+Must be strictly less than \code{gamma_go}.}
 
-\item{n1}{A positive integer representing the sample size for group 1 (treatment).}
+\item{n_t}{A positive integer representing the sample size for the treatment group.}
 
-\item{n2}{A positive integer representing the sample size for group 2 (control).
+\item{n_c}{A positive integer representing the sample size for the control group.
 Required if \code{design = 'controlled'} or \code{design = 'external'}.
 Set to \code{NULL} if \code{design = 'uncontrolled'}.}
 
-\item{m1}{A positive integer representing the future sample size for group 1.
+\item{m_t}{A positive integer representing the future sample size for the
+treatment group. Required if \code{prob = 'predictive'};
+otherwise \code{NULL}. Default is \code{NULL}.}
+
+\item{m_c}{A positive integer representing the future sample size for the control group.
 Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{m2}{A positive integer representing the future sample size for group 2.
-Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
+\item{kappa0_t}{A positive numeric value representing the prior hyperparameter kappa for
+the treatment group. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{kappa01}{A positive numeric value representing the prior hyperparameter kappa for
-group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
-Default is \code{NULL}.}
-
-\item{kappa02}{A positive numeric value representing the prior hyperparameter kappa for
-group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+\item{kappa0_c}{A positive numeric value representing the prior hyperparameter kappa for
+the control group. Required if \code{prior = 'N-Inv-Chisq'} and
 \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{nu01}{A positive numeric value representing the prior hyperparameter nu for
-group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+\item{nu0_t}{A positive numeric value representing the prior hyperparameter nu for
+the treatment group. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{nu02}{A positive numeric value representing the prior hyperparameter nu for
-group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+\item{nu0_c}{A positive numeric value representing the prior hyperparameter nu for
+the control group. Required if \code{prior = 'N-Inv-Chisq'} and
 \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{mu01}{A numeric value representing the prior mean for group 1. Required if
+\item{mu0_t}{A numeric value representing the prior mean for the treatment group. Required if
 \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}. Default is \code{NULL}.}
 
-\item{mu02}{A numeric value representing the prior mean for group 2. For
+\item{mu0_c}{A numeric value representing the prior mean for the control group. For
 \code{design = 'uncontrolled'}, this represents the hypothetical control mean.
 Required if \code{prior = 'N-Inv-Chisq'} and
 \code{design \%in\% c('controlled', 'external')}, or if
 \code{design = 'uncontrolled'}; otherwise \code{NULL}. Default is \code{NULL}.}
 
-\item{sigma01}{A positive numeric value representing the prior standard deviation for
-group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+\item{sigma0_t}{A positive numeric value representing the prior standard deviation for
+the treatment group. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{sigma02}{A positive numeric value representing the prior standard deviation for
-group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+\item{sigma0_c}{A positive numeric value representing the prior standard deviation for
+the control group. Required if \code{prior = 'N-Inv-Chisq'} and
 \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
 Default is \code{NULL}.}
 
-\item{mu1}{A numeric value representing the true mean for group 1 in the simulation.}
+\item{mu_t}{A numeric value representing the true mean for the treatment group in the simulation.}
 
-\item{mu2}{A numeric value representing the true mean for group 2 in the simulation.
+\item{mu_c}{A numeric value representing the true mean for the control group in the simulation.
 For uncontrolled design, this represents the historical control mean.
 Set to \code{NULL} if \code{design = 'uncontrolled'}.}
 
-\item{sigma1}{A positive numeric value representing the true standard deviation
-for group 1 in the simulation.}
+\item{sigma_t}{A positive numeric value representing the true standard deviation
+for the treatment group in the simulation.}
 
-\item{sigma2}{A positive numeric value representing the true standard deviation
-for group 2 in the simulation. For uncontrolled design, this represents
+\item{sigma_c}{A positive numeric value representing the true standard deviation
+for the control group in the simulation. For uncontrolled design, this represents
 the historical control standard deviation.
 Set to \code{NULL} if \code{design = 'uncontrolled'}.}
 
@@ -152,33 +152,33 @@ the scale of hypothetical control to be different from treatment. Specifically,
 \code{sd.control = sqrt(r) * sd.treatment}. Required if \code{design = 'uncontrolled'}.
 When \code{r = 1}, the control and treatment have the same variance scale.}
 
-\item{ne1}{A positive integer representing the number of patients in group 1 for
+\item{ne_t}{A positive integer representing the number of patients in the treatment group for
 the external data. Required if \code{design = 'external'} and external
 treatment data are available.}
 
-\item{ne2}{A positive integer representing the number of patients in group 2 for
+\item{ne_c}{A positive integer representing the number of patients in the control group for
 the external data. Required if \code{design = 'external'} and external
 control data are available.}
 
-\item{alpha01}{A numeric value in (0, 1] representing the power prior scale parameter
-for group 1. Controls the degree of borrowing from external treatment data:
-0 = no borrowing, 1 = full borrowing. Required if \code{ne1} is specified.}
+\item{alpha0e_t}{A numeric value in (0, 1] representing the power prior scale parameter
+for the treatment group. Controls the degree of borrowing from external treatment data:
+0 = no borrowing, 1 = full borrowing. Required if \code{ne_t} is specified.}
 
-\item{alpha02}{A numeric value in (0, 1] representing the power prior scale parameter
-for group 2. Controls the degree of borrowing from external control data:
-0 = no borrowing, 1 = full borrowing. Required if \code{ne2} is specified.}
+\item{alpha0e_c}{A numeric value in (0, 1] representing the power prior scale parameter
+for the control group. Controls the degree of borrowing from external control data:
+0 = no borrowing, 1 = full borrowing. Required if \code{ne_c} is specified.}
 
-\item{bar.ye1}{A numeric value representing the sample mean of the external data
-for group 1. Required if \code{ne1} is specified.}
+\item{bar_ye_t}{A numeric value representing the sample mean of the external data
+for the treatment group. Required if \code{ne_t} is specified.}
 
-\item{bar.ye2}{A numeric value representing the sample mean of the external data
-for group 2. Required if \code{ne2} is specified.}
+\item{bar_ye_c}{A numeric value representing the sample mean of the external data
+for the control group. Required if \code{ne_c} is specified.}
 
-\item{se1}{A positive numeric value representing the sample standard deviation
-of the external data for group 1. Required if \code{ne1} is specified.}
+\item{se_t}{A positive numeric value representing the sample standard deviation
+of the external data for the treatment group. Required if \code{ne_t} is specified.}
 
-\item{se2}{A positive numeric value representing the sample standard deviation
-of the external data for group 2. Required if \code{ne2} is specified.}
+\item{se_c}{A positive numeric value representing the sample standard deviation
+of the external data for the control group. Required if \code{ne_c} is specified.}
 
 \item{error_if_Miss}{A logical value; if \code{TRUE} (default), the function stops
 with an error when positive Miss probability is obtained, indicating poorly
@@ -196,7 +196,7 @@ is only active when \code{error_if_Miss = FALSE}.}
 A data frame containing the true means for both groups and the Go, NoGo, and
 Gray probabilities. When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE},
 Miss probability is also included as a separate column. For uncontrolled design,
-only mu1 is included (not mu2).
+only mu_t is included (not mu_c).
 }
 \description{
 Evaluates Go/NoGo/Gray decision probabilities for a single continuous endpoint
@@ -227,9 +227,9 @@ For external designs, power priors are incorporated using exact conjugate repres
 
 \strong{Decision rules}:
 \itemize{
-\item \strong{Go}: P(treatment effect > threshold) >= gamma1
-\item \strong{NoGo}: P(treatment effect > threshold) <= gamma2
-\item \strong{Gray}: gamma2 < P(treatment effect > threshold) < gamma1
+\item \strong{Go}: P(treatment effect > threshold) >= gamma_go
+\item \strong{NoGo}: P(treatment effect > threshold) <= gamma_nogo
+\item \strong{Gray}: gamma_nogo < P(treatment effect > threshold) < gamma_go
 \item \strong{Miss}: Both Go and NoGo criteria are met simultaneously (indicates
 poorly chosen thresholds)
 }
@@ -256,28 +256,28 @@ The function can be used for:
 # (default: error_if_Miss = TRUE, Gray_inc_Miss = FALSE)
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-  theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
-  nMC = NULL, gamma1 = 0.7, gamma2 = 0.2,
-  n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
-  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta_TV = 1.5, theta_MAV = -0.5, theta_NULL = NULL,
+  nMC = NULL, gamma_go = 0.7, gamma_nogo = 0.2,
+  n_t = 15, n_c = 15, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t = 3, mu_c = 1, sigma_t = 1.2, sigma_c = 1.1,
+  r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 )
 
 # Example 2: Uncontrolled design with informative prior
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-  theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
-  nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
-  n1 = 20, n2 = NULL, m1 = NULL, m2 = NULL,
-  kappa01 = 2, kappa02 = NULL, nu01 = 5, nu02 = NULL,
-  mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = NULL,
-  mu1 = 3.5, mu2 = NULL, sigma1 = 1.3, sigma2 = NULL,
-  r = 1, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL,
+  nMC = NULL, gamma_go = 0.8, gamma_nogo = 0.2,
+  n_t = 20, n_c = NULL, m_t = NULL, m_c = NULL,
+  kappa0_t = 2, kappa0_c = NULL, nu0_t = 5, nu0_c = NULL,
+  mu0_t = 3.0, mu0_c = 1.5, sigma0_t = 1.5, sigma0_c = NULL,
+  mu_t = 3.5, mu_c = NULL, sigma_t = 1.3, sigma_c = NULL,
+  r = 1, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 )
 
@@ -285,14 +285,14 @@ pbayesdecisionprob1cont(
 \dontrun{
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'MM',
-  theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
-  nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
-  n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
-  r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5,
-  bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1,
+  theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL,
+  nMC = NULL, gamma_go = 0.8, gamma_nogo = 0.2,
+  n_t = 12, n_c = 12, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t = 2, mu_c = 0, sigma_t = 1, sigma_c = 1,
+  r = NULL, ne_t = NULL, ne_c = 20, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = 0, se_t = NULL, se_c = 1,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 )
 }
@@ -300,14 +300,14 @@ pbayesdecisionprob1cont(
 # Example 4: Controlled design with predictive probability
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-  theta.TV = NULL, theta.MAV = NULL, theta.NULL = 2.0,
-  nMC = NULL, gamma1 = 0.75, gamma2 = 0.35,
-  n1 = 15, n2 = 15, m1 = 50, m2 = 50,
-  kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
-  mu01 = 3.5, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.5,
-  mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
-  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta_TV = NULL, theta_MAV = NULL, theta_NULL = 2.0,
+  nMC = NULL, gamma_go = 0.75, gamma_nogo = 0.35,
+  n_t = 15, n_c = 15, m_t = 50, m_c = 50,
+  kappa0_t = 3, kappa0_c = 3, nu0_t = 4, nu0_c = 4,
+  mu0_t = 3.5, mu0_c = 1.5, sigma0_t = 1.5, sigma0_c = 1.5,
+  mu_t = 3.2, mu_c = 1.3, sigma_t = 1.4, sigma_c = 1.2,
+  r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5
 )
 
@@ -315,14 +315,14 @@ pbayesdecisionprob1cont(
 \dontrun{
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
-  theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1.5,
-  nMC = 5000, gamma1 = 0.7, gamma2 = 0.4,
-  n1 = 12, n2 = 12, m1 = 30, m2 = 30,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
-  r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
-  bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0,
+  theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.5,
+  nMC = 5000, gamma_go = 0.7, gamma_nogo = 0.4,
+  n_t = 12, n_c = 12, m_t = 30, m_c = 30,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t = 2.5, mu_c = 1.0, sigma_t = 1.3, sigma_c = 1.1,
+  r = NULL, ne_t = 15, ne_c = 18, alpha0e_t = 0.6, alpha0e_c = 0.7,
+  bar_ye_t = 2.3, bar_ye_c = 0.9, se_t = 1.2, se_c = 1.0,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 )
 }
@@ -330,28 +330,28 @@ pbayesdecisionprob1cont(
 # Example 6: Report Miss probability separately when thresholds may be suboptimal
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-  theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
-  nMC = NULL, gamma1 = 0.65, gamma2 = 0.55,
-  n1 = 10, n2 = 10, m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
-  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta_TV = 1.0, theta_MAV = 0.8, theta_NULL = NULL,
+  nMC = NULL, gamma_go = 0.65, gamma_nogo = 0.55,
+  n_t = 10, n_c = 10, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t = 2.5, mu_c = 1.5, sigma_t = 1.0, sigma_c = 1.0,
+  r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 7
 )
 
 # Example 7: Include Miss probability in Gray when error_if_Miss = FALSE
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-  theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
-  nMC = NULL, gamma1 = 0.65, gamma2 = 0.55,
-  n1 = 10, n2 = 10, m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
-  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta_TV = 1.0, theta_MAV = 0.8, theta_NULL = NULL,
+  nMC = NULL, gamma_go = 0.65, gamma_nogo = 0.55,
+  n_t = 10, n_c = 10, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t = 2.5, mu_c = 1.5, sigma_t = 1.0, sigma_c = 1.0,
+  r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 8
 )
 

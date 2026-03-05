@@ -88,10 +88,10 @@
 #' @param ne_c A positive integer representing the number of patients in the control group for
 #'        the external data. Required if \code{design = 'external'} and external
 #'        control data are available.
-#' @param alpha0_t A numeric value in (0, 1] representing the power prior scale parameter
+#' @param alpha0e_t A numeric value in (0, 1] representing the power prior scale parameter
 #'        for the treatment group. Controls the degree of borrowing from external treatment data:
 #'        0 = no borrowing, 1 = full borrowing. Required if \code{ne_t} is specified.
-#' @param alpha0_c A numeric value in (0, 1] representing the power prior scale parameter
+#' @param alpha0e_c A numeric value in (0, 1] representing the power prior scale parameter
 #'        for the control group. Controls the degree of borrowing from external control data:
 #'        0 = no borrowing, 1 = full borrowing. Required if \code{ne_c} is specified.
 #' @param bar_ye_t A numeric value representing the sample mean of the external data
@@ -175,7 +175,7 @@
 #'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
 #'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
 #'   mu_t = 3, mu_c = 1, sigma_t = 1.2, sigma_c = 1.1,
-#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 #' )
@@ -189,7 +189,7 @@
 #'   kappa0_t = 2, kappa0_c = NULL, nu0_t = 5, nu0_c = NULL,
 #'   mu0_t = 3.0, mu0_c = 1.5, sigma0_t = 1.5, sigma0_c = NULL,
 #'   mu_t = 3.5, mu_c = NULL, sigma_t = 1.3, sigma_c = NULL,
-#'   r = 1, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   r = 1, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 #' )
@@ -204,7 +204,7 @@
 #'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
 #'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
 #'   mu_t = 2, mu_c = 0, sigma_t = 1, sigma_c = 1,
-#'   r = NULL, ne_t = NULL, ne_c = 20, alpha0_t = NULL, alpha0_c = 0.5,
+#'   r = NULL, ne_t = NULL, ne_c = 20, alpha0e_t = NULL, alpha0e_c = 0.5,
 #'   bar_ye_t = NULL, bar_ye_c = 0, se_t = NULL, se_c = 1,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 #' )
@@ -219,7 +219,7 @@
 #'   kappa0_t = 3, kappa0_c = 3, nu0_t = 4, nu0_c = 4,
 #'   mu0_t = 3.5, mu0_c = 1.5, sigma0_t = 1.5, sigma0_c = 1.5,
 #'   mu_t = 3.2, mu_c = 1.3, sigma_t = 1.4, sigma_c = 1.2,
-#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5
 #' )
@@ -234,7 +234,7 @@
 #'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
 #'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
 #'   mu_t = 2.5, mu_c = 1.0, sigma_t = 1.3, sigma_c = 1.1,
-#'   r = NULL, ne_t = 15, ne_c = 18, alpha0_t = 0.6, alpha0_c = 0.7,
+#'   r = NULL, ne_t = 15, ne_c = 18, alpha0e_t = 0.6, alpha0e_c = 0.7,
 #'   bar_ye_t = 2.3, bar_ye_c = 0.9, se_t = 1.2, se_c = 1.0,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 #' )
@@ -249,7 +249,7 @@
 #'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
 #'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
 #'   mu_t = 2.5, mu_c = 1.5, sigma_t = 1.0, sigma_c = 1.0,
-#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 7
 #' )
@@ -263,7 +263,7 @@
 #'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
 #'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
 #'   mu_t = 2.5, mu_c = 1.5, sigma_t = 1.0, sigma_c = 1.0,
-#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 8
 #' )
@@ -280,7 +280,7 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
                                     sigma0_t = NULL, sigma0_c = NULL,
                                     mu_t, mu_c = NULL, sigma_t, sigma_c = NULL,
                                     r = NULL, ne_t = NULL, ne_c = NULL,
-                                    alpha0_t = NULL, alpha0_c = NULL,
+                                    alpha0e_t = NULL, alpha0e_c = NULL,
                                     bar_ye_t = NULL, bar_ye_c = NULL,
                                     se_t = NULL, se_c = NULL,
                                     error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed) {
@@ -453,11 +453,11 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
   }
 
   if (design == "external") {
-    has_ext1 <- !is.null(ne_t) && !is.null(alpha0_t) && !is.null(bar_ye_t) && !is.null(se_t)
-    has_ext2 <- !is.null(ne_c) && !is.null(alpha0_c) && !is.null(bar_ye_c) && !is.null(se_c)
+    has_ext1 <- !is.null(ne_t) && !is.null(alpha0e_t) && !is.null(bar_ye_t) && !is.null(se_t)
+    has_ext2 <- !is.null(ne_c) && !is.null(alpha0e_c) && !is.null(bar_ye_c) && !is.null(se_c)
     if (!has_ext1 && !has_ext2) {
       stop(paste0("For design = 'external', at least one complete set of external data ",
-                  "(ne_t + alpha0_t + bar_ye_t + se_t, or ne_c + alpha0_c + bar_ye_c + se_c) ",
+                  "(ne_t + alpha0e_t + bar_ye_t + se_t, or ne_c + alpha0e_c + bar_ye_c + se_c) ",
                   "must be provided"))
     }
     if (!is.null(ne_t)) {
@@ -465,9 +465,9 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
           ne_t != floor(ne_t) || ne_t < 1L) {
         stop("'ne_t' must be a single positive integer")
       }
-      if (!is.numeric(alpha0_t) || length(alpha0_t) != 1L || is.na(alpha0_t) ||
-          alpha0_t <= 0 || alpha0_t > 1) {
-        stop("'alpha0_t' must be a single numeric value in (0, 1]")
+      if (!is.numeric(alpha0e_t) || length(alpha0e_t) != 1L || is.na(alpha0e_t) ||
+          alpha0e_t <= 0 || alpha0e_t > 1) {
+        stop("'alpha0e_t' must be a single numeric value in (0, 1]")
       }
       if (!is.numeric(bar_ye_t) || length(bar_ye_t) != 1L || is.na(bar_ye_t)) {
         stop("'bar_ye_t' must be a single numeric value")
@@ -481,9 +481,9 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
           ne_c != floor(ne_c) || ne_c < 1L) {
         stop("'ne_c' must be a single positive integer")
       }
-      if (!is.numeric(alpha0_c) || length(alpha0_c) != 1L || is.na(alpha0_c) ||
-          alpha0_c <= 0 || alpha0_c > 1) {
-        stop("'alpha0_c' must be a single numeric value in (0, 1]")
+      if (!is.numeric(alpha0e_c) || length(alpha0e_c) != 1L || is.na(alpha0e_c) ||
+          alpha0e_c <= 0 || alpha0e_c > 1) {
+        stop("'alpha0e_c' must be a single numeric value in (0, 1]")
       }
       if (!is.numeric(bar_ye_c) || length(bar_ye_c) != 1L || is.na(bar_ye_c)) {
         stop("'bar_ye_c' must be a single numeric value")
@@ -553,7 +553,7 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
     kappa0_t = kappa0_t, kappa0_c = kappa0_c, nu0_t = nu0_t, nu0_c = nu0_c,
     mu0_t = mu0_t, mu0_c = mu0_c, sigma0_t = sigma0_t, sigma0_c = sigma0_c,
     bar_y_t = bar_y_t_all, bar_y_c = bar_y_c_all, s_t = s_t_all, s_c = s_c_all,
-    r = r, ne_t = ne_t, ne_c = ne_c, alpha0_t = alpha0_t, alpha0_c = alpha0_c,
+    r = r, ne_t = ne_t, ne_c = ne_c, alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
     bar_ye_t = bar_ye_t, bar_ye_c = bar_ye_c, se_t = se_t, se_c = se_c,
     lower.tail = FALSE
   )
@@ -564,7 +564,7 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
     kappa0_t = kappa0_t, kappa0_c = kappa0_c, nu0_t = nu0_t, nu0_c = nu0_c,
     mu0_t = mu0_t, mu0_c = mu0_c, sigma0_t = sigma0_t, sigma0_c = sigma0_c,
     bar_y_t = bar_y_t_all, bar_y_c = bar_y_c_all, s_t = s_t_all, s_c = s_c_all,
-    r = r, ne_t = ne_t, ne_c = ne_c, alpha0_t = alpha0_t, alpha0_c = alpha0_c,
+    r = r, ne_t = ne_t, ne_c = ne_c, alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
     bar_ye_t = bar_ye_t, bar_ye_c = bar_ye_c, se_t = se_t, se_c = se_c,
     lower.tail = TRUE
   )
@@ -655,8 +655,8 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
   attr(results, 'sigma0_c')       <- sigma0_c
   attr(results, 'ne_t')           <- ne_t
   attr(results, 'ne_c')           <- ne_c
-  attr(results, 'alpha0_t')       <- alpha0_t
-  attr(results, 'alpha0_c')       <- alpha0_c
+  attr(results, 'alpha0e_t')       <- alpha0e_t
+  attr(results, 'alpha0e_c')       <- alpha0e_c
   attr(results, 'bar_ye_t')       <- bar_ye_t
   attr(results, 'bar_ye_c')       <- bar_ye_c
   attr(results, 'se_t')           <- se_t
@@ -714,8 +714,8 @@ print.pbayesdecisionprob1cont <- function(x, digits = 4, ...) {
   sigma0_c       <- attr(x, 'sigma0_c')
   ne_t           <- attr(x, 'ne_t')
   ne_c           <- attr(x, 'ne_c')
-  alpha0_t       <- attr(x, 'alpha0_t')
-  alpha0_c       <- attr(x, 'alpha0_c')
+  alpha0e_t       <- attr(x, 'alpha0e_t')
+  alpha0e_c       <- attr(x, 'alpha0e_c')
   bar_ye_t       <- attr(x, 'bar_ye_t')
   bar_ye_c       <- attr(x, 'bar_ye_c')
   se_t           <- attr(x, 'se_t')
@@ -761,10 +761,10 @@ print.pbayesdecisionprob1cont <- function(x, digits = 4, ...) {
                 fmt(kappa0_c), fmt(nu0_c), fmt(mu0_c), fmt(sigma0_c)))
   }
   if (design == 'external') {
-    cat(sprintf('  External (traetment): ne_t = %s, alpha0_t = %s, bar_ye_t = %s, se_t = %s\n',
-                fmt(ne_t), fmt(alpha0_t), fmt(bar_ye_t), fmt(se_t)))
-    cat(sprintf('  External (control)  : ne_c = %s, alpha0_c = %s, bar_ye_c = %s, se_c = %s\n',
-                fmt(ne_c), fmt(alpha0_c), fmt(bar_ye_c), fmt(se_c)))
+    cat(sprintf('  External (traetment): ne_t = %s, alpha0e_t = %s, bar_ye_t = %s, se_t = %s\n',
+                fmt(ne_t), fmt(alpha0e_t), fmt(bar_ye_t), fmt(se_t)))
+    cat(sprintf('  External (control)  : ne_c = %s, alpha0e_c = %s, bar_ye_c = %s, se_c = %s\n',
+                fmt(ne_c), fmt(alpha0e_c), fmt(bar_ye_c), fmt(se_c)))
   }
   cat(sprintf('  error_if_Miss       : %s\n', fmt(error_if_Miss)))
   cat(sprintf('  Gray_inc_Miss       : %s\n', fmt(Gray_inc_Miss)))

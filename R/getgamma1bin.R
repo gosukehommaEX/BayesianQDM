@@ -4,7 +4,7 @@
 #' \eqn{\gamma_2} for a single binary endpoint by searching over a fine grid of
 #' candidate values.  The search follows a two-stage approach: posterior or
 #' predictive probabilities are precomputed once for every possible outcome pair
-#' \eqn{(y_1, y_2)}, and the operating characteristics under each candidate
+#' \eqn{(y_t, y_c)}, and the operating characteristics under each candidate
 #' \eqn{\gamma} are obtained by a fast weighted summation without additional
 #' probability evaluations.
 #'
@@ -13,20 +13,20 @@
 #' @param design A character string specifying the trial design.
 #'        Must be \code{'controlled'}, \code{'uncontrolled'}, or
 #'        \code{'external'}.
-#' @param theta.TV A numeric scalar in \code{(-1, 1)} giving the Target Value
+#' @param theta_TV A numeric scalar in \code{(-1, 1)} giving the Target Value
 #'        (TV) threshold for the treatment effect.  Required when
 #'        \code{prob = 'posterior'}; set to \code{NULL} otherwise.
-#' @param theta.MAV A numeric scalar in \code{(-1, 1)} giving the Minimum
+#' @param theta_MAV A numeric scalar in \code{(-1, 1)} giving the Minimum
 #'        Acceptable Value (MAV) threshold.  Must satisfy
-#'        \code{theta.TV > theta.MAV}.  Required when
+#'        \code{theta_TV > theta_MAV}.  Required when
 #'        \code{prob = 'posterior'}; set to \code{NULL} otherwise.
-#' @param theta.NULL A numeric scalar in \code{(-1, 1)} giving the null
+#' @param theta_NULL A numeric scalar in \code{(-1, 1)} giving the null
 #'        hypothesis threshold used for the predictive probability.  Required
 #'        when \code{prob = 'predictive'}; set to \code{NULL} otherwise.
-#' @param pi1 A numeric scalar in \code{(0, 1)} giving the true treatment
+#' @param pi_t A numeric scalar in \code{(0, 1)} giving the true treatment
 #'        response rate for the scenario used to search for both
 #'        \eqn{\gamma_1} and \eqn{\gamma_2}.
-#' @param pi2 A numeric scalar in \code{(0, 1)} giving the true control
+#' @param pi_c A numeric scalar in \code{(0, 1)} giving the true control
 #'        response rate.  Set to \code{NULL} for
 #'        \code{design = 'uncontrolled'}.
 #' @param target_go A numeric scalar in \code{(0, 1)} giving the target value
@@ -53,61 +53,61 @@
 #'        \code{"smallest"} or \code{"largest"} value in \code{gamma_grid}
 #'        among those satisfying the \code{crit_nogo} criterion.
 #'        Default is \code{"largest"}.
-#' @param n1 A positive integer giving the number of patients in group 1
-#'        (treatment) in the PoC trial.
-#' @param n2 A positive integer giving the number of patients in group 2
-#'        (control) in the PoC trial.
-#' @param a1 A positive numeric scalar giving the first shape parameter of the
-#'        Beta prior for group 1.
-#' @param a2 A positive numeric scalar giving the first shape parameter of the
-#'        Beta prior for group 2.
-#' @param b1 A positive numeric scalar giving the second shape parameter of the
-#'        Beta prior for group 1.
-#' @param b2 A positive numeric scalar giving the second shape parameter of the
-#'        Beta prior for group 2.
+#' @param n_t A positive integer giving the number of patients in the
+#'        treatment group (treatment) in the PoC trial.
+#' @param n_c A positive integer giving the number of patients in the
+#'        control group (control) in the PoC trial.
+#' @param a_t A positive numeric scalar giving the first shape parameter of the
+#'        Beta prior for the treatment group.
+#' @param a_c A positive numeric scalar giving the first shape parameter of the
+#'        Beta prior for the control group.
+#' @param b_t A positive numeric scalar giving the second shape parameter of the
+#'        Beta prior for the treatment group.
+#' @param b_c A positive numeric scalar giving the second shape parameter of the
+#'        Beta prior for the control group.
 #' @param z A non-negative integer giving the hypothetical number of responders
 #'        in the control group.  Required when \code{design = 'uncontrolled'};
 #'        set to \code{NULL} otherwise.
-#' @param m1 A positive integer giving the future sample size for group 1.
-#'        Required when \code{prob = 'predictive'}; set to \code{NULL}
+#' @param m_t A positive integer giving the future sample size for the treatment
+#'        group. Required when \code{prob = 'predictive'}; set to \code{NULL}
 #'        otherwise.
-#' @param m2 A positive integer giving the future sample size for group 2.
-#'        Required when \code{prob = 'predictive'}; set to \code{NULL}
+#' @param m_c A positive integer giving the future sample size for the control
+#'        group. Required when \code{prob = 'predictive'}; set to \code{NULL}
 #'        otherwise.
-#' @param ne1 A positive integer giving the number of patients in group 1 of
-#'        the external data set.  Required when \code{design = 'external'};
+#' @param ne_t A positive integer giving the number of patients in the treatment
+#'        group of the external data set.  Required when \code{design = 'external'};
 #'        set to \code{NULL} otherwise.
-#' @param ne2 A positive integer giving the number of patients in group 2 of
-#'        the external data set.  Required when \code{design = 'external'};
+#' @param ne_c A positive integer giving the number of patients in the control
+#'        group of the external data set.  Required when \code{design = 'external'};
 #'        set to \code{NULL} otherwise.
-#' @param ye1 A non-negative integer giving the number of responders in group 1
-#'        of the external data set.  Required when \code{design = 'external'};
+#' @param ye_t A non-negative integer giving the number of responders in the
+#'        treatment group of the external data set.  Required when
+#'        \code{design = 'external'}; set to \code{NULL} otherwise.
+#' @param ye_c A non-negative integer giving the number of responders in the
+#'        control group of the external data set.  Required when
+#'        \code{design = 'external'}; set to \code{NULL} otherwise.
+#' @param ae_t A numeric scalar in \code{(0, 1]} giving the power prior weight
+#'        for the treatment group.  Required when \code{design = 'external'};
 #'        set to \code{NULL} otherwise.
-#' @param ye2 A non-negative integer giving the number of responders in group 2
-#'        of the external data set.  Required when \code{design = 'external'};
+#' @param ae_c A numeric scalar in \code{(0, 1]} giving the power prior weight
+#'        for the control group.  Required when \code{design = 'external'};
 #'        set to \code{NULL} otherwise.
-#' @param ae1 A numeric scalar in \code{(0, 1]} giving the power prior weight
-#'        for group 1.  Required when \code{design = 'external'}; set to
-#'        \code{NULL} otherwise.
-#' @param ae2 A numeric scalar in \code{(0, 1]} giving the power prior weight
-#'        for group 2.  Required when \code{design = 'external'}; set to
-#'        \code{NULL} otherwise.
 #' @param gamma_grid A numeric vector of candidate threshold values in
 #'        \code{(0, 1)} to search over.  Defaults to
 #'        \code{seq(0.01, 0.99, by = 0.01)}.
 #'
 #' @return A list of class \code{getgamma1bin} with the following elements:
 #' \describe{
-#'   \item{gamma1}{Optimal Go threshold selected from \code{gamma_grid}
+#'   \item{gamma_go}{Optimal Go threshold selected from \code{gamma_grid}
 #'         according to \code{crit_go} and \code{sel_go}.
 #'         \code{NA} if no value satisfies the criterion.}
-#'   \item{gamma2}{Optimal NoGo threshold selected from \code{gamma_grid}
+#'   \item{gamma_nogo}{Optimal NoGo threshold selected from \code{gamma_grid}
 #'         according to \code{crit_nogo} and \code{sel_nogo}.
 #'         \code{NA} if no value satisfies the criterion.}
-#'   \item{PrGo_at_gamma1}{Pr(Go) evaluated at the optimal \eqn{\gamma_1}.
-#'         \code{NA} if \code{gamma1} is \code{NA}.}
-#'   \item{PrNoGo_at_gamma2}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_2}.
-#'         \code{NA} if \code{gamma2} is \code{NA}.}
+#'   \item{PrGo_at_gamma_go}{Pr(Go) evaluated at the optimal \eqn{\gamma_1}.
+#'         \code{NA} if \code{gamma_go} is \code{NA}.}
+#'   \item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_2}.
+#'         \code{NA} if \code{gamma_nogo} is \code{NA}.}
 #'   \item{gamma_grid}{The candidate grid used for the search.}
 #'   \item{PrGo_grid}{Numeric vector of Pr(Go) values over \code{gamma_grid}.}
 #'   \item{PrNoGo_grid}{Numeric vector of Pr(NoGo) values over
@@ -118,20 +118,20 @@
 #' The function uses a two-stage precompute-then-sweep strategy for efficiency:
 #' \enumerate{
 #'   \item \strong{Precomputation}: All possible outcome pairs
-#'         \eqn{(y_1, y_2)} are enumerated, and the posterior or predictive
-#'         probability \eqn{g(y_1, y_2)} is computed once for every pair
+#'         \eqn{(y_t, y_c)} are enumerated, and the posterior or predictive
+#'         probability \eqn{g(y_t, y_c)} is computed once for every pair
 #'         using \code{\link{pbayespostpred1bin}}.  This step is independent
 #'         of \eqn{\gamma}.
 #'   \item \strong{Gamma sweep}: For each candidate \eqn{\gamma} in
 #'         \code{gamma_grid}, Pr(Go) and Pr(NoGo) are computed as weighted
 #'         sums of the precomputed indicators, where the weights are binomial
-#'         probabilities under \code{pi1} and \code{pi2}.  No further
+#'         probabilities under \code{pi_t} and \code{pi_c}.  No further
 #'         probability evaluations are required at this stage.
 #' }
 #' For \code{prob = 'posterior'}, two precomputation vectors are used: one
-#' evaluated at \code{theta.TV} (Go criterion, \code{lower.tail = FALSE}) and
-#' one at \code{theta.MAV} (NoGo criterion, \code{lower.tail = TRUE}).  For
-#' \code{prob = 'predictive'}, both criteria use \code{theta.NULL} with the
+#' evaluated at \code{theta_TV} (Go criterion, \code{lower.tail = FALSE}) and
+#' one at \code{theta_MAV} (NoGo criterion, \code{lower.tail = TRUE}).  For
+#' \code{prob = 'predictive'}, both criteria use \code{theta_NULL} with the
 #' respective tail direction.
 #'
 #' The optimal \eqn{\gamma_1} is the \code{sel_go} (\code{"smallest"} or
@@ -143,77 +143,77 @@
 #'
 #' @examples
 #' # Example 1: Controlled design, posterior probability
-#' # gamma1: smallest gamma such that Pr(Go) < 0.05
-#' # gamma2: largest  gamma such that Pr(NoGo) < 0.20
+#' # gamma_go: smallest gamma such that Pr(Go) < 0.05
+#' # gamma_nogo: largest  gamma such that Pr(NoGo) < 0.20
 #' getgamma1bin(
 #'   prob = 'posterior', design = 'controlled',
-#'   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
-#'   pi1 = 0.15, pi2 = 0.15,
+#'   theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
+#'   pi_t = 0.15, pi_c = 0.15,
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n1 = 12L, n2 = 12L,
-#'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-#'   z = NULL, m1 = NULL, m2 = NULL,
-#'   ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+#'   n_t = 12L, n_c = 12L,
+#'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+#'   z = NULL, m_t = NULL, m_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
 #' )
 #'
 #' # Example 2: Uncontrolled design, posterior probability
 #' getgamma1bin(
 #'   prob = 'posterior', design = 'uncontrolled',
-#'   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
-#'   pi1 = 0.15, pi2 = NULL,
+#'   theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
+#'   pi_t = 0.15, pi_c = NULL,
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n1 = 12L, n2 = 12L,
-#'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-#'   z = 3L, m1 = NULL, m2 = NULL,
-#'   ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+#'   n_t = 12L, n_c = 12L,
+#'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+#'   z = 3L, m_t = NULL, m_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
 #' )
 #'
 #' # Example 3: Controlled design, predictive probability
 #' getgamma1bin(
 #'   prob = 'predictive', design = 'controlled',
-#'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 0.10,
-#'   pi1 = 0.15, pi2 = 0.15,
+#'   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0.10,
+#'   pi_t = 0.15, pi_c = 0.15,
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n1 = 12L, n2 = 12L,
-#'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-#'   z = NULL, m1 = 30L, m2 = 30L,
-#'   ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+#'   n_t = 12L, n_c = 12L,
+#'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+#'   z = NULL, m_t = 30L, m_c = 30L,
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
 #' )
 #'
 #' # Example 4: External design, posterior probability
 #' getgamma1bin(
 #'   prob = 'posterior', design = 'external',
-#'   theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
-#'   pi1 = 0.15, pi2 = 0.15,
+#'   theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
+#'   pi_t = 0.15, pi_c = 0.15,
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n1 = 12L, n2 = 12L,
-#'   a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-#'   z = NULL, m1 = NULL, m2 = NULL,
-#'   ne1 = 15L, ne2 = 15L, ye1 = 6L, ye2 = 4L, ae1 = 0.5, ae2 = 0.5
+#'   n_t = 12L, n_c = 12L,
+#'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+#'   z = NULL, m_t = NULL, m_c = NULL,
+#'   ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, ae_t = 0.5, ae_c = 0.5
 #' )
 #'
 #' @importFrom stats dbinom
 #' @export
 getgamma1bin <- function(prob = 'posterior', design = 'controlled',
-                         theta.TV = NULL, theta.MAV = NULL, theta.NULL = NULL,
-                         pi1, pi2 = NULL,
+                         theta_TV = NULL, theta_MAV = NULL, theta_NULL = NULL,
+                         pi_t, pi_c = NULL,
                          target_go, target_nogo,
                          crit_go  = '<',        crit_nogo  = '<',
                          sel_go   = 'smallest', sel_nogo   = 'largest',
-                         n1, n2,
-                         a1, a2, b1, b2,
-                         z = NULL, m1 = NULL, m2 = NULL,
-                         ne1 = NULL, ne2 = NULL,
-                         ye1 = NULL, ye2 = NULL,
-                         ae1 = NULL, ae2 = NULL,
+                         n_t, n_c,
+                         a_t, a_c, b_t, b_c,
+                         z = NULL, m_t = NULL, m_c = NULL,
+                         ne_t = NULL, ne_c = NULL,
+                         ye_t = NULL, ye_c = NULL,
+                         ae_t = NULL, ae_c = NULL,
                          gamma_grid = seq(0.01, 0.99, by = 0.01)) {
 
   # ---------------------------------------------------------------------------
@@ -230,32 +230,32 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
   }
 
   if (prob == 'posterior') {
-    if (is.null(theta.TV) || is.null(theta.MAV)) {
-      stop("'theta.TV' and 'theta.MAV' must be non-NULL when prob = 'posterior'")
+    if (is.null(theta_TV) || is.null(theta_MAV)) {
+      stop("'theta_TV' and 'theta_MAV' must be non-NULL when prob = 'posterior'")
     }
-    if (!is.numeric(theta.TV) || length(theta.TV) != 1L || is.na(theta.TV) ||
-        theta.TV <= -1 || theta.TV >= 1) {
-      stop("'theta.TV' must be a single numeric value in (-1, 1)")
+    if (!is.numeric(theta_TV) || length(theta_TV) != 1L || is.na(theta_TV) ||
+        theta_TV <= -1 || theta_TV >= 1) {
+      stop("'theta_TV' must be a single numeric value in (-1, 1)")
     }
-    if (!is.numeric(theta.MAV) || length(theta.MAV) != 1L || is.na(theta.MAV) ||
-        theta.MAV <= -1 || theta.MAV >= 1) {
-      stop("'theta.MAV' must be a single numeric value in (-1, 1)")
+    if (!is.numeric(theta_MAV) || length(theta_MAV) != 1L || is.na(theta_MAV) ||
+        theta_MAV <= -1 || theta_MAV >= 1) {
+      stop("'theta_MAV' must be a single numeric value in (-1, 1)")
     }
-    if (theta.TV <= theta.MAV) {
-      stop("'theta.TV' must be strictly greater than 'theta.MAV'")
+    if (theta_TV <= theta_MAV) {
+      stop("'theta_TV' must be strictly greater than 'theta_MAV'")
     }
   } else {
-    if (is.null(theta.NULL)) {
-      stop("'theta.NULL' must be non-NULL when prob = 'predictive'")
+    if (is.null(theta_NULL)) {
+      stop("'theta_NULL' must be non-NULL when prob = 'predictive'")
     }
-    if (!is.numeric(theta.NULL) || length(theta.NULL) != 1L ||
-        is.na(theta.NULL) || theta.NULL <= -1 || theta.NULL >= 1) {
-      stop("'theta.NULL' must be a single numeric value in (-1, 1)")
+    if (!is.numeric(theta_NULL) || length(theta_NULL) != 1L ||
+        is.na(theta_NULL) || theta_NULL <= -1 || theta_NULL >= 1) {
+      stop("'theta_NULL' must be a single numeric value in (-1, 1)")
     }
-    if (is.null(m1) || is.null(m2)) {
-      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
+    if (is.null(m_t) || is.null(m_c)) {
+      stop("'m_t' and 'm_c' must be non-NULL when prob = 'predictive'")
     }
-    for (nm in c("m1", "m2")) {
+    for (nm in c("m_t", "m_c")) {
       val <- get(nm)
       if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
           val != floor(val) || val < 1L) {
@@ -264,15 +264,15 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
     }
   }
 
-  if (!is.numeric(pi1) || length(pi1) != 1L || is.na(pi1) ||
-      pi1 <= 0 || pi1 >= 1) {
-    stop("'pi1' must be a single numeric value in (0, 1)")
+  if (!is.numeric(pi_t) || length(pi_t) != 1L || is.na(pi_t) ||
+      pi_t <= 0 || pi_t >= 1) {
+    stop("'pi_t' must be a single numeric value in (0, 1)")
   }
 
   if (design != 'uncontrolled') {
-    if (is.null(pi2) || !is.numeric(pi2) || length(pi2) != 1L ||
-        is.na(pi2) || pi2 <= 0 || pi2 >= 1) {
-      stop("'pi2' must be a single numeric value in (0, 1) for controlled or external design")
+    if (is.null(pi_c) || !is.numeric(pi_c) || length(pi_c) != 1L ||
+        is.na(pi_c) || pi_c <= 0 || pi_c >= 1) {
+      stop("'pi_c' must be a single numeric value in (0, 1) for controlled or external design")
     }
   }
 
@@ -304,7 +304,7 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
     stop("'sel_nogo' must be either 'smallest' or 'largest'")
   }
 
-  for (nm in c("n1", "n2")) {
+  for (nm in c("n_t", "n_c")) {
     val <- get(nm)
     if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
         val != floor(val) || val < 1L) {
@@ -312,7 +312,7 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
     }
   }
 
-  for (nm in c("a1", "a2", "b1", "b2")) {
+  for (nm in c("a_t", "a_c", "b_t", "b_c")) {
     val <- get(nm)
     if (!is.numeric(val) || length(val) != 1L || is.na(val) || val <= 0) {
       stop(paste0("'", nm, "' must be a single positive numeric value"))
@@ -330,29 +330,29 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
   }
 
   if (design == 'external') {
-    for (nm in c("ne1", "ne2", "ye1", "ye2")) {
+    for (nm in c("ne_t", "ne_c", "ye_t", "ye_c")) {
       val <- get(nm)
       if (is.null(val)) {
         stop(paste0("'", nm, "' must be non-NULL when design = 'external'"))
       }
     }
-    if (!is.numeric(ne1) || length(ne1) != 1L || is.na(ne1) ||
-        ne1 != floor(ne1) || ne1 < 1L) {
-      stop("'ne1' must be a single positive integer")
+    if (!is.numeric(ne_t) || length(ne_t) != 1L || is.na(ne_t) ||
+        ne_t != floor(ne_t) || ne_t < 1L) {
+      stop("'ne_t' must be a single positive integer")
     }
-    if (!is.numeric(ne2) || length(ne2) != 1L || is.na(ne2) ||
-        ne2 != floor(ne2) || ne2 < 1L) {
-      stop("'ne2' must be a single positive integer")
+    if (!is.numeric(ne_c) || length(ne_c) != 1L || is.na(ne_c) ||
+        ne_c != floor(ne_c) || ne_c < 1L) {
+      stop("'ne_c' must be a single positive integer")
     }
-    if (!is.numeric(ye1) || length(ye1) != 1L || is.na(ye1) ||
-        ye1 != floor(ye1) || ye1 < 0L || ye1 > ne1) {
-      stop("'ye1' must be a non-negative integer not exceeding 'ne1'")
+    if (!is.numeric(ye_t) || length(ye_t) != 1L || is.na(ye_t) ||
+        ye_t != floor(ye_t) || ye_t < 0L || ye_t > ne_t) {
+      stop("'ye_t' must be a non-negative integer not exceeding 'ne_t'")
     }
-    if (!is.numeric(ye2) || length(ye2) != 1L || is.na(ye2) ||
-        ye2 != floor(ye2) || ye2 < 0L || ye2 > ne2) {
-      stop("'ye2' must be a non-negative integer not exceeding 'ne2'")
+    if (!is.numeric(ye_c) || length(ye_c) != 1L || is.na(ye_c) ||
+        ye_c != floor(ye_c) || ye_c < 0L || ye_c > ne_c) {
+      stop("'ye_c' must be a non-negative integer not exceeding 'ne_c'")
     }
-    for (nm in c("ae1", "ae2")) {
+    for (nm in c("ae_t", "ae_c")) {
       val <- get(nm)
       if (is.null(val) || !is.numeric(val) || length(val) != 1L ||
           is.na(val) || val <= 0 || val > 1) {
@@ -369,58 +369,58 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
   n_gamma    <- length(gamma_grid)
 
   # ---------------------------------------------------------------------------
-  # Stage 1: Precompute g(y1, y2) for all outcome combinations (gamma-free)
+  # Stage 1: Precompute g(y_t, y_c) for all outcome combinations (gamma-free)
   # ---------------------------------------------------------------------------
-  theta0_go   <- if (prob == 'posterior') theta.TV  else theta.NULL
-  theta0_nogo <- if (prob == 'posterior') theta.MAV else theta.NULL
+  theta0_go   <- if (prob == 'posterior') theta_TV  else theta_NULL
+  theta0_nogo <- if (prob == 'posterior') theta_MAV else theta_NULL
 
   if (design == 'uncontrolled') {
-    all_y1 <- 0L:n1
+    all_y_t <- 0L:n_t
 
     gPost_Go <- pbayespostpred1bin(
       prob = prob, design = design, theta0 = theta0_go,
-      n1 = n1, n2 = n2, y1 = all_y1, y2 = NULL,
-      a1 = a1, a2 = a2, b1 = b1, b2 = b2,
-      m1 = m1, m2 = m2, z = z,
-      ne1 = ne1, ne2 = ne2, ye1 = ye1, ye2 = ye2, ae1 = ae1, ae2 = ae2,
+      n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = NULL,
+      a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
+      m_t = m_t, m_c = m_c, z = z,
+      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
       lower.tail = FALSE
     )
 
     gPost_NoGo <- pbayespostpred1bin(
       prob = prob, design = design, theta0 = theta0_nogo,
-      n1 = n1, n2 = n2, y1 = all_y1, y2 = NULL,
-      a1 = a1, a2 = a2, b1 = b1, b2 = b2,
-      m1 = m1, m2 = m2, z = z,
-      ne1 = ne1, ne2 = ne2, ye1 = ye1, ye2 = ye2, ae1 = ae1, ae2 = ae2,
+      n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = NULL,
+      a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
+      m_t = m_t, m_c = m_c, z = z,
+      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
       lower.tail = TRUE
     )
 
-    w <- dbinom(all_y1, n1, pi1)
+    w <- dbinom(all_y_t, n_t, pi_t)
 
   } else {
-    grid    <- expand.grid(y1 = 0L:n1, y2 = 0L:n2)
-    all_y1e <- grid$y1
-    all_y2e <- grid$y2
+    grid    <- expand.grid(y_t = 0L:n_t, y_c = 0L:n_c)
+    all_y_t <- grid$y_t
+    all_y_c <- grid$y_c
 
     gPost_Go <- pbayespostpred1bin(
       prob = prob, design = design, theta0 = theta0_go,
-      n1 = n1, n2 = n2, y1 = all_y1e, y2 = all_y2e,
-      a1 = a1, a2 = a2, b1 = b1, b2 = b2,
-      m1 = m1, m2 = m2, z = NULL,
-      ne1 = ne1, ne2 = ne2, ye1 = ye1, ye2 = ye2, ae1 = ae1, ae2 = ae2,
+      n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = all_y_c,
+      a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
+      m_t = m_t, m_c = m_c, z = NULL,
+      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
       lower.tail = FALSE
     )
 
     gPost_NoGo <- pbayespostpred1bin(
       prob = prob, design = design, theta0 = theta0_nogo,
-      n1 = n1, n2 = n2, y1 = all_y1e, y2 = all_y2e,
-      a1 = a1, a2 = a2, b1 = b1, b2 = b2,
-      m1 = m1, m2 = m2, z = NULL,
-      ne1 = ne1, ne2 = ne2, ye1 = ye1, ye2 = ye2, ae1 = ae1, ae2 = ae2,
+      n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = all_y_c,
+      a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
+      m_t = m_t, m_c = m_c, z = NULL,
+      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
       lower.tail = TRUE
     )
 
-    w <- dbinom(all_y1e, n1, pi1) * dbinom(all_y2e, n2, pi2)
+    w <- dbinom(all_y_t, n_t, pi_t) * dbinom(all_y_c, n_c, pi_c)
   }
 
   # ---------------------------------------------------------------------------
@@ -453,34 +453,34 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
     if (sel == 'smallest') min(idx) else max(idx)
   }
 
-  # gamma1
+  # gamma_go
   opt1 <- .select_idx(.compare(PrGo_grid,   crit_go,   target_go),   sel_go)
   if (is.na(opt1)) {
-    gamma1         <- NA_real_
-    PrGo_at_gamma1 <- NA_real_
+    gamma_go       <- NA_real_
+    PrGo_at_gamma_go <- NA_real_
   } else {
-    gamma1         <- gamma_grid[opt1]
-    PrGo_at_gamma1 <- PrGo_grid[opt1]
+    gamma_go       <- gamma_grid[opt1]
+    PrGo_at_gamma_go <- PrGo_grid[opt1]
   }
 
-  # gamma2
+  # gamma_nogo
   opt2 <- .select_idx(.compare(PrNoGo_grid, crit_nogo, target_nogo), sel_nogo)
   if (is.na(opt2)) {
-    gamma2            <- NA_real_
-    PrNoGo_at_gamma2  <- NA_real_
+    gamma_nogo        <- NA_real_
+    PrNoGo_at_gamma_nogo  <- NA_real_
   } else {
-    gamma2            <- gamma_grid[opt2]
-    PrNoGo_at_gamma2  <- PrNoGo_grid[opt2]
+    gamma_nogo        <- gamma_grid[opt2]
+    PrNoGo_at_gamma_nogo  <- PrNoGo_grid[opt2]
   }
 
   # ---------------------------------------------------------------------------
   # Build and return result
   # ---------------------------------------------------------------------------
   result <- list(
-    gamma1           = gamma1,
-    gamma2           = gamma2,
-    PrGo_at_gamma1   = PrGo_at_gamma1,
-    PrNoGo_at_gamma2 = PrNoGo_at_gamma2,
+    gamma_go           = gamma_go,
+    gamma_nogo           = gamma_nogo,
+    PrGo_at_gamma_go   = PrGo_at_gamma_go,
+    PrNoGo_at_gamma_nogo = PrNoGo_at_gamma_nogo,
     gamma_grid       = gamma_grid,
     PrGo_grid        = PrGo_grid,
     PrNoGo_grid      = PrNoGo_grid

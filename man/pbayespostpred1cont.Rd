@@ -31,8 +31,8 @@ pbayespostpred1cont(
   r = NULL,
   ne_t = NULL,
   ne_c = NULL,
-  alpha0_t = NULL,
-  alpha0_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
   bar_ye_t = NULL,
   bar_ye_c = NULL,
   se_t = NULL,
@@ -63,96 +63,98 @@ recommended; see Details.}
 \item{nMC}{A positive integer giving the number of Monte Carlo draws.
 Required when \code{CalcMethod = 'MC'}; otherwise \code{NULL}.}
 
-\item{n_t}{A positive integer giving the number of patients in group 1
-(treatment) in the proof-of-concept (PoC) trial.}
+\item{n_t}{A positive integer giving the number of patients in the
+treatment group in the proof-of-concept (PoC) trial.}
 
-\item{n_c}{A positive integer giving the number of patients in group 2
-in the PoC trial.  Required for \code{design = 'controlled'} or
-\code{'external'}; set to \code{NULL} for
-\code{design = 'uncontrolled'}.}
+\item{n_c}{A positive integer giving the number of patients in the
+control group in the PoC trial.  Required for \code{design = 'controlled'}
+or \code{'external'}; set to \code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{m_t}{A positive integer giving the future sample size for group 1.
-Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
+\item{m_t}{A positive integer giving the future sample size for the treatment
+group. Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
 
-\item{m_c}{A positive integer giving the future sample size for group 2.
-Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
+\item{m_c}{A positive integer giving the future sample size for the control
+group. Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
 
 \item{kappa0_t}{A positive numeric scalar giving the prior precision parameter
-for group 1. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
-\code{NULL}.}
+for the treatment group. Required when \code{prior = 'N-Inv-Chisq'};
+otherwise \code{NULL}.}
 
 \item{kappa0_c}{A positive numeric scalar giving the prior precision parameter
-for group 2. Required when \code{prior = 'N-Inv-Chisq'} and
+for the control group. Required when \code{prior = 'N-Inv-Chisq'} and
 \code{design = 'controlled'}; otherwise \code{NULL}.}
 
 \item{nu0_t}{A positive numeric scalar giving the prior degrees of freedom
-for group 1. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
-\code{NULL}.}
+for the treatment group. Required when \code{prior = 'N-Inv-Chisq'};
+otherwise \code{NULL}.}
 
 \item{nu0_c}{A positive numeric scalar giving the prior degrees of freedom
-for group 2. Required when \code{prior = 'N-Inv-Chisq'} and
+for the control group. Required when \code{prior = 'N-Inv-Chisq'} and
 \code{design = 'controlled'}; otherwise \code{NULL}.}
 
-\item{mu0_t}{A numeric scalar giving the prior mean for group 1.
+\item{mu0_t}{A numeric scalar giving the prior mean for the treatment group.
 Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.}
 
-\item{mu0_c}{A numeric scalar giving the prior mean for group 2
+\item{mu0_c}{A numeric scalar giving the prior mean for the control group
 (\code{design = 'controlled'} with \code{prior = 'N-Inv-Chisq'}) or the
 hypothetical control mean (\code{design = 'uncontrolled'}).
 Required for uncontrolled design; otherwise \code{NULL}.}
 
-\item{sigma0_t}{A positive numeric scalar giving the prior scale for group 1.
-Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.}
+\item{sigma0_t}{A positive numeric scalar giving the prior scale for the
+treatment group. Required when \code{prior = 'N-Inv-Chisq'};
+otherwise \code{NULL}.}
 
-\item{sigma0_c}{A positive numeric scalar giving the prior scale for group 2.
-Required when \code{prior = 'N-Inv-Chisq'} and
+\item{sigma0_c}{A positive numeric scalar giving the prior scale for the
+control group. Required when \code{prior = 'N-Inv-Chisq'} and
 \code{design = 'controlled'}; otherwise \code{NULL}.}
 
-\item{bar_y_t}{A numeric scalar or vector giving the sample mean for group 1.
-When a vector of length \code{nsim} is supplied, all posterior parameters
-are computed simultaneously for all replicates.}
+\item{bar_y_t}{A numeric scalar or vector giving the sample mean for the
+treatment group. When a vector of length \code{nsim} is supplied,
+all posterior parameters are computed simultaneously for all replicates.}
 
-\item{bar_y_c}{A numeric scalar or vector giving the sample mean for group 2.
-Required for \code{design = 'controlled'} or \code{'external'}; set to
-\code{NULL} for uncontrolled design.}
+\item{bar_y_c}{A numeric scalar or vector giving the sample mean for the
+control group. Required for \code{design = 'controlled'} or
+\code{'external'}; set to \code{NULL} for uncontrolled design.}
 
 \item{s_t}{A positive numeric scalar or vector giving the sample standard
-deviation for group 1.}
+deviation for the treatment group.}
 
 \item{s_c}{A positive numeric scalar or vector giving the sample standard
-deviation for group 2. Required for \code{design = 'controlled'} or
-\code{'external'}; otherwise \code{NULL}.}
+deviation for the control group. Required for \code{design = 'controlled'}
+or \code{'external'}; otherwise \code{NULL}.}
 
 \item{r}{A positive numeric scalar giving the variance scaling factor for
 the hypothetical control. Required for \code{design = 'uncontrolled'};
 otherwise \code{NULL}. The hypothetical control scale is
 \eqn{\mathrm{sd.control} = \sqrt{r} \cdot \mathrm{sd.treatment}}.}
 
-\item{ne_t}{A positive integer giving the external group 1 sample size.
+\item{ne_t}{A positive integer giving the external treatment group sample size.
 Required for \code{design = 'external'} with external treatment data;
 otherwise \code{NULL}.}
 
-\item{ne_c}{A positive integer giving the external group 2 sample size.
+\item{ne_c}{A positive integer giving the external control group sample size.
 Required for \code{design = 'external'} with external control data;
 otherwise \code{NULL}.}
 
-\item{alpha0_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight
-for group 1. Required when \code{ne_t} is provided; otherwise \code{NULL}.}
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight
+for the treatment group. Required when \code{ne_t} is provided;
+otherwise \code{NULL}.}
 
-\item{alpha0_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight
-for group 2. Required when \code{ne_c} is provided; otherwise \code{NULL}.}
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight
+for the control group. Required when \code{ne_c} is provided;
+otherwise \code{NULL}.}
 
-\item{bar_ye_t}{A numeric scalar giving the external group 1 sample mean.
+\item{bar_ye_t}{A numeric scalar giving the external treatment group sample mean.
 Required when \code{ne_t} is provided; otherwise \code{NULL}.}
 
-\item{bar_ye_c}{A numeric scalar giving the external group 2 sample mean.
+\item{bar_ye_c}{A numeric scalar giving the external control group sample mean.
 Required when \code{ne_c} is provided; otherwise \code{NULL}.}
 
-\item{se_t}{A positive numeric scalar giving the external group 1 sample SD.
-Required when \code{ne_t} is provided; otherwise \code{NULL}.}
+\item{se_t}{A positive numeric scalar giving the external treatment group
+sample SD. Required when \code{ne_t} is provided; otherwise \code{NULL}.}
 
-\item{se_c}{A positive numeric scalar giving the external group 2 sample SD.
-Required when \code{ne_c} is provided; otherwise \code{NULL}.}
+\item{se_c}{A positive numeric scalar giving the external control group
+sample SD. Required when \code{ne_c} is provided; otherwise \code{NULL}.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), returns
 \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
@@ -201,7 +203,7 @@ pbayespostpred1cont(
   mu0_t = 5, mu0_c = 5, sigma0_t = sqrt(5), sigma0_c = sqrt(5),
   bar_y_t = 2, bar_y_c = 0, s_t = 1, s_c = 1,
   m_t = NULL, m_c = NULL, r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   lower.tail = FALSE
 )
@@ -215,7 +217,7 @@ pbayespostpred1cont(
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, sigma0_t = NULL, sigma0_c = NULL,
   m_t = NULL, m_c = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   lower.tail = FALSE
 )
@@ -227,7 +229,7 @@ pbayespostpred1cont(
   kappa0_t = 3, kappa0_c = 3, nu0_t = 4, nu0_c = 4,
   mu0_t = 2, mu0_c = 2, sigma0_t = 2, sigma0_c = 2,
   bar_y_t = 2.5, bar_y_c = 1.8, s_t = 1.8, s_c = 1.6,
-  r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+  r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   lower.tail = FALSE
 )
@@ -237,11 +239,11 @@ pbayespostpred1cont(
   prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
   theta0 = 1.5, n_t = 12, n_c = 12,
   bar_y_t = 4, bar_y_c = 2, s_t = 1.2, s_c = 1.1,
-  ne_c = 20, alpha0_c = 0.5, bar_ye_c = 1.8, se_c = 1.0,
+  ne_c = 20, alpha0e_c = 0.5, bar_ye_c = 1.8, se_c = 1.0,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   m_t = NULL, m_c = NULL, r = NULL,
-  ne_t = NULL, alpha0_t = NULL, bar_ye_t = NULL, se_t = NULL,
+  ne_t = NULL, alpha0e_t = NULL, bar_ye_t = NULL, se_t = NULL,
   lower.tail = FALSE
 )
 
@@ -258,7 +260,7 @@ pbayespostpred1cont(
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   m_t = NULL, m_c = NULL, r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   lower.tail = FALSE
 )
