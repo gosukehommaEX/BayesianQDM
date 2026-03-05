@@ -84,8 +84,8 @@ passed to \code{\link{pbayespostpred1cont}}.  Required when
 \code{CalcMethod = 'MC'}; set to \code{NULL} otherwise.}
 
 \item{mu_t}{A numeric scalar giving the true mean for the treatment group
-for the scenario used to search for both \eqn{\gamma_1} and
-\eqn{\gamma_2}.}
+for the scenario used to search for both \eqn{\gamma_go} and
+\eqn{\gamma_nogo}.}
 
 \item{mu_c}{A numeric scalar giving the true mean for the control group.
 Set to \code{NULL} for \code{design = 'uncontrolled'}.}
@@ -99,22 +99,22 @@ for \code{design = 'uncontrolled'}.}
 
 \item{target_go}{A numeric scalar in \code{(0, 1)} giving the target value
 for \eqn{\Pr(\mathrm{Go})} used to determine the optimal
-\eqn{\gamma_1}.  The comparison operator applied is specified by
+\eqn{\gamma_go}.  The comparison operator applied is specified by
 \code{crit_go}.}
 
 \item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the target
 value for \eqn{\Pr(\mathrm{NoGo})} used to determine the optimal
-\eqn{\gamma_2}.  The comparison operator applied is specified by
+\eqn{\gamma_nogo}.  The comparison operator applied is specified by
 \code{crit_nogo}.}
 
 \item{crit_go}{A character string specifying the comparison operator
 applied to \eqn{\Pr(\mathrm{Go})} when searching for
-\eqn{\gamma_1}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
+\eqn{\gamma_go}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
 or \code{">="}. Default is \code{"<"}.}
 
 \item{crit_nogo}{A character string specifying the comparison operator
 applied to \eqn{\Pr(\mathrm{NoGo})} when searching for
-\eqn{\gamma_2}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
+\eqn{\gamma_nogo}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
 or \code{">="}. Default is \code{"<"}.}
 
 \item{sel_go}{A character string specifying whether to select the
@@ -231,9 +231,9 @@ according to \code{crit_go} and \code{sel_go}.
 \item{gamma_nogo}{Optimal NoGo threshold selected from \code{gamma_grid}
 according to \code{crit_nogo} and \code{sel_nogo}.
 \code{NA} if no value satisfies the criterion.}
-\item{PrGo_at_gamma_go}{Pr(Go) evaluated at the optimal \eqn{\gamma_1}.
+\item{PrGo_at_gamma_go}{Pr(Go) evaluated at the optimal \eqn{\gamma_go}.
 \code{NA} if \code{gamma_go} is \code{NA}.}
-\item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_2}.
+\item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_nogo}.
 \code{NA} if \code{gamma_nogo} is \code{NA}.}
 \item{gamma_grid}{The candidate grid used for the search.}
 \item{PrGo_grid}{Numeric vector of Pr(Go) values over \code{gamma_grid}.}
@@ -242,8 +242,8 @@ according to \code{crit_nogo} and \code{sel_nogo}.
 }
 }
 \description{
-Computes the optimal Go threshold \eqn{\gamma_1} and NoGo threshold
-\eqn{\gamma_2} for a single continuous endpoint by searching over a fine
+Computes the optimal Go threshold \eqn{\gamma_go} and NoGo threshold
+\eqn{\gamma_nogo} for a single continuous endpoint by searching over a fine
 grid of candidate values.  The search follows a two-stage approach:
 posterior or predictive probabilities are precomputed once for every
 Monte Carlo simulated dataset, and the operating characteristics under
@@ -270,10 +270,10 @@ proportion of simulated datasets satisfying the respective
 decision criterion.  No further probability evaluations are
 required at this stage.
 }
-The optimal \eqn{\gamma_1} is the \code{sel_go} (\code{"smallest"} or
+The optimal \eqn{\gamma_go} is the \code{sel_go} (\code{"smallest"} or
 \code{"largest"}) value in \code{gamma_grid} for which
 \eqn{\Pr(\mathrm{Go})} satisfies the \code{crit_go} comparison against
-\code{target_go}.  Analogously, the optimal \eqn{\gamma_2} is the
+\code{target_go}.  Analogously, the optimal \eqn{\gamma_nogo} is the
 \code{sel_nogo} value satisfying \code{crit_nogo} against
 \code{target_nogo}.
 }

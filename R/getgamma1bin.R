@@ -1,7 +1,7 @@
 #' Find Optimal Go/NoGo Thresholds for a Single Binary Endpoint
 #'
-#' Computes the optimal Go threshold \eqn{\gamma_1} and NoGo threshold
-#' \eqn{\gamma_2} for a single binary endpoint by searching over a fine grid of
+#' Computes the optimal Go threshold \eqn{\gamma_go} and NoGo threshold
+#' \eqn{\gamma_nogo} for a single binary endpoint by searching over a fine grid of
 #' candidate values.  The search follows a two-stage approach: posterior or
 #' predictive probabilities are precomputed once for every possible outcome pair
 #' \eqn{(y_t, y_c)}, and the operating characteristics under each candidate
@@ -25,25 +25,25 @@
 #'        when \code{prob = 'predictive'}; set to \code{NULL} otherwise.
 #' @param pi_t A numeric scalar in \code{(0, 1)} giving the true treatment
 #'        response rate for the scenario used to search for both
-#'        \eqn{\gamma_1} and \eqn{\gamma_2}.
+#'        \eqn{\gamma_go} and \eqn{\gamma_nogo}.
 #' @param pi_c A numeric scalar in \code{(0, 1)} giving the true control
 #'        response rate.  Set to \code{NULL} for
 #'        \code{design = 'uncontrolled'}.
 #' @param target_go A numeric scalar in \code{(0, 1)} giving the target value
 #'        for \eqn{\Pr(\mathrm{Go})} used to determine the optimal
-#'        \eqn{\gamma_1}.  The comparison operator applied is specified by
+#'        \eqn{\gamma_go}.  The comparison operator applied is specified by
 #'        \code{crit_go}.
 #' @param target_nogo A numeric scalar in \code{(0, 1)} giving the target
 #'        value for \eqn{\Pr(\mathrm{NoGo})} used to determine the optimal
-#'        \eqn{\gamma_2}.  The comparison operator applied is specified by
+#'        \eqn{\gamma_nogo}.  The comparison operator applied is specified by
 #'        \code{crit_nogo}.
 #' @param crit_go A character string specifying the comparison operator
 #'        applied to \eqn{\Pr(\mathrm{Go})} when searching for
-#'        \eqn{\gamma_1}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
+#'        \eqn{\gamma_go}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
 #'        or \code{">="}. Default is \code{"<"}.
 #' @param crit_nogo A character string specifying the comparison operator
 #'        applied to \eqn{\Pr(\mathrm{NoGo})} when searching for
-#'        \eqn{\gamma_2}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
+#'        \eqn{\gamma_nogo}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
 #'        or \code{">="}. Default is \code{"<"}.
 #' @param sel_go A character string specifying whether to select the
 #'        \code{"smallest"} or \code{"largest"} value in \code{gamma_grid}
@@ -104,9 +104,9 @@
 #'   \item{gamma_nogo}{Optimal NoGo threshold selected from \code{gamma_grid}
 #'         according to \code{crit_nogo} and \code{sel_nogo}.
 #'         \code{NA} if no value satisfies the criterion.}
-#'   \item{PrGo_at_gamma_go}{Pr(Go) evaluated at the optimal \eqn{\gamma_1}.
+#'   \item{PrGo_at_gamma_go}{Pr(Go) evaluated at the optimal \eqn{\gamma_go}.
 #'         \code{NA} if \code{gamma_go} is \code{NA}.}
-#'   \item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_2}.
+#'   \item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_nogo}.
 #'         \code{NA} if \code{gamma_nogo} is \code{NA}.}
 #'   \item{gamma_grid}{The candidate grid used for the search.}
 #'   \item{PrGo_grid}{Numeric vector of Pr(Go) values over \code{gamma_grid}.}
@@ -134,10 +134,10 @@
 #' \code{prob = 'predictive'}, both criteria use \code{theta_NULL} with the
 #' respective tail direction.
 #'
-#' The optimal \eqn{\gamma_1} is the \code{sel_go} (\code{"smallest"} or
+#' The optimal \eqn{\gamma_go} is the \code{sel_go} (\code{"smallest"} or
 #' \code{"largest"}) value in \code{gamma_grid} for which
 #' \eqn{\Pr(\mathrm{Go})} satisfies the \code{crit_go} comparison against
-#' \code{target_go}.  Analogously, the optimal \eqn{\gamma_2} is the
+#' \code{target_go}.  Analogously, the optimal \eqn{\gamma_nogo} is the
 #' \code{sel_nogo} value satisfying \code{crit_nogo} against
 #' \code{target_nogo}.
 #'

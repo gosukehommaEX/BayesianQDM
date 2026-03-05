@@ -21,43 +21,43 @@ getgamma2bin(
   crit_nogo = "<",
   sel_go = "smallest",
   sel_nogo = "largest",
-  n1,
-  n2,
-  a1_00,
-  a1_01,
-  a1_10,
-  a1_11,
-  a2_00,
-  a2_01,
-  a2_10,
-  a2_11,
-  theta.TV1 = NULL,
-  theta.MAV1 = NULL,
-  theta.TV2 = NULL,
-  theta.MAV2 = NULL,
-  theta.NULL1 = NULL,
-  theta.NULL2 = NULL,
-  m1 = NULL,
-  m2 = NULL,
+  n_t,
+  n_c,
+  a_t_00,
+  a_t_01,
+  a_t_10,
+  a_t_11,
+  a_c_00,
+  a_c_01,
+  a_c_10,
+  a_c_11,
+  theta_TV1 = NULL,
+  theta_MAV1 = NULL,
+  theta_TV2 = NULL,
+  theta_MAV2 = NULL,
+  theta_NULL1 = NULL,
+  theta_NULL2 = NULL,
+  m_t = NULL,
+  m_c = NULL,
   z00 = NULL,
   z01 = NULL,
   z10 = NULL,
   z11 = NULL,
-  xe1_00 = NULL,
-  xe1_01 = NULL,
-  xe1_10 = NULL,
-  xe1_11 = NULL,
-  xe2_00 = NULL,
-  xe2_01 = NULL,
-  xe2_10 = NULL,
-  xe2_11 = NULL,
-  ae1 = NULL,
-  ae2 = NULL,
+  xe_t_00 = NULL,
+  xe_t_01 = NULL,
+  xe_t_10 = NULL,
+  xe_t_11 = NULL,
+  xe_c_00 = NULL,
+  xe_c_01 = NULL,
+  xe_c_10 = NULL,
+  xe_c_11 = NULL,
+  ae_t = NULL,
+  ae_c = NULL,
   nMC = 1000L,
   method = "Exact",
   nsim = 10000L,
-  gamma1_grid = seq(0.01, 0.99, by = 0.01),
-  gamma2_grid = seq(0.01, 0.99, by = 0.01)
+  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 \arguments{
@@ -88,8 +88,8 @@ search for the optimal thresholds.}
 \item{pi_t2}{A numeric scalar in \code{(0, 1)} giving the true treatment
 response probability for Endpoint 2.}
 
-\item{rho_t}{A numeric scalar giving the within-arm correlation in the
-treatment arm.}
+\item{rho_t}{A numeric scalar giving the within-group correlation in the
+treatment group.}
 
 \item{pi_c1}{A numeric scalar in \code{(0, 1)} giving the true control
 response probability for Endpoint 1.  Required for
@@ -101,99 +101,99 @@ response probability for Endpoint 2.  Required for
 \code{design = 'controlled'} or \code{'external'};
 set to \code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{rho_c}{A numeric scalar giving the within-arm correlation in the
-control arm.  Required for \code{design = 'controlled'} or
+\item{rho_c}{A numeric scalar giving the within-group correlation in the
+control group.  Required for \code{design = 'controlled'} or
 \code{'external'}; set to \code{NULL} for
 \code{design = 'uncontrolled'}.}
 
 \item{target_go}{A numeric scalar in \code{(0, 1)} giving the target
 value for \eqn{\Pr(\mathrm{Go})} used to select the optimal
-\eqn{\gamma_1}.  For each candidate \eqn{\gamma_1}, the
-worst-case \eqn{\Pr(\mathrm{Go})} over all \eqn{\gamma_2} in
-\code{gamma2_grid} is compared against \code{target_go} using
+\eqn{\gamma_go}.  For each candidate \eqn{\gamma_go}, the
+worst-case \eqn{\Pr(\mathrm{Go})} over all \eqn{\gamma_nogo} in
+\code{gamma_nogo_grid} is compared against \code{target_go} using
 the operator specified by \code{crit_go}.}
 
 \item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the target
 value for \eqn{\Pr(\mathrm{NoGo})} used to select the optimal
-\eqn{\gamma_2}.  For each candidate \eqn{\gamma_2}, the
-worst-case \eqn{\Pr(\mathrm{NoGo})} over all \eqn{\gamma_1} in
-\code{gamma1_grid} is compared against \code{target_nogo} using
+\eqn{\gamma_nogo}.  For each candidate \eqn{\gamma_nogo}, the
+worst-case \eqn{\Pr(\mathrm{NoGo})} over all \eqn{\gamma_go} in
+\code{gamma_go_grid} is compared against \code{target_nogo} using
 the operator specified by \code{crit_nogo}.}
 
 \item{crit_go}{A character string specifying the comparison operator
 applied to \eqn{\Pr(\mathrm{Go})} when searching for
-\eqn{\gamma_1}.  Must be one of \code{"<"}, \code{"<="},
+\eqn{\gamma_go}.  Must be one of \code{"<"}, \code{"<="},
 \code{">"}, or \code{">="}.  Default is \code{"<"}.}
 
 \item{crit_nogo}{A character string specifying the comparison operator
 applied to \eqn{\Pr(\mathrm{NoGo})} when searching for
-\eqn{\gamma_2}.  Must be one of \code{"<"}, \code{"<="},
+\eqn{\gamma_nogo}.  Must be one of \code{"<"}, \code{"<="},
 \code{">"}, or \code{">="}.  Default is \code{"<"}.}
 
 \item{sel_go}{A character string specifying whether to select the
 \code{"smallest"} or \code{"largest"} value in
-\code{gamma1_grid} satisfying the \code{crit_go} criterion.
+\code{gamma_go_grid} satisfying the \code{crit_go} criterion.
 Default is \code{"smallest"}.}
 
 \item{sel_nogo}{A character string specifying whether to select the
 \code{"smallest"} or \code{"largest"} value in
-\code{gamma2_grid} satisfying the \code{crit_nogo} criterion.
+\code{gamma_nogo_grid} satisfying the \code{crit_nogo} criterion.
 Default is \code{"largest"}.}
 
-\item{n1}{A positive integer giving the number of patients in group 1
-(treatment arm) in the PoC trial.}
+\item{n_t}{A positive integer giving the number of patients in the
+treatment group (treatment group) in the PoC trial.}
 
-\item{n2}{A positive integer giving the number of patients in group 2
-(control arm) in the PoC trial.}
+\item{n_c}{A positive integer giving the number of patients in the
+control group (control group) in the PoC trial.}
 
-\item{a1_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in group 1.}
+\item{a_t_00}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,0) response pattern in the treatment group.}
 
-\item{a1_01}{A positive numeric scalar; see \code{a1_00}.}
+\item{a_t_01}{A positive numeric scalar; see \code{a_t_00}.}
 
-\item{a1_10}{A positive numeric scalar; see \code{a1_00}.}
+\item{a_t_10}{A positive numeric scalar; see \code{a_t_00}.}
 
-\item{a1_11}{A positive numeric scalar; see \code{a1_00}.}
+\item{a_t_11}{A positive numeric scalar; see \code{a_t_00}.}
 
-\item{a2_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in group 2.}
+\item{a_c_00}{A positive numeric scalar giving the Dirichlet prior
+parameter for the (0,0) response pattern in the control group.}
 
-\item{a2_01}{A positive numeric scalar; see \code{a2_00}.}
+\item{a_c_01}{A positive numeric scalar; see \code{a_c_00}.}
 
-\item{a2_10}{A positive numeric scalar; see \code{a2_00}.}
+\item{a_c_10}{A positive numeric scalar; see \code{a_c_00}.}
 
-\item{a2_11}{A positive numeric scalar; see \code{a2_00}.}
+\item{a_c_11}{A positive numeric scalar; see \code{a_c_00}.}
 
-\item{theta.TV1}{A numeric scalar giving the TV threshold for
+\item{theta_TV1}{A numeric scalar giving the TV threshold for
 Endpoint 1.  Required when \code{prob = 'posterior'};
 otherwise set to \code{NULL}.}
 
-\item{theta.MAV1}{A numeric scalar giving the MAV threshold for
+\item{theta_MAV1}{A numeric scalar giving the MAV threshold for
 Endpoint 1.  Required when \code{prob = 'posterior'};
 otherwise set to \code{NULL}.}
 
-\item{theta.TV2}{A numeric scalar giving the TV threshold for
+\item{theta_TV2}{A numeric scalar giving the TV threshold for
 Endpoint 2.  Required when \code{prob = 'posterior'};
 otherwise set to \code{NULL}.}
 
-\item{theta.MAV2}{A numeric scalar giving the MAV threshold for
+\item{theta_MAV2}{A numeric scalar giving the MAV threshold for
 Endpoint 2.  Required when \code{prob = 'posterior'};
 otherwise set to \code{NULL}.}
 
-\item{theta.NULL1}{A numeric scalar giving the null hypothesis
+\item{theta_NULL1}{A numeric scalar giving the null hypothesis
 threshold for Endpoint 1.  Required when
 \code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{theta.NULL2}{A numeric scalar giving the null hypothesis
+\item{theta_NULL2}{A numeric scalar giving the null hypothesis
 threshold for Endpoint 2.  Required when
 \code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{m1}{A positive integer giving the future sample size for
-group 1.  Required when \code{prob = 'predictive'};
+\item{m_t}{A positive integer giving the future sample size for
+the treatment group.  Required when \code{prob = 'predictive'};
 set to \code{NULL} otherwise.}
 
-\item{m2}{A positive integer giving the future sample size for
-group 2.  Required when \code{prob = 'predictive'};
+\item{m_c}{A positive integer giving the future sample size for
+the control group.  Required when \code{prob = 'predictive'};
 set to \code{NULL} otherwise.}
 
 \item{z00}{A non-negative integer giving the hypothetical control
@@ -206,34 +206,34 @@ count for pattern (0,0).  Required when
 
 \item{z11}{A non-negative integer; see \code{z00}.}
 
-\item{xe1_00}{A non-negative integer giving the external group 1
+\item{xe_t_00}{A non-negative integer giving the external treatment group
 count for pattern (0,0).  Required when
 \code{design = 'external'} and external treatment data are
 used; otherwise \code{NULL}.}
 
-\item{xe1_01}{A non-negative integer; see \code{xe1_00}.}
+\item{xe_t_01}{A non-negative integer; see \code{xe_t_00}.}
 
-\item{xe1_10}{A non-negative integer; see \code{xe1_00}.}
+\item{xe_t_10}{A non-negative integer; see \code{xe_t_00}.}
 
-\item{xe1_11}{A non-negative integer; see \code{xe1_00}.}
+\item{xe_t_11}{A non-negative integer; see \code{xe_t_00}.}
 
-\item{xe2_00}{A non-negative integer giving the external group 2
+\item{xe_c_00}{A non-negative integer giving the external control group
 count for pattern (0,0).  Required when
 \code{design = 'external'} and external control data are
 used; otherwise \code{NULL}.}
 
-\item{xe2_01}{A non-negative integer; see \code{xe2_00}.}
+\item{xe_c_01}{A non-negative integer; see \code{xe_c_00}.}
 
-\item{xe2_10}{A non-negative integer; see \code{xe2_00}.}
+\item{xe_c_10}{A non-negative integer; see \code{xe_c_00}.}
 
-\item{xe2_11}{A non-negative integer; see \code{xe2_00}.}
+\item{xe_c_11}{A non-negative integer; see \code{xe_c_00}.}
 
-\item{ae1}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for external group 1 data.  Required when external
+\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for external treatment group data.  Required when external
 treatment data are used; otherwise \code{NULL}.}
 
-\item{ae2}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for external group 2 data.  Required when external
+\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for external control group data.  Required when external
 control data are used; otherwise \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Dirichlet draws
@@ -248,11 +248,11 @@ Must be \code{'Exact'} (default) or \code{'MC'}.}
 samples used when \code{method = 'MC'}.  Default is
 \code{10000L}.}
 
-\item{gamma1_grid}{A numeric vector of candidate Go threshold values
+\item{gamma_go_grid}{A numeric vector of candidate Go threshold values
 in \code{(0, 1)} to search over.  Defaults to
 \code{seq(0.01, 0.99, by = 0.01)}.}
 
-\item{gamma2_grid}{A numeric vector of candidate NoGo threshold
+\item{gamma_nogo_grid}{A numeric vector of candidate NoGo threshold
 values in \code{(0, 1)} to search over.  Defaults to
 \code{seq(0.01, 0.99, by = 0.01)}.}
 }
@@ -260,37 +260,37 @@ values in \code{(0, 1)} to search over.  Defaults to
 A list of class \code{getgamma2bin} with the following
 elements:
 \describe{
-\item{gamma1}{Optimal Go threshold selected from
-\code{gamma1_grid} according to \code{crit_go} and
+\item{gamma_go}{Optimal Go threshold selected from
+\code{gamma_go_grid} according to \code{crit_go} and
 \code{sel_go}.  \code{NA} if no value satisfies the
 criterion.}
-\item{gamma2}{Optimal NoGo threshold selected from
-\code{gamma2_grid} according to \code{crit_nogo} and
+\item{gamma_nogo}{Optimal NoGo threshold selected from
+\code{gamma_nogo_grid} according to \code{crit_nogo} and
 \code{sel_nogo}.  \code{NA} if no value satisfies the
 criterion.}
 \item{PrGo_at_gamma}{Pr(Go) evaluated at
-\code{(gamma1, gamma2)}.  \code{NA} if either threshold
+\code{(gamma_go, gamma_nogo)}.  \code{NA} if either threshold
 is \code{NA}.}
 \item{PrNoGo_at_gamma}{Pr(NoGo) evaluated at
-\code{(gamma1, gamma2)}.  \code{NA} if either threshold
+\code{(gamma_go, gamma_nogo)}.  \code{NA} if either threshold
 is \code{NA}.}
-\item{gamma1_grid}{The candidate Go threshold grid used.}
-\item{gamma2_grid}{The candidate NoGo threshold grid used.}
+\item{gamma_go_grid}{The candidate Go threshold grid used.}
+\item{gamma_nogo_grid}{The candidate NoGo threshold grid used.}
 \item{PrGo_grid}{Numeric matrix of dimensions
-\code{length(gamma1_grid)} x \code{length(gamma2_grid)}
+\code{length(gamma_go_grid)} x \code{length(gamma_nogo_grid)}
 giving Pr(Go) at each grid point.}
 \item{PrNoGo_grid}{Numeric matrix of the same dimensions giving
 Pr(NoGo) at each grid point.}
 }
 }
 \description{
-Computes the optimal Go threshold \eqn{\gamma_1} and NoGo threshold
-\eqn{\gamma_2} for two binary endpoints by searching over a
+Computes the optimal Go threshold \eqn{\gamma_go} and NoGo threshold
+\eqn{\gamma_nogo} for two binary endpoints by searching over a
 two-dimensional grid of candidate value pairs.  The search follows a
 two-stage precompute-then-sweep strategy: region probabilities
 \eqn{\hat{g}_{Go,ij}} and \eqn{\hat{g}_{NoGo,ij}} are precomputed once
 for every possible multinomial outcome combination \eqn{(x_t, x_c)}, and
-operating characteristics under each \eqn{(\gamma_1, \gamma_2)} pair are
+operating characteristics under each \eqn{(\gamma_go, \gamma_nogo)} pair are
 obtained by a fast weighted summation without additional Dirichlet draws.
 }
 \details{
@@ -304,34 +304,34 @@ The resulting 9-element region probability vector is summed over
 \code{GoRegions} and \code{NoGoRegions} to obtain
 \eqn{\hat{g}_{Go,ij}} and \eqn{\hat{g}_{NoGo,ij}}, the
 Go/NoGo probabilities for each combination, independent of the
-decision thresholds \eqn{(\gamma_1, \gamma_2)}.
+decision thresholds \eqn{(\gamma_go, \gamma_nogo)}.
 
 \strong{Stage 2 (gamma sweep)}: For each pair
-\eqn{(\gamma_1, \gamma_2)} in the two-dimensional grid, the
+\eqn{(\gamma_go, \gamma_nogo)} in the two-dimensional grid, the
 operating characteristics are computed as:
 \deqn{\Pr(\mathrm{Go}) = \sum_{i,j} w_{ij}
-  \mathbf{1}\!\left[\hat{g}_{Go,ij} \ge \gamma_1,\;
-  \hat{g}_{NoGo,ij} < \gamma_2\right]}
+  \mathbf{1}\!\left[\hat{g}_{Go,ij} \ge \gamma_go,\;
+  \hat{g}_{NoGo,ij} < \gamma_nogo\right]}
 \deqn{\Pr(\mathrm{NoGo}) = \sum_{i,j} w_{ij}
-  \mathbf{1}\!\left[\hat{g}_{NoGo,ij} \ge \gamma_2,\;
-  \hat{g}_{Go,ij} < \gamma_1\right]}
+  \mathbf{1}\!\left[\hat{g}_{NoGo,ij} \ge \gamma_nogo,\;
+  \hat{g}_{Go,ij} < \gamma_go\right]}
 where \eqn{w_{ij} = P(X_t = x_{t,i}) \times P(X_c = x_{c,j})} are
 the multinomial probability weights.  No additional Dirichlet draws
 are required for this step.
 
 \strong{Stage 3 (optimal threshold selection)}: For each candidate
-\eqn{\gamma_1}, the maximum \eqn{\Pr(\mathrm{Go})} over all
-\eqn{\gamma_2} in \code{gamma2_grid} is computed; the optimal
-\eqn{\gamma_1} is then chosen as the \code{sel_go} value satisfying
+\eqn{\gamma_go}, the maximum \eqn{\Pr(\mathrm{Go})} over all
+\eqn{\gamma_nogo} in \code{gamma_nogo_grid} is computed; the optimal
+\eqn{\gamma_go} is then chosen as the \code{sel_go} value satisfying
 the \code{crit_go} comparison against \code{target_go}.  Analogously,
-the optimal \eqn{\gamma_2} is the \code{sel_nogo} value for which
-the maximum \eqn{\Pr(\mathrm{NoGo})} over all \eqn{\gamma_1}
+the optimal \eqn{\gamma_nogo} is the \code{sel_nogo} value for which
+the maximum \eqn{\Pr(\mathrm{NoGo})} over all \eqn{\gamma_go}
 satisfies \code{crit_nogo} against \code{target_nogo}.
 }
 \examples{
 # Example 1: Controlled design, posterior probability
-# gamma1: smallest gamma1 s.t. max_{gamma2} Pr(Go)   < 0.05
-# gamma2: largest  gamma2 s.t. max_{gamma1} Pr(NoGo) < 0.20
+# gamma_go: smallest gamma_go s.t. max_{gamma_nogo} Pr(Go)   < 0.05
+# gamma_nogo: largest  gamma_nogo s.t. max_{gamma_go} Pr(NoGo) < 0.20
 \dontrun{
 getgamma2bin(
   prob = 'posterior', design = 'controlled',
@@ -341,20 +341,20 @@ getgamma2bin(
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 10L, n2 = 10L,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  theta.TV1   = 0.15, theta.MAV1 = 0.10,
-  theta.TV2   = 0.15, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  m1 = NULL, m2 = NULL,
+  n_t = 10L, n_c = 10L,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  theta_TV1   = 0.15, theta_MAV1 = 0.10,
+  theta_TV2   = 0.15, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  m_t = NULL, m_c = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 100L, method = 'Exact',
-  gamma1_grid = seq(0.01, 0.99, by = 0.01),
-  gamma2_grid = seq(0.01, 0.99, by = 0.01)
+  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 
@@ -368,20 +368,20 @@ getgamma2bin(
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 10L, n2 = 10L,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  theta.TV1   = 0.15, theta.MAV1 = 0.10,
-  theta.TV2   = 0.15, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  m1 = NULL, m2 = NULL,
+  n_t = 10L, n_c = 10L,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  theta_TV1   = 0.15, theta_MAV1 = 0.10,
+  theta_TV2   = 0.15, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  m_t = NULL, m_c = NULL,
   z00 = 3L, z01 = 2L, z10 = 3L, z11 = 2L,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 100L, method = 'Exact',
-  gamma1_grid = seq(0.01, 0.99, by = 0.01),
-  gamma2_grid = seq(0.01, 0.99, by = 0.01)
+  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 
@@ -395,20 +395,20 @@ getgamma2bin(
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 10L, n2 = 10L,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  theta.TV1   = NULL, theta.MAV1 = NULL,
-  theta.TV2   = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.10, theta.NULL2 = 0.10,
-  m1 = 30L, m2 = 30L,
+  n_t = 10L, n_c = 10L,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  theta_TV1   = NULL, theta_MAV1 = NULL,
+  theta_TV2   = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.10, theta_NULL2 = 0.10,
+  m_t = 30L, m_c = 30L,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = NULL, ae2 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL,
   nMC = 100L, method = 'Exact',
-  gamma1_grid = seq(0.01, 0.99, by = 0.01),
-  gamma2_grid = seq(0.01, 0.99, by = 0.01)
+  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 
@@ -422,20 +422,20 @@ getgamma2bin(
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 10L, n2 = 10L,
-  a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-  a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-  theta.TV1   = NULL, theta.MAV1 = NULL,
-  theta.TV2   = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.10, theta.NULL2 = 0.10,
-  m1 = 30L, m2 = 30L,
+  n_t = 10L, n_c = 10L,
+  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+  theta_TV1   = NULL, theta_MAV1 = NULL,
+  theta_TV2   = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.10, theta_NULL2 = 0.10,
+  m_t = 30L, m_c = 30L,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe1_00 = 3L, xe1_01 = 2L, xe1_10 = 3L, xe1_11 = 2L,
-  xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-  ae1 = 0.5, ae2 = NULL,
+  xe_t_00 = 3L, xe_t_01 = 2L, xe_t_10 = 3L, xe_t_11 = 2L,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = 0.5, ae_c = NULL,
   nMC = 100L, method = 'Exact',
-  gamma1_grid = seq(0.01, 0.99, by = 0.01),
-  gamma2_grid = seq(0.01, 0.99, by = 0.01)
+  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
 
