@@ -21,45 +21,45 @@
 #'        (required when \code{prob = 'predictive'}).
 #' @param theta_NULL2 Numeric scalar. Null threshold for Endpoint 2
 #'        (required when \code{prob = 'predictive'}).
-#' @param n_t Positive integer. Sample size for the treatment arm.
-#' @param n_c Positive integer or \code{NULL}. Sample size for the control arm
+#' @param n_t Positive integer. Sample size for the treatment group.
+#' @param n_c Positive integer or \code{NULL}. Sample size for the control group
 #'        (not used when \code{design = 'uncontrolled'}).
 #' @param ybar_t Numeric vector of length 2 \strong{or} a numeric matrix with
-#'        2 columns. Sample mean(s) for the treatment arm. When a matrix with
+#'        2 columns. Sample mean(s) for the treatment group. When a matrix with
 #'        \eqn{N} rows is supplied, the function computes probabilities for
 #'        all \eqn{N} observations simultaneously and returns an
 #'        \eqn{N \times n_{\rm regions}} matrix.
 #' @param S_t A 2x2 numeric matrix (single observation) \strong{or} a list of
 #'        \eqn{N} such matrices. Sum-of-squares matrix/matrices for the
-#'        treatment arm. Must be consistent with \code{ybar_t}: if
+#'        treatment group. Must be consistent with \code{ybar_t}: if
 #'        \code{ybar_t} is a matrix, \code{S_t} must be a list of the same
 #'        length.
 #' @param ybar_c Numeric vector of length 2, a numeric matrix with 2 columns,
-#'        or \code{NULL}. Sample mean(s) for the control arm.
+#'        or \code{NULL}. Sample mean(s) for the control group.
 #' @param S_c A 2x2 numeric matrix, a list of 2x2 matrices, or \code{NULL}.
-#'        Sum-of-squares matrix/matrices for the control arm.
+#'        Sum-of-squares matrix/matrices for the control group.
 #' @param m_t Positive integer or \code{NULL}. Pivotal study sample size for
-#'        the treatment arm (required when \code{prob = 'predictive'}).
+#'        the treatment group (required when \code{prob = 'predictive'}).
 #' @param m_c Positive integer or \code{NULL}. Pivotal study sample size for
-#'        the control arm (required when \code{prob = 'predictive'} and
+#'        the control group (required when \code{prob = 'predictive'} and
 #'        \code{design != 'uncontrolled'}).
 #' @param kappa0_t Positive numeric scalar. NIW prior concentration for the
-#'        treatment arm (required when \code{prior = 'N-Inv-Wishart'}).
+#'        treatment group (required when \code{prior = 'N-Inv-Wishart'}).
 #' @param nu0_t Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
-#'        the treatment arm (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param mu0_t Length-2 numeric vector. NIW prior mean for the treatment arm
+#'        the treatment group (required when \code{prior = 'N-Inv-Wishart'}).
+#' @param mu0_t Length-2 numeric vector. NIW prior mean for the treatment group
 #'        (required when \code{prior = 'N-Inv-Wishart'}).
 #' @param Lambda0_t A 2x2 positive-definite numeric matrix. NIW prior scale
-#'        matrix for the treatment arm (required when
+#'        matrix for the treatment group (required when
 #'        \code{prior = 'N-Inv-Wishart'}).
 #' @param kappa0_c Positive numeric scalar. NIW prior concentration for the
-#'        control arm.
+#'        control group.
 #' @param nu0_c Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
-#'        the control arm.
-#' @param mu0_c Length-2 numeric vector. NIW prior mean for the control arm or
+#'        the control group.
+#' @param mu0_c Length-2 numeric vector. NIW prior mean for the control group or
 #'        hypothetical control location (\code{design = 'uncontrolled'}).
 #' @param Lambda0_c A 2x2 positive-definite numeric matrix. NIW prior scale
-#'        matrix for the control arm.
+#'        matrix for the control group.
 #' @param r Positive numeric scalar. Variance scaling factor for the
 #'        hypothetical control (required when
 #'        \code{design = 'uncontrolled'}).
@@ -100,7 +100,7 @@
 #' @details
 #' \strong{Model.}
 #' Both endpoints follow a bivariate Normal distribution
-#' \eqn{y_{k,j} \sim N_2(\mu_k, \Sigma_k)} for arm \eqn{k \in \{t, c\}}.
+#' \eqn{y_{k,j} \sim N_2(\mu_k, \Sigma_k)} for group \eqn{k \in \{t, c\}}.
 #' The treatment effect is \eqn{\theta = \mu_t - \mu_c}.
 #'
 #' \strong{Posterior distribution (vague prior).}
@@ -157,7 +157,7 @@
 #' \eqn{\mu_c \sim t_{\nu_{nt} - 1}(\mu_{0c},\;
 #' r\Lambda_{nt} / [\kappa_{nt}(\nu_{nt} - 1)])}.
 #' The parameter \code{r} allows the variance scale of the hypothetical
-#' control to differ from the treatment arm.
+#' control to differ from the treatment group.
 #'
 #' \strong{External design.}
 #' Incorporated via the power prior with NIW conjugate representation.
@@ -305,26 +305,26 @@
 #' )
 #'
 #' # Example 7: Vectorised call -- N = 3 observations simultaneously
-#' S1_list <- list(
+#' S_t_list <- list(
 #'   matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2),
 #'   matrix(c(20.0, 4.0, 4.0, 10.0), 2, 2),
 #'   matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
 #' )
-#' S2_list <- list(
+#' S_c_list <- list(
 #'   matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2),
 #'   matrix(c(17.0, 3.0, 3.0, 9.0), 2, 2),
 #'   matrix(c(14.0, 2.2, 2.2, 7.0), 2, 2)
 #' )
-#' ybar1_mat <- rbind(c(3.5, 2.1), c(4.0, 2.5), c(2.5, 1.5))
-#' ybar2_mat <- rbind(c(1.8, 1.0), c(1.9, 1.1), c(1.7, 0.9))
+#' ybar_t_mat <- rbind(c(3.5, 2.1), c(4.0, 2.5), c(2.5, 1.5))
+#' ybar_c_mat <- rbind(c(1.8, 1.0), c(1.9, 1.1), c(1.7, 0.9))
 #' pbayespostpred2cont(
 #'   prob = 'posterior', design = 'controlled', prior = 'vague',
 #'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
 #'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
 #'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   n_t = 12L, n_c = 12L,
-#'   ybar_t = ybar1_mat, S_t = S1_list,
-#'   ybar_c = ybar2_mat, S_c = S2_list,
+#'   ybar_t = ybar_t_mat, S_t = S_t_list,
+#'   ybar_c = ybar_c_mat, S_c = S_c_list,
 #'   m_t = NULL, m_c = NULL,
 #'   kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
 #'   kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
@@ -711,7 +711,7 @@ pbayespostpred2cont <- function(prob,
     yb_t <- ybar_t[i, ]
     S_t_i <- S_t[[i]]
 
-    # Posterior parameters for arm 1
+    # Posterior parameters for group 1
     if (design == 'external' && !is.null(ne_t)) {
       post_t <- .niw_post(n_t, yb_t, S_t_i,
                           kappa0 = kappa_e_t, nu0 = nu_e_t,
@@ -726,7 +726,7 @@ pbayespostpred2cont <- function(prob,
       post_t <- .vague_post(n_t, yb_t, S_t_i, for_predictive = use_pred)
     }
 
-    # Posterior parameters for arm 2
+    # Posterior parameters for group 2
     if (design == 'uncontrolled') {
       post_c <- list(df = post_t$df, mu_n = mu0_c, V = r * post_t$V)
     } else if (design == 'external' && !is.null(ne_c)) {

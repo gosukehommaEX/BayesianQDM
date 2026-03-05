@@ -15,93 +15,93 @@
 #' @param CalcMethod A character string specifying the computation method: \code{'NI'}
 #'        (Numerical Integration), \code{'MC'} (Monte Carlo), or \code{'MM'}
 #'        (Moment Matching).
-#' @param theta.TV A numeric value representing the target value (TV) threshold for the
+#' @param theta_TV A numeric value representing the target value (TV) threshold for the
 #'        Go decision. Required if \code{prob = 'posterior'}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param theta.MAV A numeric value representing the minimum acceptable value (MAV) threshold
+#' @param theta_MAV A numeric value representing the minimum acceptable value (MAV) threshold
 #'        for the NoGo decision. Required if \code{prob = 'posterior'}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param theta.NULL A numeric value representing the null hypothesis threshold.
+#' @param theta_NULL A numeric value representing the null hypothesis threshold.
 #'        Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
 #' @param nMC A positive integer specifying the number of Monte Carlo draws for computing
 #'        posterior probabilities. Required if \code{CalcMethod = 'MC'};
 #'        otherwise \code{NULL}.
-#' @param gamma1 A numeric value in (0, 1) representing the Go decision threshold.
-#' @param gamma2 A numeric value in (0, 1) representing the NoGo decision threshold.
-#'        Must be strictly less than \code{gamma1}.
-#' @param n1 A positive integer representing the sample size for group 1 (treatment).
-#' @param n2 A positive integer representing the sample size for group 2 (control).
+#' @param gamma_go A numeric value in (0, 1) representing the Go decision threshold.
+#' @param gamma_nogo A numeric value in (0, 1) representing the NoGo decision threshold.
+#'        Must be strictly less than \code{gamma_go}.
+#' @param n_t A positive integer representing the sample size for the treatment group.
+#' @param n_c A positive integer representing the sample size for the control group.
 #'        Required if \code{design = 'controlled'} or \code{design = 'external'}.
 #'        Set to \code{NULL} if \code{design = 'uncontrolled'}.
-#' @param m1 A positive integer representing the future sample size for group 1.
+#' @param m_t A positive integer representing the future sample size for the
+#'        treatment group. Required if \code{prob = 'predictive'};
+#'        otherwise \code{NULL}. Default is \code{NULL}.
+#' @param m_c A positive integer representing the future sample size for the control group.
 #'        Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param m2 A positive integer representing the future sample size for group 2.
-#'        Required if \code{prob = 'predictive'}; otherwise \code{NULL}.
+#' @param kappa0_t A positive numeric value representing the prior hyperparameter kappa for
+#'        the treatment group. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param kappa01 A positive numeric value representing the prior hyperparameter kappa for
-#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
-#'        Default is \code{NULL}.
-#' @param kappa02 A positive numeric value representing the prior hyperparameter kappa for
-#'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+#' @param kappa0_c A positive numeric value representing the prior hyperparameter kappa for
+#'        the control group. Required if \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param nu01 A positive numeric value representing the prior hyperparameter nu for
-#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+#' @param nu0_t A positive numeric value representing the prior hyperparameter nu for
+#'        the treatment group. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param nu02 A positive numeric value representing the prior hyperparameter nu for
-#'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+#' @param nu0_c A positive numeric value representing the prior hyperparameter nu for
+#'        the control group. Required if \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param mu01 A numeric value representing the prior mean for group 1. Required if
+#' @param mu0_t A numeric value representing the prior mean for the treatment group. Required if
 #'        \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}. Default is \code{NULL}.
-#' @param mu02 A numeric value representing the prior mean for group 2. For
+#' @param mu0_c A numeric value representing the prior mean for the control group. For
 #'        \code{design = 'uncontrolled'}, this represents the hypothetical control mean.
 #'        Required if \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design \%in\% c('controlled', 'external')}, or if
 #'        \code{design = 'uncontrolled'}; otherwise \code{NULL}. Default is \code{NULL}.
-#' @param sigma01 A positive numeric value representing the prior standard deviation for
-#'        group 1. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
+#' @param sigma0_t A positive numeric value representing the prior standard deviation for
+#'        the treatment group. Required if \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param sigma02 A positive numeric value representing the prior standard deviation for
-#'        group 2. Required if \code{prior = 'N-Inv-Chisq'} and
+#' @param sigma0_c A positive numeric value representing the prior standard deviation for
+#'        the control group. Required if \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design \%in\% c('controlled', 'external')}; otherwise \code{NULL}.
 #'        Default is \code{NULL}.
-#' @param mu1 A numeric value representing the true mean for group 1 in the simulation.
-#' @param mu2 A numeric value representing the true mean for group 2 in the simulation.
+#' @param mu_t A numeric value representing the true mean for the treatment group in the simulation.
+#' @param mu_c A numeric value representing the true mean for the control group in the simulation.
 #'        For uncontrolled design, this represents the historical control mean.
 #'        Set to \code{NULL} if \code{design = 'uncontrolled'}.
-#' @param sigma1 A positive numeric value representing the true standard deviation
-#'        for group 1 in the simulation.
-#' @param sigma2 A positive numeric value representing the true standard deviation
-#'        for group 2 in the simulation. For uncontrolled design, this represents
+#' @param sigma_t A positive numeric value representing the true standard deviation
+#'        for the treatment group in the simulation.
+#' @param sigma_c A positive numeric value representing the true standard deviation
+#'        for the control group in the simulation. For uncontrolled design, this represents
 #'        the historical control standard deviation.
 #'        Set to \code{NULL} if \code{design = 'uncontrolled'}.
 #' @param r A positive numeric value representing the variance scaling factor that allows
 #'        the scale of hypothetical control to be different from treatment. Specifically,
 #'        \code{sd.control = sqrt(r) * sd.treatment}. Required if \code{design = 'uncontrolled'}.
 #'        When \code{r = 1}, the control and treatment have the same variance scale.
-#' @param ne1 A positive integer representing the number of patients in group 1 for
+#' @param ne_t A positive integer representing the number of patients in the treatment group for
 #'        the external data. Required if \code{design = 'external'} and external
 #'        treatment data are available.
-#' @param ne2 A positive integer representing the number of patients in group 2 for
+#' @param ne_c A positive integer representing the number of patients in the control group for
 #'        the external data. Required if \code{design = 'external'} and external
 #'        control data are available.
-#' @param alpha01 A numeric value in (0, 1] representing the power prior scale parameter
-#'        for group 1. Controls the degree of borrowing from external treatment data:
-#'        0 = no borrowing, 1 = full borrowing. Required if \code{ne1} is specified.
-#' @param alpha02 A numeric value in (0, 1] representing the power prior scale parameter
-#'        for group 2. Controls the degree of borrowing from external control data:
-#'        0 = no borrowing, 1 = full borrowing. Required if \code{ne2} is specified.
-#' @param bar.ye1 A numeric value representing the sample mean of the external data
-#'        for group 1. Required if \code{ne1} is specified.
-#' @param bar.ye2 A numeric value representing the sample mean of the external data
-#'        for group 2. Required if \code{ne2} is specified.
-#' @param se1 A positive numeric value representing the sample standard deviation
-#'        of the external data for group 1. Required if \code{ne1} is specified.
-#' @param se2 A positive numeric value representing the sample standard deviation
-#'        of the external data for group 2. Required if \code{ne2} is specified.
+#' @param alpha0_t A numeric value in (0, 1] representing the power prior scale parameter
+#'        for the treatment group. Controls the degree of borrowing from external treatment data:
+#'        0 = no borrowing, 1 = full borrowing. Required if \code{ne_t} is specified.
+#' @param alpha0_c A numeric value in (0, 1] representing the power prior scale parameter
+#'        for the control group. Controls the degree of borrowing from external control data:
+#'        0 = no borrowing, 1 = full borrowing. Required if \code{ne_c} is specified.
+#' @param bar_ye_t A numeric value representing the sample mean of the external data
+#'        for the treatment group. Required if \code{ne_t} is specified.
+#' @param bar_ye_c A numeric value representing the sample mean of the external data
+#'        for the control group. Required if \code{ne_c} is specified.
+#' @param se_t A positive numeric value representing the sample standard deviation
+#'        of the external data for the treatment group. Required if \code{ne_t} is specified.
+#' @param se_c A positive numeric value representing the sample standard deviation
+#'        of the external data for the control group. Required if \code{ne_c} is specified.
 #' @param error_if_Miss A logical value; if \code{TRUE} (default), the function stops
 #'        with an error when positive Miss probability is obtained, indicating poorly
 #'        chosen thresholds. If \code{FALSE}, the function proceeds and reports Miss
@@ -115,7 +115,7 @@
 #' @return A data frame containing the true means for both groups and the Go, NoGo, and
 #'         Gray probabilities. When \code{error_if_Miss = FALSE} and \code{Gray_inc_Miss = FALSE},
 #'         Miss probability is also included as a separate column. For uncontrolled design,
-#'         only mu1 is included (not mu2).
+#'         only mu_t is included (not mu_c).
 #'
 #' @details
 #' The function performs Monte Carlo simulation to evaluate operating characteristics by:
@@ -140,9 +140,9 @@
 #'
 #' **Decision rules**:
 #' \itemize{
-#'   \item **Go**: P(treatment effect > threshold) >= gamma1
-#'   \item **NoGo**: P(treatment effect > threshold) <= gamma2
-#'   \item **Gray**: gamma2 < P(treatment effect > threshold) < gamma1
+#'   \item **Go**: P(treatment effect > threshold) >= gamma_go
+#'   \item **NoGo**: P(treatment effect > threshold) <= gamma_nogo
+#'   \item **Gray**: gamma_nogo < P(treatment effect > threshold) < gamma_go
 #'   \item **Miss**: Both Go and NoGo criteria are met simultaneously (indicates
 #'                   poorly chosen thresholds)
 #' }
@@ -169,28 +169,28 @@
 #' # (default: error_if_Miss = TRUE, Gray_inc_Miss = FALSE)
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-#'   theta.TV = 1.5, theta.MAV = -0.5, theta.NULL = NULL,
-#'   nMC = NULL, gamma1 = 0.7, gamma2 = 0.2,
-#'   n1 = 15, n2 = 15, m1 = NULL, m2 = NULL,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   mu1 = 3, mu2 = 1, sigma1 = 1.2, sigma2 = 1.1,
-#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta_TV = 1.5, theta_MAV = -0.5, theta_NULL = NULL,
+#'   nMC = NULL, gamma_go = 0.7, gamma_nogo = 0.2,
+#'   n_t = 15, n_c = 15, m_t = NULL, m_c = NULL,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+#'   mu_t = 3, mu_c = 1, sigma_t = 1.2, sigma_c = 1.1,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
 #' )
 #'
 #' # Example 2: Uncontrolled design with informative prior
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-#'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
-#'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
-#'   n1 = 20, n2 = NULL, m1 = NULL, m2 = NULL,
-#'   kappa01 = 2, kappa02 = NULL, nu01 = 5, nu02 = NULL,
-#'   mu01 = 3.0, mu02 = 1.5, sigma01 = 1.5, sigma02 = NULL,
-#'   mu1 = 3.5, mu2 = NULL, sigma1 = 1.3, sigma2 = NULL,
-#'   r = 1, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL,
+#'   nMC = NULL, gamma_go = 0.8, gamma_nogo = 0.2,
+#'   n_t = 20, n_c = NULL, m_t = NULL, m_c = NULL,
+#'   kappa0_t = 2, kappa0_c = NULL, nu0_t = 5, nu0_c = NULL,
+#'   mu0_t = 3.0, mu0_c = 1.5, sigma0_t = 1.5, sigma0_c = NULL,
+#'   mu_t = 3.5, mu_c = NULL, sigma_t = 1.3, sigma_c = NULL,
+#'   r = 1, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3
 #' )
 #'
@@ -198,14 +198,14 @@
 #' \dontrun{
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'MM',
-#'   theta.TV = 1.0, theta.MAV = 0.0, theta.NULL = NULL,
-#'   nMC = NULL, gamma1 = 0.8, gamma2 = 0.2,
-#'   n1 = 12, n2 = 12, m1 = NULL, m2 = NULL,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   mu1 = 2, mu2 = 0, sigma1 = 1, sigma2 = 1,
-#'   r = NULL, ne1 = NULL, ne2 = 20, alpha01 = NULL, alpha02 = 0.5,
-#'   bar.ye1 = NULL, bar.ye2 = 0, se1 = NULL, se2 = 1,
+#'   theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL,
+#'   nMC = NULL, gamma_go = 0.8, gamma_nogo = 0.2,
+#'   n_t = 12, n_c = 12, m_t = NULL, m_c = NULL,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+#'   mu_t = 2, mu_c = 0, sigma_t = 1, sigma_c = 1,
+#'   r = NULL, ne_t = NULL, ne_c = 20, alpha0_t = NULL, alpha0_c = 0.5,
+#'   bar_ye_t = NULL, bar_ye_c = 0, se_t = NULL, se_c = 1,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 #' )
 #' }
@@ -213,14 +213,14 @@
 #' # Example 4: Controlled design with predictive probability
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-#'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 2.0,
-#'   nMC = NULL, gamma1 = 0.75, gamma2 = 0.35,
-#'   n1 = 15, n2 = 15, m1 = 50, m2 = 50,
-#'   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
-#'   mu01 = 3.5, mu02 = 1.5, sigma01 = 1.5, sigma02 = 1.5,
-#'   mu1 = 3.2, mu2 = 1.3, sigma1 = 1.4, sigma2 = 1.2,
-#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 2.0,
+#'   nMC = NULL, gamma_go = 0.75, gamma_nogo = 0.35,
+#'   n_t = 15, n_c = 15, m_t = 50, m_c = 50,
+#'   kappa0_t = 3, kappa0_c = 3, nu0_t = 4, nu0_c = 4,
+#'   mu0_t = 3.5, mu0_c = 1.5, sigma0_t = 1.5, sigma0_c = 1.5,
+#'   mu_t = 3.2, mu_c = 1.3, sigma_t = 1.4, sigma_c = 1.2,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5
 #' )
 #'
@@ -228,14 +228,14 @@
 #' \dontrun{
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
-#'   theta.TV = NULL, theta.MAV = NULL, theta.NULL = 1.5,
-#'   nMC = 5000, gamma1 = 0.7, gamma2 = 0.4,
-#'   n1 = 12, n2 = 12, m1 = 30, m2 = 30,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   mu1 = 2.5, mu2 = 1.0, sigma1 = 1.3, sigma2 = 1.1,
-#'   r = NULL, ne1 = 15, ne2 = 18, alpha01 = 0.6, alpha02 = 0.7,
-#'   bar.ye1 = 2.3, bar.ye2 = 0.9, se1 = 1.2, se2 = 1.0,
+#'   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.5,
+#'   nMC = 5000, gamma_go = 0.7, gamma_nogo = 0.4,
+#'   n_t = 12, n_c = 12, m_t = 30, m_c = 30,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+#'   mu_t = 2.5, mu_c = 1.0, sigma_t = 1.3, sigma_c = 1.1,
+#'   r = NULL, ne_t = 15, ne_c = 18, alpha0_t = 0.6, alpha0_c = 0.7,
+#'   bar_ye_t = 2.3, bar_ye_c = 0.9, se_t = 1.2, se_c = 1.0,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 #' )
 #' }
@@ -243,46 +243,46 @@
 #' # Example 6: Report Miss probability separately when thresholds may be suboptimal
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-#'   theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
-#'   nMC = NULL, gamma1 = 0.65, gamma2 = 0.55,
-#'   n1 = 10, n2 = 10, m1 = NULL, m2 = NULL,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
-#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta_TV = 1.0, theta_MAV = 0.8, theta_NULL = NULL,
+#'   nMC = NULL, gamma_go = 0.65, gamma_nogo = 0.55,
+#'   n_t = 10, n_c = 10, m_t = NULL, m_c = NULL,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+#'   mu_t = 2.5, mu_c = 1.5, sigma_t = 1.0, sigma_c = 1.0,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 7
 #' )
 #'
 #' # Example 7: Include Miss probability in Gray when error_if_Miss = FALSE
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-#'   theta.TV = 1.0, theta.MAV = 0.8, theta.NULL = NULL,
-#'   nMC = NULL, gamma1 = 0.65, gamma2 = 0.55,
-#'   n1 = 10, n2 = 10, m1 = NULL, m2 = NULL,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   mu1 = 2.5, mu2 = 1.5, sigma1 = 1.0, sigma2 = 1.0,
-#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta_TV = 1.0, theta_MAV = 0.8, theta_NULL = NULL,
+#'   nMC = NULL, gamma_go = 0.65, gamma_nogo = 0.55,
+#'   n_t = 10, n_c = 10, m_t = NULL, m_c = NULL,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+#'   mu_t = 2.5, mu_c = 1.5, sigma_t = 1.0, sigma_c = 1.0,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 8
 #' )
 #'
 #' @importFrom stats rnorm
 #' @export
 pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
-                                    theta.TV = NULL, theta.MAV = NULL, theta.NULL = NULL,
-                                    nMC = NULL, gamma1, gamma2, n1, n2 = NULL,
-                                    m1 = NULL, m2 = NULL,
-                                    kappa01 = NULL, kappa02 = NULL,
-                                    nu01 = NULL, nu02 = NULL,
-                                    mu01 = NULL, mu02 = NULL,
-                                    sigma01 = NULL, sigma02 = NULL,
-                                    mu1, mu2 = NULL, sigma1, sigma2 = NULL,
-                                    r = NULL, ne1 = NULL, ne2 = NULL,
-                                    alpha01 = NULL, alpha02 = NULL,
-                                    bar.ye1 = NULL, bar.ye2 = NULL,
-                                    se1 = NULL, se2 = NULL,
+                                    theta_TV = NULL, theta_MAV = NULL, theta_NULL = NULL,
+                                    nMC = NULL, gamma_go, gamma_nogo, n_t, n_c = NULL,
+                                    m_t = NULL, m_c = NULL,
+                                    kappa0_t = NULL, kappa0_c = NULL,
+                                    nu0_t = NULL, nu0_c = NULL,
+                                    mu0_t = NULL, mu0_c = NULL,
+                                    sigma0_t = NULL, sigma0_c = NULL,
+                                    mu_t, mu_c = NULL, sigma_t, sigma_c = NULL,
+                                    r = NULL, ne_t = NULL, ne_c = NULL,
+                                    alpha0_t = NULL, alpha0_c = NULL,
+                                    bar_ye_t = NULL, bar_ye_c = NULL,
+                                    se_t = NULL, se_c = NULL,
                                     error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed) {
 
   # --- Input validation ---
@@ -311,36 +311,36 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
     stop("'nsim' must be a single positive integer")
   }
 
-  # Validate n1 (always required)
-  if (!is.numeric(n1) || length(n1) != 1L || is.na(n1) ||
-      n1 != floor(n1) || n1 < 1L) {
-    stop("'n1' must be a single positive integer")
+  # Validate n_t (always required)
+  if (!is.numeric(n_t) || length(n_t) != 1L || is.na(n_t) ||
+      n_t != floor(n_t) || n_t < 1L) {
+    stop("'n_t' must be a single positive integer")
   }
 
-  # Validate n2 (required only for controlled and external designs)
+  # Validate n_c (required only for controlled and external designs)
   if (design %in% c("controlled", "external")) {
-    if (!is.numeric(n2) || length(n2) != 1L || is.na(n2) ||
-        n2 != floor(n2) || n2 < 1L) {
-      stop("'n2' must be a single positive integer")
+    if (!is.numeric(n_c) || length(n_c) != 1L || is.na(n_c) ||
+        n_c != floor(n_c) || n_c < 1L) {
+      stop("'n_c' must be a single positive integer")
     }
   }
 
-  if (!is.numeric(gamma1) || length(gamma1) != 1L || is.na(gamma1) ||
-      gamma1 <= 0 || gamma1 >= 1) {
-    stop("'gamma1' must be a single numeric value in (0, 1)")
+  if (!is.numeric(gamma_go) || length(gamma_go) != 1L || is.na(gamma_go) ||
+      gamma_go <= 0 || gamma_go >= 1) {
+    stop("'gamma_go' must be a single numeric value in (0, 1)")
   }
 
-  if (!is.numeric(gamma2) || length(gamma2) != 1L || is.na(gamma2) ||
-      gamma2 <= 0 || gamma2 >= 1) {
-    stop("'gamma2' must be a single numeric value in (0, 1)")
+  if (!is.numeric(gamma_nogo) || length(gamma_nogo) != 1L || is.na(gamma_nogo) ||
+      gamma_nogo <= 0 || gamma_nogo >= 1) {
+    stop("'gamma_nogo' must be a single numeric value in (0, 1)")
   }
 
-  if (gamma2 >= gamma1) {
-    stop("'gamma2' must be strictly less than 'gamma1'")
+  if (gamma_nogo >= gamma_go) {
+    stop("'gamma_nogo' must be strictly less than 'gamma_go'")
   }
 
-  if (!is.numeric(sigma1) || length(sigma1) != 1L || is.na(sigma1) || sigma1 <= 0) {
-    stop("'sigma1' must be a single positive numeric value")
+  if (!is.numeric(sigma_t) || length(sigma_t) != 1L || is.na(sigma_t) || sigma_t <= 0) {
+    stop("'sigma_t' must be a single positive numeric value")
   }
 
   if (!is.logical(error_if_Miss) || length(error_if_Miss) != 1L || is.na(error_if_Miss)) {
@@ -364,85 +364,85 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
 
   # Validate prob-specific parameters
   if (prob == "posterior") {
-    if (is.null(theta.TV) || is.null(theta.MAV)) {
-      stop("'theta.TV' and 'theta.MAV' must be non-NULL when prob = 'posterior'")
+    if (is.null(theta_TV) || is.null(theta_MAV)) {
+      stop("'theta_TV' and 'theta_MAV' must be non-NULL when prob = 'posterior'")
     }
-    if (!is.numeric(theta.TV) || length(theta.TV) != 1L || is.na(theta.TV)) {
-      stop("'theta.TV' must be a single numeric value")
+    if (!is.numeric(theta_TV) || length(theta_TV) != 1L || is.na(theta_TV)) {
+      stop("'theta_TV' must be a single numeric value")
     }
-    if (!is.numeric(theta.MAV) || length(theta.MAV) != 1L || is.na(theta.MAV)) {
-      stop("'theta.MAV' must be a single numeric value")
+    if (!is.numeric(theta_MAV) || length(theta_MAV) != 1L || is.na(theta_MAV)) {
+      stop("'theta_MAV' must be a single numeric value")
     }
-    if (theta.TV <= theta.MAV) {
-      stop("'theta.TV' must be strictly greater than 'theta.MAV'")
+    if (theta_TV <= theta_MAV) {
+      stop("'theta_TV' must be strictly greater than 'theta_MAV'")
     }
   } else {
-    if (is.null(theta.NULL)) {
-      stop("'theta.NULL' must be non-NULL when prob = 'predictive'")
+    if (is.null(theta_NULL)) {
+      stop("'theta_NULL' must be non-NULL when prob = 'predictive'")
     }
-    if (!is.numeric(theta.NULL) || length(theta.NULL) != 1L || is.na(theta.NULL)) {
-      stop("'theta.NULL' must be a single numeric value")
+    if (!is.numeric(theta_NULL) || length(theta_NULL) != 1L || is.na(theta_NULL)) {
+      stop("'theta_NULL' must be a single numeric value")
     }
-    if (is.null(m1) || is.null(m2)) {
-      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
+    if (is.null(m_t) || is.null(m_c)) {
+      stop("'m_t' and 'm_c' must be non-NULL when prob = 'predictive'")
     }
-    if (!is.numeric(m1) || length(m1) != 1L || is.na(m1) ||
-        m1 != floor(m1) || m1 < 1L) {
-      stop("'m1' must be a single positive integer")
+    if (!is.numeric(m_t) || length(m_t) != 1L || is.na(m_t) ||
+        m_t != floor(m_t) || m_t < 1L) {
+      stop("'m_t' must be a single positive integer")
     }
-    if (!is.numeric(m2) || length(m2) != 1L || is.na(m2) ||
-        m2 != floor(m2) || m2 < 1L) {
-      stop("'m2' must be a single positive integer")
+    if (!is.numeric(m_c) || length(m_c) != 1L || is.na(m_c) ||
+        m_c != floor(m_c) || m_c < 1L) {
+      stop("'m_c' must be a single positive integer")
     }
   }
 
   # Validate prior-specific parameters
   if (prior == "N-Inv-Chisq") {
-    if (is.null(kappa01) || is.null(nu01) || is.null(mu01) || is.null(sigma01)) {
-      stop("'kappa01', 'nu01', 'mu01', and 'sigma01' must be non-NULL when prior = 'N-Inv-Chisq'")
+    if (is.null(kappa0_t) || is.null(nu0_t) || is.null(mu0_t) || is.null(sigma0_t)) {
+      stop("'kappa0_t', 'nu0_t', 'mu0_t', and 'sigma0_t' must be non-NULL when prior = 'N-Inv-Chisq'")
     }
-    if (!is.numeric(kappa01) || length(kappa01) != 1L || is.na(kappa01) || kappa01 <= 0) {
-      stop("'kappa01' must be a single positive numeric value")
+    if (!is.numeric(kappa0_t) || length(kappa0_t) != 1L || is.na(kappa0_t) || kappa0_t <= 0) {
+      stop("'kappa0_t' must be a single positive numeric value")
     }
-    if (!is.numeric(nu01) || length(nu01) != 1L || is.na(nu01) || nu01 <= 0) {
-      stop("'nu01' must be a single positive numeric value")
+    if (!is.numeric(nu0_t) || length(nu0_t) != 1L || is.na(nu0_t) || nu0_t <= 0) {
+      stop("'nu0_t' must be a single positive numeric value")
     }
-    if (!is.numeric(mu01) || length(mu01) != 1L || is.na(mu01)) {
-      stop("'mu01' must be a single numeric value")
+    if (!is.numeric(mu0_t) || length(mu0_t) != 1L || is.na(mu0_t)) {
+      stop("'mu0_t' must be a single numeric value")
     }
-    if (!is.numeric(sigma01) || length(sigma01) != 1L || is.na(sigma01) || sigma01 <= 0) {
-      stop("'sigma01' must be a single positive numeric value")
+    if (!is.numeric(sigma0_t) || length(sigma0_t) != 1L || is.na(sigma0_t) || sigma0_t <= 0) {
+      stop("'sigma0_t' must be a single positive numeric value")
     }
     if (design %in% c("controlled", "external")) {
-      for (nm in c("kappa02", "nu02", "mu02", "sigma02")) {
+      for (nm in c("kappa0_c", "nu0_c", "mu0_c", "sigma0_c")) {
         val <- get(nm)
         if (is.null(val)) {
           stop(paste0("'", nm, "' must be non-NULL when prior = 'N-Inv-Chisq' and design = '",
                       design, "'"))
         }
       }
-      if (!is.numeric(kappa02) || length(kappa02) != 1L || is.na(kappa02) || kappa02 <= 0) {
-        stop("'kappa02' must be a single positive numeric value")
+      if (!is.numeric(kappa0_c) || length(kappa0_c) != 1L || is.na(kappa0_c) || kappa0_c <= 0) {
+        stop("'kappa0_c' must be a single positive numeric value")
       }
-      if (!is.numeric(nu02) || length(nu02) != 1L || is.na(nu02) || nu02 <= 0) {
-        stop("'nu02' must be a single positive numeric value")
+      if (!is.numeric(nu0_c) || length(nu0_c) != 1L || is.na(nu0_c) || nu0_c <= 0) {
+        stop("'nu0_c' must be a single positive numeric value")
       }
-      if (!is.numeric(mu02) || length(mu02) != 1L || is.na(mu02)) {
-        stop("'mu02' must be a single numeric value")
+      if (!is.numeric(mu0_c) || length(mu0_c) != 1L || is.na(mu0_c)) {
+        stop("'mu0_c' must be a single numeric value")
       }
-      if (!is.numeric(sigma02) || length(sigma02) != 1L || is.na(sigma02) || sigma02 <= 0) {
-        stop("'sigma02' must be a single positive numeric value")
+      if (!is.numeric(sigma0_c) || length(sigma0_c) != 1L || is.na(sigma0_c) || sigma0_c <= 0) {
+        stop("'sigma0_c' must be a single positive numeric value")
       }
     }
   }
 
   # Validate design-specific parameters
   if (design == "uncontrolled") {
-    if (is.null(mu02)) {
-      stop("'mu02' must be non-NULL when design = 'uncontrolled'")
+    if (is.null(mu0_c)) {
+      stop("'mu0_c' must be non-NULL when design = 'uncontrolled'")
     }
-    if (!is.numeric(mu02) || length(mu02) != 1L || is.na(mu02)) {
-      stop("'mu02' must be a single numeric value")
+    if (!is.numeric(mu0_c) || length(mu0_c) != 1L || is.na(mu0_c)) {
+      stop("'mu0_c' must be a single numeric value")
     }
     if (is.null(r)) {
       stop("'r' must be non-NULL when design = 'uncontrolled'")
@@ -453,43 +453,43 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
   }
 
   if (design == "external") {
-    has_ext1 <- !is.null(ne1) && !is.null(alpha01) && !is.null(bar.ye1) && !is.null(se1)
-    has_ext2 <- !is.null(ne2) && !is.null(alpha02) && !is.null(bar.ye2) && !is.null(se2)
+    has_ext1 <- !is.null(ne_t) && !is.null(alpha0_t) && !is.null(bar_ye_t) && !is.null(se_t)
+    has_ext2 <- !is.null(ne_c) && !is.null(alpha0_c) && !is.null(bar_ye_c) && !is.null(se_c)
     if (!has_ext1 && !has_ext2) {
       stop(paste0("For design = 'external', at least one complete set of external data ",
-                  "(ne1 + alpha01 + bar.ye1 + se1, or ne2 + alpha02 + bar.ye2 + se2) ",
+                  "(ne_t + alpha0_t + bar_ye_t + se_t, or ne_c + alpha0_c + bar_ye_c + se_c) ",
                   "must be provided"))
     }
-    if (!is.null(ne1)) {
-      if (!is.numeric(ne1) || length(ne1) != 1L || is.na(ne1) ||
-          ne1 != floor(ne1) || ne1 < 1L) {
-        stop("'ne1' must be a single positive integer")
+    if (!is.null(ne_t)) {
+      if (!is.numeric(ne_t) || length(ne_t) != 1L || is.na(ne_t) ||
+          ne_t != floor(ne_t) || ne_t < 1L) {
+        stop("'ne_t' must be a single positive integer")
       }
-      if (!is.numeric(alpha01) || length(alpha01) != 1L || is.na(alpha01) ||
-          alpha01 <= 0 || alpha01 > 1) {
-        stop("'alpha01' must be a single numeric value in (0, 1]")
+      if (!is.numeric(alpha0_t) || length(alpha0_t) != 1L || is.na(alpha0_t) ||
+          alpha0_t <= 0 || alpha0_t > 1) {
+        stop("'alpha0_t' must be a single numeric value in (0, 1]")
       }
-      if (!is.numeric(bar.ye1) || length(bar.ye1) != 1L || is.na(bar.ye1)) {
-        stop("'bar.ye1' must be a single numeric value")
+      if (!is.numeric(bar_ye_t) || length(bar_ye_t) != 1L || is.na(bar_ye_t)) {
+        stop("'bar_ye_t' must be a single numeric value")
       }
-      if (!is.numeric(se1) || length(se1) != 1L || is.na(se1) || se1 <= 0) {
-        stop("'se1' must be a single positive numeric value")
+      if (!is.numeric(se_t) || length(se_t) != 1L || is.na(se_t) || se_t <= 0) {
+        stop("'se_t' must be a single positive numeric value")
       }
     }
-    if (!is.null(ne2)) {
-      if (!is.numeric(ne2) || length(ne2) != 1L || is.na(ne2) ||
-          ne2 != floor(ne2) || ne2 < 1L) {
-        stop("'ne2' must be a single positive integer")
+    if (!is.null(ne_c)) {
+      if (!is.numeric(ne_c) || length(ne_c) != 1L || is.na(ne_c) ||
+          ne_c != floor(ne_c) || ne_c < 1L) {
+        stop("'ne_c' must be a single positive integer")
       }
-      if (!is.numeric(alpha02) || length(alpha02) != 1L || is.na(alpha02) ||
-          alpha02 <= 0 || alpha02 > 1) {
-        stop("'alpha02' must be a single numeric value in (0, 1]")
+      if (!is.numeric(alpha0_c) || length(alpha0_c) != 1L || is.na(alpha0_c) ||
+          alpha0_c <= 0 || alpha0_c > 1) {
+        stop("'alpha0_c' must be a single numeric value in (0, 1]")
       }
-      if (!is.numeric(bar.ye2) || length(bar.ye2) != 1L || is.na(bar.ye2)) {
-        stop("'bar.ye2' must be a single numeric value")
+      if (!is.numeric(bar_ye_c) || length(bar_ye_c) != 1L || is.na(bar_ye_c)) {
+        stop("'bar_ye_c' must be a single numeric value")
       }
-      if (!is.numeric(se2) || length(se2) != 1L || is.na(se2) || se2 <= 0) {
-        stop("'se2' must be a single positive numeric value")
+      if (!is.numeric(se_c) || length(se_c) != 1L || is.na(se_c) || se_c <= 0) {
+        stop("'se_c' must be a single positive numeric value")
       }
     }
   }
@@ -497,85 +497,85 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
   # --- Simulation setup ---
   set.seed(seed)
 
-  # Shared across all mu1 scenarios: bar.y1[scenario] = rowMeans(Z1) + mu1[scenario],
-  # and s1 is independent of mu1, so it is computed once and reused.
-  Z1 <- matrix(rnorm(nsim * n1, mean = 0, sd = sigma1), nrow = nsim)
-  Z1_rowmean <- rowSums(Z1) / n1
-  s1 <- sqrt(rowSums((Z1 - Z1_rowmean) ^ 2) / (n1 - 1))
+  # Shared across all mu_t scenarios: bar_y_t[scenario] = rowMeans(Z_t) + mu_t[scenario],
+  # and s_t is independent of mu_t, so it is computed once and reused.
+  Z_t <- matrix(rnorm(nsim * n_t, mean = 0, sd = sigma_t), nrow = nsim)
+  Z_t_rowmean <- rowSums(Z_t) / n_t
+  s_t <- sqrt(rowSums((Z_t - Z_t_rowmean) ^ 2) / (n_t - 1))
 
   if (design == 'controlled' | design == 'external') {
-    # Generate nsim x n2 matrix of standardized residuals for group 2 (mean=0, sd=sigma2).
-    # mu2 is fixed to a single value, so bar.y2 and s2 are computed once.
-    Z2 <- matrix(rnorm(nsim * n2, mean = 0, sd = sigma2), nrow = nsim)
-    Z2_rowmean <- rowSums(Z2) / n2
-    bar.y2 <- Z2_rowmean + mu2
-    s2     <- sqrt(rowSums((Z2 - Z2_rowmean) ^ 2) / (n2 - 1))
+    # Generate nsim x n_c matrix of standardized residuals for the control group (mean=0, sd=sigma_c).
+    # mu_c is fixed to a single value, so bar_y_c and s_c are computed once.
+    Z_c <- matrix(rnorm(nsim * n_c, mean = 0, sd = sigma_c), nrow = nsim)
+    Z_c_rowmean <- rowSums(Z_c) / n_c
+    bar_y_c <- Z_c_rowmean + mu_c
+    s_c     <- sqrt(rowSums((Z_c - Z_c_rowmean) ^ 2) / (n_c - 1))
   } else if (design == 'uncontrolled') {
-    # For uncontrolled design: no group 2 data generated
-    bar.y2 <- NULL
-    s2     <- NULL
+    # For uncontrolled design: no control group data generated
+    bar_y_c <- NULL
+    s_c     <- NULL
   }
 
   # External data are fixed historical sample statistics (no generation needed)
 
-  # Ensure mu1 is a numeric vector to support multiple scenarios
-  mu1 <- as.numeric(mu1)
-  n_scenarios <- length(mu1)
+  # Ensure mu_t is a numeric vector to support multiple scenarios
+  mu_t <- as.numeric(mu_t)
+  n_scenarios <- length(mu_t)
 
   # Set threshold values based on probability type
   if (prob == 'posterior') {
-    theta0_Go   <- theta.TV
-    theta0_NoGo <- theta.MAV
+    theta0_Go   <- theta_TV
+    theta0_NoGo <- theta_MAV
   } else {
-    theta0_Go   <- theta.NULL
-    theta0_NoGo <- theta.NULL
+    theta0_Go   <- theta_NULL
+    theta0_NoGo <- theta_NULL
   }
 
-  # Expand bar.y1 and s1 across all mu1 scenarios into a single vector of
-  # length nsim * n_scenarios. For bar.y1, shift each scenario's block by mu1[i].
-  # s1 is independent of mu1 so it is simply replicated.
-  bar.y1_all <- rep(Z1_rowmean, times = n_scenarios) + rep(mu1, each = nsim)
-  s1_all     <- rep(s1, times = n_scenarios)
+  # Expand bar_y_t and s_t across all mu_t scenarios into a single vector of
+  # length nsim * n_scenarios. For bar_y_t, shift each scenario's block by mu_t[i].
+  # s_t is independent of mu_t so it is simply replicated.
+  bar_y_t_all   <- rep(Z_t_rowmean, times = n_scenarios) + rep(mu_t, each = nsim)
+  s_t_all        <- rep(s_t, times = n_scenarios)
 
   if (design == 'controlled' | design == 'external') {
-    bar.y2_all <- rep(bar.y2, times = n_scenarios)
-    s2_all     <- rep(s2,     times = n_scenarios)
+    bar_y_c_all <- rep(bar_y_c, times = n_scenarios)
+    s_c_all      <- rep(s_c,     times = n_scenarios)
   } else {
-    bar.y2_all <- NULL
-    s2_all     <- NULL
+    bar_y_c_all <- NULL
+    s_c_all      <- NULL
   }
 
   # Call pbayespostpred1cont once with the expanded vectors.
   # Returns a vector of length nsim * n_scenarios.
   gPost_Go_all <- pbayespostpred1cont(
     prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
-    theta0 = theta0_Go, nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
-    kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
-    mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
-    bar.y1 = bar.y1_all, bar.y2 = bar.y2_all, s1 = s1_all, s2 = s2_all,
-    r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
-    bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2,
+    theta0 = theta0_Go, nMC = nMC, n_t = n_t, n_c = n_c, m_t = m_t, m_c = m_c,
+    kappa0_t = kappa0_t, kappa0_c = kappa0_c, nu0_t = nu0_t, nu0_c = nu0_c,
+    mu0_t = mu0_t, mu0_c = mu0_c, sigma0_t = sigma0_t, sigma0_c = sigma0_c,
+    bar_y_t = bar_y_t_all, bar_y_c = bar_y_c_all, s_t = s_t_all, s_c = s_c_all,
+    r = r, ne_t = ne_t, ne_c = ne_c, alpha0_t = alpha0_t, alpha0_c = alpha0_c,
+    bar_ye_t = bar_ye_t, bar_ye_c = bar_ye_c, se_t = se_t, se_c = se_c,
     lower.tail = FALSE
   )
 
   gPost_NoGo_all <- pbayespostpred1cont(
     prob = prob, design = design, prior = prior, CalcMethod = CalcMethod,
-    theta0 = theta0_NoGo, nMC = nMC, n1 = n1, n2 = n2, m1 = m1, m2 = m2,
-    kappa01 = kappa01, kappa02 = kappa02, nu01 = nu01, nu02 = nu02,
-    mu01 = mu01, mu02 = mu02, sigma01 = sigma01, sigma02 = sigma02,
-    bar.y1 = bar.y1_all, bar.y2 = bar.y2_all, s1 = s1_all, s2 = s2_all,
-    r = r, ne1 = ne1, ne2 = ne2, alpha01 = alpha01, alpha02 = alpha02,
-    bar.ye1 = bar.ye1, bar.ye2 = bar.ye2, se1 = se1, se2 = se2,
+    theta0 = theta0_NoGo, nMC = nMC, n_t = n_t, n_c = n_c, m_t = m_t, m_c = m_c,
+    kappa0_t = kappa0_t, kappa0_c = kappa0_c, nu0_t = nu0_t, nu0_c = nu0_c,
+    mu0_t = mu0_t, mu0_c = mu0_c, sigma0_t = sigma0_t, sigma0_c = sigma0_c,
+    bar_y_t = bar_y_t_all, bar_y_c = bar_y_c_all, s_t = s_t_all, s_c = s_c_all,
+    r = r, ne_t = ne_t, ne_c = ne_c, alpha0_t = alpha0_t, alpha0_c = alpha0_c,
+    bar_ye_t = bar_ye_t, bar_ye_c = bar_ye_c, se_t = se_t, se_c = se_c,
     lower.tail = TRUE
   )
 
   # Reshape results into nsim x n_scenarios matrices and compute decision
   # probabilities per scenario using colMeans (no R-level loop needed).
-  probs_Go_mat   <- matrix((gPost_Go_all >= gamma1) & (gPost_NoGo_all <  gamma2),
+  probs_Go_mat   <- matrix((gPost_Go_all >= gamma_go) & (gPost_NoGo_all <  gamma_nogo),
                            nrow = nsim)
-  probs_NoGo_mat <- matrix((gPost_Go_all <  gamma1) & (gPost_NoGo_all >= gamma2),
+  probs_NoGo_mat <- matrix((gPost_Go_all <  gamma_go) & (gPost_NoGo_all >= gamma_nogo),
                            nrow = nsim)
-  probs_Miss_mat <- matrix((gPost_Go_all >= gamma1) & (gPost_NoGo_all >= gamma2),
+  probs_Miss_mat <- matrix((gPost_Go_all >= gamma_go) & (gPost_NoGo_all >= gamma_nogo),
                            nrow = nsim)
 
   GoNogoProb <- cbind(
@@ -602,14 +602,14 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
 
   # Create results data frame
   if (design == 'uncontrolled') {
-    # For uncontrolled design, only include mu1
+    # For uncontrolled design, only include mu_t
     results <- data.frame(
-      mu1, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]
+      mu_t, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]
     )
   } else {
-    # For controlled and external designs, include both mu1 and mu2
+    # For controlled and external designs, include both mu_t and mu_c
     results <- data.frame(
-      mu1, mu2, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]
+      mu_t, mu_c, Go = GoNogoProb[, 1], Gray = GrayProb, NoGo = GoNogoProb[, 2]
     )
   }
 
@@ -620,50 +620,50 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
     }
   }
 
-  # Address floating point error (apply only to probability columns, not mu1/mu2)
-  prob_cols <- names(results)[!names(results) %in% c('mu1', 'mu2')]
+  # Address floating point error (apply only to probability columns, not mu_t/mu_c)
+  prob_cols <- names(results)[!names(results) %in% c('mu_t', 'mu_c')]
   results[prob_cols] <- lapply(results[prob_cols], function(col) {
     ifelse(col < .Machine$double.eps ^ 0.25, 0, col)
   })
 
   # Attach metadata as attributes for use in print()
-  attr(results, 'prob')          <- prob
-  attr(results, 'design')        <- design
-  attr(results, 'prior')         <- prior
-  attr(results, 'CalcMethod')    <- CalcMethod
-  attr(results, 'nsim')          <- nsim
-  attr(results, 'nMC')           <- nMC
-  attr(results, 'theta.TV')      <- theta.TV
-  attr(results, 'theta.MAV')     <- theta.MAV
-  attr(results, 'theta.NULL')    <- theta.NULL
-  attr(results, 'gamma1')        <- gamma1
-  attr(results, 'gamma2')        <- gamma2
-  attr(results, 'n1')            <- n1
-  attr(results, 'n2')            <- n2
-  attr(results, 'sigma1')        <- sigma1
-  attr(results, 'sigma2')        <- sigma2
-  attr(results, 'r')             <- r
-  attr(results, 'm1')            <- m1
-  attr(results, 'm2')            <- m2
-  attr(results, 'kappa01')       <- kappa01
-  attr(results, 'kappa02')       <- kappa02
-  attr(results, 'nu01')          <- nu01
-  attr(results, 'nu02')          <- nu02
-  attr(results, 'mu01')          <- mu01
-  attr(results, 'mu02')          <- mu02
-  attr(results, 'sigma01')       <- sigma01
-  attr(results, 'sigma02')       <- sigma02
-  attr(results, 'ne1')           <- ne1
-  attr(results, 'ne2')           <- ne2
-  attr(results, 'alpha01')       <- alpha01
-  attr(results, 'alpha02')       <- alpha02
-  attr(results, 'bar.ye1')       <- bar.ye1
-  attr(results, 'bar.ye2')       <- bar.ye2
-  attr(results, 'se1')           <- se1
-  attr(results, 'se2')           <- se2
-  attr(results, 'error_if_Miss') <- error_if_Miss
-  attr(results, 'Gray_inc_Miss') <- Gray_inc_Miss
-  attr(results, 'seed')          <- seed
+  attr(results, 'prob')           <- prob
+  attr(results, 'design')         <- design
+  attr(results, 'prior')          <- prior
+  attr(results, 'CalcMethod')     <- CalcMethod
+  attr(results, 'nsim')           <- nsim
+  attr(results, 'nMC')            <- nMC
+  attr(results, 'theta_TV')       <- theta_TV
+  attr(results, 'theta_MAV')      <- theta_MAV
+  attr(results, 'theta_NULL')     <- theta_NULL
+  attr(results, 'gamma_go')       <- gamma_go
+  attr(results, 'gamma_nogo')     <- gamma_nogo
+  attr(results, 'n_t')            <- n_t
+  attr(results, 'n_c')            <- n_c
+  attr(results, 'sigma_t')        <- sigma_t
+  attr(results, 'sigma_c')        <- sigma_c
+  attr(results, 'r')              <- r
+  attr(results, 'm_t')            <- m_t
+  attr(results, 'm_c')            <- m_c
+  attr(results, 'kappa0_t')       <- kappa0_t
+  attr(results, 'kappa0_c')       <- kappa0_c
+  attr(results, 'nu0_t')          <- nu0_t
+  attr(results, 'nu0_c')          <- nu0_c
+  attr(results, 'mu0_t')          <- mu0_t
+  attr(results, 'mu0_c')          <- mu0_c
+  attr(results, 'sigma0_t')       <- sigma0_t
+  attr(results, 'sigma0_c')       <- sigma0_c
+  attr(results, 'ne_t')           <- ne_t
+  attr(results, 'ne_c')           <- ne_c
+  attr(results, 'alpha0_t')       <- alpha0_t
+  attr(results, 'alpha0_c')       <- alpha0_c
+  attr(results, 'bar_ye_t')       <- bar_ye_t
+  attr(results, 'bar_ye_c')       <- bar_ye_c
+  attr(results, 'se_t')           <- se_t
+  attr(results, 'se_c')           <- se_c
+  attr(results, 'error_if_Miss')  <- error_if_Miss
+  attr(results, 'Gray_inc_Miss')  <- Gray_inc_Miss
+  attr(results, 'seed')           <- seed
 
   # Assign S3 class
   class(results) <- c('pbayesdecisionprob1cont', 'data.frame')
@@ -689,91 +689,91 @@ print.pbayesdecisionprob1cont <- function(x, digits = 4, ...) {
   fmt <- function(v) if(is.null(v)) 'NULL' else as.character(v)
 
   # Extract metadata from attributes
-  prob          <- attr(x, 'prob')
-  design        <- attr(x, 'design')
-  prior         <- attr(x, 'prior')
-  CalcMethod    <- attr(x, 'CalcMethod')
-  nsim          <- attr(x, 'nsim')
-  nMC           <- attr(x, 'nMC')
-  gamma1        <- attr(x, 'gamma1')
-  gamma2        <- attr(x, 'gamma2')
-  n1            <- attr(x, 'n1')
-  n2            <- attr(x, 'n2')
-  sigma1        <- attr(x, 'sigma1')
-  sigma2        <- attr(x, 'sigma2')
-  r             <- attr(x, 'r')
-  m1            <- attr(x, 'm1')
-  m2            <- attr(x, 'm2')
-  kappa01       <- attr(x, 'kappa01')
-  kappa02       <- attr(x, 'kappa02')
-  nu01          <- attr(x, 'nu01')
-  nu02          <- attr(x, 'nu02')
-  mu01          <- attr(x, 'mu01')
-  mu02          <- attr(x, 'mu02')
-  sigma01       <- attr(x, 'sigma01')
-  sigma02       <- attr(x, 'sigma02')
-  ne1           <- attr(x, 'ne1')
-  ne2           <- attr(x, 'ne2')
-  alpha01       <- attr(x, 'alpha01')
-  alpha02       <- attr(x, 'alpha02')
-  bar.ye1       <- attr(x, 'bar.ye1')
-  bar.ye2       <- attr(x, 'bar.ye2')
-  se1           <- attr(x, 'se1')
-  se2           <- attr(x, 'se2')
-  error_if_Miss <- attr(x, 'error_if_Miss')
-  Gray_inc_Miss <- attr(x, 'Gray_inc_Miss')
-  seed          <- attr(x, 'seed')
+  prob           <- attr(x, 'prob')
+  design         <- attr(x, 'design')
+  prior          <- attr(x, 'prior')
+  CalcMethod     <- attr(x, 'CalcMethod')
+  nsim           <- attr(x, 'nsim')
+  nMC            <- attr(x, 'nMC')
+  gamma_go       <- attr(x, 'gamma_go')
+  gamma_nogo     <- attr(x, 'gamma_nogo')
+  n_t            <- attr(x, 'n_t')
+  n_c            <- attr(x, 'n_c')
+  sigma_t        <- attr(x, 'sigma_t')
+  sigma_c        <- attr(x, 'sigma_c')
+  r              <- attr(x, 'r')
+  m_t            <- attr(x, 'm_t')
+  m_c            <- attr(x, 'm_c')
+  kappa0_t       <- attr(x, 'kappa0_t')
+  kappa0_c       <- attr(x, 'kappa0_c')
+  nu0_t          <- attr(x, 'nu0_t')
+  nu0_c          <- attr(x, 'nu0_c')
+  mu0_t          <- attr(x, 'mu0_t')
+  mu0_c          <- attr(x, 'mu0_c')
+  sigma0_t       <- attr(x, 'sigma0_t')
+  sigma0_c       <- attr(x, 'sigma0_c')
+  ne_t           <- attr(x, 'ne_t')
+  ne_c           <- attr(x, 'ne_c')
+  alpha0_t       <- attr(x, 'alpha0_t')
+  alpha0_c       <- attr(x, 'alpha0_c')
+  bar_ye_t       <- attr(x, 'bar_ye_t')
+  bar_ye_c       <- attr(x, 'bar_ye_c')
+  se_t           <- attr(x, 'se_t')
+  se_c           <- attr(x, 'se_c')
+  error_if_Miss  <- attr(x, 'error_if_Miss')
+  Gray_inc_Miss  <- attr(x, 'Gray_inc_Miss')
+  seed           <- attr(x, 'seed')
 
   # Build threshold string based on probability type
   if(prob == 'posterior') {
     theta_str <- sprintf('TV = %s, MAV = %s',
-                         fmt(attr(x, 'theta.TV')), fmt(attr(x, 'theta.MAV')))
+                         fmt(attr(x, 'theta_TV')), fmt(attr(x, 'theta_MAV')))
   } else {
-    theta_str <- sprintf('NULL = %s', fmt(attr(x, 'theta.NULL')))
+    theta_str <- sprintf('NULL = %s', fmt(attr(x, 'theta_NULL')))
   }
 
   # Print header
   cat('Go/NoGo/Gray Decision Probabilities (Single Continuous Endpoint)\n')
   cat(strrep('-', 60), '\n')
-  cat(sprintf('  Probability type : %s\n',   prob))
-  cat(sprintf('  Design           : %s\n',   design))
-  cat(sprintf('  Prior            : %s\n',   prior))
-  cat(sprintf('  Calc method      : %s\n',   CalcMethod))
-  cat(sprintf('  Simulations      : nsim = %s\n', fmt(nsim)))
+  cat(sprintf('  Probability type    : %s\n',   prob))
+  cat(sprintf('  Design              : %s\n',   design))
+  cat(sprintf('  Prior               : %s\n',   prior))
+  cat(sprintf('  Calc method         : %s\n',   CalcMethod))
+  cat(sprintf('  Simulations         : nsim = %s\n', fmt(nsim)))
   if (!is.null(nMC)) {
-    cat(sprintf('  MC draws         : nMC = %s\n', fmt(nMC)))
+    cat(sprintf('  MC draws            : nMC = %s\n', fmt(nMC)))
   }
-  cat(sprintf('  Threshold(s)     : %s\n',   theta_str))
-  cat(sprintf('  Go  threshold    : gamma1 = %s\n', fmt(gamma1)))
-  cat(sprintf('  NoGo threshold   : gamma2 = %s\n', fmt(gamma2)))
-  cat(sprintf('  Sample size      : n1 = %s, n2 = %s\n', fmt(n1), fmt(n2)))
-  cat(sprintf('  True SD          : sigma1 = %s, sigma2 = %s\n', fmt(sigma1), fmt(sigma2)))
+  cat(sprintf('  Threshold(s)        : %s\n',   theta_str))
+  cat(sprintf('  Go  threshold       : gamma_go = %s\n', fmt(gamma_go)))
+  cat(sprintf('  NoGo threshold      : gamma_nogo = %s\n', fmt(gamma_nogo)))
+  cat(sprintf('  Sample size         : n_t = %s, n_c = %s\n', fmt(n_t), fmt(n_c)))
+  cat(sprintf('  True SD             : sigma_t = %s, sigma_c = %s\n', fmt(sigma_t), fmt(sigma_c)))
   if (design == 'uncontrolled') {
-    cat(sprintf('  Variance ratio   : r = %s\n', fmt(r)))
+    cat(sprintf('  Variance ratio      : r = %s\n', fmt(r)))
   }
-  if (!is.null(m1) || !is.null(m2)) {
-    cat(sprintf('  Future size      : m1 = %s, m2 = %s\n', fmt(m1), fmt(m2)))
+  if (!is.null(m_t) || !is.null(m_c)) {
+    cat(sprintf('  Future size         : m_t = %s, m_c = %s\n', fmt(m_t), fmt(m_c)))
   }
   if (prior == 'N-Inv-Chisq') {
-    cat(sprintf('  Prior group 1    : kappa01 = %s, nu01 = %s, mu01 = %s, sigma01 = %s\n',
-                fmt(kappa01), fmt(nu01), fmt(mu01), fmt(sigma01)))
-    cat(sprintf('  Prior group 2    : kappa02 = %s, nu02 = %s, mu02 = %s, sigma02 = %s\n',
-                fmt(kappa02), fmt(nu02), fmt(mu02), fmt(sigma02)))
+    cat(sprintf('  Prior (traetment)   : kappa0_t = %s, nu0_t = %s, mu0_t = %s, sigma0_t = %s\n',
+                fmt(kappa0_t), fmt(nu0_t), fmt(mu0_t), fmt(sigma0_t)))
+    cat(sprintf('  Prior (control)     : kappa0_c = %s, nu0_c = %s, mu0_c = %s, sigma0_c = %s\n',
+                fmt(kappa0_c), fmt(nu0_c), fmt(mu0_c), fmt(sigma0_c)))
   }
   if (design == 'external') {
-    cat(sprintf('  External grp 1   : ne1 = %s, alpha01 = %s, bar.ye1 = %s, se1 = %s\n',
-                fmt(ne1), fmt(alpha01), fmt(bar.ye1), fmt(se1)))
-    cat(sprintf('  External grp 2   : ne2 = %s, alpha02 = %s, bar.ye2 = %s, se2 = %s\n',
-                fmt(ne2), fmt(alpha02), fmt(bar.ye2), fmt(se2)))
+    cat(sprintf('  External (traetment): ne_t = %s, alpha0_t = %s, bar_ye_t = %s, se_t = %s\n',
+                fmt(ne_t), fmt(alpha0_t), fmt(bar_ye_t), fmt(se_t)))
+    cat(sprintf('  External (control)  : ne_c = %s, alpha0_c = %s, bar_ye_c = %s, se_c = %s\n',
+                fmt(ne_c), fmt(alpha0_c), fmt(bar_ye_c), fmt(se_c)))
   }
-  cat(sprintf('  error_if_Miss    : %s\n', fmt(error_if_Miss)))
-  cat(sprintf('  Gray_inc_Miss    : %s\n', fmt(Gray_inc_Miss)))
-  cat(sprintf('  Seed             : %s\n', fmt(seed)))
+  cat(sprintf('  error_if_Miss       : %s\n', fmt(error_if_Miss)))
+  cat(sprintf('  Gray_inc_Miss       : %s\n', fmt(Gray_inc_Miss)))
+  cat(sprintf('  Seed                : %s\n', fmt(seed)))
   cat(strrep('-', 60), '\n')
 
   # Print results table
   df_print        <- as.data.frame(x)
-  prob_cols       <- names(df_print)[!names(df_print) %in% c('mu1', 'mu2')]
+  prob_cols       <- names(df_print)[!names(df_print) %in% c('mu_t', 'mu_c')]
   df_print[prob_cols] <- lapply(df_print[prob_cols],
                                 function(col) round(col, digits))
   print.data.frame(df_print, row.names = FALSE)

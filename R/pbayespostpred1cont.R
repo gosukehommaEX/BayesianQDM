@@ -25,72 +25,74 @@
 #'        (difference in means).
 #' @param nMC A positive integer giving the number of Monte Carlo draws.
 #'        Required when \code{CalcMethod = 'MC'}; otherwise \code{NULL}.
-#' @param n_t A positive integer giving the number of patients in group 1
-#'        (treatment) in the proof-of-concept (PoC) trial.
-#' @param n_c A positive integer giving the number of patients in group 2
-#'        in the PoC trial.  Required for \code{design = 'controlled'} or
-#'        \code{'external'}; set to \code{NULL} for
-#'        \code{design = 'uncontrolled'}.
-#' @param m_t A positive integer giving the future sample size for group 1.
-#'        Required when \code{prob = 'predictive'}; otherwise \code{NULL}.
-#' @param m_c A positive integer giving the future sample size for group 2.
-#'        Required when \code{prob = 'predictive'}; otherwise \code{NULL}.
+#' @param n_t A positive integer giving the number of patients in the
+#'        treatment group in the proof-of-concept (PoC) trial.
+#' @param n_c A positive integer giving the number of patients in the
+#'        control group in the PoC trial.  Required for \code{design = 'controlled'}
+#'        or \code{'external'}; set to \code{NULL} for \code{design = 'uncontrolled'}.
+#' @param m_t A positive integer giving the future sample size for the treatment
+#'        group. Required when \code{prob = 'predictive'}; otherwise \code{NULL}.
+#' @param m_c A positive integer giving the future sample size for the control
+#'        group. Required when \code{prob = 'predictive'}; otherwise \code{NULL}.
 #' @param kappa0_t A positive numeric scalar giving the prior precision parameter
-#'        for group 1. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
-#'        \code{NULL}.
+#'        for the treatment group. Required when \code{prior = 'N-Inv-Chisq'};
+#'        otherwise \code{NULL}.
 #' @param kappa0_c A positive numeric scalar giving the prior precision parameter
-#'        for group 2. Required when \code{prior = 'N-Inv-Chisq'} and
+#'        for the control group. Required when \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design = 'controlled'}; otherwise \code{NULL}.
 #' @param nu0_t A positive numeric scalar giving the prior degrees of freedom
-#'        for group 1. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
-#'        \code{NULL}.
+#'        for the treatment group. Required when \code{prior = 'N-Inv-Chisq'};
+#'        otherwise \code{NULL}.
 #' @param nu0_c A positive numeric scalar giving the prior degrees of freedom
-#'        for group 2. Required when \code{prior = 'N-Inv-Chisq'} and
+#'        for the control group. Required when \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design = 'controlled'}; otherwise \code{NULL}.
-#' @param mu0_t A numeric scalar giving the prior mean for group 1.
+#' @param mu0_t A numeric scalar giving the prior mean for the treatment group.
 #'        Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
-#' @param mu0_c A numeric scalar giving the prior mean for group 2
+#' @param mu0_c A numeric scalar giving the prior mean for the control group
 #'        (\code{design = 'controlled'} with \code{prior = 'N-Inv-Chisq'}) or the
 #'        hypothetical control mean (\code{design = 'uncontrolled'}).
 #'        Required for uncontrolled design; otherwise \code{NULL}.
-#' @param sigma0_t A positive numeric scalar giving the prior scale for group 1.
-#'        Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
-#' @param sigma0_c A positive numeric scalar giving the prior scale for group 2.
-#'        Required when \code{prior = 'N-Inv-Chisq'} and
+#' @param sigma0_t A positive numeric scalar giving the prior scale for the
+#'        treatment group. Required when \code{prior = 'N-Inv-Chisq'};
+#'        otherwise \code{NULL}.
+#' @param sigma0_c A positive numeric scalar giving the prior scale for the
+#'        control group. Required when \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design = 'controlled'}; otherwise \code{NULL}.
-#' @param bar_y_t A numeric scalar or vector giving the sample mean for group 1.
-#'        When a vector of length \code{nsim} is supplied, all posterior parameters
-#'        are computed simultaneously for all replicates.
-#' @param bar_y_c A numeric scalar or vector giving the sample mean for group 2.
-#'        Required for \code{design = 'controlled'} or \code{'external'}; set to
-#'        \code{NULL} for uncontrolled design.
+#' @param bar_y_t A numeric scalar or vector giving the sample mean for the
+#'        treatment group. When a vector of length \code{nsim} is supplied,
+#'        all posterior parameters are computed simultaneously for all replicates.
+#' @param bar_y_c A numeric scalar or vector giving the sample mean for the
+#'        control group. Required for \code{design = 'controlled'} or
+#'        \code{'external'}; set to \code{NULL} for uncontrolled design.
 #' @param s_t A positive numeric scalar or vector giving the sample standard
-#'        deviation for group 1.
+#'        deviation for the treatment group.
 #' @param s_c A positive numeric scalar or vector giving the sample standard
-#'        deviation for group 2. Required for \code{design = 'controlled'} or
-#'        \code{'external'}; otherwise \code{NULL}.
+#'        deviation for the control group. Required for \code{design = 'controlled'}
+#'        or \code{'external'}; otherwise \code{NULL}.
 #' @param r A positive numeric scalar giving the variance scaling factor for
 #'        the hypothetical control. Required for \code{design = 'uncontrolled'};
 #'        otherwise \code{NULL}. The hypothetical control scale is
 #'        \eqn{\mathrm{sd.control} = \sqrt{r} \cdot \mathrm{sd.treatment}}.
-#' @param ne_t A positive integer giving the external group 1 sample size.
+#' @param ne_t A positive integer giving the external treatment group sample size.
 #'        Required for \code{design = 'external'} with external treatment data;
 #'        otherwise \code{NULL}.
-#' @param ne_c A positive integer giving the external group 2 sample size.
+#' @param ne_c A positive integer giving the external control group sample size.
 #'        Required for \code{design = 'external'} with external control data;
 #'        otherwise \code{NULL}.
 #' @param alpha0_t A numeric scalar in \code{(0, 1]} giving the power prior weight
-#'        for group 1. Required when \code{ne_t} is provided; otherwise \code{NULL}.
+#'        for the treatment group. Required when \code{ne_t} is provided;
+#'        otherwise \code{NULL}.
 #' @param alpha0_c A numeric scalar in \code{(0, 1]} giving the power prior weight
-#'        for group 2. Required when \code{ne_c} is provided; otherwise \code{NULL}.
-#' @param bar_ye_t A numeric scalar giving the external group 1 sample mean.
+#'        for the control group. Required when \code{ne_c} is provided;
+#'        otherwise \code{NULL}.
+#' @param bar_ye_t A numeric scalar giving the external treatment group sample mean.
 #'        Required when \code{ne_t} is provided; otherwise \code{NULL}.
-#' @param bar_ye_c A numeric scalar giving the external group 2 sample mean.
+#' @param bar_ye_c A numeric scalar giving the external control group sample mean.
 #'        Required when \code{ne_c} is provided; otherwise \code{NULL}.
-#' @param se_t A positive numeric scalar giving the external group 1 sample SD.
-#'        Required when \code{ne_t} is provided; otherwise \code{NULL}.
-#' @param se_c A positive numeric scalar giving the external group 2 sample SD.
-#'        Required when \code{ne_c} is provided; otherwise \code{NULL}.
+#' @param se_t A positive numeric scalar giving the external treatment group
+#'        sample SD. Required when \code{ne_t} is provided; otherwise \code{NULL}.
+#' @param se_c A positive numeric scalar giving the external control group
+#'        sample SD. Required when \code{ne_c} is provided; otherwise \code{NULL}.
 #' @param lower.tail A logical scalar; if \code{TRUE} (default), returns
 #'        \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
 #'        \eqn{P(\mathrm{effect} > \theta_0)}.
@@ -540,11 +542,11 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
         mu_c <- mu0_c
       }
 
-      # Posterior variance for group 1 (vectorised over bar_y_t, s_t)
+      # Posterior variance for the treatment group (vectorised over bar_y_t, s_t)
       var_n_t <- (nu0_t * sigma0_t ^ 2 + (n_t - 1) * s_t ^ 2 +
                     n_t * kappa0_t * (mu0_t - bar_y_t) ^ 2 / kappa_n_t) / nu_t
 
-      # Posterior variance for group 2
+      # Posterior variance for the control group
       if (design == 'controlled') {
         var_n_c <- (nu0_c * sigma0_c ^ 2 + (n_c - 1) * s_c ^ 2 +
                       n_c * kappa0_c * (mu0_c - bar_y_c) ^ 2 / kappa_n_c) / nu_c
