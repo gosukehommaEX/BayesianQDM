@@ -249,14 +249,14 @@ pbayespostpred1cont(
 
 # Example 5: Vectorised usage across simulation replicates
 set.seed(1)
-bar.y_t_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
+bar_y_t_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
 s_t_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
-bar.y_c_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
+bar_y_c_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
 s_c_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
 pbayespostpred1cont(
   prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MM',
   theta0 = 1.5, n_t = 12, n_c = 12,
-  bar_y_t = bar.y_t_vec, bar_y_c = bar.y_c_vec, s_t = s_t_vec, s_c = s_c_vec,
+  bar_y_t = bar_y_t_vec, bar_y_c = bar_y_c_vec, s_t = s_t_vec, s_c = s_c_vec,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   m_t = NULL, m_c = NULL, r = NULL,
