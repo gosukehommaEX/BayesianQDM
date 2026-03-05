@@ -4,25 +4,25 @@
 \alias{pbetadiff}
 \title{Cumulative Distribution Function of the Difference Between Two Beta Variables}
 \usage{
-pbetadiff(q, alpha1, alpha2, beta1, beta2, lower.tail = TRUE)
+pbetadiff(q, alpha_t, alpha_c, beta_t, beta_c, lower.tail = TRUE)
 }
 \arguments{
 \item{q}{A numeric scalar in \code{[-1, 1]} representing the quantile threshold.}
 
-\item{alpha1}{A positive numeric scalar giving the first shape parameter of
-the first Beta distribution.}
+\item{alpha_t}{A positive numeric scalar giving the first shape parameter of
+the treatment Beta distribution.}
 
-\item{alpha2}{A positive numeric scalar giving the first shape parameter of
-the second Beta distribution.}
+\item{alpha_c}{A positive numeric scalar giving the first shape parameter of
+the control Beta distribution.}
 
-\item{beta1}{A positive numeric scalar giving the second shape parameter of
-the first Beta distribution.}
+\item{beta_t}{A positive numeric scalar giving the second shape parameter of
+the treatment Beta distribution.}
 
-\item{beta2}{A positive numeric scalar giving the second shape parameter of
-the second Beta distribution.}
+\item{beta_c}{A positive numeric scalar giving the second shape parameter of
+the control Beta distribution.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
-returns \eqn{P(X_1 - X_2 \le q)}, otherwise \eqn{P(X_1 - X_2 > q)}.}
+returns \eqn{P(X_t - X_c \le q)}, otherwise \eqn{P(X_t - X_c > q)}.}
 }
 \value{
 A numeric scalar in \code{[0, 1]}.
@@ -30,18 +30,18 @@ A numeric scalar in \code{[0, 1]}.
 \description{
 Calculates the cumulative distribution function (CDF) of the difference
 between two independent Beta-distributed random variables. Specifically,
-computes \eqn{P(X_1 - X_2 \le q)} or \eqn{P(X_1 - X_2 > q)}, where
-\eqn{X_1 \sim \mathrm{Beta}(\alpha_1, \beta_1)} and
-\eqn{X_2 \sim \mathrm{Beta}(\alpha_2, \beta_2)}.
+computes \eqn{P(X_t - X_c \le q)} or \eqn{P(X_t - X_c > q)}, where
+\eqn{X_t \sim \mathrm{Beta}(\alpha_t, \beta_t)} and
+\eqn{X_c \sim \mathrm{Beta}(\alpha_c, \beta_c)}.
 }
 \details{
 The upper-tail probability is obtained via the convolution formula:
-\deqn{P(X_1 - X_2 > q)
-  = \int_0^1 P(X_2 < x - q)\, f_1(x)\, dx
-  = \int_0^1 F_{\mathrm{Beta}(\alpha_2,\beta_2)}(x - q)\,
-             f_{\mathrm{Beta}(\alpha_1,\beta_1)}(x)\, dx}
-where \eqn{f_1} is the density of \eqn{X_1} and \eqn{F_2} is the CDF of
-\eqn{X_2}. Boundary cases are handled automatically by \code{pbeta}
+\deqn{P(X_t - X_c > q)
+  = \int_0^1 P(X_c < x - q)\, f_t(x)\, dx
+  = \int_0^1 F_{\mathrm{Beta}(\alpha_c,\beta_c)}(x - q)\,
+             f_{\mathrm{Beta}(\alpha_t,\beta_t)}(x)\, dx}
+where \eqn{f_t} is the density of \eqn{X_t} and \eqn{F_c} is the CDF of
+\eqn{X_c}. Boundary cases are handled automatically by \code{pbeta}
 (\eqn{0} for \eqn{x - q \le 0}, \eqn{1} for \eqn{x - q \ge 1}), so
 integrating over \code{[0, 1]} is safe.
 
@@ -55,7 +55,7 @@ same result with lower computational cost because both \code{pbeta} and
 pbetadiff(0.2, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
 
 # P(Beta(2, 3) - Beta(1, 4) > -0.1)
-pbetadiff(-0.1, 2, 3, 1, 4, lower.tail = FALSE)
+pbetadiff(-0.1, 2, 1, 3, 4, lower.tail = FALSE)
 
 # P(Beta(1, 1) - Beta(1, 1) > 0) - should be approximately 0.5
 pbetadiff(0, 1, 1, 1, 1, lower.tail = FALSE)

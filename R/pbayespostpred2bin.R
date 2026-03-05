@@ -14,28 +14,28 @@
 #' @param design A character string specifying the trial design.
 #'        Must be \code{'controlled'}, \code{'uncontrolled'}, or
 #'        \code{'external'}.
-#' @param theta.TV1 A numeric scalar giving the target value (TV) threshold
+#' @param theta_TV1 A numeric scalar giving the target value (TV) threshold
 #'        for Endpoint 1.  Required when \code{prob = 'posterior'}; must
-#'        satisfy \code{theta.TV1 > theta.MAV1}.  Set to \code{NULL} when
+#'        satisfy \code{theta_TV1 > theta_MAV1}.  Set to \code{NULL} when
 #'        \code{prob = 'predictive'}.
-#' @param theta.MAV1 A numeric scalar giving the minimum acceptable value
+#' @param theta_MAV1 A numeric scalar giving the minimum acceptable value
 #'        (MAV) threshold for Endpoint 1.  Required when
 #'        \code{prob = 'posterior'}; must satisfy
-#'        \code{theta.TV1 > theta.MAV1}.  Set to \code{NULL} when
+#'        \code{theta_TV1 > theta_MAV1}.  Set to \code{NULL} when
 #'        \code{prob = 'predictive'}.
-#' @param theta.TV2 A numeric scalar giving the target value (TV) threshold
+#' @param theta_TV2 A numeric scalar giving the target value (TV) threshold
 #'        for Endpoint 2.  Required when \code{prob = 'posterior'}; must
-#'        satisfy \code{theta.TV2 > theta.MAV2}.  Set to \code{NULL} when
+#'        satisfy \code{theta_TV2 > theta_MAV2}.  Set to \code{NULL} when
 #'        \code{prob = 'predictive'}.
-#' @param theta.MAV2 A numeric scalar giving the minimum acceptable value
+#' @param theta_MAV2 A numeric scalar giving the minimum acceptable value
 #'        (MAV) threshold for Endpoint 2.  Required when
 #'        \code{prob = 'posterior'}; must satisfy
-#'        \code{theta.TV2 > theta.MAV2}.  Set to \code{NULL} when
+#'        \code{theta_TV2 > theta_MAV2}.  Set to \code{NULL} when
 #'        \code{prob = 'predictive'}.
-#' @param theta.NULL1 A numeric scalar giving the null hypothesis threshold
+#' @param theta_NULL1 A numeric scalar giving the null hypothesis threshold
 #'        for Endpoint 1.  Required when \code{prob = 'predictive'};
 #'        set to \code{NULL} when \code{prob = 'posterior'}.
-#' @param theta.NULL2 A numeric scalar giving the null hypothesis threshold
+#' @param theta_NULL2 A numeric scalar giving the null hypothesis threshold
 #'        for Endpoint 2.  Required when \code{prob = 'predictive'};
 #'        set to \code{NULL} when \code{prob = 'posterior'}.
 #' @param x1_00 A non-negative integer giving the count of (0,0) responses
@@ -82,10 +82,10 @@
 #'        parameter for the (1,1) response pattern in group 2.  For
 #'        \code{design = 'uncontrolled'}, serves as a hyperparameter of
 #'        the hypothetical control distribution.
-#' @param m1 A positive integer giving the future sample size for group 1.
+#' @param m_t A positive integer giving the future sample size for group 1.
 #'        Required when \code{prob = 'predictive'}; otherwise set to
 #'        \code{NULL}.
-#' @param m2 A positive integer giving the future sample size for group 2.
+#' @param m_c A positive integer giving the future sample size for group 2.
 #'        Required when \code{prob = 'predictive'}; otherwise set to
 #'        \code{NULL}.
 #' @param z00 A non-negative integer giving the hypothetical control count
@@ -214,14 +214,14 @@
 #' # Example 1: Posterior probability, controlled design
 #' pbayespostpred2bin(
 #'   prob = 'posterior', design = 'controlled',
-#'   theta.TV1 = 0.20, theta.MAV1 = 0.10,
-#'   theta.TV2 = 0.20, theta.MAV2 = 0.10,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   theta_TV1 = 0.20, theta_MAV1 = 0.10,
+#'   theta_TV2 = 0.20, theta_MAV2 = 0.10,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
 #'   x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
 #'   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
 #'   a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-#'   m1 = NULL, m2 = NULL,
+#'   m_t = NULL, m_c = NULL,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
 #'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
@@ -232,14 +232,14 @@
 #' # Example 2: Posterior predictive probability, controlled design
 #' pbayespostpred2bin(
 #'   prob = 'predictive', design = 'controlled',
-#'   theta.TV1 = NULL, theta.MAV1 = NULL,
-#'   theta.TV2 = NULL, theta.MAV2 = NULL,
-#'   theta.NULL1 = 0.15, theta.NULL2 = 0.15,
+#'   theta_TV1 = NULL, theta_MAV1 = NULL,
+#'   theta_TV2 = NULL, theta_MAV2 = NULL,
+#'   theta_NULL1 = 0.15, theta_NULL2 = 0.15,
 #'   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
 #'   x2_00 = 6, x2_01 = 3, x2_10 = 4, x2_11 = 2,
 #'   a1_00 = 1, a1_01 = 1, a1_10 = 1, a1_11 = 1,
 #'   a2_00 = 1, a2_01 = 1, a2_10 = 1, a2_11 = 1,
-#'   m1 = 50, m2 = 50,
+#'   m_t = 50, m_c = 50,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
 #'   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
@@ -250,14 +250,14 @@
 #' # Example 3: Posterior probability, external control design
 #' pbayespostpred2bin(
 #'   prob = 'posterior', design = 'external',
-#'   theta.TV1 = 0.20, theta.MAV1 = 0.10,
-#'   theta.TV2 = 0.20, theta.MAV2 = 0.10,
-#'   theta.NULL1 = NULL, theta.NULL2 = NULL,
+#'   theta_TV1 = 0.20, theta_MAV1 = 0.10,
+#'   theta_TV2 = 0.20, theta_MAV2 = 0.10,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
 #'   x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
 #'   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
 #'   a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-#'   m1 = NULL, m2 = NULL,
+#'   m_t = NULL, m_c = NULL,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
 #'   xe2_00 = 3L, xe2_01 = 2L, xe2_10 = 3L, xe2_11 = 2L,
@@ -269,15 +269,15 @@
 #' @export
 pbayespostpred2bin <- function(prob    = 'posterior',
                                design  = 'controlled',
-                               theta.TV1   = NULL, theta.MAV1  = NULL,
-                               theta.TV2   = NULL, theta.MAV2  = NULL,
-                               theta.NULL1 = NULL, theta.NULL2 = NULL,
+                               theta_TV1   = NULL, theta_MAV1  = NULL,
+                               theta_TV2   = NULL, theta_MAV2  = NULL,
+                               theta_NULL1 = NULL, theta_NULL2 = NULL,
                                x1_00, x1_01, x1_10, x1_11,
                                x2_00  = NULL, x2_01  = NULL,
                                x2_10  = NULL, x2_11  = NULL,
                                a1_00, a1_01, a1_10, a1_11,
                                a2_00, a2_01, a2_10, a2_11,
-                               m1 = NULL, m2 = NULL,
+                               m_t = NULL, m_c = NULL,
                                z00 = NULL, z01 = NULL,
                                z10 = NULL, z11 = NULL,
                                xe1_00 = NULL, xe1_01 = NULL,
@@ -309,7 +309,7 @@ pbayespostpred2bin <- function(prob    = 'posterior',
 
   # --- Threshold parameters ---
   if (prob == 'posterior') {
-    for (nm in c("theta.TV1", "theta.MAV1", "theta.TV2", "theta.MAV2")) {
+    for (nm in c("theta_TV1", "theta_MAV1", "theta_TV2", "theta_MAV2")) {
       val <- get(nm)
       if (is.null(val)) {
         stop(paste0("'", nm, "' must be non-NULL when prob = 'posterior'"))
@@ -318,14 +318,14 @@ pbayespostpred2bin <- function(prob    = 'posterior',
         stop(paste0("'", nm, "' must be a single numeric value"))
       }
     }
-    if (theta.TV1 <= theta.MAV1) {
-      stop("'theta.TV1' must be strictly greater than 'theta.MAV1'")
+    if (theta_TV1 <= theta_MAV1) {
+      stop("'theta_TV1' must be strictly greater than 'theta_MAV1'")
     }
-    if (theta.TV2 <= theta.MAV2) {
-      stop("'theta.TV2' must be strictly greater than 'theta.MAV2'")
+    if (theta_TV2 <= theta_MAV2) {
+      stop("'theta_TV2' must be strictly greater than 'theta_MAV2'")
     }
   } else {
-    for (nm in c("theta.NULL1", "theta.NULL2")) {
+    for (nm in c("theta_NULL1", "theta_NULL2")) {
       val <- get(nm)
       if (is.null(val)) {
         stop(paste0("'", nm, "' must be non-NULL when prob = 'predictive'"))
@@ -335,8 +335,8 @@ pbayespostpred2bin <- function(prob    = 'posterior',
       }
     }
     # Convert null thresholds: TV = MAV = NULL for predictive probability
-    theta.TV1  <- theta.NULL1;  theta.MAV1 <- theta.NULL1
-    theta.TV2  <- theta.NULL2;  theta.MAV2 <- theta.NULL2
+    theta_TV1  <- theta_NULL1;  theta_MAV1 <- theta_NULL1
+    theta_TV2  <- theta_NULL2;  theta_MAV2 <- theta_NULL2
   }
 
   # --- Group 1 observed counts (always required) ---
@@ -381,18 +381,18 @@ pbayespostpred2bin <- function(prob    = 'posterior',
 
   # --- Future sample sizes (required for predictive) ---
   if (prob == 'predictive') {
-    if (is.null(m1) || is.null(m2)) {
-      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
+    if (is.null(m_t) || is.null(m_c)) {
+      stop("'m_t' and 'm_c' must be non-NULL when prob = 'predictive'")
     }
-    for (nm in c("m1", "m2")) {
+    for (nm in c("m_t", "m_c")) {
       val <- get(nm)
       if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
           val != floor(val) || val < 1L) {
         stop(paste0("'", nm, "' must be a single positive integer"))
       }
     }
-    m1 <- as.integer(m1)
-    m2 <- as.integer(m2)
+    m_t <- as.integer(m_t)
+    m_c <- as.integer(m_c)
   }
 
   # --- Hypothetical control counts (required for uncontrolled) ---
@@ -459,12 +459,12 @@ pbayespostpred2bin <- function(prob    = 'posterior',
   # ---------------------------------------------------------------------------
 
   # Group 1: base prior + observed data + optional external data (power prior)
-  xe1_weight <- if (!is.null(ae1) && design == 'external') ae1 else 0
-  alpha1 <- c(
-    a1_00 + x1_00 + xe1_weight * ifelse(!is.null(xe1_00), xe1_00, 0),
-    a1_01 + x1_01 + xe1_weight * ifelse(!is.null(xe1_01), xe1_01, 0),
-    a1_10 + x1_10 + xe1_weight * ifelse(!is.null(xe1_10), xe1_10, 0),
-    a1_11 + x1_11 + xe1_weight * ifelse(!is.null(xe1_11), xe1_11, 0)
+  xe_t_weight <- if (!is.null(ae1) && design == 'external') ae1 else 0
+  alpha_t <- c(
+    a1_00 + x1_00 + xe_t_weight * ifelse(!is.null(xe1_00), xe1_00, 0),
+    a1_01 + x1_01 + xe_t_weight * ifelse(!is.null(xe1_01), xe1_01, 0),
+    a1_10 + x1_10 + xe_t_weight * ifelse(!is.null(xe1_10), xe1_10, 0),
+    a1_11 + x1_11 + xe_t_weight * ifelse(!is.null(xe1_11), xe1_11, 0)
   )
 
   # Group 2: parameterisation depends on design
@@ -472,7 +472,7 @@ pbayespostpred2bin <- function(prob    = 'posterior',
     # Hypothetical control distribution: prior augmented by pseudo-counts z*
     # (Appendix A1.1.6: P_hyp(p_c) = Dir(beta_c00, ..., beta_c11) where
     #  beta_c** = a2_** + z**)
-    alpha2 <- c(
+    alpha_c <- c(
       a2_00 + z00,
       a2_01 + z01,
       a2_10 + z10,
@@ -480,12 +480,12 @@ pbayespostpred2bin <- function(prob    = 'posterior',
     )
   } else {
     # Controlled or external: posterior from observed control data
-    xe2_weight <- if (!is.null(ae2) && design == 'external') ae2 else 0
-    alpha2 <- c(
-      a2_00 + x2_00 + xe2_weight * ifelse(!is.null(xe2_00), xe2_00, 0),
-      a2_01 + x2_01 + xe2_weight * ifelse(!is.null(xe2_01), xe2_01, 0),
-      a2_10 + x2_10 + xe2_weight * ifelse(!is.null(xe2_10), xe2_10, 0),
-      a2_11 + x2_11 + xe2_weight * ifelse(!is.null(xe2_11), xe2_11, 0)
+    xe_c_weight <- if (!is.null(ae2) && design == 'external') ae2 else 0
+    alpha_c <- c(
+      a2_00 + x2_00 + xe_c_weight * ifelse(!is.null(xe2_00), xe2_00, 0),
+      a2_01 + x2_01 + xe_c_weight * ifelse(!is.null(xe2_01), xe2_01, 0),
+      a2_10 + x2_10 + xe_c_weight * ifelse(!is.null(xe2_10), xe2_10, 0),
+      a2_11 + x2_11 + xe_c_weight * ifelse(!is.null(xe2_11), xe2_11, 0)
     )
   }
 
@@ -494,27 +494,27 @@ pbayespostpred2bin <- function(prob    = 'posterior',
   # ---------------------------------------------------------------------------
 
   # Draw nMC samples from the posterior (or hypothetical) Dirichlet for each arm
-  # Columns of p1/p2: (p_00, p_01, p_10, p_11)
-  p1 <- rdirichlet(nMC, alpha1)
-  p2 <- rdirichlet(nMC, alpha2)
+  # Columns of p_t/p_c: (p_00, p_01, p_10, p_11)
+  p_t <- rdirichlet(nMC, alpha_t)
+  p_c <- rdirichlet(nMC, alpha_c)
 
   if (prob == 'posterior') {
 
     # Marginal response rates:
     #   pi_k1 = p_k10 + p_k11  (Endpoint 1 success)
     #   pi_k2 = p_k01 + p_k11  (Endpoint 2 success)
-    theta1 <- (p1[, 3L] + p1[, 4L]) - (p2[, 3L] + p2[, 4L])
-    theta2 <- (p1[, 2L] + p1[, 4L]) - (p2[, 2L] + p2[, 4L])
+    theta1 <- (p_t[, 3L] + p_t[, 4L]) - (p_c[, 3L] + p_c[, 4L])
+    theta2 <- (p_t[, 2L] + p_t[, 4L]) - (p_c[, 2L] + p_c[, 4L])
 
     # Classify each draw into one of 9 regions (row-major: Endpoint 1 slowest)
     # r1: 1 = theta1 > TV1, 2 = MAV1 < theta1 <= TV1, 3 = theta1 <= MAV1
     # r2: 1 = theta2 > TV2, 2 = MAV2 < theta2 <= TV2, 3 = theta2 <= MAV2
     r1 <- 3L -
-      as.integer(theta1 > theta.MAV1) -
-      as.integer(theta1 > theta.TV1)
+      as.integer(theta1 > theta_MAV1) -
+      as.integer(theta1 > theta_TV1)
     r2 <- 3L -
-      as.integer(theta2 > theta.MAV2) -
-      as.integer(theta2 > theta.TV2)
+      as.integer(theta2 > theta_MAV2) -
+      as.integer(theta2 > theta_TV2)
 
     # Region index: 1 to 9, row-major (r1 varies slowest)
     region <- (r1 - 1L) * 3L + r2
@@ -537,48 +537,48 @@ pbayespostpred2bin <- function(prob    = 'posterior',
     #        x_k4 = m_k - x_k1 - x_k2 - x_k3
     # -------------------------------------------------------------------------
 
-    x1_fut <- matrix(0L, nrow = nMC, ncol = 4L)
-    x2_fut <- matrix(0L, nrow = nMC, ncol = 4L)
-    rem1   <- rep(m1, nMC)
-    rem2   <- rep(m2, nMC)
-    used1  <- rep(0, nMC)
-    used2  <- rep(0, nMC)
+    x_t_fut <- matrix(0L, nrow = nMC, ncol = 4L)
+    x_c_fut <- matrix(0L, nrow = nMC, ncol = 4L)
+    rem_t   <- rep(m_t, nMC)
+    rem_c   <- rep(m_c, nMC)
+    used_t  <- rep(0, nMC)
+    used_c  <- rep(0, nMC)
 
     for (j in seq_len(3L)) {
       # Conditional probability of category j given remaining categories
-      denom1 <- pmax(1 - used1, 0)
-      denom2 <- pmax(1 - used2, 0)
-      prob1_j <- pmin(pmax(ifelse(denom1 > 0, p1[, j] / denom1, 0), 0), 1)
-      prob2_j <- pmin(pmax(ifelse(denom2 > 0, p2[, j] / denom2, 0), 0), 1)
+      denom1 <- pmax(1 - used_t, 0)
+      denom2 <- pmax(1 - used_c, 0)
+      prob1_j <- pmin(pmax(ifelse(denom1 > 0, p_t[, j] / denom1, 0), 0), 1)
+      prob2_j <- pmin(pmax(ifelse(denom2 > 0, p_c[, j] / denom2, 0), 0), 1)
 
-      draw1 <- rbinom(nMC, rem1, prob1_j)
-      draw2 <- rbinom(nMC, rem2, prob2_j)
+      draw1 <- rbinom(nMC, rem_t, prob1_j)
+      draw2 <- rbinom(nMC, rem_c, prob2_j)
 
-      x1_fut[, j] <- draw1
-      x2_fut[, j] <- draw2
-      rem1         <- rem1 - draw1
-      rem2         <- rem2 - draw2
-      used1        <- used1 + p1[, j]
-      used2        <- used2 + p2[, j]
+      x_t_fut[, j] <- draw1
+      x_c_fut[, j] <- draw2
+      rem_t         <- rem_t - draw1
+      rem_c         <- rem_c - draw2
+      used_t        <- used_t + p_t[, j]
+      used_c        <- used_c + p_c[, j]
     }
     # Remaining count goes to category 4
-    x1_fut[, 4L] <- rem1
-    x2_fut[, 4L] <- rem2
+    x_t_fut[, 4L] <- rem_t
+    x_c_fut[, 4L] <- rem_c
 
     # Treatment effects based on future sample proportions
     # theta_e1 = (x_et10 + x_et11) / mt - (x_ec10 + x_ec11) / mc
     # theta_e2 = (x_et01 + x_et11) / mt - (x_ec01 + x_ec11) / mc
-    theta1 <- (x1_fut[, 3L] + x1_fut[, 4L]) / m1 -
-      (x2_fut[, 3L] + x2_fut[, 4L]) / m2
-    theta2 <- (x1_fut[, 2L] + x1_fut[, 4L]) / m1 -
-      (x2_fut[, 2L] + x2_fut[, 4L]) / m2
+    theta1 <- (x_t_fut[, 3L] + x_t_fut[, 4L]) / m_t -
+      (x_c_fut[, 3L] + x_c_fut[, 4L]) / m_c
+    theta2 <- (x_t_fut[, 2L] + x_t_fut[, 4L]) / m_t -
+      (x_c_fut[, 2L] + x_c_fut[, 4L]) / m_c
 
     # Classify each draw into one of 4 regions (Table 2 of reference)
-    # theta.TV1 = theta.MAV1 = NULL threshold for Endpoint 1
+    # theta_TV1 = theta_MAV1 = NULL threshold for Endpoint 1
     # r1: 1 = theta1 > NULL1, 2 = theta1 <= NULL1
     # r2: 1 = theta2 > NULL2, 2 = theta2 <= NULL2
-    r1 <- 2L - as.integer(theta1 > theta.TV1)
-    r2 <- 2L - as.integer(theta2 > theta.TV2)
+    r1 <- 2L - as.integer(theta1 > theta_TV1)
+    r2 <- 2L - as.integer(theta2 > theta_TV2)
 
     # Region index: row-major (r1 varies slowest)
     # R1 = (1,1), R2 = (1,2), R3 = (2,1), R4 = (2,2)

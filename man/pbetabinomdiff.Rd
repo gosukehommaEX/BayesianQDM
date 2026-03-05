@@ -4,33 +4,42 @@
 \alias{pbetabinomdiff}
 \title{Cumulative Distribution Function of the Difference Between Two Beta-Binomial Proportions}
 \usage{
-pbetabinomdiff(q, m1, m2, alpha1, alpha2, beta1, beta2, lower.tail = TRUE)
+pbetabinomdiff(
+  q,
+  m_t,
+  m_c,
+  alpha_t,
+  alpha_c,
+  beta_t,
+  beta_c,
+  lower.tail = TRUE
+)
 }
 \arguments{
 \item{q}{A numeric scalar representing the quantile threshold for the
 difference in proportions.}
 
-\item{m1}{A positive integer giving the number of trials for the first
+\item{m_t}{A positive integer giving the number of trials for the treatment
 Beta-Binomial distribution.}
 
-\item{m2}{A positive integer giving the number of trials for the second
+\item{m_c}{A positive integer giving the number of trials for the control
 Beta-Binomial distribution.}
 
-\item{alpha1}{A positive numeric scalar giving the first shape parameter of
-the first Beta mixing distribution.}
+\item{alpha_t}{A positive numeric scalar giving the first shape parameter of
+the treatment Beta mixing distribution.}
 
-\item{alpha2}{A positive numeric scalar giving the first shape parameter of
-the second Beta mixing distribution.}
+\item{alpha_c}{A positive numeric scalar giving the first shape parameter of
+the control Beta mixing distribution.}
 
-\item{beta1}{A positive numeric scalar giving the second shape parameter of
-the first Beta mixing distribution.}
+\item{beta_t}{A positive numeric scalar giving the second shape parameter of
+the treatment Beta mixing distribution.}
 
-\item{beta2}{A positive numeric scalar giving the second shape parameter of
-the second Beta mixing distribution.}
+\item{beta_c}{A positive numeric scalar giving the second shape parameter of
+the control Beta mixing distribution.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
-returns \eqn{P((Y_1/m_1) - (Y_2/m_2) \le q)}, otherwise
-\eqn{P((Y_1/m_1) - (Y_2/m_2) > q)}.}
+returns \eqn{P((Y_t/m_t) - (Y_c/m_c) \le q)}, otherwise
+\eqn{P((Y_t/m_t) - (Y_c/m_c) > q)}.}
 }
 \value{
 A numeric scalar in \code{[0, 1]}.
@@ -38,10 +47,10 @@ A numeric scalar in \code{[0, 1]}.
 \description{
 Calculates the cumulative distribution function (CDF) of the difference
 between two independent Beta-Binomial proportions by exact enumeration.
-Specifically, computes \eqn{P((Y_1/m_1) - (Y_2/m_2) \le q)} or
-\eqn{P((Y_1/m_1) - (Y_2/m_2) > q)}, where
-\eqn{Y_1 \sim \mathrm{BetaBinomial}(m_1, \alpha_1, \beta_1)} and
-\eqn{Y_2 \sim \mathrm{BetaBinomial}(m_2, \alpha_2, \beta_2)}.
+Specifically, computes \eqn{P((Y_t/m_t) - (Y_c/m_c) \le q)} or
+\eqn{P((Y_t/m_t) - (Y_c/m_c) > q)}, where
+\eqn{Y_t \sim \mathrm{BetaBinomial}(m_t, \alpha_t, \beta_t)} and
+\eqn{Y_c \sim \mathrm{BetaBinomial}(m_c, \alpha_c, \beta_c)}.
 }
 \details{
 The probability mass function of \eqn{Y \sim \mathrm{BetaBinomial}(m, \alpha, \beta)} is:
@@ -49,10 +58,10 @@ The probability mass function of \eqn{Y \sim \mathrm{BetaBinomial}(m, \alpha, \b
   \frac{B(k + \alpha,\; m - k + \beta)}{B(\alpha, \beta)}, \quad k = 0, \ldots, m}
 where \eqn{B(\cdot, \cdot)} is the Beta function.
 
-The exact CDF is obtained by enumerating all \eqn{(m_1 + 1)(m_2 + 1)} outcome
+The exact CDF is obtained by enumerating all \eqn{(m_t + 1)(m_c + 1)} outcome
 combinations and summing the joint probabilities for which the proportion
 difference satisfies the specified condition. Computation time therefore grows
-quadratically in \eqn{m_1} and \eqn{m_2}; for large trial sizes consider
+quadratically in \eqn{m_t} and \eqn{m_c}; for large trial sizes consider
 a normal approximation.
 
 The Beta-Binomial distribution arises when the success probability in a Binomial
@@ -60,16 +69,16 @@ model follows a Beta prior, making it appropriate for overdispersed count data
 and for posterior predictive calculations in Bayesian binary-endpoint trials.
 }
 \examples{
-# P((Y1/12) - (Y2/12) > 0.2) with symmetric Beta(0.5, 0.5) priors
+# P((Y_t/12) - (Y_c/12) > 0.2) with symmetric Beta(0.5, 0.5) priors
 pbetabinomdiff(0.2, 12, 12, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
 
-# P((Y1/20) - (Y2/15) > 0.1) with different sample sizes
+# P((Y_t/20) - (Y_c/15) > 0.1) with different sample sizes
 pbetabinomdiff(0.1, 20, 15, 1, 1, 1, 1, lower.tail = FALSE)
 
-# P((Y1/10) - (Y2/10) > 0) with informative priors
+# P((Y_t/10) - (Y_c/10) > 0) with informative priors
 pbetabinomdiff(0, 10, 10, 2, 3, 3, 2, lower.tail = FALSE)
 
-# Lower tail: P((Y1/15) - (Y2/15) <= 0.05)
+# Lower tail: P((Y_t/15) - (Y_c/15) <= 0.05)
 pbetabinomdiff(0.05, 15, 15, 1, 1, 1, 1, lower.tail = TRUE)
 
 }

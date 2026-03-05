@@ -2,28 +2,28 @@
 #'
 #' Calculates the cumulative distribution function (CDF) of the difference
 #' between two independent Beta-Binomial proportions by exact enumeration.
-#' Specifically, computes \eqn{P((Y_1/m_1) - (Y_2/m_2) \le q)} or
-#' \eqn{P((Y_1/m_1) - (Y_2/m_2) > q)}, where
-#' \eqn{Y_1 \sim \mathrm{BetaBinomial}(m_1, \alpha_1, \beta_1)} and
-#' \eqn{Y_2 \sim \mathrm{BetaBinomial}(m_2, \alpha_2, \beta_2)}.
+#' Specifically, computes \eqn{P((Y_t/m_t) - (Y_c/m_c) \le q)} or
+#' \eqn{P((Y_t/m_t) - (Y_c/m_c) > q)}, where
+#' \eqn{Y_t \sim \mathrm{BetaBinomial}(m_t, \alpha_t, \beta_t)} and
+#' \eqn{Y_c \sim \mathrm{BetaBinomial}(m_c, \alpha_c, \beta_c)}.
 #'
 #' @param q A numeric scalar representing the quantile threshold for the
 #'        difference in proportions.
-#' @param m1 A positive integer giving the number of trials for the first
+#' @param m_t A positive integer giving the number of trials for the treatment
 #'        Beta-Binomial distribution.
-#' @param m2 A positive integer giving the number of trials for the second
+#' @param m_c A positive integer giving the number of trials for the control
 #'        Beta-Binomial distribution.
-#' @param alpha1 A positive numeric scalar giving the first shape parameter of
-#'        the first Beta mixing distribution.
-#' @param alpha2 A positive numeric scalar giving the first shape parameter of
-#'        the second Beta mixing distribution.
-#' @param beta1 A positive numeric scalar giving the second shape parameter of
-#'        the first Beta mixing distribution.
-#' @param beta2 A positive numeric scalar giving the second shape parameter of
-#'        the second Beta mixing distribution.
+#' @param alpha_t A positive numeric scalar giving the first shape parameter of
+#'        the treatment Beta mixing distribution.
+#' @param alpha_c A positive numeric scalar giving the first shape parameter of
+#'        the control Beta mixing distribution.
+#' @param beta_t A positive numeric scalar giving the second shape parameter of
+#'        the treatment Beta mixing distribution.
+#' @param beta_c A positive numeric scalar giving the second shape parameter of
+#'        the control Beta mixing distribution.
 #' @param lower.tail A logical scalar; if \code{TRUE} (default), the function
-#'        returns \eqn{P((Y_1/m_1) - (Y_2/m_2) \le q)}, otherwise
-#'        \eqn{P((Y_1/m_1) - (Y_2/m_2) > q)}.
+#'        returns \eqn{P((Y_t/m_t) - (Y_c/m_c) \le q)}, otherwise
+#'        \eqn{P((Y_t/m_t) - (Y_c/m_c) > q)}.
 #'
 #' @return A numeric scalar in \code{[0, 1]}.
 #'
@@ -33,10 +33,10 @@
 #'   \frac{B(k + \alpha,\; m - k + \beta)}{B(\alpha, \beta)}, \quad k = 0, \ldots, m}
 #' where \eqn{B(\cdot, \cdot)} is the Beta function.
 #'
-#' The exact CDF is obtained by enumerating all \eqn{(m_1 + 1)(m_2 + 1)} outcome
+#' The exact CDF is obtained by enumerating all \eqn{(m_t + 1)(m_c + 1)} outcome
 #' combinations and summing the joint probabilities for which the proportion
 #' difference satisfies the specified condition. Computation time therefore grows
-#' quadratically in \eqn{m_1} and \eqn{m_2}; for large trial sizes consider
+#' quadratically in \eqn{m_t} and \eqn{m_c}; for large trial sizes consider
 #' a normal approximation.
 #'
 #' The Beta-Binomial distribution arises when the success probability in a Binomial
@@ -44,20 +44,20 @@
 #' and for posterior predictive calculations in Bayesian binary-endpoint trials.
 #'
 #' @examples
-#' # P((Y1/12) - (Y2/12) > 0.2) with symmetric Beta(0.5, 0.5) priors
+#' # P((Y_t/12) - (Y_c/12) > 0.2) with symmetric Beta(0.5, 0.5) priors
 #' pbetabinomdiff(0.2, 12, 12, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
 #'
-#' # P((Y1/20) - (Y2/15) > 0.1) with different sample sizes
+#' # P((Y_t/20) - (Y_c/15) > 0.1) with different sample sizes
 #' pbetabinomdiff(0.1, 20, 15, 1, 1, 1, 1, lower.tail = FALSE)
 #'
-#' # P((Y1/10) - (Y2/10) > 0) with informative priors
+#' # P((Y_t/10) - (Y_c/10) > 0) with informative priors
 #' pbetabinomdiff(0, 10, 10, 2, 3, 3, 2, lower.tail = FALSE)
 #'
-#' # Lower tail: P((Y1/15) - (Y2/15) <= 0.05)
+#' # Lower tail: P((Y_t/15) - (Y_c/15) <= 0.05)
 #' pbetabinomdiff(0.05, 15, 15, 1, 1, 1, 1, lower.tail = TRUE)
 #'
 #' @export
-pbetabinomdiff <- function(q, m1, m2, alpha1, alpha2, beta1, beta2,
+pbetabinomdiff <- function(q, m_t, m_c, alpha_t, alpha_c, beta_t, beta_c,
                            lower.tail = TRUE) {
 
   # --- Input validation ---
@@ -65,30 +65,30 @@ pbetabinomdiff <- function(q, m1, m2, alpha1, alpha2, beta1, beta2,
     stop("'q' must be a single numeric value")
   }
 
-  if (!is.numeric(m1) || length(m1) != 1L || is.na(m1) ||
-      m1 != floor(m1) || m1 < 1L) {
-    stop("'m1' must be a single positive integer")
+  if (!is.numeric(m_t) || length(m_t) != 1L || is.na(m_t) ||
+      m_t != floor(m_t) || m_t < 1L) {
+    stop("'m_t' must be a single positive integer")
   }
 
-  if (!is.numeric(m2) || length(m2) != 1L || is.na(m2) ||
-      m2 != floor(m2) || m2 < 1L) {
-    stop("'m2' must be a single positive integer")
+  if (!is.numeric(m_c) || length(m_c) != 1L || is.na(m_c) ||
+      m_c != floor(m_c) || m_c < 1L) {
+    stop("'m_c' must be a single positive integer")
   }
 
-  if (!is.numeric(alpha1) || length(alpha1) != 1L || is.na(alpha1) || alpha1 <= 0) {
-    stop("'alpha1' must be a single positive numeric value")
+  if (!is.numeric(alpha_t) || length(alpha_t) != 1L || is.na(alpha_t) || alpha_t <= 0) {
+    stop("'alpha_t' must be a single positive numeric value")
   }
 
-  if (!is.numeric(alpha2) || length(alpha2) != 1L || is.na(alpha2) || alpha2 <= 0) {
-    stop("'alpha2' must be a single positive numeric value")
+  if (!is.numeric(alpha_c) || length(alpha_c) != 1L || is.na(alpha_c) || alpha_c <= 0) {
+    stop("'alpha_c' must be a single positive numeric value")
   }
 
-  if (!is.numeric(beta1) || length(beta1) != 1L || is.na(beta1) || beta1 <= 0) {
-    stop("'beta1' must be a single positive numeric value")
+  if (!is.numeric(beta_t) || length(beta_t) != 1L || is.na(beta_t) || beta_t <= 0) {
+    stop("'beta_t' must be a single positive numeric value")
   }
 
-  if (!is.numeric(beta2) || length(beta2) != 1L || is.na(beta2) || beta2 <= 0) {
-    stop("'beta2' must be a single positive numeric value")
+  if (!is.numeric(beta_c) || length(beta_c) != 1L || is.na(beta_c) || beta_c <= 0) {
+    stop("'beta_c' must be a single positive numeric value")
   }
 
   if (!is.logical(lower.tail) || length(lower.tail) != 1L || is.na(lower.tail)) {
@@ -96,19 +96,21 @@ pbetabinomdiff <- function(q, m1, m2, alpha1, alpha2, beta1, beta2,
   }
 
   # --- Compute Beta-Binomial PMFs ---
-  # PMF for Y1 ~ BetaBinomial(m1, alpha1, beta1)
-  k1 <- 0:m1
-  dbetabinom1 <- choose(m1, k1) * beta(k1 + alpha1, m1 - k1 + beta1) / beta(alpha1, beta1)
+  # PMF for Y_t ~ BetaBinomial(m_t, alpha_t, beta_t)
+  k_t <- 0:m_t
+  dbetabinom_t <- choose(m_t, k_t) *
+    beta(k_t + alpha_t, m_t - k_t + beta_t) / beta(alpha_t, beta_t)
 
-  # PMF for Y2 ~ BetaBinomial(m2, alpha2, beta2)
-  k2 <- 0:m2
-  dbetabinom2 <- choose(m2, k2) * beta(k2 + alpha2, m2 - k2 + beta2) / beta(alpha2, beta2)
+  # PMF for Y_c ~ BetaBinomial(m_c, alpha_c, beta_c)
+  k_c <- 0:m_c
+  dbetabinom_c <- choose(m_c, k_c) *
+    beta(k_c + alpha_c, m_c - k_c + beta_c) / beta(alpha_c, beta_c)
 
-  # --- Enumerate all (m1+1) x (m2+1) outcome combinations ---
-  # Proportion difference: (k1/m1) - (k2/m2) = (m2*k1 - m1*k2) / (m1*m2)
+  # --- Enumerate all (m_t+1) x (m_c+1) outcome combinations ---
+  # Proportion difference: (k_t/m_t) - (k_c/m_c) = (m_c*k_t - m_t*k_c) / (m_t*m_c)
   # Use integer arithmetic via outer() to avoid floating-point comparison issues.
-  diff_numer <- outer(m2 * k1, m1 * k2, "-")  # numerator matrix (m2*k1 - m1*k2)
-  denom      <- m1 * m2
+  diff_numer <- outer(m_c * k_t, m_t * k_c, "-")  # numerator matrix (m_c*k_t - m_t*k_c)
+  denom      <- m_t * m_c
 
   if (lower.tail) {
     I <- (diff_numer / denom <= q)
@@ -117,7 +119,7 @@ pbetabinomdiff <- function(q, m1, m2, alpha1, alpha2, beta1, beta2,
   }
 
   # Sum joint probabilities over outcome pairs satisfying the condition
-  result <- as.numeric(crossprod(dbetabinom1[row(I)[I]], dbetabinom2[col(I)[I]]))
+  result <- as.numeric(crossprod(dbetabinom_t[row(I)[I]], dbetabinom_c[col(I)[I]]))
 
   return(result)
 }

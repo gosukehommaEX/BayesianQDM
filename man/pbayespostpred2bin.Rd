@@ -8,12 +8,12 @@ with Two Binary Endpoints}
 pbayespostpred2bin(
   prob = "posterior",
   design = "controlled",
-  theta.TV1 = NULL,
-  theta.MAV1 = NULL,
-  theta.TV2 = NULL,
-  theta.MAV2 = NULL,
-  theta.NULL1 = NULL,
-  theta.NULL2 = NULL,
+  theta_TV1 = NULL,
+  theta_MAV1 = NULL,
+  theta_TV2 = NULL,
+  theta_MAV2 = NULL,
+  theta_NULL1 = NULL,
+  theta_NULL2 = NULL,
   x1_00,
   x1_01,
   x1_10,
@@ -30,8 +30,8 @@ pbayespostpred2bin(
   a2_01,
   a2_10,
   a2_11,
-  m1 = NULL,
-  m2 = NULL,
+  m_t = NULL,
+  m_c = NULL,
   z00 = NULL,
   z01 = NULL,
   z10 = NULL,
@@ -57,33 +57,33 @@ Must be \code{'posterior'} or \code{'predictive'}.}
 Must be \code{'controlled'}, \code{'uncontrolled'}, or
 \code{'external'}.}
 
-\item{theta.TV1}{A numeric scalar giving the target value (TV) threshold
+\item{theta_TV1}{A numeric scalar giving the target value (TV) threshold
 for Endpoint 1.  Required when \code{prob = 'posterior'}; must
-satisfy \code{theta.TV1 > theta.MAV1}.  Set to \code{NULL} when
+satisfy \code{theta_TV1 > theta_MAV1}.  Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
-\item{theta.MAV1}{A numeric scalar giving the minimum acceptable value
+\item{theta_MAV1}{A numeric scalar giving the minimum acceptable value
 (MAV) threshold for Endpoint 1.  Required when
 \code{prob = 'posterior'}; must satisfy
-\code{theta.TV1 > theta.MAV1}.  Set to \code{NULL} when
+\code{theta_TV1 > theta_MAV1}.  Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
-\item{theta.TV2}{A numeric scalar giving the target value (TV) threshold
+\item{theta_TV2}{A numeric scalar giving the target value (TV) threshold
 for Endpoint 2.  Required when \code{prob = 'posterior'}; must
-satisfy \code{theta.TV2 > theta.MAV2}.  Set to \code{NULL} when
+satisfy \code{theta_TV2 > theta_MAV2}.  Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
-\item{theta.MAV2}{A numeric scalar giving the minimum acceptable value
+\item{theta_MAV2}{A numeric scalar giving the minimum acceptable value
 (MAV) threshold for Endpoint 2.  Required when
 \code{prob = 'posterior'}; must satisfy
-\code{theta.TV2 > theta.MAV2}.  Set to \code{NULL} when
+\code{theta_TV2 > theta_MAV2}.  Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
-\item{theta.NULL1}{A numeric scalar giving the null hypothesis threshold
+\item{theta_NULL1}{A numeric scalar giving the null hypothesis threshold
 for Endpoint 1.  Required when \code{prob = 'predictive'};
 set to \code{NULL} when \code{prob = 'posterior'}.}
 
-\item{theta.NULL2}{A numeric scalar giving the null hypothesis threshold
+\item{theta_NULL2}{A numeric scalar giving the null hypothesis threshold
 for Endpoint 2.  Required when \code{prob = 'predictive'};
 set to \code{NULL} when \code{prob = 'posterior'}.}
 
@@ -147,11 +147,11 @@ parameter for the (1,1) response pattern in group 2.  For
 \code{design = 'uncontrolled'}, serves as a hyperparameter of
 the hypothetical control distribution.}
 
-\item{m1}{A positive integer giving the future sample size for group 1.
+\item{m_t}{A positive integer giving the future sample size for group 1.
 Required when \code{prob = 'predictive'}; otherwise set to
 \code{NULL}.}
 
-\item{m2}{A positive integer giving the future sample size for group 2.
+\item{m_c}{A positive integer giving the future sample size for group 2.
 Required when \code{prob = 'predictive'}; otherwise set to
 \code{NULL}.}
 
@@ -305,14 +305,14 @@ The four regions follow Table 2 of the reference:
 # Example 1: Posterior probability, controlled design
 pbayespostpred2bin(
   prob = 'posterior', design = 'controlled',
-  theta.TV1 = 0.20, theta.MAV1 = 0.10,
-  theta.TV2 = 0.20, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  theta_TV1 = 0.20, theta_MAV1 = 0.10,
+  theta_TV2 = 0.20, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
   x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
   a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-  m1 = NULL, m2 = NULL,
+  m_t = NULL, m_c = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
@@ -323,14 +323,14 @@ pbayespostpred2bin(
 # Example 2: Posterior predictive probability, controlled design
 pbayespostpred2bin(
   prob = 'predictive', design = 'controlled',
-  theta.TV1 = NULL, theta.MAV1 = NULL,
-  theta.TV2 = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.15, theta.NULL2 = 0.15,
+  theta_TV1 = NULL, theta_MAV1 = NULL,
+  theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.15, theta_NULL2 = 0.15,
   x1_00 = 3, x1_01 = 2, x1_10 = 3, x1_11 = 7,
   x2_00 = 6, x2_01 = 3, x2_10 = 4, x2_11 = 2,
   a1_00 = 1, a1_01 = 1, a1_10 = 1, a1_11 = 1,
   a2_00 = 1, a2_01 = 1, a2_10 = 1, a2_11 = 1,
-  m1 = 50, m2 = 50,
+  m_t = 50, m_c = 50,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
@@ -341,14 +341,14 @@ pbayespostpred2bin(
 # Example 3: Posterior probability, external control design
 pbayespostpred2bin(
   prob = 'posterior', design = 'external',
-  theta.TV1 = 0.20, theta.MAV1 = 0.10,
-  theta.TV2 = 0.20, theta.MAV2 = 0.10,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
+  theta_TV1 = 0.20, theta_MAV1 = 0.10,
+  theta_TV2 = 0.20, theta_MAV2 = 0.10,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
   x1_00 = 5, x1_01 = 3, x1_10 = 4, x1_11 = 8,
   x2_00 = 8, x2_01 = 4, x2_10 = 5, x2_11 = 3,
   a1_00 = 0.5, a1_01 = 0.5, a1_10 = 0.5, a1_11 = 0.5,
   a2_00 = 0.5, a2_01 = 0.5, a2_10 = 0.5, a2_11 = 0.5,
-  m1 = NULL, m2 = NULL,
+  m_t = NULL, m_c = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
   xe2_00 = 3L, xe2_01 = 2L, xe2_10 = 3L, xe2_11 = 2L,

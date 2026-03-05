@@ -5,8 +5,8 @@
 #' for continuous-outcome clinical trials under a Normal-Inverse-Chi-squared
 #' (or vague Jeffreys) conjugate model. The function supports controlled,
 #' uncontrolled, and external designs, with optional incorporation of
-#' external data through power priors. Vector inputs for \code{bar.y1}, \code{s1},
-#' \code{bar.y2}, and \code{s2} are supported for efficient batch processing
+#' external data through power priors. Vector inputs for \code{bar_y_t}, \code{s_t},
+#' \code{bar_y_c}, and \code{s_c} are supported for efficient batch processing
 #' (e.g., across simulation replicates in \code{\link{pbayesdecisionprob1cont}}).
 #'
 #' @param prob A character string specifying the probability type.
@@ -25,78 +25,78 @@
 #'        (difference in means).
 #' @param nMC A positive integer giving the number of Monte Carlo draws.
 #'        Required when \code{CalcMethod = 'MC'}; otherwise \code{NULL}.
-#' @param n1 A positive integer giving the number of patients in group 1
+#' @param n_t A positive integer giving the number of patients in group 1
 #'        (treatment) in the proof-of-concept (PoC) trial.
-#' @param n2 A positive integer giving the number of patients in group 2
+#' @param n_c A positive integer giving the number of patients in group 2
 #'        in the PoC trial.  Required for \code{design = 'controlled'} or
 #'        \code{'external'}; set to \code{NULL} for
 #'        \code{design = 'uncontrolled'}.
-#' @param m1 A positive integer giving the future sample size for group 1.
+#' @param m_t A positive integer giving the future sample size for group 1.
 #'        Required when \code{prob = 'predictive'}; otherwise \code{NULL}.
-#' @param m2 A positive integer giving the future sample size for group 2.
+#' @param m_c A positive integer giving the future sample size for group 2.
 #'        Required when \code{prob = 'predictive'}; otherwise \code{NULL}.
-#' @param kappa01 A positive numeric scalar giving the prior precision parameter
+#' @param kappa0_t A positive numeric scalar giving the prior precision parameter
 #'        for group 1. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
 #'        \code{NULL}.
-#' @param kappa02 A positive numeric scalar giving the prior precision parameter
+#' @param kappa0_c A positive numeric scalar giving the prior precision parameter
 #'        for group 2. Required when \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design = 'controlled'}; otherwise \code{NULL}.
-#' @param nu01 A positive numeric scalar giving the prior degrees of freedom
+#' @param nu0_t A positive numeric scalar giving the prior degrees of freedom
 #'        for group 1. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
 #'        \code{NULL}.
-#' @param nu02 A positive numeric scalar giving the prior degrees of freedom
+#' @param nu0_c A positive numeric scalar giving the prior degrees of freedom
 #'        for group 2. Required when \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design = 'controlled'}; otherwise \code{NULL}.
-#' @param mu01 A numeric scalar giving the prior mean for group 1.
+#' @param mu0_t A numeric scalar giving the prior mean for group 1.
 #'        Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
-#' @param mu02 A numeric scalar giving the prior mean for group 2
+#' @param mu0_c A numeric scalar giving the prior mean for group 2
 #'        (\code{design = 'controlled'} with \code{prior = 'N-Inv-Chisq'}) or the
 #'        hypothetical control mean (\code{design = 'uncontrolled'}).
 #'        Required for uncontrolled design; otherwise \code{NULL}.
-#' @param sigma01 A positive numeric scalar giving the prior scale for group 1.
+#' @param sigma0_t A positive numeric scalar giving the prior scale for group 1.
 #'        Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.
-#' @param sigma02 A positive numeric scalar giving the prior scale for group 2.
+#' @param sigma0_c A positive numeric scalar giving the prior scale for group 2.
 #'        Required when \code{prior = 'N-Inv-Chisq'} and
 #'        \code{design = 'controlled'}; otherwise \code{NULL}.
-#' @param bar.y1 A numeric scalar or vector giving the sample mean for group 1.
+#' @param bar_y_t A numeric scalar or vector giving the sample mean for group 1.
 #'        When a vector of length \code{nsim} is supplied, all posterior parameters
 #'        are computed simultaneously for all replicates.
-#' @param bar.y2 A numeric scalar or vector giving the sample mean for group 2.
+#' @param bar_y_c A numeric scalar or vector giving the sample mean for group 2.
 #'        Required for \code{design = 'controlled'} or \code{'external'}; set to
 #'        \code{NULL} for uncontrolled design.
-#' @param s1 A positive numeric scalar or vector giving the sample standard
+#' @param s_t A positive numeric scalar or vector giving the sample standard
 #'        deviation for group 1.
-#' @param s2 A positive numeric scalar or vector giving the sample standard
+#' @param s_c A positive numeric scalar or vector giving the sample standard
 #'        deviation for group 2. Required for \code{design = 'controlled'} or
 #'        \code{'external'}; otherwise \code{NULL}.
 #' @param r A positive numeric scalar giving the variance scaling factor for
 #'        the hypothetical control. Required for \code{design = 'uncontrolled'};
 #'        otherwise \code{NULL}. The hypothetical control scale is
 #'        \eqn{\mathrm{sd.control} = \sqrt{r} \cdot \mathrm{sd.treatment}}.
-#' @param ne1 A positive integer giving the external group 1 sample size.
+#' @param ne_t A positive integer giving the external group 1 sample size.
 #'        Required for \code{design = 'external'} with external treatment data;
 #'        otherwise \code{NULL}.
-#' @param ne2 A positive integer giving the external group 2 sample size.
+#' @param ne_c A positive integer giving the external group 2 sample size.
 #'        Required for \code{design = 'external'} with external control data;
 #'        otherwise \code{NULL}.
-#' @param alpha01 A numeric scalar in \code{(0, 1]} giving the power prior weight
-#'        for group 1. Required when \code{ne1} is provided; otherwise \code{NULL}.
-#' @param alpha02 A numeric scalar in \code{(0, 1]} giving the power prior weight
-#'        for group 2. Required when \code{ne2} is provided; otherwise \code{NULL}.
-#' @param bar.ye1 A numeric scalar giving the external group 1 sample mean.
-#'        Required when \code{ne1} is provided; otherwise \code{NULL}.
-#' @param bar.ye2 A numeric scalar giving the external group 2 sample mean.
-#'        Required when \code{ne2} is provided; otherwise \code{NULL}.
-#' @param se1 A positive numeric scalar giving the external group 1 sample SD.
-#'        Required when \code{ne1} is provided; otherwise \code{NULL}.
-#' @param se2 A positive numeric scalar giving the external group 2 sample SD.
-#'        Required when \code{ne2} is provided; otherwise \code{NULL}.
+#' @param alpha0_t A numeric scalar in \code{(0, 1]} giving the power prior weight
+#'        for group 1. Required when \code{ne_t} is provided; otherwise \code{NULL}.
+#' @param alpha0_c A numeric scalar in \code{(0, 1]} giving the power prior weight
+#'        for group 2. Required when \code{ne_c} is provided; otherwise \code{NULL}.
+#' @param bar_ye_t A numeric scalar giving the external group 1 sample mean.
+#'        Required when \code{ne_t} is provided; otherwise \code{NULL}.
+#' @param bar_ye_c A numeric scalar giving the external group 2 sample mean.
+#'        Required when \code{ne_c} is provided; otherwise \code{NULL}.
+#' @param se_t A positive numeric scalar giving the external group 1 sample SD.
+#'        Required when \code{ne_t} is provided; otherwise \code{NULL}.
+#' @param se_c A positive numeric scalar giving the external group 2 sample SD.
+#'        Required when \code{ne_c} is provided; otherwise \code{NULL}.
 #' @param lower.tail A logical scalar; if \code{TRUE} (default), returns
 #'        \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
 #'        \eqn{P(\mathrm{effect} > \theta_0)}.
 #'
 #' @return A numeric scalar or vector in \code{[0, 1]}.  When the input data
-#'         parameters (\code{bar.y1}, etc.) are vectors of length \eqn{n},
+#'         parameters (\code{bar_y_t}, etc.) are vectors of length \eqn{n},
 #'         a vector of length \eqn{n} is returned.
 #'
 #' @details
@@ -123,88 +123,88 @@
 #' # Example 1: Controlled design - posterior probability with N-Inv-Chisq prior
 #' pbayespostpred1cont(
 #'   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-#'   theta0 = 2, n1 = 12, n2 = 12,
-#'   kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
-#'   mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-#'   bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1,
-#'   m1 = NULL, m2 = NULL, r = NULL,
-#'   ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta0 = 2, n_t = 12, n_c = 12,
+#'   kappa0_t = 5, kappa0_c = 5, nu0_t = 5, nu0_c = 5,
+#'   mu0_t = 5, mu0_c = 5, sigma0_t = sqrt(5), sigma0_c = sqrt(5),
+#'   bar_y_t = 2, bar_y_c = 0, s_t = 1, s_c = 1,
+#'   m_t = NULL, m_c = NULL, r = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   lower.tail = FALSE
 #' )
 #'
 #' # Example 2: Uncontrolled design with hypothetical control and vague prior
 #' pbayespostpred1cont(
 #'   prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MM',
-#'   theta0 = 1.5, n1 = 15, n2 = NULL,
-#'   bar.y1 = 3.5, bar.y2 = NULL, s1 = 1.2, s2 = NULL,
-#'   mu02 = 1.5, r = 1.2,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   m1 = NULL, m2 = NULL,
-#'   ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta0 = 1.5, n_t = 15, n_c = NULL,
+#'   bar_y_t = 3.5, bar_y_c = NULL, s_t = 1.2, s_c = NULL,
+#'   mu0_c = 1.5, r = 1.2,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, sigma0_t = NULL, sigma0_c = NULL,
+#'   m_t = NULL, m_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   lower.tail = FALSE
 #' )
 #'
 #' # Example 3: Posterior predictive probability - controlled design
 #' pbayespostpred1cont(
 #'   prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MM',
-#'   theta0 = 0.5, n1 = 15, n2 = 15, m1 = 100, m2 = 100,
-#'   kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
-#'   mu01 = 2, mu02 = 2, sigma01 = 2, sigma02 = 2,
-#'   bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6,
-#'   r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta0 = 0.5, n_t = 15, n_c = 15, m_t = 100, m_c = 100,
+#'   kappa0_t = 3, kappa0_c = 3, nu0_t = 4, nu0_c = 4,
+#'   mu0_t = 2, mu0_c = 2, sigma0_t = 2, sigma0_c = 2,
+#'   bar_y_t = 2.5, bar_y_c = 1.8, s_t = 1.8, s_c = 1.6,
+#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   lower.tail = FALSE
 #' )
 #'
 #' # Example 4: External control design with power prior
 #' pbayespostpred1cont(
 #'   prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
-#'   theta0 = 1.5, n1 = 12, n2 = 12,
-#'   bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-#'   ne2 = 20, alpha02 = 0.5, bar.ye2 = 1.8, se2 = 1.0,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   m1 = NULL, m2 = NULL, r = NULL,
-#'   ne1 = NULL, alpha01 = NULL, bar.ye1 = NULL, se1 = NULL,
+#'   theta0 = 1.5, n_t = 12, n_c = 12,
+#'   bar_y_t = 4, bar_y_c = 2, s_t = 1.2, s_c = 1.1,
+#'   ne_c = 20, alpha0_c = 0.5, bar_ye_c = 1.8, se_c = 1.0,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+#'   m_t = NULL, m_c = NULL, r = NULL,
+#'   ne_t = NULL, alpha0_t = NULL, bar_ye_t = NULL, se_t = NULL,
 #'   lower.tail = FALSE
 #' )
 #'
 #' # Example 5: Vectorised usage across simulation replicates
 #' set.seed(1)
-#' bar.y1_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
-#' s1_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
-#' bar.y2_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
-#' s2_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
+#' bar.y_t_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
+#' s_t_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
+#' bar.y_c_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
+#' s_c_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
 #' pbayespostpred1cont(
 #'   prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MM',
-#'   theta0 = 1.5, n1 = 12, n2 = 12,
-#'   bar.y1 = bar.y1_vec, bar.y2 = bar.y2_vec, s1 = s1_vec, s2 = s2_vec,
-#'   kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-#'   mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-#'   m1 = NULL, m2 = NULL, r = NULL,
-#'   ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-#'   bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+#'   theta0 = 1.5, n_t = 12, n_c = 12,
+#'   bar_y_t = bar.y_t_vec, bar_y_c = bar.y_c_vec, s_t = s_t_vec, s_c = s_c_vec,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+#'   m_t = NULL, m_c = NULL, r = NULL,
+#'   ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
 #'   lower.tail = FALSE
 #' )
 #'
 #' @export
 pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
                                 prior = "vague", CalcMethod = "NI",
-                                theta0, nMC = NULL, n1, n2 = NULL,
-                                m1 = NULL, m2 = NULL,
-                                kappa01 = NULL, kappa02 = NULL,
-                                nu01 = NULL, nu02 = NULL,
-                                mu01 = NULL, mu02 = NULL,
-                                sigma01 = NULL, sigma02 = NULL,
-                                bar.y1, bar.y2 = NULL, s1, s2 = NULL,
+                                theta0, nMC = NULL, n_t, n_c = NULL,
+                                m_t = NULL, m_c = NULL,
+                                kappa0_t = NULL, kappa0_c = NULL,
+                                nu0_t = NULL, nu0_c = NULL,
+                                mu0_t = NULL, mu0_c = NULL,
+                                sigma0_t = NULL, sigma0_c = NULL,
+                                bar_y_t, bar_y_c = NULL, s_t, s_c = NULL,
                                 r = NULL,
-                                ne1 = NULL, ne2 = NULL,
-                                alpha01 = NULL, alpha02 = NULL,
-                                bar.ye1 = NULL, bar.ye2 = NULL,
-                                se1 = NULL, se2 = NULL,
+                                ne_t = NULL, ne_c = NULL,
+                                alpha0_t = NULL, alpha0_c = NULL,
+                                bar_ye_t = NULL, bar_ye_c = NULL,
+                                se_t = NULL, se_c = NULL,
                                 lower.tail = TRUE) {
 
   # --- Input validation ---
@@ -232,15 +232,15 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
     stop("'theta0' must be a single numeric value")
   }
 
-  if (!is.numeric(n1) || length(n1) != 1L || is.na(n1) ||
-      n1 != floor(n1) || n1 < 1L) {
-    stop("'n1' must be a single positive integer")
+  if (!is.numeric(n_t) || length(n_t) != 1L || is.na(n_t) ||
+      n_t != floor(n_t) || n_t < 1L) {
+    stop("'n_t' must be a single positive integer")
   }
 
   if (design != "uncontrolled") {
-    if (is.null(n2) || !is.numeric(n2) || length(n2) != 1L || is.na(n2) ||
-        n2 != floor(n2) || n2 < 1L) {
-      stop("'n2' must be a single positive integer for controlled or external design")
+    if (is.null(n_c) || !is.numeric(n_c) || length(n_c) != 1L || is.na(n_c) ||
+        n_c != floor(n_c) || n_c < 1L) {
+      stop("'n_c' must be a single positive integer for controlled or external design")
     }
   }
 
@@ -249,12 +249,12 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
   }
 
   # Validate vector data arguments
-  if (!is.numeric(bar.y1) || length(bar.y1) < 1L || any(is.na(bar.y1))) {
-    stop("'bar.y1' must be a numeric scalar or vector with no missing values")
+  if (!is.numeric(bar_y_t) || length(bar_y_t) < 1L || any(is.na(bar_y_t))) {
+    stop("'bar_y_t' must be a numeric scalar or vector with no missing values")
   }
 
-  if (!is.numeric(s1) || length(s1) < 1L || any(is.na(s1)) || any(s1 <= 0)) {
-    stop("'s1' must be a positive numeric scalar or vector with no missing values")
+  if (!is.numeric(s_t) || length(s_t) < 1L || any(is.na(s_t)) || any(s_t <= 0)) {
+    stop("'s_t' must be a positive numeric scalar or vector with no missing values")
   }
 
   # Validate CalcMethod-specific parameters
@@ -270,66 +270,66 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
 
   # Validate prob-specific parameters
   if (prob == "predictive") {
-    if (is.null(m1) || is.null(m2)) {
-      stop("'m1' and 'm2' must be non-NULL when prob = 'predictive'")
+    if (is.null(m_t) || is.null(m_c)) {
+      stop("'m_t' and 'm_c' must be non-NULL when prob = 'predictive'")
     }
-    if (!is.numeric(m1) || length(m1) != 1L || is.na(m1) ||
-        m1 != floor(m1) || m1 < 1L) {
-      stop("'m1' must be a single positive integer")
+    if (!is.numeric(m_t) || length(m_t) != 1L || is.na(m_t) ||
+        m_t != floor(m_t) || m_t < 1L) {
+      stop("'m_t' must be a single positive integer")
     }
-    if (!is.numeric(m2) || length(m2) != 1L || is.na(m2) ||
-        m2 != floor(m2) || m2 < 1L) {
-      stop("'m2' must be a single positive integer")
+    if (!is.numeric(m_c) || length(m_c) != 1L || is.na(m_c) ||
+        m_c != floor(m_c) || m_c < 1L) {
+      stop("'m_c' must be a single positive integer")
     }
   }
 
   # Validate prior-specific parameters for N-Inv-Chisq
   if (prior == "N-Inv-Chisq") {
-    for (nm in c("kappa01", "nu01", "mu01", "sigma01")) {
+    for (nm in c("kappa0_t", "nu0_t", "mu0_t", "sigma0_t")) {
       val <- get(nm)
       if (is.null(val)) {
         stop(paste0("'", nm, "' must be non-NULL when prior = 'N-Inv-Chisq'"))
       }
     }
-    if (!is.numeric(kappa01) || length(kappa01) != 1L || is.na(kappa01) || kappa01 <= 0) {
-      stop("'kappa01' must be a single positive numeric value")
+    if (!is.numeric(kappa0_t) || length(kappa0_t) != 1L || is.na(kappa0_t) || kappa0_t <= 0) {
+      stop("'kappa0_t' must be a single positive numeric value")
     }
-    if (!is.numeric(nu01) || length(nu01) != 1L || is.na(nu01) || nu01 <= 0) {
-      stop("'nu01' must be a single positive numeric value")
+    if (!is.numeric(nu0_t) || length(nu0_t) != 1L || is.na(nu0_t) || nu0_t <= 0) {
+      stop("'nu0_t' must be a single positive numeric value")
     }
-    if (!is.numeric(mu01) || length(mu01) != 1L || is.na(mu01)) {
-      stop("'mu01' must be a single numeric value")
+    if (!is.numeric(mu0_t) || length(mu0_t) != 1L || is.na(mu0_t)) {
+      stop("'mu0_t' must be a single numeric value")
     }
-    if (!is.numeric(sigma01) || length(sigma01) != 1L || is.na(sigma01) || sigma01 <= 0) {
-      stop("'sigma01' must be a single positive numeric value")
+    if (!is.numeric(sigma0_t) || length(sigma0_t) != 1L || is.na(sigma0_t) || sigma0_t <= 0) {
+      stop("'sigma0_t' must be a single positive numeric value")
     }
     if (design %in% c("controlled", "external")) {
-      for (nm in c("kappa02", "nu02", "mu02", "sigma02")) {
+      for (nm in c("kappa0_c", "nu0_c", "mu0_c", "sigma0_c")) {
         val <- get(nm)
         if (is.null(val)) {
           stop(paste0("'", nm, "' must be non-NULL when prior = 'N-Inv-Chisq' and design = '",
                       design, "'"))
         }
       }
-      if (!is.numeric(kappa02) || length(kappa02) != 1L || is.na(kappa02) || kappa02 <= 0) {
-        stop("'kappa02' must be a single positive numeric value")
+      if (!is.numeric(kappa0_c) || length(kappa0_c) != 1L || is.na(kappa0_c) || kappa0_c <= 0) {
+        stop("'kappa0_c' must be a single positive numeric value")
       }
-      if (!is.numeric(nu02) || length(nu02) != 1L || is.na(nu02) || nu02 <= 0) {
-        stop("'nu02' must be a single positive numeric value")
+      if (!is.numeric(nu0_c) || length(nu0_c) != 1L || is.na(nu0_c) || nu0_c <= 0) {
+        stop("'nu0_c' must be a single positive numeric value")
       }
-      if (!is.numeric(sigma02) || length(sigma02) != 1L || is.na(sigma02) || sigma02 <= 0) {
-        stop("'sigma02' must be a single positive numeric value")
+      if (!is.numeric(sigma0_c) || length(sigma0_c) != 1L || is.na(sigma0_c) || sigma0_c <= 0) {
+        stop("'sigma0_c' must be a single positive numeric value")
       }
     }
   }
 
   # Validate design-specific parameters
   if (design == "uncontrolled") {
-    if (is.null(mu02)) {
-      stop("'mu02' (hypothetical control mean) must be non-NULL when design = 'uncontrolled'")
+    if (is.null(mu0_c)) {
+      stop("'mu0_c' (hypothetical control mean) must be non-NULL when design = 'uncontrolled'")
     }
-    if (!is.numeric(mu02) || length(mu02) != 1L || is.na(mu02)) {
-      stop("'mu02' must be a single numeric value")
+    if (!is.numeric(mu0_c) || length(mu0_c) != 1L || is.na(mu0_c)) {
+      stop("'mu0_c' must be a single numeric value")
     }
     if (is.null(r)) {
       stop("'r' (variance scaling factor) must be non-NULL when design = 'uncontrolled'")
@@ -340,70 +340,70 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
   }
 
   if (design == "external") {
-    if (is.null(ne1) && is.null(ne2)) {
-      stop("For design = 'external', at least one of 'ne1' or 'ne2' must be non-NULL")
+    if (is.null(ne_t) && is.null(ne_c)) {
+      stop("For design = 'external', at least one of 'ne_t' or 'ne_c' must be non-NULL")
     }
-    if (!is.null(ne1)) {
-      if (is.null(alpha01) || is.null(bar.ye1) || is.null(se1)) {
-        stop("'alpha01', 'bar.ye1', and 'se1' must all be non-NULL when 'ne1' is provided")
+    if (!is.null(ne_t)) {
+      if (is.null(alpha0_t) || is.null(bar_ye_t) || is.null(se_t)) {
+        stop("'alpha0_t', 'bar_ye_t', and 'se_t' must all be non-NULL when 'ne_t' is provided")
       }
-      if (!is.numeric(ne1) || length(ne1) != 1L || is.na(ne1) ||
-          ne1 != floor(ne1) || ne1 < 1L) {
-        stop("'ne1' must be a single positive integer")
+      if (!is.numeric(ne_t) || length(ne_t) != 1L || is.na(ne_t) ||
+          ne_t != floor(ne_t) || ne_t < 1L) {
+        stop("'ne_t' must be a single positive integer")
       }
-      if (!is.numeric(alpha01) || length(alpha01) != 1L || is.na(alpha01) ||
-          alpha01 <= 0 || alpha01 > 1) {
-        stop("'alpha01' must be a single numeric value in (0, 1]")
+      if (!is.numeric(alpha0_t) || length(alpha0_t) != 1L || is.na(alpha0_t) ||
+          alpha0_t <= 0 || alpha0_t > 1) {
+        stop("'alpha0_t' must be a single numeric value in (0, 1]")
       }
-      if (!is.numeric(bar.ye1) || length(bar.ye1) != 1L || is.na(bar.ye1)) {
-        stop("'bar.ye1' must be a single numeric value")
+      if (!is.numeric(bar_ye_t) || length(bar_ye_t) != 1L || is.na(bar_ye_t)) {
+        stop("'bar_ye_t' must be a single numeric value")
       }
-      if (!is.numeric(se1) || length(se1) != 1L || is.na(se1) || se1 <= 0) {
-        stop("'se1' must be a single positive numeric value")
-      }
-    }
-    if (!is.null(ne2)) {
-      if (is.null(alpha02) || is.null(bar.ye2) || is.null(se2)) {
-        stop("'alpha02', 'bar.ye2', and 'se2' must all be non-NULL when 'ne2' is provided")
-      }
-      if (!is.numeric(ne2) || length(ne2) != 1L || is.na(ne2) ||
-          ne2 != floor(ne2) || ne2 < 1L) {
-        stop("'ne2' must be a single positive integer")
-      }
-      if (!is.numeric(alpha02) || length(alpha02) != 1L || is.na(alpha02) ||
-          alpha02 <= 0 || alpha02 > 1) {
-        stop("'alpha02' must be a single numeric value in (0, 1]")
-      }
-      if (!is.numeric(bar.ye2) || length(bar.ye2) != 1L || is.na(bar.ye2)) {
-        stop("'bar.ye2' must be a single numeric value")
-      }
-      if (!is.numeric(se2) || length(se2) != 1L || is.na(se2) || se2 <= 0) {
-        stop("'se2' must be a single positive numeric value")
+      if (!is.numeric(se_t) || length(se_t) != 1L || is.na(se_t) || se_t <= 0) {
+        stop("'se_t' must be a single positive numeric value")
       }
     }
-    if (!is.null(bar.y2) && (!is.numeric(bar.y2) || any(is.na(bar.y2)))) {
-      stop("'bar.y2' must be a numeric scalar or vector with no missing values")
+    if (!is.null(ne_c)) {
+      if (is.null(alpha0_c) || is.null(bar_ye_c) || is.null(se_c)) {
+        stop("'alpha0_c', 'bar_ye_c', and 'se_c' must all be non-NULL when 'ne_c' is provided")
+      }
+      if (!is.numeric(ne_c) || length(ne_c) != 1L || is.na(ne_c) ||
+          ne_c != floor(ne_c) || ne_c < 1L) {
+        stop("'ne_c' must be a single positive integer")
+      }
+      if (!is.numeric(alpha0_c) || length(alpha0_c) != 1L || is.na(alpha0_c) ||
+          alpha0_c <= 0 || alpha0_c > 1) {
+        stop("'alpha0_c' must be a single numeric value in (0, 1]")
+      }
+      if (!is.numeric(bar_ye_c) || length(bar_ye_c) != 1L || is.na(bar_ye_c)) {
+        stop("'bar_ye_c' must be a single numeric value")
+      }
+      if (!is.numeric(se_c) || length(se_c) != 1L || is.na(se_c) || se_c <= 0) {
+        stop("'se_c' must be a single positive numeric value")
+      }
     }
-    if (!is.null(s2) && (!is.numeric(s2) || any(is.na(s2)) || any(s2 <= 0))) {
-      stop("'s2' must be a positive numeric scalar or vector with no missing values")
+    if (!is.null(bar_y_c) && (!is.numeric(bar_y_c) || any(is.na(bar_y_c)))) {
+      stop("'bar_y_c' must be a numeric scalar or vector with no missing values")
+    }
+    if (!is.null(s_c) && (!is.numeric(s_c) || any(is.na(s_c)) || any(s_c <= 0))) {
+      stop("'s_c' must be a positive numeric scalar or vector with no missing values")
     }
   }
 
   if (design == "controlled") {
-    if (is.null(bar.y2) || is.null(s2)) {
-      stop("'bar.y2' and 's2' must be non-NULL when design = 'controlled'")
+    if (is.null(bar_y_c) || is.null(s_c)) {
+      stop("'bar_y_c' and 's_c' must be non-NULL when design = 'controlled'")
     }
-    if (!is.numeric(bar.y2) || any(is.na(bar.y2))) {
-      stop("'bar.y2' must be a numeric scalar or vector with no missing values")
+    if (!is.numeric(bar_y_c) || any(is.na(bar_y_c))) {
+      stop("'bar_y_c' must be a numeric scalar or vector with no missing values")
     }
-    if (!is.numeric(s2) || any(is.na(s2)) || any(s2 <= 0)) {
-      stop("'s2' must be a positive numeric scalar or vector with no missing values")
+    if (!is.numeric(s_c) || any(is.na(s_c)) || any(s_c <= 0)) {
+      stop("'s_c' must be a positive numeric scalar or vector with no missing values")
     }
   }
 
   # ---------------------------------------------------------------------------
-  # Compute posterior t-distribution parameters (vectorised over bar.y1, s1,
-  # bar.y2, s2; all arithmetic operates element-wise on vectors).
+  # Compute posterior t-distribution parameters (vectorised over bar_y_t, s_t,
+  # bar_y_c, s_c; all arithmetic operates element-wise on vectors).
   # ---------------------------------------------------------------------------
 
   if (design == 'external') {
@@ -416,102 +416,102 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
       # and the external data via the power prior weight.
 
       # Group 1 (Treatment): incorporate external data if available
-      if (!is.null(ne1) && !is.null(alpha01)) {
+      if (!is.null(ne_t) && !is.null(alpha0_t)) {
         # Intermediate: N-Inv-Chisq prior updated with power-weighted external data
-        kappa.e1  <- kappa01 + alpha01 * ne1
-        nu.e1     <- nu01 + alpha01 * ne1
-        mu.e1     <- (kappa01 * mu01 + alpha01 * ne1 * bar.ye1) / kappa.e1
-        var.e1    <- (nu01 * sigma01 ^ 2 + alpha01 * (ne1 - 1) * se1 ^ 2 +
-                        alpha01 * ne1 * kappa01 * (bar.ye1 - mu01) ^ 2 / kappa.e1) / nu.e1
+        kappa_e_t  <- kappa0_t + alpha0_t * ne_t
+        nu_e_t     <- nu0_t + alpha0_t * ne_t
+        mu_e_t     <- (kappa0_t * mu0_t + alpha0_t * ne_t * bar_ye_t) / kappa_e_t
+        var_e_t    <- (nu0_t * sigma0_t ^ 2 + alpha0_t * (ne_t - 1) * se_t ^ 2 +
+                         alpha0_t * ne_t * kappa0_t * (bar_ye_t - mu0_t) ^ 2 / kappa_e_t) / nu_e_t
         # Final update with PoC data
-        kappa.n1  <- kappa.e1 + n1
-        nu.t1     <- nu.e1 + n1
-        mu.t1     <- (kappa.e1 * mu.e1 + n1 * bar.y1) / kappa.n1
-        var.n1    <- (nu.e1 * var.e1 + (n1 - 1) * s1 ^ 2 +
-                        n1 * kappa.e1 * (mu.e1 - bar.y1) ^ 2 / kappa.n1) / nu.t1
+        kappa_n_t  <- kappa_e_t + n_t
+        nu_t     <- nu_e_t + n_t
+        mu_t     <- (kappa_e_t * mu_e_t + n_t * bar_y_t) / kappa_n_t
+        var_n_t    <- (nu_e_t * var_e_t + (n_t - 1) * s_t ^ 2 +
+                         n_t * kappa_e_t * (mu_e_t - bar_y_t) ^ 2 / kappa_n_t) / nu_t
       } else {
         # No external treatment data: N-Inv-Chisq prior updated with PoC data only
-        kappa.n1  <- kappa01 + n1
-        nu.t1     <- nu01 + n1
-        mu.t1     <- (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
-        var.n1    <- (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 +
-                        n1 * kappa01 * (mu01 - bar.y1) ^ 2 / kappa.n1) / nu.t1
+        kappa_n_t  <- kappa0_t + n_t
+        nu_t     <- nu0_t + n_t
+        mu_t     <- (kappa0_t * mu0_t + n_t * bar_y_t) / kappa_n_t
+        var_n_t    <- (nu0_t * sigma0_t ^ 2 + (n_t - 1) * s_t ^ 2 +
+                         n_t * kappa0_t * (mu0_t - bar_y_t) ^ 2 / kappa_n_t) / nu_t
       }
 
       # Group 2 (Control): incorporate external data if available
-      if (!is.null(ne2) && !is.null(alpha02)) {
+      if (!is.null(ne_c) && !is.null(alpha0_c)) {
         # Intermediate: N-Inv-Chisq prior updated with power-weighted external data
-        kappa.e2  <- kappa02 + alpha02 * ne2
-        nu.e2     <- nu02 + alpha02 * ne2
-        mu.e2     <- (kappa02 * mu02 + alpha02 * ne2 * bar.ye2) / kappa.e2
-        var.e2    <- (nu02 * sigma02 ^ 2 + alpha02 * (ne2 - 1) * se2 ^ 2 +
-                        alpha02 * ne2 * kappa02 * (bar.ye2 - mu02) ^ 2 / kappa.e2) / nu.e2
+        kappa_e_c  <- kappa0_c + alpha0_c * ne_c
+        nu_e_c     <- nu0_c + alpha0_c * ne_c
+        mu_e_c     <- (kappa0_c * mu0_c + alpha0_c * ne_c * bar_ye_c) / kappa_e_c
+        var_e_c    <- (nu0_c * sigma0_c ^ 2 + alpha0_c * (ne_c - 1) * se_c ^ 2 +
+                         alpha0_c * ne_c * kappa0_c * (bar_ye_c - mu0_c) ^ 2 / kappa_e_c) / nu_e_c
         # Final update with PoC data
-        kappa.n2  <- kappa.e2 + n2
-        nu.t2     <- nu.e2 + n2
-        mu.t2     <- (kappa.e2 * mu.e2 + n2 * bar.y2) / kappa.n2
-        var.n2    <- (nu.e2 * var.e2 + (n2 - 1) * s2 ^ 2 +
-                        n2 * kappa.e2 * (mu.e2 - bar.y2) ^ 2 / kappa.n2) / nu.t2
+        kappa_n_c  <- kappa_e_c + n_c
+        nu_c     <- nu_e_c + n_c
+        mu_c     <- (kappa_e_c * mu_e_c + n_c * bar_y_c) / kappa_n_c
+        var_n_c    <- (nu_e_c * var_e_c + (n_c - 1) * s_c ^ 2 +
+                         n_c * kappa_e_c * (mu_e_c - bar_y_c) ^ 2 / kappa_n_c) / nu_c
       } else {
         # No external control data: N-Inv-Chisq prior updated with PoC data only
-        kappa.n2  <- kappa02 + n2
-        nu.t2     <- nu02 + n2
-        mu.t2     <- (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
-        var.n2    <- (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 +
-                        n2 * kappa02 * (mu02 - bar.y2) ^ 2 / kappa.n2) / nu.t2
+        kappa_n_c  <- kappa0_c + n_c
+        nu_c     <- nu0_c + n_c
+        mu_c     <- (kappa0_c * mu0_c + n_c * bar_y_c) / kappa_n_c
+        var_n_c    <- (nu0_c * sigma0_c ^ 2 + (n_c - 1) * s_c ^ 2 +
+                         n_c * kappa0_c * (mu0_c - bar_y_c) ^ 2 / kappa_n_c) / nu_c
       }
 
       # Scale parameters depend on probability type
       if (prob == 'posterior') {
-        sd.t1 <- sqrt(var.n1 / kappa.n1)
-        sd.t2 <- sqrt(var.n2 / kappa.n2)
+        sd_t <- sqrt(var_n_t / kappa_n_t)
+        sd_c <- sqrt(var_n_c / kappa_n_c)
       } else {
-        sd.t1 <- sqrt((1 + 1 / kappa.n1) * var.n1 / m1)
-        sd.t2 <- sqrt((1 + 1 / kappa.n2) * var.n2 / m2)
+        sd_t <- sqrt((1 + 1 / kappa_n_t) * var_n_t / m_t)
+        sd_c <- sqrt((1 + 1 / kappa_n_c) * var_n_c / m_c)
       }
 
     } else {
 
       # --- External design with vague prior ---
       # Group 1 (Treatment): apply power prior if external data available
-      if (!is.null(ne1) && !is.null(alpha01)) {
-        mu.t1          <- (alpha01 * ne1 * bar.ye1 + n1 * bar.y1) / (alpha01 * ne1 + n1)
-        kappa.star.n1  <- alpha01 * ne1 + n1
-        nu.t1          <- alpha01 * ne1 + n1 - 1
-        sigma2.star.n1 <- (alpha01 * (ne1 - 1) * se1 ^ 2 + (n1 - 1) * s1 ^ 2 +
-                             (alpha01 * ne1 * n1 * (bar.ye1 - bar.y1) ^ 2) /
-                             (alpha01 * ne1 + n1)) / (alpha01 * ne1 + n1)
+      if (!is.null(ne_t) && !is.null(alpha0_t)) {
+        mu_t          <- (alpha0_t * ne_t * bar_ye_t + n_t * bar_y_t) / (alpha0_t * ne_t + n_t)
+        kappa_star_n_t  <- alpha0_t * ne_t + n_t
+        nu_t          <- alpha0_t * ne_t + n_t - 1
+        sigma2_star_n_t <- (alpha0_t * (ne_t - 1) * se_t ^ 2 + (n_t - 1) * s_t ^ 2 +
+                              (alpha0_t * ne_t * n_t * (bar_ye_t - bar_y_t) ^ 2) /
+                              (alpha0_t * ne_t + n_t)) / (alpha0_t * ne_t + n_t)
       } else {
         # No external treatment data: use vague prior
-        mu.t1          <- bar.y1
-        kappa.star.n1  <- n1
-        nu.t1          <- n1 - 1
-        sigma2.star.n1 <- s1 ^ 2
+        mu_t          <- bar_y_t
+        kappa_star_n_t  <- n_t
+        nu_t          <- n_t - 1
+        sigma2_star_n_t <- s_t ^ 2
       }
 
       # Group 2 (Control): apply power prior if external data available
-      if (!is.null(ne2) && !is.null(alpha02)) {
-        mu.t2          <- (alpha02 * ne2 * bar.ye2 + n2 * bar.y2) / (alpha02 * ne2 + n2)
-        kappa.star.n2  <- alpha02 * ne2 + n2
-        nu.t2          <- alpha02 * ne2 + n2 - 1
-        sigma2.star.n2 <- (alpha02 * (ne2 - 1) * se2 ^ 2 + (n2 - 1) * s2 ^ 2 +
-                             (alpha02 * ne2 * n2 * (bar.ye2 - bar.y2) ^ 2) /
-                             (alpha02 * ne2 + n2)) / (alpha02 * ne2 + n2)
+      if (!is.null(ne_c) && !is.null(alpha0_c)) {
+        mu_c          <- (alpha0_c * ne_c * bar_ye_c + n_c * bar_y_c) / (alpha0_c * ne_c + n_c)
+        kappa_star_n_c  <- alpha0_c * ne_c + n_c
+        nu_c          <- alpha0_c * ne_c + n_c - 1
+        sigma2_star_n_c <- (alpha0_c * (ne_c - 1) * se_c ^ 2 + (n_c - 1) * s_c ^ 2 +
+                              (alpha0_c * ne_c * n_c * (bar_ye_c - bar_y_c) ^ 2) /
+                              (alpha0_c * ne_c + n_c)) / (alpha0_c * ne_c + n_c)
       } else {
         # No external control data: use vague prior
-        mu.t2          <- bar.y2
-        kappa.star.n2  <- n2
-        nu.t2          <- n2 - 1
-        sigma2.star.n2 <- s2 ^ 2
+        mu_c          <- bar_y_c
+        kappa_star_n_c  <- n_c
+        nu_c          <- n_c - 1
+        sigma2_star_n_c <- s_c ^ 2
       }
 
       # Scale parameters depend on probability type
       if (prob == 'posterior') {
-        sd.t1 <- sqrt(sigma2.star.n1 / kappa.star.n1)
-        sd.t2 <- sqrt(sigma2.star.n2 / kappa.star.n2)
+        sd_t <- sqrt(sigma2_star_n_t / kappa_star_n_t)
+        sd_c <- sqrt(sigma2_star_n_c / kappa_star_n_c)
       } else {
-        sd.t1 <- sqrt((1 + 1 / kappa.star.n1) * sigma2.star.n1 / m1)
-        sd.t2 <- sqrt((1 + 1 / kappa.star.n2) * sigma2.star.n2 / m2)
+        sd_t <- sqrt((1 + 1 / kappa_star_n_t) * sigma2_star_n_t / m_t)
+        sd_c <- sqrt((1 + 1 / kappa_star_n_c) * sigma2_star_n_c / m_c)
       }
     }
 
@@ -521,51 +521,51 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
     if (prior == 'N-Inv-Chisq') {
 
       # Updated precision parameters
-      kappa.n1 <- kappa01 + n1
-      kappa.n2 <- kappa02 + n2
+      kappa_n_t <- kappa0_t + n_t
+      kappa_n_c <- kappa0_c + n_c
 
       # Updated degrees of freedom
-      nu.t1 <- nu01 + n1
+      nu_t <- nu0_t + n_t
       if (design == 'controlled') {
-        nu.t2 <- nu02 + n2
+        nu_c <- nu0_c + n_c
       } else {
-        nu.t2 <- nu.t1
+        nu_c <- nu_t
       }
 
       # Posterior means
-      mu.t1 <- (kappa01 * mu01 + n1 * bar.y1) / kappa.n1
+      mu_t <- (kappa0_t * mu0_t + n_t * bar_y_t) / kappa_n_t
       if (design == 'controlled') {
-        mu.t2 <- (kappa02 * mu02 + n2 * bar.y2) / kappa.n2
+        mu_c <- (kappa0_c * mu0_c + n_c * bar_y_c) / kappa_n_c
       } else {
-        mu.t2 <- mu02
+        mu_c <- mu0_c
       }
 
-      # Posterior variance for group 1 (vectorised over bar.y1, s1)
-      var.n1 <- (nu01 * sigma01 ^ 2 + (n1 - 1) * s1 ^ 2 +
-                   n1 * kappa01 * (mu01 - bar.y1) ^ 2 / kappa.n1) / nu.t1
+      # Posterior variance for group 1 (vectorised over bar_y_t, s_t)
+      var_n_t <- (nu0_t * sigma0_t ^ 2 + (n_t - 1) * s_t ^ 2 +
+                    n_t * kappa0_t * (mu0_t - bar_y_t) ^ 2 / kappa_n_t) / nu_t
 
       # Posterior variance for group 2
       if (design == 'controlled') {
-        var.n2 <- (nu02 * sigma02 ^ 2 + (n2 - 1) * s2 ^ 2 +
-                     n2 * kappa02 * (mu02 - bar.y2) ^ 2 / kappa.n2) / nu.t2
+        var_n_c <- (nu0_c * sigma0_c ^ 2 + (n_c - 1) * s_c ^ 2 +
+                      n_c * kappa0_c * (mu0_c - bar_y_c) ^ 2 / kappa_n_c) / nu_c
       } else {
-        var.n2 <- NULL
+        var_n_c <- NULL
       }
 
       # Scale parameters depend on probability type
       if (prob == 'posterior') {
-        sd.t1 <- sqrt(var.n1 / kappa.n1)
+        sd_t <- sqrt(var_n_t / kappa_n_t)
         if (design == 'controlled') {
-          sd.t2 <- sqrt(var.n2 / kappa.n2)
+          sd_c <- sqrt(var_n_c / kappa_n_c)
         } else {
-          sd.t2 <- sqrt(r) * sd.t1
+          sd_c <- sqrt(r) * sd_t
         }
       } else {
-        sd.t1 <- sqrt((1 + 1 / kappa.n1) * var.n1 / m1)
+        sd_t <- sqrt((1 + 1 / kappa_n_t) * var_n_t / m_t)
         if (design == 'controlled') {
-          sd.t2 <- sqrt((1 + 1 / kappa.n2) * var.n2 / m2)
+          sd_c <- sqrt((1 + 1 / kappa_n_c) * var_n_c / m_c)
         } else {
-          sd.t2 <- sqrt(r) * sd.t1
+          sd_c <- sqrt(r) * sd_t
         }
       }
 
@@ -573,35 +573,35 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
       # Vague (Jeffreys) prior
 
       # Degrees of freedom
-      nu.t1 <- n1 - 1
+      nu_t <- n_t - 1
       if (design == 'controlled') {
-        nu.t2 <- n2 - 1
+        nu_c <- n_c - 1
       } else {
-        nu.t2 <- nu.t1
+        nu_c <- nu_t
       }
 
-      # Posterior means (vectorised over bar.y1, bar.y2)
-      mu.t1 <- bar.y1
+      # Posterior means (vectorised over bar_y_t, bar_y_c)
+      mu_t <- bar_y_t
       if (design == 'controlled') {
-        mu.t2 <- bar.y2
+        mu_c <- bar_y_c
       } else {
-        mu.t2 <- mu02
+        mu_c <- mu0_c
       }
 
-      # Scale parameters (vectorised over s1, s2)
+      # Scale parameters (vectorised over s_t, s_c)
       if (prob == 'posterior') {
-        sd.t1 <- sqrt(s1 ^ 2 / n1)
+        sd_t <- sqrt(s_t ^ 2 / n_t)
         if (design == 'controlled') {
-          sd.t2 <- sqrt(s2 ^ 2 / n2)
+          sd_c <- sqrt(s_c ^ 2 / n_c)
         } else {
-          sd.t2 <- sqrt(r) * sd.t1
+          sd_c <- sqrt(r) * sd_t
         }
       } else {
-        sd.t1 <- sqrt((1 + 1 / n1) * s1 ^ 2 / m1)
+        sd_t <- sqrt((1 + 1 / n_t) * s_t ^ 2 / m_t)
         if (design == 'controlled') {
-          sd.t2 <- sqrt((1 + 1 / n2) * s2 ^ 2 / m2)
+          sd_c <- sqrt((1 + 1 / n_c) * s_c ^ 2 / m_c)
         } else {
-          sd.t2 <- sqrt(r) * sd.t1
+          sd_c <- sqrt(r) * sd_t
         }
       }
     }
@@ -609,16 +609,16 @@ pbayespostpred1cont <- function(prob = "posterior", design = "controlled",
 
   # ---------------------------------------------------------------------------
   # Compute probability using the specified method.
-  # mu.t1, mu.t2, sd.t1, sd.t2 may be vectors of length nsim when called from
+  # mu_t, mu_c, sd_t, sd_c may be vectors of length nsim when called from
   # pbayesdecisionprob1cont; each method receives the full vector and returns a
   # vector of the same length (no outer loop required).
   # ---------------------------------------------------------------------------
   if (CalcMethod == 'NI') {
-    results <- ptdiff_NI(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
+    results <- ptdiff_NI(theta0, mu_t, mu_c, sd_t, sd_c, nu_t, nu_c, lower.tail)
   } else if (CalcMethod == 'MC') {
-    results <- ptdiff_MC(nMC, theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
+    results <- ptdiff_MC(nMC, theta0, mu_t, mu_c, sd_t, sd_c, nu_t, nu_c, lower.tail)
   } else {
-    results <- ptdiff_MM(theta0, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail)
+    results <- ptdiff_MM(theta0, mu_t, mu_c, sd_t, sd_c, nu_t, nu_c, lower.tail)
   }
 
   return(results)

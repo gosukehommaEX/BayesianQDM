@@ -12,31 +12,31 @@ pbayespostpred1cont(
   CalcMethod = "NI",
   theta0,
   nMC = NULL,
-  n1,
-  n2 = NULL,
-  m1 = NULL,
-  m2 = NULL,
-  kappa01 = NULL,
-  kappa02 = NULL,
-  nu01 = NULL,
-  nu02 = NULL,
-  mu01 = NULL,
-  mu02 = NULL,
-  sigma01 = NULL,
-  sigma02 = NULL,
-  bar.y1,
-  bar.y2 = NULL,
-  s1,
-  s2 = NULL,
+  n_t,
+  n_c = NULL,
+  m_t = NULL,
+  m_c = NULL,
+  kappa0_t = NULL,
+  kappa0_c = NULL,
+  nu0_t = NULL,
+  nu0_c = NULL,
+  mu0_t = NULL,
+  mu0_c = NULL,
+  sigma0_t = NULL,
+  sigma0_c = NULL,
+  bar_y_t,
+  bar_y_c = NULL,
+  s_t,
+  s_c = NULL,
   r = NULL,
-  ne1 = NULL,
-  ne2 = NULL,
-  alpha01 = NULL,
-  alpha02 = NULL,
-  bar.ye1 = NULL,
-  bar.ye2 = NULL,
-  se1 = NULL,
-  se2 = NULL,
+  ne_t = NULL,
+  ne_c = NULL,
+  alpha0_t = NULL,
+  alpha0_c = NULL,
+  bar_ye_t = NULL,
+  bar_ye_c = NULL,
+  se_t = NULL,
+  se_c = NULL,
   lower.tail = TRUE
 )
 }
@@ -63,63 +63,63 @@ recommended; see Details.}
 \item{nMC}{A positive integer giving the number of Monte Carlo draws.
 Required when \code{CalcMethod = 'MC'}; otherwise \code{NULL}.}
 
-\item{n1}{A positive integer giving the number of patients in group 1
+\item{n_t}{A positive integer giving the number of patients in group 1
 (treatment) in the proof-of-concept (PoC) trial.}
 
-\item{n2}{A positive integer giving the number of patients in group 2
+\item{n_c}{A positive integer giving the number of patients in group 2
 in the PoC trial.  Required for \code{design = 'controlled'} or
 \code{'external'}; set to \code{NULL} for
 \code{design = 'uncontrolled'}.}
 
-\item{m1}{A positive integer giving the future sample size for group 1.
+\item{m_t}{A positive integer giving the future sample size for group 1.
 Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
 
-\item{m2}{A positive integer giving the future sample size for group 2.
+\item{m_c}{A positive integer giving the future sample size for group 2.
 Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
 
-\item{kappa01}{A positive numeric scalar giving the prior precision parameter
+\item{kappa0_t}{A positive numeric scalar giving the prior precision parameter
 for group 1. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
 \code{NULL}.}
 
-\item{kappa02}{A positive numeric scalar giving the prior precision parameter
+\item{kappa0_c}{A positive numeric scalar giving the prior precision parameter
 for group 2. Required when \code{prior = 'N-Inv-Chisq'} and
 \code{design = 'controlled'}; otherwise \code{NULL}.}
 
-\item{nu01}{A positive numeric scalar giving the prior degrees of freedom
+\item{nu0_t}{A positive numeric scalar giving the prior degrees of freedom
 for group 1. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
 \code{NULL}.}
 
-\item{nu02}{A positive numeric scalar giving the prior degrees of freedom
+\item{nu0_c}{A positive numeric scalar giving the prior degrees of freedom
 for group 2. Required when \code{prior = 'N-Inv-Chisq'} and
 \code{design = 'controlled'}; otherwise \code{NULL}.}
 
-\item{mu01}{A numeric scalar giving the prior mean for group 1.
+\item{mu0_t}{A numeric scalar giving the prior mean for group 1.
 Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.}
 
-\item{mu02}{A numeric scalar giving the prior mean for group 2
+\item{mu0_c}{A numeric scalar giving the prior mean for group 2
 (\code{design = 'controlled'} with \code{prior = 'N-Inv-Chisq'}) or the
 hypothetical control mean (\code{design = 'uncontrolled'}).
 Required for uncontrolled design; otherwise \code{NULL}.}
 
-\item{sigma01}{A positive numeric scalar giving the prior scale for group 1.
+\item{sigma0_t}{A positive numeric scalar giving the prior scale for group 1.
 Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.}
 
-\item{sigma02}{A positive numeric scalar giving the prior scale for group 2.
+\item{sigma0_c}{A positive numeric scalar giving the prior scale for group 2.
 Required when \code{prior = 'N-Inv-Chisq'} and
 \code{design = 'controlled'}; otherwise \code{NULL}.}
 
-\item{bar.y1}{A numeric scalar or vector giving the sample mean for group 1.
+\item{bar_y_t}{A numeric scalar or vector giving the sample mean for group 1.
 When a vector of length \code{nsim} is supplied, all posterior parameters
 are computed simultaneously for all replicates.}
 
-\item{bar.y2}{A numeric scalar or vector giving the sample mean for group 2.
+\item{bar_y_c}{A numeric scalar or vector giving the sample mean for group 2.
 Required for \code{design = 'controlled'} or \code{'external'}; set to
 \code{NULL} for uncontrolled design.}
 
-\item{s1}{A positive numeric scalar or vector giving the sample standard
+\item{s_t}{A positive numeric scalar or vector giving the sample standard
 deviation for group 1.}
 
-\item{s2}{A positive numeric scalar or vector giving the sample standard
+\item{s_c}{A positive numeric scalar or vector giving the sample standard
 deviation for group 2. Required for \code{design = 'controlled'} or
 \code{'external'}; otherwise \code{NULL}.}
 
@@ -128,31 +128,31 @@ the hypothetical control. Required for \code{design = 'uncontrolled'};
 otherwise \code{NULL}. The hypothetical control scale is
 \eqn{\mathrm{sd.control} = \sqrt{r} \cdot \mathrm{sd.treatment}}.}
 
-\item{ne1}{A positive integer giving the external group 1 sample size.
+\item{ne_t}{A positive integer giving the external group 1 sample size.
 Required for \code{design = 'external'} with external treatment data;
 otherwise \code{NULL}.}
 
-\item{ne2}{A positive integer giving the external group 2 sample size.
+\item{ne_c}{A positive integer giving the external group 2 sample size.
 Required for \code{design = 'external'} with external control data;
 otherwise \code{NULL}.}
 
-\item{alpha01}{A numeric scalar in \code{(0, 1]} giving the power prior weight
-for group 1. Required when \code{ne1} is provided; otherwise \code{NULL}.}
+\item{alpha0_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight
+for group 1. Required when \code{ne_t} is provided; otherwise \code{NULL}.}
 
-\item{alpha02}{A numeric scalar in \code{(0, 1]} giving the power prior weight
-for group 2. Required when \code{ne2} is provided; otherwise \code{NULL}.}
+\item{alpha0_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight
+for group 2. Required when \code{ne_c} is provided; otherwise \code{NULL}.}
 
-\item{bar.ye1}{A numeric scalar giving the external group 1 sample mean.
-Required when \code{ne1} is provided; otherwise \code{NULL}.}
+\item{bar_ye_t}{A numeric scalar giving the external group 1 sample mean.
+Required when \code{ne_t} is provided; otherwise \code{NULL}.}
 
-\item{bar.ye2}{A numeric scalar giving the external group 2 sample mean.
-Required when \code{ne2} is provided; otherwise \code{NULL}.}
+\item{bar_ye_c}{A numeric scalar giving the external group 2 sample mean.
+Required when \code{ne_c} is provided; otherwise \code{NULL}.}
 
-\item{se1}{A positive numeric scalar giving the external group 1 sample SD.
-Required when \code{ne1} is provided; otherwise \code{NULL}.}
+\item{se_t}{A positive numeric scalar giving the external group 1 sample SD.
+Required when \code{ne_t} is provided; otherwise \code{NULL}.}
 
-\item{se2}{A positive numeric scalar giving the external group 2 sample SD.
-Required when \code{ne2} is provided; otherwise \code{NULL}.}
+\item{se_c}{A positive numeric scalar giving the external group 2 sample SD.
+Required when \code{ne_c} is provided; otherwise \code{NULL}.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), returns
 \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
@@ -160,7 +160,7 @@ Required when \code{ne2} is provided; otherwise \code{NULL}.}
 }
 \value{
 A numeric scalar or vector in \code{[0, 1]}.  When the input data
-parameters (\code{bar.y1}, etc.) are vectors of length \eqn{n},
+parameters (\code{bar_y_t}, etc.) are vectors of length \eqn{n},
 a vector of length \eqn{n} is returned.
 }
 \description{
@@ -168,8 +168,8 @@ Computes the Bayesian posterior probability or posterior predictive probability
 for continuous-outcome clinical trials under a Normal-Inverse-Chi-squared
 (or vague Jeffreys) conjugate model. The function supports controlled,
 uncontrolled, and external designs, with optional incorporation of
-external data through power priors. Vector inputs for \code{bar.y1}, \code{s1},
-\code{bar.y2}, and \code{s2} are supported for efficient batch processing
+external data through power priors. Vector inputs for \code{bar_y_t}, \code{s_t},
+\code{bar_y_c}, and \code{s_c} are supported for efficient batch processing
 (e.g., across simulation replicates in \code{\link{pbayesdecisionprob1cont}}).
 }
 \details{
@@ -196,70 +196,70 @@ fully vectorised and exact in the normal limit.
 # Example 1: Controlled design - posterior probability with N-Inv-Chisq prior
 pbayespostpred1cont(
   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-  theta0 = 2, n1 = 12, n2 = 12,
-  kappa01 = 5, kappa02 = 5, nu01 = 5, nu02 = 5,
-  mu01 = 5, mu02 = 5, sigma01 = sqrt(5), sigma02 = sqrt(5),
-  bar.y1 = 2, bar.y2 = 0, s1 = 1, s2 = 1,
-  m1 = NULL, m2 = NULL, r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta0 = 2, n_t = 12, n_c = 12,
+  kappa0_t = 5, kappa0_c = 5, nu0_t = 5, nu0_c = 5,
+  mu0_t = 5, mu0_c = 5, sigma0_t = sqrt(5), sigma0_c = sqrt(5),
+  bar_y_t = 2, bar_y_c = 0, s_t = 1, s_c = 1,
+  m_t = NULL, m_c = NULL, r = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   lower.tail = FALSE
 )
 
 # Example 2: Uncontrolled design with hypothetical control and vague prior
 pbayespostpred1cont(
   prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MM',
-  theta0 = 1.5, n1 = 15, n2 = NULL,
-  bar.y1 = 3.5, bar.y2 = NULL, s1 = 1.2, s2 = NULL,
-  mu02 = 1.5, r = 1.2,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, sigma01 = NULL, sigma02 = NULL,
-  m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta0 = 1.5, n_t = 15, n_c = NULL,
+  bar_y_t = 3.5, bar_y_c = NULL, s_t = 1.2, s_c = NULL,
+  mu0_c = 1.5, r = 1.2,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  m_t = NULL, m_c = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   lower.tail = FALSE
 )
 
 # Example 3: Posterior predictive probability - controlled design
 pbayespostpred1cont(
   prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MM',
-  theta0 = 0.5, n1 = 15, n2 = 15, m1 = 100, m2 = 100,
-  kappa01 = 3, kappa02 = 3, nu01 = 4, nu02 = 4,
-  mu01 = 2, mu02 = 2, sigma01 = 2, sigma02 = 2,
-  bar.y1 = 2.5, bar.y2 = 1.8, s1 = 1.8, s2 = 1.6,
-  r = NULL, ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta0 = 0.5, n_t = 15, n_c = 15, m_t = 100, m_c = 100,
+  kappa0_t = 3, kappa0_c = 3, nu0_t = 4, nu0_c = 4,
+  mu0_t = 2, mu0_c = 2, sigma0_t = 2, sigma0_c = 2,
+  bar_y_t = 2.5, bar_y_c = 1.8, s_t = 1.8, s_c = 1.6,
+  r = NULL, ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   lower.tail = FALSE
 )
 
 # Example 4: External control design with power prior
 pbayespostpred1cont(
   prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
-  theta0 = 1.5, n1 = 12, n2 = 12,
-  bar.y1 = 4, bar.y2 = 2, s1 = 1.2, s2 = 1.1,
-  ne2 = 20, alpha02 = 0.5, bar.ye2 = 1.8, se2 = 1.0,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  m1 = NULL, m2 = NULL, r = NULL,
-  ne1 = NULL, alpha01 = NULL, bar.ye1 = NULL, se1 = NULL,
+  theta0 = 1.5, n_t = 12, n_c = 12,
+  bar_y_t = 4, bar_y_c = 2, s_t = 1.2, s_c = 1.1,
+  ne_c = 20, alpha0_c = 0.5, bar_ye_c = 1.8, se_c = 1.0,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  m_t = NULL, m_c = NULL, r = NULL,
+  ne_t = NULL, alpha0_t = NULL, bar_ye_t = NULL, se_t = NULL,
   lower.tail = FALSE
 )
 
 # Example 5: Vectorised usage across simulation replicates
 set.seed(1)
-bar.y1_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
-s1_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
-bar.y2_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
-s2_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
+bar.y_t_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
+s_t_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
+bar.y_c_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
+s_c_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
 pbayespostpred1cont(
   prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MM',
-  theta0 = 1.5, n1 = 12, n2 = 12,
-  bar.y1 = bar.y1_vec, bar.y2 = bar.y2_vec, s1 = s1_vec, s2 = s2_vec,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  m1 = NULL, m2 = NULL, r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  theta0 = 1.5, n_t = 12, n_c = 12,
+  bar_y_t = bar.y_t_vec, bar_y_c = bar.y_c_vec, s_t = s_t_vec, s_c = s_c_vec,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  m_t = NULL, m_c = NULL, r = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0_t = NULL, alpha0_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   lower.tail = FALSE
 )
 

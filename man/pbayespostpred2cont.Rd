@@ -8,37 +8,37 @@ pbayespostpred2cont(
   prob,
   design,
   prior,
-  theta.TV1 = NULL,
-  theta.MAV1 = NULL,
-  theta.TV2 = NULL,
-  theta.MAV2 = NULL,
-  theta.NULL1 = NULL,
-  theta.NULL2 = NULL,
-  n1,
-  n2 = NULL,
-  ybar1,
-  S1,
-  ybar2 = NULL,
-  S2 = NULL,
-  m1 = NULL,
-  m2 = NULL,
-  kappa01 = NULL,
-  nu01 = NULL,
-  mu01 = NULL,
-  Lambda01 = NULL,
-  kappa02 = NULL,
-  nu02 = NULL,
-  mu02 = NULL,
-  Lambda02 = NULL,
+  theta_TV1 = NULL,
+  theta_MAV1 = NULL,
+  theta_TV2 = NULL,
+  theta_MAV2 = NULL,
+  theta_NULL1 = NULL,
+  theta_NULL2 = NULL,
+  n_t,
+  n_c = NULL,
+  ybar_t,
+  S_t,
+  ybar_c = NULL,
+  S_c = NULL,
+  m_t = NULL,
+  m_c = NULL,
+  kappa0_t = NULL,
+  nu0_t = NULL,
+  mu0_t = NULL,
+  Lambda0_t = NULL,
+  kappa0_c = NULL,
+  nu0_c = NULL,
+  mu0_c = NULL,
+  Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL,
-  ne2 = NULL,
-  alpha01e = NULL,
-  alpha02e = NULL,
-  ybar_e1 = NULL,
-  ybar_e2 = NULL,
-  Se1 = NULL,
-  Se2 = NULL,
+  ne_t = NULL,
+  ne_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
+  ybar_e_t = NULL,
+  ybar_e_c = NULL,
+  Se_t = NULL,
+  Se_c = NULL,
   nMC = 10000L,
   method = "MC"
 )
@@ -51,102 +51,102 @@ or \code{'external'}.}
 
 \item{prior}{Character scalar: \code{'vague'} or \code{'N-Inv-Wishart'}.}
 
-\item{theta.TV1}{Numeric scalar. Target value for Endpoint 1
+\item{theta_TV1}{Numeric scalar. Target value for Endpoint 1
 (required when \code{prob = 'posterior'}).}
 
-\item{theta.MAV1}{Numeric scalar. Minimum acceptable value for Endpoint 1
+\item{theta_MAV1}{Numeric scalar. Minimum acceptable value for Endpoint 1
 (required when \code{prob = 'posterior'}).}
 
-\item{theta.TV2}{Numeric scalar. Target value for Endpoint 2
+\item{theta_TV2}{Numeric scalar. Target value for Endpoint 2
 (required when \code{prob = 'posterior'}).}
 
-\item{theta.MAV2}{Numeric scalar. Minimum acceptable value for Endpoint 2
+\item{theta_MAV2}{Numeric scalar. Minimum acceptable value for Endpoint 2
 (required when \code{prob = 'posterior'}).}
 
-\item{theta.NULL1}{Numeric scalar. Null threshold for Endpoint 1
+\item{theta_NULL1}{Numeric scalar. Null threshold for Endpoint 1
 (required when \code{prob = 'predictive'}).}
 
-\item{theta.NULL2}{Numeric scalar. Null threshold for Endpoint 2
+\item{theta_NULL2}{Numeric scalar. Null threshold for Endpoint 2
 (required when \code{prob = 'predictive'}).}
 
-\item{n1}{Positive integer. Sample size for the treatment arm.}
+\item{n_t}{Positive integer. Sample size for the treatment arm.}
 
-\item{n2}{Positive integer or \code{NULL}. Sample size for the control arm
+\item{n_c}{Positive integer or \code{NULL}. Sample size for the control arm
 (not used when \code{design = 'uncontrolled'}).}
 
-\item{ybar1}{Numeric vector of length 2 \strong{or} a numeric matrix with
+\item{ybar_t}{Numeric vector of length 2 \strong{or} a numeric matrix with
 2 columns. Sample mean(s) for the treatment arm. When a matrix with
 \eqn{N} rows is supplied, the function computes probabilities for
 all \eqn{N} observations simultaneously and returns an
 \eqn{N \times n_{\rm regions}} matrix.}
 
-\item{S1}{A 2x2 numeric matrix (single observation) \strong{or} a list of
+\item{S_t}{A 2x2 numeric matrix (single observation) \strong{or} a list of
 \eqn{N} such matrices. Sum-of-squares matrix/matrices for the
-treatment arm. Must be consistent with \code{ybar1}: if
-\code{ybar1} is a matrix, \code{S1} must be a list of the same
+treatment arm. Must be consistent with \code{ybar_t}: if
+\code{ybar_t} is a matrix, \code{S_t} must be a list of the same
 length.}
 
-\item{ybar2}{Numeric vector of length 2, a numeric matrix with 2 columns,
+\item{ybar_c}{Numeric vector of length 2, a numeric matrix with 2 columns,
 or \code{NULL}. Sample mean(s) for the control arm.}
 
-\item{S2}{A 2x2 numeric matrix, a list of 2x2 matrices, or \code{NULL}.
+\item{S_c}{A 2x2 numeric matrix, a list of 2x2 matrices, or \code{NULL}.
 Sum-of-squares matrix/matrices for the control arm.}
 
-\item{m1}{Positive integer or \code{NULL}. Pivotal study sample size for
+\item{m_t}{Positive integer or \code{NULL}. Pivotal study sample size for
 the treatment arm (required when \code{prob = 'predictive'}).}
 
-\item{m2}{Positive integer or \code{NULL}. Pivotal study sample size for
+\item{m_c}{Positive integer or \code{NULL}. Pivotal study sample size for
 the control arm (required when \code{prob = 'predictive'} and
 \code{design != 'uncontrolled'}).}
 
-\item{kappa01}{Positive numeric scalar. NIW prior concentration for the
+\item{kappa0_t}{Positive numeric scalar. NIW prior concentration for the
 treatment arm (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{nu01}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
+\item{nu0_t}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
 the treatment arm (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{mu01}{Length-2 numeric vector. NIW prior mean for the treatment arm
+\item{mu0_t}{Length-2 numeric vector. NIW prior mean for the treatment arm
 (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{Lambda01}{A 2x2 positive-definite numeric matrix. NIW prior scale
+\item{Lambda0_t}{A 2x2 positive-definite numeric matrix. NIW prior scale
 matrix for the treatment arm (required when
 \code{prior = 'N-Inv-Wishart'}).}
 
-\item{kappa02}{Positive numeric scalar. NIW prior concentration for the
+\item{kappa0_c}{Positive numeric scalar. NIW prior concentration for the
 control arm.}
 
-\item{nu02}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
+\item{nu0_c}{Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
 the control arm.}
 
-\item{mu02}{Length-2 numeric vector. NIW prior mean for the control arm or
+\item{mu0_c}{Length-2 numeric vector. NIW prior mean for the control arm or
 hypothetical control location (\code{design = 'uncontrolled'}).}
 
-\item{Lambda02}{A 2x2 positive-definite numeric matrix. NIW prior scale
+\item{Lambda0_c}{A 2x2 positive-definite numeric matrix. NIW prior scale
 matrix for the control arm.}
 
 \item{r}{Positive numeric scalar. Variance scaling factor for the
 hypothetical control (required when
 \code{design = 'uncontrolled'}).}
 
-\item{ne1}{Positive integer or \code{NULL}. External treatment sample size
+\item{ne_t}{Positive integer or \code{NULL}. External treatment sample size
 (used when \code{design = 'external'}).}
 
-\item{ne2}{Positive integer or \code{NULL}. External control sample size
+\item{ne_c}{Positive integer or \code{NULL}. External control sample size
 (used when \code{design = 'external'}).}
 
-\item{alpha01e}{Numeric scalar in \code{(0, 1]}. Power prior weight for
+\item{alpha0e_t}{Numeric scalar in \code{(0, 1]}. Power prior weight for
 external treatment data.}
 
-\item{alpha02e}{Numeric scalar in \code{(0, 1]}. Power prior weight for
+\item{alpha0e_c}{Numeric scalar in \code{(0, 1]}. Power prior weight for
 external control data.}
 
-\item{ybar_e1}{Length-2 numeric vector. External treatment sample mean.}
+\item{ybar_e_t}{Length-2 numeric vector. External treatment sample mean.}
 
-\item{ybar_e2}{Length-2 numeric vector. External control sample mean.}
+\item{ybar_e_c}{Length-2 numeric vector. External control sample mean.}
 
-\item{Se1}{A 2x2 numeric matrix. External treatment sum-of-squares matrix.}
+\item{Se_t}{A 2x2 numeric matrix. External treatment sum-of-squares matrix.}
 
-\item{Se2}{A 2x2 numeric matrix. External control sum-of-squares matrix.}
+\item{Se_c}{A 2x2 numeric matrix. External control sum-of-squares matrix.}
 
 \item{nMC}{Positive integer or \code{NULL}. Number of Monte Carlo draws.
 Default \code{10000L}. Required when \code{method = 'MC'}.  May be
@@ -161,15 +161,15 @@ set to \code{NULL} when \code{method = 'MM'} and \eqn{\nu_k > 4}
 and the function falls back to \code{method = 'MC'}.}
 }
 \value{
-When \code{ybar1} is a length-2 vector (single observation): a
-named numeric vector of length 9 (\code{R1}--\code{R9}) for
-\code{prob = 'posterior'} or length 4 (\code{R1}--\code{R4}) for
+When \code{ybar_t} is a length-2 vector (single observation): a
+named numeric vector of length 9 (\code{R_chol_t}--\code{R9}) for
+\code{prob = 'posterior'} or length 4 (\code{R_chol_t}--\code{R4}) for
 \code{prob = 'predictive'}. All elements are non-negative and sum
 to 1.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    When \code{ybar1} is an \eqn{N \times 2} matrix (vectorised call):
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    When \code{ybar_t} is an \eqn{N \times 2} matrix (vectorised call):
     a numeric matrix with \eqn{N} rows and 9 (or 4) columns, with
-    column names \code{R1}--\code{R9} (or \code{R1}--\code{R4}). Each
+    column names \code{R_chol_t}--\code{R9} (or \code{R_chol_t}--\code{R4}). Each
     row sums to 1.
 }\if{html}{\out{</div>}}
 }
@@ -208,8 +208,8 @@ scale divided by \eqn{m_k}.
 \strong{Posterior probability regions (prob = 'posterior').}
 Row-major 3x3 grid; Endpoint 1 varies slowest:
 \itemize{
-\item R1: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 > TV_2}
-\item R2: \eqn{\theta_1 > TV_1} AND \eqn{TV_2 \ge \theta_2 > MAV_2}
+\item R_chol_t: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 > TV_2}
+\item R_chol_c: \eqn{\theta_1 > TV_1} AND \eqn{TV_2 \ge \theta_2 > MAV_2}
 \item R3: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 \le MAV_2}
 \item R4: \eqn{TV_1 \ge \theta_1 > MAV_1} AND \eqn{\theta_2 > TV_2}
 \item R5: \eqn{TV_1 \ge \theta_1 > MAV_1} AND
@@ -224,9 +224,9 @@ Row-major 3x3 grid; Endpoint 1 varies slowest:
 \strong{Predictive probability regions (prob = 'predictive').}
 Row-major 2x2 grid; Endpoint 1 varies slowest:
 \itemize{
-\item R1: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
+\item R_chol_t: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
 \eqn{\tilde\theta_2 > \theta_{\rm NULL2}}
-\item R2: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
+\item R_chol_c: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
 \eqn{\tilde\theta_2 \le \theta_{\rm NULL2}}
 \item R3: \eqn{\tilde\theta_1 \le \theta_{\rm NULL1}} AND
 \eqn{\tilde\theta_2 > \theta_{\rm NULL2}}
@@ -248,8 +248,8 @@ power prior from external data with weight \eqn{a_0}, then updating with
 current PoC data (see Conjugate_power_prior.pdf, Theorem 5).
 
 \strong{Vectorised usage.}
-When \code{ybar1} is supplied as an \eqn{N \times 2} matrix and
-\code{S1} as a list of \eqn{N} scatter matrices, the function computes
+When \code{ybar_t} is supplied as an \eqn{N \times 2} matrix and
+\code{S_t} as a list of \eqn{N} scatter matrices, the function computes
 region probabilities for all \eqn{N} observations in a single call,
 returning an \eqn{N \times n_{\rm regions}} matrix.  For
 \code{method = 'MC'}, standard normal and chi-squared variates are
@@ -262,127 +262,127 @@ once per region per observation.
 }
 \examples{
 # Example 1: Posterior probability, controlled design, vague prior
-S1 <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-S2 <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 pbayespostpred2cont(
   prob = 'posterior', design = 'controlled', prior = 'vague',
-  theta.TV1 = 1.5, theta.MAV1 = 0.5,
-  theta.TV2 = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 12L, n2 = 12L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  theta_TV1 = 1.5, theta_MAV1 = 0.5,
+  theta_TV2 = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 12L, n_c = 12L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
   nMC = 1000L
 )
 
 # Example 2: Posterior probability, controlled design, NIW prior
-S1 <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-S2 <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 L0 <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
 pbayespostpred2cont(
   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Wishart',
-  theta.TV1 = 1.5, theta.MAV1 = 0.5,
-  theta.TV2 = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 12L, n2 = 12L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = NULL, m2 = NULL,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-  kappa02 = 2.0, nu02 = 5.0, mu02 = c(1.0, 0.5), Lambda02 = L0,
+  theta_TV1 = 1.5, theta_MAV1 = 0.5,
+  theta_TV2 = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 12L, n_c = 12L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(1.0, 0.5), Lambda0_c = L0,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
   nMC = 1000L
 )
 
 # Example 3: Posterior probability, uncontrolled design, NIW prior
-# mu02 specifies the hypothetical control location; r scales the variance
-S1 <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+# mu0_c specifies the hypothetical control location; r scales the variance
+S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
 L0 <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
 pbayespostpred2cont(
   prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Wishart',
-  theta.TV1 = 1.5, theta.MAV1 = 0.5,
-  theta.TV2 = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 12L, n2 = NULL,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = NULL, S2 = NULL,
-  m1 = NULL, m2 = NULL,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-  kappa02 = NULL, nu02 = NULL, mu02 = c(1.0, 0.5), Lambda02 = NULL,
+  theta_TV1 = 1.5, theta_MAV1 = 0.5,
+  theta_TV2 = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 12L, n_c = NULL,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = NULL, S_c = NULL,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = c(1.0, 0.5), Lambda0_c = NULL,
   r = 1.0,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
   nMC = 1000L
 )
 
 # Example 4: Posterior probability, external design (control only), NIW prior
-S1  <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-S2  <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+S_t  <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S_c  <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 L0  <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
-Se2 <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
+Se_c <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
 pbayespostpred2cont(
   prob = 'posterior', design = 'external', prior = 'N-Inv-Wishart',
-  theta.TV1 = 1.5, theta.MAV1 = 0.5,
-  theta.TV2 = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 12L, n2 = 12L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = NULL, m2 = NULL,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-  kappa02 = 2.0, nu02 = 5.0, mu02 = c(1.0, 0.5), Lambda02 = L0,
+  theta_TV1 = 1.5, theta_MAV1 = 0.5,
+  theta_TV2 = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 12L, n_c = 12L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(1.0, 0.5), Lambda0_c = L0,
   r = NULL,
-  ne1 = NULL, ne2 = 10L, alpha01e = NULL, alpha02e = 0.5,
-  ybar_e1 = NULL, ybar_e2 = c(1.5, 0.8), Se1 = NULL, Se2 = Se2,
+  ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  ybar_e_t = NULL, ybar_e_c = c(1.5, 0.8), Se_t = NULL, Se_c = Se_c,
   nMC = 1000L
 )
 
 # Example 5: Predictive probability, controlled design, vague prior
-S1 <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-S2 <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 pbayespostpred2cont(
   prob = 'predictive', design = 'controlled', prior = 'vague',
-  theta.TV1 = NULL, theta.MAV1 = NULL,
-  theta.TV2 = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.5, theta.NULL2 = 0.3,
-  n1 = 12L, n2 = 12L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = 30L, m2 = 30L,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  theta_TV1 = NULL, theta_MAV1 = NULL,
+  theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.5, theta_NULL2 = 0.3,
+  n_t = 12L, n_c = 12L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = 30L, m_c = 30L,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
   nMC = 1000L
 )
 
 # Example 6: Posterior probability, controlled design, NIW prior, MM method
-S1 <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-S2 <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 L0 <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
 pbayespostpred2cont(
   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Wishart',
-  theta.TV1 = 1.5, theta.MAV1 = 0.5,
-  theta.TV2 = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 12L, n2 = 12L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = NULL, m2 = NULL,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-  kappa02 = 2.0, nu02 = 5.0, mu02 = c(1.0, 0.5), Lambda02 = L0,
+  theta_TV1 = 1.5, theta_MAV1 = 0.5,
+  theta_TV2 = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 12L, n_c = 12L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(1.0, 0.5), Lambda0_c = L0,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
   nMC = 1000L, method = 'MM'
 )
 
@@ -401,18 +401,18 @@ ybar1_mat <- rbind(c(3.5, 2.1), c(4.0, 2.5), c(2.5, 1.5))
 ybar2_mat <- rbind(c(1.8, 1.0), c(1.9, 1.1), c(1.7, 0.9))
 pbayespostpred2cont(
   prob = 'posterior', design = 'controlled', prior = 'vague',
-  theta.TV1 = 1.5, theta.MAV1 = 0.5,
-  theta.TV2 = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 12L, n2 = 12L,
-  ybar1 = ybar1_mat, S1 = S1_list,
-  ybar2 = ybar2_mat, S2 = S2_list,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  theta_TV1 = 1.5, theta_MAV1 = 0.5,
+  theta_TV2 = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 12L, n_c = 12L,
+  ybar_t = ybar1_mat, S_t = S1_list,
+  ybar_c = ybar2_mat, S_c = S2_list,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  ybar_e_t = NULL, ybar_e_c = NULL, Se_t = NULL, Se_c = NULL,
   nMC = 1000L
 )
 

@@ -5,52 +5,52 @@
 \title{Cumulative Distribution Function of the Difference of Two t-Distributed Variables
 by Numerical Integration}
 \usage{
-ptdiff_NI(q, mu.t1, mu.t2, sd.t1, sd.t2, nu.t1, nu.t2, lower.tail = TRUE)
+ptdiff_NI(q, mu_t, mu_c, sd_t, sd_c, nu_t, nu_c, lower.tail = TRUE)
 }
 \arguments{
 \item{q}{A numeric scalar representing the quantile threshold.}
 
-\item{mu.t1}{A numeric scalar or vector giving the location parameter of the
-first t-distribution.}
+\item{mu_t}{A numeric scalar or vector giving the location parameter of the
+first t-distribution (treatment).}
 
-\item{mu.t2}{A numeric scalar or vector giving the location parameter of the
-second t-distribution.}
+\item{mu_c}{A numeric scalar or vector giving the location parameter of the
+second t-distribution (control).}
 
-\item{sd.t1}{A positive numeric scalar or vector giving the scale parameter of
-the first t-distribution.}
+\item{sd_t}{A positive numeric scalar or vector giving the scale parameter of
+the first t-distribution (treatment).}
 
-\item{sd.t2}{A positive numeric scalar or vector giving the scale parameter of
-the second t-distribution.}
+\item{sd_c}{A positive numeric scalar or vector giving the scale parameter of
+the second t-distribution (control).}
 
-\item{nu.t1}{A numeric scalar giving the degrees of freedom of the first
-t-distribution. Must be greater than 2 for finite variance.}
+\item{nu_t}{A numeric scalar giving the degrees of freedom of the first
+t-distribution (treatment). Must be greater than 2 for finite variance.}
 
-\item{nu.t2}{A numeric scalar giving the degrees of freedom of the second
-t-distribution. Must be greater than 2 for finite variance.}
+\item{nu_c}{A numeric scalar giving the degrees of freedom of the second
+t-distribution (control). Must be greater than 2 for finite variance.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
-returns \eqn{P(T_1 - T_2 \le q)}, otherwise \eqn{P(T_1 - T_2 > q)}.}
+returns \eqn{P(T_t - T_c \le q)}, otherwise \eqn{P(T_t - T_c > q)}.}
 }
 \value{
-A numeric scalar or vector in \code{[0, 1]}.  When \code{mu.t1},
-\code{mu.t2}, \code{sd.t1}, or \code{sd.t2} are vectors of length
+A numeric scalar or vector in \code{[0, 1]}.  When \code{mu_t},
+\code{mu_c}, \code{sd_t}, or \code{sd_c} are vectors of length
 \eqn{n}, a vector of length \eqn{n} is returned.
 }
 \description{
 Calculates the cumulative distribution function (CDF) of the difference between
 two independent non-standardised t-distributed random variables using exact
 numerical integration via convolution. Specifically, computes
-\eqn{P(T_1 - T_2 \le q)} or \eqn{P(T_1 - T_2 > q)}, where
-\eqn{T_i \sim t(\mu_i, \sigma_i^2, \nu_i)}.
+\eqn{P(T_t - T_c \le q)} or \eqn{P(T_t - T_c > q)}, where
+\eqn{T_k \sim t(\mu_k, \sigma_k^2, \nu_k)} for \eqn{k \in \{t, c\}}.
 }
 \details{
 The upper-tail probability is obtained via the convolution formula:
-\deqn{P(T_1 - T_2 > q)
-  = \int_{-\infty}^{\infty} f_1(x)\, F_2(x - q)\, dx}
-where \eqn{f_1} is the density of \eqn{T_1} and \eqn{F_2} is the CDF of
-\eqn{T_2}. Integration bounds are set to \eqn{\mu_1 \pm 8\sigma^*_1}, where
-\eqn{\sigma^*_1 = \sigma_1 \sqrt{(\nu_1 + 1)/(\nu_1 - 2)}} is the standard
-deviation of \eqn{T_1}. Relative and absolute tolerances are \code{1e-6} and
+\deqn{P(T_t - T_c > q)
+  = \int_{-\infty}^{\infty} f_t(x)\, F_c(x - q)\, dx}
+where \eqn{f_t} is the density of \eqn{T_t} and \eqn{F_c} is the CDF of
+\eqn{T_c}. Integration bounds are set to \eqn{\mu_t \pm 8\sigma^*_t}, where
+\eqn{\sigma^*_t = \sigma_t \sqrt{(\nu_t + 1)/(\nu_t - 2)}} is the standard
+deviation of \eqn{T_t}. Relative and absolute tolerances are \code{1e-6} and
 \code{1e-8}, respectively.
 
 When the input parameters are vectors, \code{mapply} applies the scalar
@@ -68,25 +68,25 @@ Moment-Matching approximation (\code{\link{ptdiff_MM}}) because it calls
 \code{\link{pbayesdecisionprob1cont}}.
 }
 \examples{
-# P(T1 - T2 > 3) with equal parameters
-ptdiff_NI(q = 3, mu.t1 = 2, mu.t2 = 0, sd.t1 = 1, sd.t2 = 1,
-          nu.t1 = 17, nu.t2 = 17, lower.tail = FALSE)
+# P(T_t - T_c > 3) with equal parameters
+ptdiff_NI(q = 3, mu_t = 2, mu_c = 0, sd_t = 1, sd_c = 1,
+          nu_t = 17, nu_c = 17, lower.tail = FALSE)
 
-# P(T1 - T2 > 1) with unequal variances
-ptdiff_NI(q = 1, mu.t1 = 5, mu.t2 = 3, sd.t1 = 2, sd.t2 = 1.5,
-          nu.t1 = 10, nu.t2 = 15, lower.tail = FALSE)
+# P(T_t - T_c > 1) with unequal variances
+ptdiff_NI(q = 1, mu_t = 5, mu_c = 3, sd_t = 2, sd_c = 1.5,
+          nu_t = 10, nu_c = 15, lower.tail = FALSE)
 
-# P(T1 - T2 > 0) with different degrees of freedom
-ptdiff_NI(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-          nu.t1 = 5, nu.t2 = 20, lower.tail = FALSE)
+# P(T_t - T_c > 0) with different degrees of freedom
+ptdiff_NI(q = 0, mu_t = 1, mu_c = 1, sd_t = 1, sd_c = 1,
+          nu_t = 5, nu_c = 20, lower.tail = FALSE)
 
-# Lower tail: P(T1 - T2 <= 2)
-ptdiff_NI(q = 2, mu.t1 = 3, mu.t2 = 0, sd.t1 = 1.5, sd.t2 = 1.2,
-          nu.t1 = 12, nu.t2 = 15, lower.tail = TRUE)
+# Lower tail: P(T_t - T_c <= 2)
+ptdiff_NI(q = 2, mu_t = 3, mu_c = 0, sd_t = 1.5, sd_c = 1.2,
+          nu_t = 12, nu_c = 15, lower.tail = TRUE)
 
 # Vectorised usage
-ptdiff_NI(q = 1, mu.t1 = c(2, 3, 4), mu.t2 = c(0, 1, 2),
-          sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
-          nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
+ptdiff_NI(q = 1, mu_t = c(2, 3, 4), mu_c = c(0, 1, 2),
+          sd_t = c(1, 1.2, 1.5), sd_c = c(1, 1.1, 1.3),
+          nu_t = 10, nu_c = 10, lower.tail = FALSE)
 
 }
