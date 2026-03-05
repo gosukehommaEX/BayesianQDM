@@ -14,7 +14,7 @@ BayesianQDM provides a comprehensive framework for **Bayesian Quantitative Decis
 ## Key Features
 
 - **Single and Two Endpoints**: Supports single binary, single continuous, two binary, and two continuous endpoint analyses
-- **Multiple Study Designs**: Controlled, uncontrolled (hypothetical control), and external control designs
+- **Multiple Study Designs**: Controlled, uncontrolled (hypothetical control), and external designs
 - **Flexible Prior Specification**: Vague (Jeffreys) priors and conjugate priors (Beta, Normal-Inverse-Chi-squared, Normal-Inverse-Wishart, Dirichlet)
 - **Power Priors**: Exact conjugate representation for incorporating historical or external data without MCMC
 - **Multiple Calculation Methods**: Numerical integration (NI), Monte Carlo simulation (MC), and Moment-Matching approximation (MM) for continuous endpoints
@@ -86,8 +86,8 @@ Standard randomised controlled trials with concurrent treatment and control grou
 ### Uncontrolled Design
 Single-arm studies using a hypothetical control distribution specified through prior parameters or a variance scaling factor.
 
-### External Control Design
-Incorporates historical or external control (and/or treatment) data through power priors using exact conjugate representations, enabling efficient Bayesian computation without MCMC sampling.
+### External Design
+Incorporates historical or external control and/or treatment data through power priors using exact conjugate representations, enabling efficient Bayesian computation without MCMC sampling.
 
 ## Statistical Methods for Continuous Endpoints
 

@@ -7,7 +7,7 @@
 #' for nine decision regions (posterior) or four decision regions (predictive)
 #' defined by target values (TV) and minimum acceptable values (MAV) for both
 #' endpoints.  Three study designs are supported: controlled, uncontrolled
-#' (hypothetical control), and external-control (power prior).
+#' (hypothetical control), and external (power prior).
 #'
 #' @param prob A character string specifying the probability type.
 #'        Must be \code{'posterior'} or \code{'predictive'}.

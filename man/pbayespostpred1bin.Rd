@@ -115,7 +115,7 @@ is returned.
 \description{
 Computes the Bayesian posterior probability or posterior predictive probability
 for binary-outcome clinical trials under a beta-binomial conjugate model.
-The function supports controlled, uncontrolled, and external-control designs,
+The function supports controlled, uncontrolled, and external designs,
 with optional incorporation of external data through power priors.
 Vector inputs for \code{y1} and \code{y2} are supported for efficient batch
 processing (e.g., across all possible trial outcomes in

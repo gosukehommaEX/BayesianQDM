@@ -167,7 +167,7 @@ a vector of length \eqn{n} is returned.
 Computes the Bayesian posterior probability or posterior predictive probability
 for continuous-outcome clinical trials under a Normal-Inverse-Chi-squared
 (or vague Jeffreys) conjugate model. The function supports controlled,
-uncontrolled, and external-control designs, with optional incorporation of
+uncontrolled, and external designs, with optional incorporation of
 external data through power priors. Vector inputs for \code{bar.y1}, \code{s1},
 \code{bar.y2}, and \code{s2} are supported for efficient batch processing
 (e.g., across simulation replicates in \code{\link{pbayesdecisionprob1cont}}).

@@ -2,8 +2,7 @@
 #'
 #' Evaluates operating characteristics (Go, NoGo, Gray probabilities) for binary-outcome
 #' clinical trials under the Bayesian framework by enumerating all possible trial
-#' outcomes. The function supports controlled, uncontrolled, and external-control
-#' designs.
+#' outcomes. The function supports controlled, uncontrolled, and external designs.
 #'
 #' @param prob A character string specifying the probability type for decision-making.
 #'        Must be \code{'posterior'} or \code{'predictive'}.

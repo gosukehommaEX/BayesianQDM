@@ -142,8 +142,7 @@ The returned object has S3 class \code{pbayesdecisionprob1bin} with an associate
 \description{
 Evaluates operating characteristics (Go, NoGo, Gray probabilities) for binary-outcome
 clinical trials under the Bayesian framework by enumerating all possible trial
-outcomes. The function supports controlled, uncontrolled, and external-control
-designs.
+outcomes. The function supports controlled, uncontrolled, and external designs.
 }
 \details{
 Operating characteristics are computed by exact enumeration:

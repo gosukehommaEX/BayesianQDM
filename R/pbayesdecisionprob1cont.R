@@ -2,7 +2,7 @@
 #'
 #' Evaluates Go/NoGo/Gray decision probabilities for a single continuous endpoint
 #' via Monte Carlo simulation. Supports controlled (parallel control), uncontrolled
-#' (single-arm with informative priors), and external control (power prior borrowing)
+#' (single-arm with informative priors), and external (power prior borrowing)
 #' designs with both posterior and predictive probability approaches.
 #'
 #' @param nsim A positive integer specifying the number of Monte Carlo simulation replicates.
@@ -131,7 +131,7 @@
 #' returning a vector of nsim probabilities - no inner loop over simulation replicates
 #' is required.
 #'
-#' For external control designs, power priors are incorporated using exact conjugate representation:
+#' For external designs, power priors are incorporated using exact conjugate representation:
 #' \itemize{
 #'   \item Power priors for normal data are mathematically equivalent to Normal-Inverse-Chi-squared distributions
 #'   \item This enables closed-form computation without MCMC sampling

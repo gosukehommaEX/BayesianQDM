@@ -14,13 +14,13 @@ Description: Provides comprehensive methods to calculate posterior probabilities
     posterior predictive probabilities, and Go/NoGo/Gray decision probabilities
     for quantitative decision-making under a Bayesian paradigm in clinical trials.
     The package supports both single and two-endpoint analyses for binary and
-    continuous outcomes, with controlled, uncontrolled, and external control
-    designs. For single continuous endpoints, three calculation methods are
+    continuous outcomes, with controlled, uncontrolled, and external designs. 
+    For single continuous endpoints, three calculation methods are
     available: numerical integration (NI), Monte Carlo simulation (MC), and
     Moment-Matching approximation (MM). For two continuous endpoints, a bivariate
     Normal-Inverse-Wishart conjugate model is implemented with MC and MM methods.
     For two binary endpoints, a Dirichlet-multinomial model is implemented.
-    External control designs incorporate historical data through power priors
+    External designs incorporate historical data through power priors
     using exact conjugate representations (Normal-Inverse-Chi-squared for single
     continuous, Normal-Inverse-Wishart for two continuous, and Dirichlet for
     binary endpoints), enabling closed-form posterior computation without MCMC

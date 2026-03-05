@@ -65,7 +65,7 @@ and continuous outcomes.
 
 * Controlled design
 * Uncontrolled design (hypothetical control)
-* External control design with power priors
+* External design with power priors
 
 ### Prior Distributions
 

@@ -3,7 +3,7 @@
 #'
 #' Evaluates operating characteristics (Go, NoGo, Gray probabilities) for
 #' clinical trials with two binary endpoints under the Bayesian framework.
-#' The function supports controlled, uncontrolled, and external-control designs,
+#' The function supports controlled, uncontrolled, and external designs,
 #' and uses both posterior probability and posterior predictive probability
 #' criteria.
 #'
@@ -405,7 +405,7 @@
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 #' )
 #'
-#' # Example 7: Predictive probability, external control design
+#' # Example 7: Predictive probability, external treatment design
 #' # External treatment data incorporated via power prior (ae1 = 0.5).
 #' pbayesdecisionprob2bin(
 #'   prob        = 'predictive',
