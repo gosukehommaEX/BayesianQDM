@@ -10,18 +10,18 @@
 test_that("pbayespostpred2bin posterior controlled returns 9 named probs", {
   result <- pbayespostpred2bin(
     prob = 'posterior', design = 'controlled',
-    theta.TV1 = 0.15, theta.MAV1 = 0.05,
-    theta.TV2 = 0.15, theta.MAV2 = 0.05,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
-    x1_00 = 3L, x1_01 = 2L, x1_10 = 3L, x1_11 = 4L,
-    x2_00 = 5L, x2_01 = 2L, x2_10 = 2L, x2_11 = 3L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    m1 = NULL, m2 = NULL,
+    theta_TV1 = 0.15, theta_MAV1 = 0.05,
+    theta_TV2 = 0.15, theta_MAV2 = 0.05,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
+    x_t_00 = 3L, x_t_01 = 2L, x_t_10 = 3L, x_t_11 = 4L,
+    x_c_00 = 5L, x_c_01 = 2L, x_c_10 = 2L, x_c_11 = 3L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    m_t = NULL, m_c = NULL,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL, nMC = 50L
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL, nMC = 50L
   )
   expect_type(result, "double")
   expect_length(result, 9L)
@@ -34,18 +34,18 @@ test_that("pbayespostpred2bin predictive controlled returns 4 named probs", {
   set.seed(1)
   result <- pbayespostpred2bin(
     prob = 'predictive', design = 'controlled',
-    theta.TV1 = NULL, theta.MAV1 = NULL,
-    theta.TV2 = NULL, theta.MAV2 = NULL,
-    theta.NULL1 = 0.15, theta.NULL2 = 0.15,
-    x1_00 = 3L, x1_01 = 2L, x1_10 = 3L, x1_11 = 4L,
-    x2_00 = 5L, x2_01 = 2L, x2_10 = 2L, x2_11 = 3L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    m1 = 30L, m2 = 30L,
+    theta_TV1 = NULL, theta_MAV1 = NULL,
+    theta_TV2 = NULL, theta_MAV2 = NULL,
+    theta_NULL1 = 0.15, theta_NULL2 = 0.15,
+    x_t_00 = 3L, x_t_01 = 2L, x_t_10 = 3L, x_t_11 = 4L,
+    x_c_00 = 5L, x_c_01 = 2L, x_c_10 = 2L, x_c_11 = 3L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    m_t = 30L, m_c = 30L,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL, nMC = 50L
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL, nMC = 50L
   )
   expect_type(result, "double")
   expect_length(result, 4L)
@@ -57,18 +57,18 @@ test_that("pbayespostpred2bin predictive controlled returns 4 named probs", {
 test_that("pbayespostpred2bin posterior uncontrolled returns 9 named probs", {
   result <- pbayespostpred2bin(
     prob = 'posterior', design = 'uncontrolled',
-    theta.TV1 = 0.15, theta.MAV1 = 0.05,
-    theta.TV2 = 0.15, theta.MAV2 = 0.05,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
-    x1_00 = 3L, x1_01 = 2L, x1_10 = 3L, x1_11 = 4L,
-    x2_00 = NULL, x2_01 = NULL, x2_10 = NULL, x2_11 = NULL,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    m1 = NULL, m2 = NULL,
+    theta_TV1 = 0.15, theta_MAV1 = 0.05,
+    theta_TV2 = 0.15, theta_MAV2 = 0.05,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
+    x_t_00 = 3L, x_t_01 = 2L, x_t_10 = 3L, x_t_11 = 4L,
+    x_c_00 = NULL, x_c_01 = NULL, x_c_10 = NULL, x_c_11 = NULL,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    m_t = NULL, m_c = NULL,
     z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL, nMC = 50L
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL, nMC = 50L
   )
   expect_type(result, "double")
   expect_length(result, 9L)
@@ -79,18 +79,18 @@ test_that("pbayespostpred2bin input validation works", {
   # TV > MAV violated for posterior
   expect_error(pbayespostpred2bin(
     prob = 'posterior', design = 'controlled',
-    theta.TV1 = 0.05, theta.MAV1 = 0.15,
-    theta.TV2 = 0.15, theta.MAV2 = 0.05,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
-    x1_00 = 3L, x1_01 = 2L, x1_10 = 3L, x1_11 = 4L,
-    x2_00 = 5L, x2_01 = 2L, x2_10 = 2L, x2_11 = 3L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    m1 = NULL, m2 = NULL,
+    theta_TV1 = 0.05, theta_MAV1 = 0.15,
+    theta_TV2 = 0.15, theta_MAV2 = 0.05,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
+    x_t_00 = 3L, x_t_01 = 2L, x_t_10 = 3L, x_t_11 = 4L,
+    x_c_00 = 5L, x_c_01 = 2L, x_c_10 = 2L, x_c_11 = 3L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    m_t = NULL, m_c = NULL,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL, nMC = 50L
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL, nMC = 50L
   ))
 })
 
@@ -103,22 +103,22 @@ test_that("pbayesdecisionprob2bin posterior controlled returns data.frame", {
   result <- pbayesdecisionprob2bin(
     prob = 'posterior', design = 'controlled',
     GoRegions = 1L, NoGoRegions = 9L,
-    gamma1 = 0.60, gamma2 = 0.60,
+    gamma_go = 0.60, gamma_nogo = 0.60,
     pi_t1 = c(0.30, 0.40), pi_t2 = c(0.35, 0.45),
     rho_t = rep(0.0, 2),
     pi_c1 = rep(0.15, 2), pi_c2 = rep(0.20, 2),
     rho_c = rep(0.0, 2),
-    n1 = 10L, n2 = 10L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    m1 = NULL, m2 = NULL,
-    theta.TV1 = 0.10, theta.MAV1 = 0.05,
-    theta.TV2 = 0.10, theta.MAV2 = 0.05,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    n_t = 10L, n_c = 10L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    m_t = NULL, m_c = NULL,
+    theta_TV1 = 0.10, theta_MAV1 = 0.05,
+    theta_TV2 = 0.10, theta_MAV2 = 0.05,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL, nMC = 50L,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL, nMC = 50L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE
   )
   expect_s3_class(result, "pbayesdecisionprob2bin")
@@ -135,22 +135,22 @@ test_that("pbayesdecisionprob2bin predictive controlled returns data.frame", {
   result <- pbayesdecisionprob2bin(
     prob = 'predictive', design = 'controlled',
     GoRegions = 1L, NoGoRegions = 4L,
-    gamma1 = 0.60, gamma2 = 0.60,
+    gamma_go = 0.60, gamma_nogo = 0.60,
     pi_t1 = c(0.30, 0.40), pi_t2 = c(0.35, 0.45),
     rho_t = rep(0.0, 2),
     pi_c1 = rep(0.15, 2), pi_c2 = rep(0.20, 2),
     rho_c = rep(0.0, 2),
-    n1 = 10L, n2 = 10L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    m1 = 30L, m2 = 30L,
-    theta.TV1 = NULL, theta.MAV1 = NULL,
-    theta.TV2 = NULL, theta.MAV2 = NULL,
-    theta.NULL1 = 0.10, theta.NULL2 = 0.10,
+    n_t = 10L, n_c = 10L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    m_t = 30L, m_c = 30L,
+    theta_TV1 = NULL, theta_MAV1 = NULL,
+    theta_TV2 = NULL, theta_MAV2 = NULL,
+    theta_NULL1 = 0.10, theta_NULL2 = 0.10,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL, nMC = 50L,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL, nMC = 50L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE
   )
   expect_s3_class(result, "pbayesdecisionprob2bin")
@@ -164,20 +164,20 @@ test_that("pbayesdecisionprob2bin input validation works", {
   expect_error(pbayesdecisionprob2bin(
     prob = 'posterior', design = 'controlled',
     GoRegions = c(1L, 2L), NoGoRegions = c(2L, 9L),
-    gamma1 = 0.60, gamma2 = 0.60,
+    gamma_go = 0.60, gamma_nogo = 0.60,
     pi_t1 = 0.30, pi_t2 = 0.35, rho_t = 0.0,
     pi_c1 = 0.15, pi_c2 = 0.20, rho_c = 0.0,
-    n1 = 10L, n2 = 10L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    m1 = NULL, m2 = NULL,
-    theta.TV1 = 0.10, theta.MAV1 = 0.05,
-    theta.TV2 = 0.10, theta.MAV2 = 0.05,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    n_t = 10L, n_c = 10L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    m_t = NULL, m_c = NULL,
+    theta_TV1 = 0.10, theta_MAV1 = 0.05,
+    theta_TV2 = 0.10, theta_MAV2 = 0.05,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL, nMC = 50L,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL, nMC = 50L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE
   ))
 })
@@ -187,21 +187,21 @@ test_that("pbayesdecisionprob2bin posterior uncontrolled returns correct class",
   result <- pbayesdecisionprob2bin(
     prob = 'posterior', design = 'uncontrolled',
     GoRegions = 1L, NoGoRegions = 9L,
-    gamma1 = 0.60, gamma2 = 0.60,
+    gamma_go = 0.60, gamma_nogo = 0.60,
     pi_t1 = c(0.30, 0.40), pi_t2 = c(0.35, 0.45),
     rho_t = rep(0.0, 2),
     pi_c1 = NULL, pi_c2 = NULL, rho_c = NULL,
-    n1 = 10L, n2 = NULL,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    m1 = NULL, m2 = NULL,
-    theta.TV1 = 0.10, theta.MAV1 = 0.05,
-    theta.TV2 = 0.10, theta.MAV2 = 0.05,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
+    n_t = 10L, n_c = NULL,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    m_t = NULL, m_c = NULL,
+    theta_TV1 = 0.10, theta_MAV1 = 0.05,
+    theta_TV2 = 0.10, theta_MAV2 = 0.05,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
     z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL, nMC = 50L,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL, nMC = 50L,
     error_if_Miss = FALSE, Gray_inc_Miss = FALSE
   )
   expect_s3_class(result, "pbayesdecisionprob2bin")
@@ -216,7 +216,7 @@ test_that("pbayesdecisionprob2bin posterior uncontrolled returns correct class",
 
 # ---------------------------------------------------------------------------
 # getgamma2bin
-# Note: n1 = n2 = 4L keeps allmultinom() at C(7,3) = 35 rows per arm,
+# Note: n_t = n_c = 4L keeps allmultinom() at C(7,3) = 35 rows per arm,
 #       giving 35 x 35 = 1225 combinations vs 165^2 = 27225 for n=8,
 #       which is necessary to keep test runtime under 10s for CRAN.
 # ---------------------------------------------------------------------------
@@ -230,25 +230,25 @@ test_that("getgamma2bin posterior controlled returns correct class and structure
     target_go = 0.05, target_nogo = 0.20,
     crit_go = '<', crit_nogo = '<',
     sel_go = 'smallest', sel_nogo = 'largest',
-    n1 = 4L, n2 = 4L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    theta.TV1   = 0.15, theta.MAV1  = 0.05,
-    theta.TV2   = 0.10, theta.MAV2  = 0.03,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
-    m1 = NULL, m2 = NULL,
+    n_t = 4L, n_c = 4L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    theta_TV1   = 0.15, theta_MAV1  = 0.05,
+    theta_TV2   = 0.10, theta_MAV2  = 0.03,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
+    m_t = NULL, m_c = NULL,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL,
     nMC = 50L, method = 'Exact',
     nsim = 100L,
-    gamma1_grid = seq(0.05, 0.95, by = 0.05),
-    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
   expect_s3_class(result, "getgamma2bin")
-  expect_true(all(c("gamma1", "gamma2", "PrGo_at_gamma", "PrNoGo_at_gamma",
-                    "gamma1_grid", "gamma2_grid",
+  expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_at_gamma_go", "PrNoGo_at_gamma_nogo",
+                    "gamma_go_grid", "gamma_nogo_grid",
                     "PrGo_grid", "PrNoGo_grid") %in% names(result)))
 })
 
@@ -261,26 +261,26 @@ test_that("getgamma2bin posterior controlled PrGo_grid and PrNoGo_grid in [0, 1]
     target_go = 0.05, target_nogo = 0.20,
     crit_go = '<', crit_nogo = '<',
     sel_go = 'smallest', sel_nogo = 'largest',
-    n1 = 4L, n2 = 4L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    theta.TV1   = 0.15, theta.MAV1  = 0.05,
-    theta.TV2   = 0.10, theta.MAV2  = 0.03,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
-    m1 = NULL, m2 = NULL,
+    n_t = 4L, n_c = 4L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    theta_TV1   = 0.15, theta_MAV1  = 0.05,
+    theta_TV2   = 0.10, theta_MAV2  = 0.03,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
+    m_t = NULL, m_c = NULL,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL,
     nMC = 50L, method = 'Exact',
     nsim = 100L,
-    gamma1_grid = seq(0.05, 0.95, by = 0.05),
-    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
   expect_true(all(result$PrGo_grid >= 0 & result$PrGo_grid <= 1))
   expect_true(all(result$PrNoGo_grid >= 0 & result$PrNoGo_grid <= 1))
   expect_equal(dim(result$PrGo_grid),
-               c(length(result$gamma1_grid), length(result$gamma2_grid)))
+               c(length(result$gamma_go_grid), length(result$gamma_nogo_grid)))
 })
 
 test_that("getgamma2bin posterior controlled gamma values in (0, 1) or NA", {
@@ -292,24 +292,24 @@ test_that("getgamma2bin posterior controlled gamma values in (0, 1) or NA", {
     target_go = 0.05, target_nogo = 0.20,
     crit_go = '<', crit_nogo = '<',
     sel_go = 'smallest', sel_nogo = 'largest',
-    n1 = 4L, n2 = 4L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    theta.TV1   = 0.15, theta.MAV1  = 0.05,
-    theta.TV2   = 0.10, theta.MAV2  = 0.03,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
-    m1 = NULL, m2 = NULL,
+    n_t = 4L, n_c = 4L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    theta_TV1   = 0.15, theta_MAV1  = 0.05,
+    theta_TV2   = 0.10, theta_MAV2  = 0.03,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
+    m_t = NULL, m_c = NULL,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL,
     nMC = 50L, method = 'Exact',
     nsim = 100L,
-    gamma1_grid = seq(0.05, 0.95, by = 0.05),
-    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
-  if (!is.na(result$gamma1)) expect_true(result$gamma1 > 0 && result$gamma1 < 1)
-  if (!is.na(result$gamma2)) expect_true(result$gamma2 > 0 && result$gamma2 < 1)
+  if (!is.na(result$gamma_go)) expect_true(result$gamma_go > 0 && result$gamma_go < 1)
+  if (!is.na(result$gamma_nogo)) expect_true(result$gamma_nogo > 0 && result$gamma_nogo < 1)
 })
 
 test_that("getgamma2bin predictive controlled returns correct class", {
@@ -321,21 +321,21 @@ test_that("getgamma2bin predictive controlled returns correct class", {
     target_go = 0.05, target_nogo = 0.20,
     crit_go = '<', crit_nogo = '<',
     sel_go = 'smallest', sel_nogo = 'largest',
-    n1 = 4L, n2 = 4L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    theta.TV1   = NULL, theta.MAV1  = NULL,
-    theta.TV2   = NULL, theta.MAV2  = NULL,
-    theta.NULL1 = 0.10, theta.NULL2 = 0.10,
-    m1 = 20L, m2 = 20L,
+    n_t = 4L, n_c = 4L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    theta_TV1   = NULL, theta_MAV1  = NULL,
+    theta_TV2   = NULL, theta_MAV2  = NULL,
+    theta_NULL1 = 0.10, theta_NULL2 = 0.10,
+    m_t = 20L, m_c = 20L,
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL,
     nMC = 50L, method = 'Exact',
     nsim = 100L,
-    gamma1_grid = seq(0.05, 0.95, by = 0.05),
-    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
   expect_s3_class(result, "getgamma2bin")
 })
@@ -349,25 +349,25 @@ test_that("getgamma2bin posterior uncontrolled returns correct class", {
     target_go = 0.05, target_nogo = 0.20,
     crit_go = '<', crit_nogo = '<',
     sel_go = 'smallest', sel_nogo = 'largest',
-    n1 = 4L, n2 = 4L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    theta.TV1   = 0.15, theta.MAV1  = 0.05,
-    theta.TV2   = 0.10, theta.MAV2  = 0.03,
-    theta.NULL1 = NULL, theta.NULL2 = NULL,
-    m1 = NULL, m2 = NULL,
+    n_t = 4L, n_c = 4L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    theta_TV1   = 0.15, theta_MAV1  = 0.05,
+    theta_TV2   = 0.10, theta_MAV2  = 0.03,
+    theta_NULL1 = NULL, theta_NULL2 = NULL,
+    m_t = NULL, m_c = NULL,
     z00 = 1L, z01 = 1L, z10 = 1L, z11 = 1L,
-    xe1_00 = NULL, xe1_01 = NULL, xe1_10 = NULL, xe1_11 = NULL,
-    xe2_00 = NULL, xe2_01 = NULL, xe2_10 = NULL, xe2_11 = NULL,
-    ae1 = NULL, ae2 = NULL,
+    xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+    xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+    ae_t = NULL, ae_c = NULL,
     nMC = 50L, method = 'Exact',
     nsim = 100L,
-    gamma1_grid = seq(0.05, 0.95, by = 0.05),
-    gamma2_grid = seq(0.05, 0.95, by = 0.05)
+    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
   expect_s3_class(result, "getgamma2bin")
-  expect_true(all(c("gamma1", "gamma2", "PrGo_at_gamma", "PrNoGo_at_gamma",
-                    "gamma1_grid", "gamma2_grid",
+  expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_at_gamma_go", "PrNoGo_at_gamma_nogo",
+                    "gamma_go_grid", "gamma_nogo_grid",
                     "PrGo_grid", "PrNoGo_grid") %in% names(result)))
   expect_true(all(result$PrGo_grid >= 0 & result$PrGo_grid <= 1))
   expect_true(all(result$PrNoGo_grid >= 0 & result$PrNoGo_grid <= 1))
@@ -380,10 +380,10 @@ test_that("getgamma2bin input validation: invalid prob", {
     pi_t1 = 0.30, pi_t2 = 0.25, rho_t = 0.0,
     pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
     target_go = 0.05, target_nogo = 0.20,
-    n1 = 4L, n2 = 4L,
-    a1_00 = 0.25, a1_01 = 0.25, a1_10 = 0.25, a1_11 = 0.25,
-    a2_00 = 0.25, a2_01 = 0.25, a2_10 = 0.25, a2_11 = 0.25,
-    theta.TV1 = 0.15, theta.MAV1 = 0.05,
-    theta.TV2 = 0.10, theta.MAV2 = 0.03
+    n_t = 4L, n_c = 4L,
+    a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+    a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+    theta_TV1 = 0.15, theta_MAV1 = 0.05,
+    theta_TV2 = 0.10, theta_MAV2 = 0.03
   ))
 })

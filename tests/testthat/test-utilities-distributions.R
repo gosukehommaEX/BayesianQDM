@@ -100,7 +100,7 @@ test_that("allmultinom input validation works", {
 # ---------------------------------------------------------------------------
 
 test_that("pbetadiff returns a value in [0, 1]", {
-  result <- pbetadiff(q = 0.1, alpha1 = 6, beta1 = 5, alpha2 = 3, beta2 = 8)
+  result <- pbetadiff(q = 0.1, alpha_t = 6, beta_t = 5, alpha_c = 3, beta_c = 8)
   expect_type(result, "double")
   expect_length(result, 1L)
   expect_true(result >= 0 && result <= 1)
@@ -114,47 +114,47 @@ test_that("pbetadiff lower.tail = TRUE and FALSE sum to 1", {
 })
 
 test_that("pbetadiff at q = 0 with equal beta params gives ~0.5", {
-  result <- pbetadiff(q = 0, alpha1 = 5, beta1 = 5, alpha2 = 5, beta2 = 5,
+  result <- pbetadiff(q = 0, alpha_t = 5, beta_t = 5, alpha_c = 5, beta_c = 5,
                       lower.tail = FALSE)
   expect_equal(result, 0.5, tolerance = 0.01)
 })
 
 test_that("pbetadiff input validation works", {
-  expect_error(pbetadiff(q = 0.1, alpha1 = -1, beta1 = 5,  alpha2 = 3, beta2 = 8))
-  expect_error(pbetadiff(q = 0.1, alpha1 = 6,  beta1 = 0,  alpha2 = 3, beta2 = 8))
-  expect_error(pbetadiff(q = 0.1, alpha1 = 6,  beta1 = 5,  alpha2 = 3, beta2 = -1))
+  expect_error(pbetadiff(q = 0.1, alpha_t = -1, beta_t = 5,  alpha_c = 3, beta_c = 8))
+  expect_error(pbetadiff(q = 0.1, alpha_t = 6,  beta_t = 0,  alpha_c = 3, beta_c = 8))
+  expect_error(pbetadiff(q = 0.1, alpha_t = 6,  beta_t = 5,  alpha_c = 3, beta_c = -1))
 })
 
 # ---------------------------------------------------------------------------
 # pbetabinomdiff
-# Signature: pbetabinomdiff(q, m1, m2, alpha1, alpha2, beta1, beta2, lower.tail)
+# Signature: pbetabinomdiff(q, m_t, m_c, alpha_t, alpha_c, beta_t, beta_c, lower.tail)
 # Posterior predictive: Y_k ~ BetaBinomial(m_k, alpha_k, beta_k)
 # ---------------------------------------------------------------------------
 
 test_that("pbetabinomdiff returns a value in [0, 1]", {
-  result <- pbetabinomdiff(q = 0.1, m1 = 30, m2 = 30,
-                           alpha1 = 10.5, alpha2 = 6.5,
-                           beta1 = 10.5, beta2 = 14.5)
+  result <- pbetabinomdiff(q = 0.1, m_t = 30, m_c = 30,
+                           alpha_t = 10.5, alpha_c = 6.5,
+                           beta_t = 10.5, beta_c = 14.5)
   expect_type(result, "double")
   expect_length(result, 1L)
   expect_true(result >= 0 && result <= 1)
 })
 
 test_that("pbetabinomdiff lower.tail = TRUE and FALSE sum to 1", {
-  p_u <- pbetabinomdiff(q = 0.1, m1 = 30, m2 = 30,
-                        alpha1 = 10.5, alpha2 = 6.5,
-                        beta1 = 10.5, beta2 = 14.5, lower.tail = FALSE)
-  p_l <- pbetabinomdiff(q = 0.1, m1 = 30, m2 = 30,
-                        alpha1 = 10.5, alpha2 = 6.5,
-                        beta1 = 10.5, beta2 = 14.5, lower.tail = TRUE)
+  p_u <- pbetabinomdiff(q = 0.1, m_t = 30, m_c = 30,
+                        alpha_t = 10.5, alpha_c = 6.5,
+                        beta_t = 10.5, beta_c = 14.5, lower.tail = FALSE)
+  p_l <- pbetabinomdiff(q = 0.1, m_t = 30, m_c = 30,
+                        alpha_t = 10.5, alpha_c = 6.5,
+                        beta_t = 10.5, beta_c = 14.5, lower.tail = TRUE)
   expect_equal(p_u + p_l, 1, tolerance = 1e-10)
 })
 
 test_that("pbetabinomdiff input validation works", {
-  expect_error(pbetabinomdiff(q = 0.1, m1 = 0,  m2 = 30,
-                              alpha1 = 1, alpha2 = 1, beta1 = 1, beta2 = 1))
-  expect_error(pbetabinomdiff(q = 0.1, m1 = 30, m2 = 30,
-                              alpha1 = -1, alpha2 = 1, beta1 = 1, beta2 = 1))
+  expect_error(pbetabinomdiff(q = 0.1, m_t = 0,  m_c = 30,
+                              alpha_t = 1, alpha_c = 1, beta_t = 1, beta_c = 1))
+  expect_error(pbetabinomdiff(q = 0.1, m_t = 30, m_c = 30,
+                              alpha_t = -1, alpha_c = 1, beta_t = 1, beta_c = 1))
 })
 
 # ---------------------------------------------------------------------------
@@ -162,32 +162,32 @@ test_that("pbetabinomdiff input validation works", {
 # ---------------------------------------------------------------------------
 
 test_that("ptdiff_NI returns a value in [0, 1]", {
-  result <- ptdiff_NI(q = 1, mu.t1 = 3, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-                      nu.t1 = 15, nu.t2 = 15, lower.tail = FALSE)
+  result <- ptdiff_NI(q = 1, mu_t = 3, mu_c = 1, sd_t = 1, sd_c = 1,
+                      nu_t = 15, nu_c = 15, lower.tail = FALSE)
   expect_type(result, "double")
   expect_length(result, 1L)
   expect_true(result >= 0 && result <= 1)
 })
 
 test_that("ptdiff_NI symmetric case returns ~0.5", {
-  result <- ptdiff_NI(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-                      nu.t1 = 20, nu.t2 = 20, lower.tail = FALSE)
+  result <- ptdiff_NI(q = 0, mu_t = 1, mu_c = 1, sd_t = 1, sd_c = 1,
+                      nu_t = 20, nu_c = 20, lower.tail = FALSE)
   expect_equal(result, 0.5, tolerance = 0.01)
 })
 
 test_that("ptdiff_NI lower.tail = TRUE and FALSE sum to 1", {
-  p_u <- ptdiff_NI(q = 2, mu.t1 = 3, mu.t2 = 1, sd.t1 = 1.5, sd.t2 = 1.2,
-                   nu.t1 = 15, nu.t2 = 18, lower.tail = FALSE)
-  p_l <- ptdiff_NI(q = 2, mu.t1 = 3, mu.t2 = 1, sd.t1 = 1.5, sd.t2 = 1.2,
-                   nu.t1 = 15, nu.t2 = 18, lower.tail = TRUE)
+  p_u <- ptdiff_NI(q = 2, mu_t = 3, mu_c = 1, sd_t = 1.5, sd_c = 1.2,
+                   nu_t = 15, nu_c = 18, lower.tail = FALSE)
+  p_l <- ptdiff_NI(q = 2, mu_t = 3, mu_c = 1, sd_t = 1.5, sd_c = 1.2,
+                   nu_t = 15, nu_c = 18, lower.tail = TRUE)
   expect_equal(p_u + p_l, 1, tolerance = 1e-6)
 })
 
 test_that("ptdiff_NI input validation works", {
-  expect_error(ptdiff_NI(q = 1, mu.t1 = 3, mu.t2 = 1, sd.t1 = -1, sd.t2 = 1,
-                         nu.t1 = 15, nu.t2 = 15))
-  expect_error(ptdiff_NI(q = 1, mu.t1 = 3, mu.t2 = 1, sd.t1 = 1,  sd.t2 = 1,
-                         nu.t1 = 1,  nu.t2 = 15))
+  expect_error(ptdiff_NI(q = 1, mu_t = 3, mu_c = 1, sd_t = -1, sd_c = 1,
+                         nu_t = 15, nu_c = 15))
+  expect_error(ptdiff_NI(q = 1, mu_t = 3, mu_c = 1, sd_t = 1,  sd_c = 1,
+                         nu_t = 1,  nu_c = 15))
 })
 
 # ---------------------------------------------------------------------------
@@ -196,8 +196,8 @@ test_that("ptdiff_NI input validation works", {
 
 test_that("ptdiff_MC returns a value in [0, 1]", {
   set.seed(1)
-  result <- ptdiff_MC(nMC = 1000L, q = 1, mu.t1 = 3, mu.t2 = 1,
-                      sd.t1 = 1, sd.t2 = 1, nu.t1 = 15, nu.t2 = 15,
+  result <- ptdiff_MC(nMC = 1000L, q = 1, mu_t = 3, mu_c = 1,
+                      sd_t = 1, sd_c = 1, nu_t = 15, nu_c = 15,
                       lower.tail = FALSE)
   expect_type(result, "double")
   expect_length(result, 1L)
@@ -206,28 +206,28 @@ test_that("ptdiff_MC returns a value in [0, 1]", {
 
 test_that("ptdiff_MC symmetric case returns ~0.5", {
   set.seed(2)
-  result <- ptdiff_MC(nMC = 5000L, q = 0, mu.t1 = 1, mu.t2 = 1,
-                      sd.t1 = 1, sd.t2 = 1, nu.t1 = 20, nu.t2 = 20,
+  result <- ptdiff_MC(nMC = 5000L, q = 0, mu_t = 1, mu_c = 1,
+                      sd_t = 1, sd_c = 1, nu_t = 20, nu_c = 20,
                       lower.tail = FALSE)
   expect_equal(result, 0.5, tolerance = 0.05)
 })
 
 test_that("ptdiff_MC and ptdiff_NI agree closely", {
   set.seed(3)
-  p_mc <- ptdiff_MC(nMC = 10000L, q = 2, mu.t1 = 3, mu.t2 = 1,
-                    sd.t1 = 1.5, sd.t2 = 1.2, nu.t1 = 15, nu.t2 = 18,
+  p_mc <- ptdiff_MC(nMC = 10000L, q = 2, mu_t = 3, mu_c = 1,
+                    sd_t = 1.5, sd_c = 1.2, nu_t = 15, nu_c = 18,
                     lower.tail = FALSE)
-  p_ni <- ptdiff_NI(q = 2, mu.t1 = 3, mu.t2 = 1,
-                    sd.t1 = 1.5, sd.t2 = 1.2, nu.t1 = 15, nu.t2 = 18,
+  p_ni <- ptdiff_NI(q = 2, mu_t = 3, mu_c = 1,
+                    sd_t = 1.5, sd_c = 1.2, nu_t = 15, nu_c = 18,
                     lower.tail = FALSE)
   expect_equal(p_mc, p_ni, tolerance = 0.03)
 })
 
 test_that("ptdiff_MC input validation works", {
-  expect_error(ptdiff_MC(nMC = 0L,    q = 1, mu.t1 = 1, mu.t2 = 0,
-                         sd.t1 = 1, sd.t2 = 1, nu.t1 = 10, nu.t2 = 10))
-  expect_error(ptdiff_MC(nMC = 1000L, q = 1, mu.t1 = 1, mu.t2 = 0,
-                         sd.t1 = 1, sd.t2 = 1, nu.t1 = 1,  nu.t2 = 10))
+  expect_error(ptdiff_MC(nMC = 0L,    q = 1, mu_t = 1, mu_c = 0,
+                         sd_t = 1, sd_c = 1, nu_t = 10, nu_c = 10))
+  expect_error(ptdiff_MC(nMC = 1000L, q = 1, mu_t = 1, mu_c = 0,
+                         sd_t = 1, sd_c = 1, nu_t = 1,  nu_c = 10))
 })
 
 # ---------------------------------------------------------------------------
@@ -235,40 +235,40 @@ test_that("ptdiff_MC input validation works", {
 # ---------------------------------------------------------------------------
 
 test_that("ptdiff_MM returns a value in [0, 1]", {
-  result <- ptdiff_MM(q = 1, mu.t1 = 3, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-                      nu.t1 = 15, nu.t2 = 15, lower.tail = FALSE)
+  result <- ptdiff_MM(q = 1, mu_t = 3, mu_c = 1, sd_t = 1, sd_c = 1,
+                      nu_t = 15, nu_c = 15, lower.tail = FALSE)
   expect_type(result, "double")
   expect_length(result, 1L)
   expect_true(result >= 0 && result <= 1)
 })
 
 test_that("ptdiff_MM symmetric case returns ~0.5", {
-  result <- ptdiff_MM(q = 0, mu.t1 = 1, mu.t2 = 1, sd.t1 = 1, sd.t2 = 1,
-                      nu.t1 = 20, nu.t2 = 20, lower.tail = FALSE)
+  result <- ptdiff_MM(q = 0, mu_t = 1, mu_c = 1, sd_t = 1, sd_c = 1,
+                      nu_t = 20, nu_c = 20, lower.tail = FALSE)
   expect_equal(result, 0.5, tolerance = 0.01)
 })
 
 test_that("ptdiff_MM and ptdiff_NI agree closely", {
-  p_mm <- ptdiff_MM(q = 2, mu.t1 = 3, mu.t2 = 1,
-                    sd.t1 = 1.5, sd.t2 = 1.2, nu.t1 = 15, nu.t2 = 18,
+  p_mm <- ptdiff_MM(q = 2, mu_t = 3, mu_c = 1,
+                    sd_t = 1.5, sd_c = 1.2, nu_t = 15, nu_c = 18,
                     lower.tail = FALSE)
-  p_ni <- ptdiff_NI(q = 2, mu.t1 = 3, mu.t2 = 1,
-                    sd.t1 = 1.5, sd.t2 = 1.2, nu.t1 = 15, nu.t2 = 18,
+  p_ni <- ptdiff_NI(q = 2, mu_t = 3, mu_c = 1,
+                    sd_t = 1.5, sd_c = 1.2, nu_t = 15, nu_c = 18,
                     lower.tail = FALSE)
   expect_equal(p_mm, p_ni, tolerance = 0.02)
 })
 
 test_that("ptdiff_MM vectorised input returns correct length", {
-  result <- ptdiff_MM(q = 1, mu.t1 = c(2, 3, 4), mu.t2 = c(0, 1, 2),
-                      sd.t1 = c(1, 1.2, 1.5), sd.t2 = c(1, 1.1, 1.3),
-                      nu.t1 = 10, nu.t2 = 10, lower.tail = FALSE)
+  result <- ptdiff_MM(q = 1, mu_t = c(2, 3, 4), mu_c = c(0, 1, 2),
+                      sd_t = c(1, 1.2, 1.5), sd_c = c(1, 1.1, 1.3),
+                      nu_t = 10, nu_c = 10, lower.tail = FALSE)
   expect_length(result, 3L)
   expect_true(all(result >= 0 & result <= 1))
 })
 
 test_that("ptdiff_MM input validation works", {
-  expect_error(ptdiff_MM(q = 1, mu.t1 = 1, mu.t2 = 0, sd.t1 = 1,  sd.t2 = 1,
-                         nu.t1 = 4, nu.t2 = 10))
-  expect_error(ptdiff_MM(q = 1, mu.t1 = 1, mu.t2 = 0, sd.t1 = -1, sd.t2 = 1,
-                         nu.t1 = 10, nu.t2 = 10))
+  expect_error(ptdiff_MM(q = 1, mu_t = 1, mu_c = 0, sd_t = 1,  sd_c = 1,
+                         nu_t = 4, nu_c = 10))
+  expect_error(ptdiff_MM(q = 1, mu_t = 1, mu_c = 0, sd_t = -1, sd_c = 1,
+                         nu_t = 10, nu_c = 10))
 })

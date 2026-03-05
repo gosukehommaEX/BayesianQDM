@@ -163,10 +163,10 @@
 #'         \code{gamma_nogo_grid} according to \code{crit_nogo} and
 #'         \code{sel_nogo}.  \code{NA} if no value satisfies the
 #'         criterion.}
-#'   \item{PrGo_at_gamma}{Pr(Go) evaluated at
+#'   \item{PrGo_at_gamma_go}{Pr(Go) evaluated at
 #'         \code{(gamma_go, gamma_nogo)}.  \code{NA} if either threshold
 #'         is \code{NA}.}
-#'   \item{PrNoGo_at_gamma}{Pr(NoGo) evaluated at
+#'   \item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at
 #'         \code{(gamma_go, gamma_nogo)}.  \code{NA} if either threshold
 #'         is \code{NA}.}
 #'   \item{gamma_go_grid}{The candidate Go threshold grid used.}
@@ -668,13 +668,13 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
   if (is.na(opt1) || is.na(opt2)) {
     gamma_go          <- if (!is.na(opt1)) gamma_go_grid[opt1] else NA_real_
     gamma_nogo          <- if (!is.na(opt2)) gamma_nogo_grid[opt2] else NA_real_
-    PrGo_at_gamma   <- NA_real_
-    PrNoGo_at_gamma <- NA_real_
+    PrGo_at_gamma_go   <- NA_real_
+    PrNoGo_at_gamma_nogo <- NA_real_
   } else {
     gamma_go          <- gamma_go_grid[opt1]
     gamma_nogo          <- gamma_nogo_grid[opt2]
-    PrGo_at_gamma   <- PrGo_grid[opt1, opt2]
-    PrNoGo_at_gamma <- PrNoGo_grid[opt1, opt2]
+    PrGo_at_gamma_go   <- PrGo_grid[opt1, opt2]
+    PrNoGo_at_gamma_nogo <- PrNoGo_grid[opt1, opt2]
   }
 
   # ---------------------------------------------------------------------------
@@ -683,8 +683,8 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
   result <- list(
     gamma_go          = gamma_go,
     gamma_nogo          = gamma_nogo,
-    PrGo_at_gamma   = PrGo_at_gamma,
-    PrNoGo_at_gamma = PrNoGo_at_gamma,
+    PrGo_at_gamma_go   = PrGo_at_gamma_go,
+    PrNoGo_at_gamma_nogo = PrNoGo_at_gamma_nogo,
     gamma_go_grid     = gamma_go_grid,
     gamma_nogo_grid     = gamma_nogo_grid,
     PrGo_grid       = PrGo_grid,
