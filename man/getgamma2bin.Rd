@@ -268,10 +268,10 @@ criterion.}
 \code{gamma_nogo_grid} according to \code{crit_nogo} and
 \code{sel_nogo}.  \code{NA} if no value satisfies the
 criterion.}
-\item{PrGo_at_gamma}{Pr(Go) evaluated at
+\item{PrGo_at_gamma_go}{Pr(Go) evaluated at
 \code{(gamma_go, gamma_nogo)}.  \code{NA} if either threshold
 is \code{NA}.}
-\item{PrNoGo_at_gamma}{Pr(NoGo) evaluated at
+\item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at
 \code{(gamma_go, gamma_nogo)}.  \code{NA} if either threshold
 is \code{NA}.}
 \item{gamma_go_grid}{The candidate Go threshold grid used.}

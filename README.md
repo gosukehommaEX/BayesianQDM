@@ -101,7 +101,7 @@ For two continuous endpoints, MC and MM methods are available for computing join
 
 ## Optimal Threshold Search
 
-The `getgamma` family of functions finds optimal Go threshold $\gamma_1$ and NoGo threshold $\gamma_2$ by grid search, given user-specified target operating characteristics (e.g., Pr(Go) and Pr(NoGo) under specified true parameter scenarios). The search follows a two-stage precompute-then-sweep strategy for computational efficiency.
+The `getgamma` family of functions finds optimal Go threshold $\gamma_go$ and NoGo threshold $\gamma_nogo$ by grid search, given user-specified target operating characteristics (e.g., Pr(Go) and Pr(NoGo) under specified true parameter scenarios). The search follows a two-stage precompute-then-sweep strategy for computational efficiency.
 
 ## Documentation
 
