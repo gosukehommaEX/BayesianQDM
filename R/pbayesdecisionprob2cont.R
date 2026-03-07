@@ -180,7 +180,6 @@
 #' )
 #'
 #' # Example 3: External design (control only), posterior probability, NIW prior
-#' \dontrun{
 #' Sigma  <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
 #' L0     <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
 #' se_mat <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
@@ -205,7 +204,6 @@
 #'   nMC = 500L, method = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
 #' )
-#' }
 #'
 #' # Example 4: Controlled design, predictive probability, NIW prior
 #' Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
@@ -257,7 +255,6 @@
 #' )
 #'
 #' # Example 6: External design (control only), predictive probability, NIW prior
-#' \dontrun{
 #' Sigma  <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
 #' L0     <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
 #' se_mat <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
@@ -282,7 +279,6 @@
 #'   nMC = 500L, method = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 9L
 #' )
-#' }
 #'
 #' @importFrom stats rnorm
 #' @export
@@ -796,7 +792,7 @@ print.pbayesdecisionprob2cont <- function(x, digits = 4, ...) {
   cat(sprintf('  Sample size      : n_t = %s, n_c = %s\n', fmt(n_t), fmt(n_c)))
 
   if (prior == 'N-Inv-Wishart') {
-    cat(sprintf('  Prior (traetment): kappa0_t = %s, nu0_t = %s\n',
+    cat(sprintf('  Prior (treatment): kappa0_t = %s, nu0_t = %s\n',
                 fmt(kappa0_t), fmt(nu0_t)))
     cat(sprintf('                     mu0_t = %s, Lambda0_t = %s\n',
                 fmt(mu0_t), fmt(Lambda0_t)))

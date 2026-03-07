@@ -27,9 +27,11 @@
 #' @param nMC A positive integer specifying the number of Monte Carlo draws for computing
 #'        posterior probabilities. Required if \code{CalcMethod = 'MC'};
 #'        otherwise \code{NULL}.
-#' @param gamma_go A numeric value in (0, 1) representing the Go decision threshold.
-#' @param gamma_nogo A numeric value in (0, 1) representing the NoGo decision threshold.
-#'        Must be strictly less than \code{gamma_go}.
+#' @param gamma_go A numeric scalar in \code{(0, 1)} giving the minimum posterior or
+#'        predictive probability required for a Go decision. Typically 0.8 or higher.
+#' @param gamma_nogo A numeric scalar in \code{(0, 1)} giving the maximum posterior or
+#'        predictive probability that triggers a NoGo decision. Must satisfy
+#'        \code{gamma_nogo < gamma_go}.
 #' @param n_t A positive integer representing the sample size for the treatment group.
 #' @param n_c A positive integer representing the sample size for the control group.
 #'        Required if \code{design = 'controlled'} or \code{design = 'external'}.
@@ -88,10 +90,10 @@
 #' @param ne_c A positive integer representing the number of patients in the control group for
 #'        the external data. Required if \code{design = 'external'} and external
 #'        control data are available.
-#' @param alpha0e_t A numeric value in (0, 1] representing the power prior scale parameter
+#' @param alpha0e_t A numeric value in \code{(0, 1]} representing the power prior scale parameter
 #'        for the treatment group. Controls the degree of borrowing from external treatment data:
 #'        0 = no borrowing, 1 = full borrowing. Required if \code{ne_t} is specified.
-#' @param alpha0e_c A numeric value in (0, 1] representing the power prior scale parameter
+#' @param alpha0e_c A numeric value in \code{(0, 1]} representing the power prior scale parameter
 #'        for the control group. Controls the degree of borrowing from external control data:
 #'        0 = no borrowing, 1 = full borrowing. Required if \code{ne_c} is specified.
 #' @param bar_ye_t A numeric value representing the sample mean of the external data
@@ -195,7 +197,6 @@
 #' )
 #'
 #' # Example 3: External design with control data using MM approximation
-#' \dontrun{
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'MM',
 #'   theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL,
@@ -208,7 +209,6 @@
 #'   bar_ye_t = NULL, bar_ye_c = 0, se_t = NULL, se_c = 1,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 #' )
-#' }
 #'
 #' # Example 4: Controlled design with predictive probability
 #' pbayesdecisionprob1cont(
@@ -239,7 +239,6 @@
 #' )
 #'
 #' # Example 6: External design with predictive probability using MC method
-#' \dontrun{
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
 #'   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.5,
@@ -252,7 +251,6 @@
 #'   bar_ye_t = 2.3, bar_ye_c = 0.9, se_t = 1.2, se_c = 1.0,
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 #' )
-#' }
 #'
 #' @importFrom stats rnorm
 #' @export
@@ -741,13 +739,13 @@ print.pbayesdecisionprob1cont <- function(x, digits = 4, ...) {
     cat(sprintf('  Future size         : m_t = %s, m_c = %s\n', fmt(m_t), fmt(m_c)))
   }
   if (prior == 'N-Inv-Chisq') {
-    cat(sprintf('  Prior (traetment)   : kappa0_t = %s, nu0_t = %s, mu0_t = %s, sigma0_t = %s\n',
+    cat(sprintf('  Prior (treatment)   : kappa0_t = %s, nu0_t = %s, mu0_t = %s, sigma0_t = %s\n',
                 fmt(kappa0_t), fmt(nu0_t), fmt(mu0_t), fmt(sigma0_t)))
     cat(sprintf('  Prior (control)     : kappa0_c = %s, nu0_c = %s, mu0_c = %s, sigma0_c = %s\n',
                 fmt(kappa0_c), fmt(nu0_c), fmt(mu0_c), fmt(sigma0_c)))
   }
   if (design == 'external') {
-    cat(sprintf('  External (traetment): ne_t = %s, alpha0e_t = %s, bar_ye_t = %s, se_t = %s\n',
+    cat(sprintf('  External (treatment): ne_t = %s, alpha0e_t = %s, bar_ye_t = %s, se_t = %s\n',
                 fmt(ne_t), fmt(alpha0e_t), fmt(bar_ye_t), fmt(se_t)))
     cat(sprintf('  External (control)  : ne_c = %s, alpha0e_c = %s, bar_ye_c = %s, se_c = %s\n',
                 fmt(ne_c), fmt(alpha0e_c), fmt(bar_ye_c), fmt(se_c)))

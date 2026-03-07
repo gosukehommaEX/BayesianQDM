@@ -53,11 +53,12 @@ Must satisfy \code{theta_TV > theta_MAV}. Set to \code{NULL} when
 both Go and NoGo decisions when \code{prob = 'predictive'}. Set to
 \code{NULL} when \code{prob = 'posterior'}.}
 
-\item{gamma_go}{A numeric scalar in \code{(0, 1)} giving the minimum posterior/predictive
-probability required for a Go decision. Typically 0.8 or higher.}
+\item{gamma_go}{A numeric scalar in \code{(0, 1)} giving the minimum posterior or
+predictive probability required for a Go decision. Typically 0.8 or higher.}
 
-\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the maximum posterior/predictive
-probability that triggers a NoGo decision. Must satisfy \code{gamma_nogo < gamma_go}.}
+\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the maximum posterior or
+predictive probability that triggers a NoGo decision. Must satisfy
+\code{gamma_nogo < gamma_go}.}
 
 \item{pi_t}{A numeric value or vector giving the true response probability(s) for
 the treatment group used to evaluate operating characteristics. Each element
@@ -193,7 +194,20 @@ pbayesdecisionprob1bin(
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
-# Example 3: Posterior predictive probability for controlled design
+# Example 3: External design with 50 percent power prior borrowing
+pbayesdecisionprob1bin(
+  prob = 'posterior', design = 'external',
+  theta_TV = 0.4, theta_MAV = 0.2, theta_NULL = NULL,
+  gamma_go = 0.8, gamma_nogo = 0.2,
+  pi_t = c(0.2, 0.4, 0.6, 0.8), pi_c = rep(0.2, 4),
+  n_t = 12, n_c = 12,
+  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+  z = NULL, m_t = NULL, m_c = NULL,
+  ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, ae_t = 0.5, ae_c = 0.5,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+# Example 4: Posterior predictive probability for controlled design
 pbayesdecisionprob1bin(
   prob = 'predictive', design = 'controlled',
   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0,
@@ -206,15 +220,28 @@ pbayesdecisionprob1bin(
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
-# Example 4: External design with 50 percent power prior borrowing
+# Example 5: Uncontrolled design with posterior predictive probability
 pbayesdecisionprob1bin(
-  prob = 'posterior', design = 'external',
-  theta_TV = 0.4, theta_MAV = 0.2, theta_NULL = NULL,
-  gamma_go = 0.8, gamma_nogo = 0.2,
+  prob = 'predictive', design = 'uncontrolled',
+  theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0,
+  gamma_go = 0.75, gamma_nogo = 0.25,
+  pi_t = c(0.3, 0.5, 0.7), pi_c = NULL,
+  n_t = 15, n_c = 15,
+  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+  z = 5, m_t = 30, m_c = 30,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
+)
+
+# Example 6: External design with posterior predictive probability
+pbayesdecisionprob1bin(
+  prob = 'predictive', design = 'external',
+  theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0,
+  gamma_go = 0.9, gamma_nogo = 0.3,
   pi_t = c(0.2, 0.4, 0.6, 0.8), pi_c = rep(0.2, 4),
   n_t = 12, n_c = 12,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
-  z = NULL, m_t = NULL, m_c = NULL,
+  z = NULL, m_t = 30, m_c = 30,
   ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, ae_t = 0.5, ae_c = 0.5,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )

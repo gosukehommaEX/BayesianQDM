@@ -5,96 +5,141 @@
 #' the 9 (posterior) or 4 (predictive) rectangular regions defined by the
 #' decision thresholds.
 #'
-#' @param prob Character scalar: \code{'posterior'} or \code{'predictive'}.
-#' @param design Character scalar: \code{'controlled'}, \code{'uncontrolled'},
-#'        or \code{'external'}.
-#' @param prior Character scalar: \code{'vague'} or \code{'N-Inv-Wishart'}.
-#' @param theta_TV1 Numeric scalar. Target value for Endpoint 1
-#'        (required when \code{prob = 'posterior'}).
-#' @param theta_MAV1 Numeric scalar. Minimum acceptable value for Endpoint 1
-#'        (required when \code{prob = 'posterior'}).
-#' @param theta_TV2 Numeric scalar. Target value for Endpoint 2
-#'        (required when \code{prob = 'posterior'}).
-#' @param theta_MAV2 Numeric scalar. Minimum acceptable value for Endpoint 2
-#'        (required when \code{prob = 'posterior'}).
-#' @param theta_NULL1 Numeric scalar. Null threshold for Endpoint 1
-#'        (required when \code{prob = 'predictive'}).
-#' @param theta_NULL2 Numeric scalar. Null threshold for Endpoint 2
-#'        (required when \code{prob = 'predictive'}).
-#' @param n_t Positive integer. Sample size for the treatment group.
-#' @param n_c Positive integer or \code{NULL}. Sample size for the control group
-#'        (not used when \code{design = 'uncontrolled'}).
-#' @param ybar_t Numeric vector of length 2 \strong{or} a numeric matrix with
-#'        2 columns. Sample mean(s) for the treatment group. When a matrix with
-#'        \eqn{N} rows is supplied, the function computes probabilities for
-#'        all \eqn{N} observations simultaneously and returns an
-#'        \eqn{N \times n_{\rm regions}} matrix.
-#' @param S_t A 2x2 numeric matrix (single observation) \strong{or} a list of
-#'        \eqn{N} such matrices. Sum-of-squares matrix/matrices for the
-#'        treatment group. Must be consistent with \code{ybar_t}: if
-#'        \code{ybar_t} is a matrix, \code{S_t} must be a list of the same
-#'        length.
-#' @param ybar_c Numeric vector of length 2, a numeric matrix with 2 columns,
-#'        or \code{NULL}. Sample mean(s) for the control group.
-#' @param S_c A 2x2 numeric matrix, a list of 2x2 matrices, or \code{NULL}.
-#'        Sum-of-squares matrix/matrices for the control group.
-#' @param m_t Positive integer or \code{NULL}. Pivotal study sample size for
-#'        the treatment group (required when \code{prob = 'predictive'}).
-#' @param m_c Positive integer or \code{NULL}. Pivotal study sample size for
-#'        the control group (required when \code{prob = 'predictive'} and
-#'        \code{design != 'uncontrolled'}).
-#' @param kappa0_t Positive numeric scalar. NIW prior concentration for the
-#'        treatment group (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param nu0_t Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
-#'        the treatment group (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param mu0_t Length-2 numeric vector. NIW prior mean for the treatment group
-#'        (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param Lambda0_t A 2x2 positive-definite numeric matrix. NIW prior scale
-#'        matrix for the treatment group (required when
-#'        \code{prior = 'N-Inv-Wishart'}).
-#' @param kappa0_c Positive numeric scalar. NIW prior concentration for the
-#'        control group.
-#' @param nu0_c Numeric scalar \eqn{> 3}. NIW prior degrees of freedom for
-#'        the control group.
-#' @param mu0_c Length-2 numeric vector. NIW prior mean for the control group or
-#'        hypothetical control location (\code{design = 'uncontrolled'}).
-#' @param Lambda0_c A 2x2 positive-definite numeric matrix. NIW prior scale
-#'        matrix for the control group.
-#' @param r Positive numeric scalar. Variance scaling factor for the
-#'        hypothetical control (required when
-#'        \code{design = 'uncontrolled'}).
-#' @param ne_t Positive integer or \code{NULL}. External treatment sample size
-#'        (used when \code{design = 'external'}).
-#' @param ne_c Positive integer or \code{NULL}. External control sample size
-#'        (used when \code{design = 'external'}).
-#' @param alpha0e_t Numeric scalar in \code{(0, 1]}. Power prior weight for
-#'        external treatment data.
-#' @param alpha0e_c Numeric scalar in \code{(0, 1]}. Power prior weight for
-#'        external control data.
-#' @param bar_ye_t Length-2 numeric vector. External treatment sample mean.
-#' @param bar_ye_c Length-2 numeric vector. External control sample mean.
-#' @param se_t A 2x2 numeric matrix. External treatment sum-of-squares matrix.
-#' @param se_c A 2x2 numeric matrix. External control sum-of-squares matrix.
-#' @param nMC Positive integer or \code{NULL}. Number of Monte Carlo draws.
-#'        Default \code{10000L}. Required when \code{method = 'MC'}.  May be
-#'        set to \code{NULL} when \code{method = 'MM'} and \eqn{\nu_k > 4}
-#'        (the MM method uses \code{mvtnorm::pmvt} analytically); if
-#'        \code{method = 'MM'} but \eqn{\nu_k \le 4} causes a fallback to MC,
-#'        \code{nMC} must be a positive integer.
-#' @param method Character scalar: \code{'MC'} (default) or \code{'MM'}
+#' @param prob A character string specifying the probability type.
+#'        Must be \code{'posterior'} or \code{'predictive'}.
+#' @param design A character string specifying the trial design.
+#'        Must be \code{'controlled'}, \code{'uncontrolled'}, or
+#'        \code{'external'}.
+#' @param prior A character string specifying the prior distribution.
+#'        Must be \code{'vague'} or \code{'N-Inv-Wishart'}.
+#' @param theta_TV1 A numeric scalar giving the target value (TV) threshold
+#'        for Endpoint 1. Required when \code{prob = 'posterior'}; must
+#'        satisfy \code{theta_TV1 > theta_MAV1}. Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta_MAV1 A numeric scalar giving the minimum acceptable value
+#'        (MAV) threshold for Endpoint 1. Required when
+#'        \code{prob = 'posterior'}; must satisfy
+#'        \code{theta_TV1 > theta_MAV1}. Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta_TV2 A numeric scalar giving the target value (TV) threshold
+#'        for Endpoint 2. Required when \code{prob = 'posterior'}; must
+#'        satisfy \code{theta_TV2 > theta_MAV2}. Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta_MAV2 A numeric scalar giving the minimum acceptable value
+#'        (MAV) threshold for Endpoint 2. Required when
+#'        \code{prob = 'posterior'}; must satisfy
+#'        \code{theta_TV2 > theta_MAV2}. Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta_NULL1 A numeric scalar giving the null hypothesis threshold
+#'        for Endpoint 1. Required when \code{prob = 'predictive'}; set to
+#'        \code{NULL} when \code{prob = 'posterior'}.
+#' @param theta_NULL2 A numeric scalar giving the null hypothesis threshold
+#'        for Endpoint 2. Required when \code{prob = 'predictive'}; set to
+#'        \code{NULL} when \code{prob = 'posterior'}.
+#' @param n_t A positive integer giving the sample size for the treatment
+#'        group.
+#' @param n_c A positive integer giving the sample size for the control group.
+#'        Not used when \code{design = 'uncontrolled'}; set to \code{NULL}
+#'        in that case.
+#' @param ybar_t A numeric vector of length 2 \strong{or} a numeric matrix
+#'        with 2 columns giving the sample mean(s) for the treatment group.
+#'        When a matrix with \eqn{N} rows is supplied, the function computes
+#'        probabilities for all \eqn{N} observations simultaneously and
+#'        returns an \eqn{N \times n_{\rm regions}} matrix.
+#' @param S_t A 2x2 numeric matrix giving the sum-of-squares matrix for the
+#'        treatment group (single observation), \strong{or} a list of \eqn{N}
+#'        such matrices (vectorised call). Must be consistent with
+#'        \code{ybar_t}: if \code{ybar_t} is a matrix, \code{S_t} must be a
+#'        list of the same length.
+#' @param ybar_c A numeric vector of length 2, a numeric matrix with 2
+#'        columns, or \code{NULL} giving the sample mean(s) for the control
+#'        group. Not used when \code{design = 'uncontrolled'}.
+#' @param S_c A 2x2 numeric matrix, a list of 2x2 matrices, or \code{NULL}
+#'        giving the sum-of-squares matrix/matrices for the control group.
+#'        Not used when \code{design = 'uncontrolled'}.
+#' @param m_t A positive integer giving the pivotal study sample size for the
+#'        treatment group. Required when \code{prob = 'predictive'};
+#'        otherwise set to \code{NULL}.
+#' @param m_c A positive integer giving the pivotal study sample size for the
+#'        control group. Required when \code{prob = 'predictive'} and
+#'        \code{design != 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param kappa0_t A positive numeric scalar giving the NIW prior
+#'        concentration parameter for the treatment group. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param nu0_t A numeric scalar giving the NIW prior degrees of freedom for
+#'        the treatment group. Must be greater than 3. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param mu0_t A numeric vector of length 2 giving the NIW prior mean for
+#'        the treatment group. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param Lambda0_t A 2x2 positive-definite numeric matrix giving the NIW
+#'        prior scale matrix for the treatment group. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param kappa0_c A positive numeric scalar giving the NIW prior
+#'        concentration parameter for the control group. Required when
+#'        \code{prior = 'N-Inv-Wishart'} and
+#'        \code{design != 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param nu0_c A numeric scalar giving the NIW prior degrees of freedom for
+#'        the control group. Must be greater than 3. Required when
+#'        \code{prior = 'N-Inv-Wishart'} and
+#'        \code{design != 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param mu0_c A numeric vector of length 2 giving the NIW prior mean for
+#'        the control group, or the hypothetical control location when
+#'        \code{design = 'uncontrolled'}. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param Lambda0_c A 2x2 positive-definite numeric matrix giving the NIW
+#'        prior scale matrix for the control group. Required when
+#'        \code{prior = 'N-Inv-Wishart'} and
+#'        \code{design != 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param r A positive numeric scalar giving the variance scaling factor for
+#'        the hypothetical control distribution. Required when
+#'        \code{design = 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param ne_t A positive integer giving the external treatment group sample
+#'        size. Required when \code{design = 'external'} and external
+#'        treatment data are used; otherwise set to \code{NULL}.
+#' @param ne_c A positive integer giving the external control group sample
+#'        size. Required when \code{design = 'external'} and external
+#'        control data are used; otherwise set to \code{NULL}.
+#' @param alpha0e_t A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the external treatment data. Required when external
+#'        treatment data are used; otherwise set to \code{NULL}.
+#' @param alpha0e_c A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the external control data. Required when external
+#'        control data are used; otherwise set to \code{NULL}.
+#' @param bar_ye_t A numeric vector of length 2 giving the external treatment
+#'        group sample mean. Required when external treatment data are used;
+#'        otherwise set to \code{NULL}.
+#' @param bar_ye_c A numeric vector of length 2 giving the external control
+#'        group sample mean. Required when external control data are used;
+#'        otherwise set to \code{NULL}.
+#' @param se_t A 2x2 numeric matrix giving the external treatment group
+#'        sum-of-squares matrix. Required when external treatment data are
+#'        used; otherwise set to \code{NULL}.
+#' @param se_c A 2x2 numeric matrix giving the external control group
+#'        sum-of-squares matrix. Required when external control data are
+#'        used; otherwise set to \code{NULL}.
+#' @param nMC A positive integer giving the number of Monte Carlo draws used
+#'        to estimate region probabilities. Default is \code{10000}. Required
+#'        when \code{method = 'MC'}. May be set to \code{NULL} when
+#'        \code{method = 'MM'} and \eqn{\nu_k > 4} (the MM method uses
+#'        \code{mvtnorm::pmvt} analytically); if \code{method = 'MM'} but
+#'        \eqn{\nu_k \le 4} causes a fallback to MC, \code{nMC} must be a
+#'        positive integer.
+#' @param method A character string specifying the computation method.
+#'        Must be \code{'MC'} (Monte Carlo, default) or \code{'MM'}
 #'        (Moment-Matching via \code{mvtnorm::pmvt}). When
 #'        \code{method = 'MM'} and \eqn{\nu_k \le 4}, a warning is issued
 #'        and the function falls back to \code{method = 'MC'}.
 #'
 #' @return When \code{ybar_t} is a length-2 vector (single observation): a
-#'         named numeric vector of length 9 (\code{R_chol_t}--\code{R9}) for
-#'         \code{prob = 'posterior'} or length 4 (\code{R_chol_t}--\code{R4}) for
+#'         named numeric vector of length 9 (\code{R1}--\code{R9}) for
+#'         \code{prob = 'posterior'} or length 4 (\code{R1}--\code{R4}) for
 #'         \code{prob = 'predictive'}. All elements are non-negative and sum
 #'         to 1.
 #'
 #'         When \code{ybar_t} is an \eqn{N \times 2} matrix (vectorised call):
 #'         a numeric matrix with \eqn{N} rows and 9 (or 4) columns, with
-#'         column names \code{R_chol_t}--\code{R9} (or \code{R_chol_t}--\code{R4}). Each
+#'         column names \code{R1}--\code{R9} (or \code{R1}--\code{R4}). Each
 #'         row sums to 1.
 #'
 #' @details
@@ -126,8 +171,8 @@
 #' \strong{Posterior probability regions (prob = 'posterior').}
 #' Row-major 3x3 grid; Endpoint 1 varies slowest:
 #' \itemize{
-#'   \item R_chol_t: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 > TV_2}
-#'   \item R_chol_c: \eqn{\theta_1 > TV_1} AND \eqn{TV_2 \ge \theta_2 > MAV_2}
+#'   \item R1: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 > TV_2}
+#'   \item R2: \eqn{\theta_1 > TV_1} AND \eqn{TV_2 \ge \theta_2 > MAV_2}
 #'   \item R3: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 \le MAV_2}
 #'   \item R4: \eqn{TV_1 \ge \theta_1 > MAV_1} AND \eqn{\theta_2 > TV_2}
 #'   \item R5: \eqn{TV_1 \ge \theta_1 > MAV_1} AND
@@ -142,9 +187,9 @@
 #' \strong{Predictive probability regions (prob = 'predictive').}
 #' Row-major 2x2 grid; Endpoint 1 varies slowest:
 #' \itemize{
-#'   \item R_chol_t: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
+#'   \item R1: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
 #'             \eqn{\tilde\theta_2 > \theta_{\rm NULL2}}
-#'   \item R_chol_c: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
+#'   \item R2: \eqn{\tilde\theta_1 > \theta_{\rm NULL1}} AND
 #'             \eqn{\tilde\theta_2 \le \theta_{\rm NULL2}}
 #'   \item R3: \eqn{\tilde\theta_1 \le \theta_{\rm NULL1}} AND
 #'             \eqn{\tilde\theta_2 > \theta_{\rm NULL2}}
@@ -179,7 +224,7 @@
 #' once per region per observation.
 #'
 #' @examples
-#' # Example 1: Posterior probability, controlled design, vague prior
+#' # Example 1: Controlled design - posterior probability, vague prior
 #' S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
 #' S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 #' pbayespostpred2cont(
@@ -199,31 +244,9 @@
 #'   nMC = 1000L
 #' )
 #'
-#' # Example 2: Posterior probability, controlled design, NIW prior
+#' # Example 2: Uncontrolled design - posterior probability, NIW prior
 #' S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-#' S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
-#' L0 <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
-#' pbayespostpred2cont(
-#'   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Wishart',
-#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
-#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
-#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
-#'   n_t = 12L, n_c = 12L,
-#'   ybar_t = c(3.5, 2.1), S_t = S_t,
-#'   ybar_c = c(1.8, 1.0), S_c = S_c,
-#'   m_t = NULL, m_c = NULL,
-#'   kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
-#'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(1.0, 0.5), Lambda0_c = L0,
-#'   r = NULL,
-#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 1000L
-#' )
-#'
-#' # Example 3: Posterior probability, uncontrolled design, NIW prior
-#' # mu0_c specifies the hypothetical control location; r scales the variance
-#' S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-#' L0 <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
+#' L0  <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
 #' pbayespostpred2cont(
 #'   prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Wishart',
 #'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
@@ -241,10 +264,10 @@
 #'   nMC = 1000L
 #' )
 #'
-#' # Example 4: Posterior probability, external design (control only), NIW prior
+#' # Example 3: External design - posterior probability, NIW prior
 #' S_t  <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
 #' S_c  <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
-#' L0  <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
+#' L0   <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
 #' se_c <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
 #' pbayespostpred2cont(
 #'   prob = 'posterior', design = 'external', prior = 'N-Inv-Wishart',
@@ -263,7 +286,7 @@
 #'   nMC = 1000L
 #' )
 #'
-#' # Example 5: Predictive probability, controlled design, vague prior
+#' # Example 4: Controlled design - posterior predictive probability, vague prior
 #' S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
 #' S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 #' pbayespostpred2cont(
@@ -283,54 +306,45 @@
 #'   nMC = 1000L
 #' )
 #'
-#' # Example 6: Posterior probability, controlled design, NIW prior, MM method
+#' # Example 5: Uncontrolled design - posterior predictive probability, NIW prior
 #' S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-#' S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
-#' L0 <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
+#' L0  <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
 #' pbayespostpred2cont(
-#'   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Wishart',
-#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
-#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
-#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
+#'   prob = 'predictive', design = 'uncontrolled', prior = 'N-Inv-Wishart',
+#'   theta_TV1 = NULL, theta_MAV1 = NULL,
+#'   theta_TV2 = NULL, theta_MAV2 = NULL,
+#'   theta_NULL1 = 0.5, theta_NULL2 = 0.3,
+#'   n_t = 12L, n_c = NULL,
+#'   ybar_t = c(3.5, 2.1), S_t = S_t,
+#'   ybar_c = NULL, S_c = NULL,
+#'   m_t = 30L, m_c = 30L,
+#'   kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+#'   kappa0_c = NULL, nu0_c = NULL, mu0_c = c(1.0, 0.5), Lambda0_c = NULL,
+#'   r = 1.0,
+#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+#'   nMC = 1000L
+#' )
+#'
+#' # Example 6: External design - posterior predictive probability, NIW prior
+#' S_t  <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+#' S_c  <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+#' L0   <- matrix(c(20.0, 0.0, 0.0, 10.0), 2, 2)
+#' se_c <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
+#' pbayespostpred2cont(
+#'   prob = 'predictive', design = 'external', prior = 'N-Inv-Wishart',
+#'   theta_TV1 = NULL, theta_MAV1 = NULL,
+#'   theta_TV2 = NULL, theta_MAV2 = NULL,
+#'   theta_NULL1 = 0.5, theta_NULL2 = 0.3,
 #'   n_t = 12L, n_c = 12L,
 #'   ybar_t = c(3.5, 2.1), S_t = S_t,
 #'   ybar_c = c(1.8, 1.0), S_c = S_c,
-#'   m_t = NULL, m_c = NULL,
+#'   m_t = 30L, m_c = 30L,
 #'   kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
 #'   kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(1.0, 0.5), Lambda0_c = L0,
 #'   r = NULL,
-#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 1000L, method = 'MM'
-#' )
-#'
-#' # Example 7: Vectorised call -- N = 3 observations simultaneously
-#' S_t_list <- list(
-#'   matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2),
-#'   matrix(c(20.0, 4.0, 4.0, 10.0), 2, 2),
-#'   matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
-#' )
-#' S_c_list <- list(
-#'   matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2),
-#'   matrix(c(17.0, 3.0, 3.0, 9.0), 2, 2),
-#'   matrix(c(14.0, 2.2, 2.2, 7.0), 2, 2)
-#' )
-#' ybar_t_mat <- rbind(c(3.5, 2.1), c(4.0, 2.5), c(2.5, 1.5))
-#' ybar_c_mat <- rbind(c(1.8, 1.0), c(1.9, 1.1), c(1.7, 0.9))
-#' pbayespostpred2cont(
-#'   prob = 'posterior', design = 'controlled', prior = 'vague',
-#'   theta_TV1 = 1.5, theta_MAV1 = 0.5,
-#'   theta_TV2 = 1.0, theta_MAV2 = 0.3,
-#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
-#'   n_t = 12L, n_c = 12L,
-#'   ybar_t = ybar_t_mat, S_t = S_t_list,
-#'   ybar_c = ybar_c_mat, S_c = S_c_list,
-#'   m_t = NULL, m_c = NULL,
-#'   kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
-#'   kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
-#'   r = NULL,
-#'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+#'   ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
+#'   bar_ye_t = NULL, bar_ye_c = c(1.5, 0.8), se_t = NULL, se_c = se_c,
 #'   nMC = 1000L
 #' )
 #'
@@ -670,7 +684,7 @@ pbayespostpred2cont <- function(prob,
   use_mm <- (method == 'MM')
   if (use_mm && (df_t <= 4L || df_c <= 4L)) {
     warning(
-      "MM method requires df > 4 for both arms (df_t = ", df_t,
+      "MM method requires df > 4 for both groups (df_t = ", df_t,
       ", df_c = ", df_c, "). Falling back to method = 'MC'."
     )
     use_mm <- FALSE

@@ -180,6 +180,7 @@
 #' pbayespostpred2bin(
 #'   prob = 'posterior', design = 'controlled',
 #'   theta_TV1 = 0.15, theta_MAV1 = 0.05, theta_TV2 = 0.10, theta_MAV2 = 0.0,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
 #'   x_c_00 = 3, x_c_01 = 2, x_c_10 = 4, x_c_11 = 1,
 #'   a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
@@ -195,6 +196,7 @@
 #' pbayespostpred2bin(
 #'   prob = 'posterior', design = 'uncontrolled',
 #'   theta_TV1 = 0.15, theta_MAV1 = 0.05, theta_TV2 = 0.10, theta_MAV2 = 0.0,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
 #'   x_c_00 = NULL, x_c_01 = NULL, x_c_10 = NULL, x_c_11 = NULL,
 #'   a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
@@ -210,6 +212,7 @@
 #' pbayespostpred2bin(
 #'   prob = 'posterior', design = 'external',
 #'   theta_TV1 = 0.15, theta_MAV1 = 0.05, theta_TV2 = 0.10, theta_MAV2 = 0.0,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
 #'   x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
 #'   x_c_00 = 3, x_c_01 = 2, x_c_10 = 4, x_c_11 = 1,
 #'   a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,

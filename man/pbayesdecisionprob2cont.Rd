@@ -277,7 +277,6 @@ pbayesdecisionprob2cont(
 )
 
 # Example 3: External design (control only), posterior probability, NIW prior
-\dontrun{
 Sigma  <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
 L0     <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
 se_mat <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
@@ -302,7 +301,6 @@ pbayesdecisionprob2cont(
   nMC = 500L, method = 'MC',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
 )
-}
 
 # Example 4: Controlled design, predictive probability, NIW prior
 Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
@@ -354,7 +352,6 @@ pbayesdecisionprob2cont(
 )
 
 # Example 6: External design (control only), predictive probability, NIW prior
-\dontrun{
 Sigma  <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
 L0     <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
 se_mat <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
@@ -379,6 +376,5 @@ pbayesdecisionprob2cont(
   nMC = 500L, method = 'MC',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 9L
 )
-}
 
 }

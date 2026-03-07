@@ -122,10 +122,10 @@ For \code{design = 'uncontrolled'}, not used in probability
 calculations.  Must have the same length as \code{pi_t1}.}
 
 \item{n_t}{A positive integer giving the number of patients in the
-treatment group (treatment) in the proof-of-concept (PoC) trial.}
+treatment group in the proof-of-concept (PoC) trial.}
 
 \item{n_c}{A positive integer giving the number of patients in the
-control group (control) in the PoC trial.}
+control group in the PoC trial.}
 
 \item{a_t_00}{A positive numeric scalar giving the Dirichlet prior
 parameter for the (0,0) response pattern in the treatment group.}
@@ -332,37 +332,8 @@ AND sum of NoGo region probabilities \eqn{\ge \gamma_2}.
 }
 }
 \examples{
-# Example 1: Posterior probability, controlled design (rho = 0)
-# Corresponds to Table 3(a) of the reference with independent endpoints.
-pbayesdecisionprob2bin(
-  prob        = 'posterior',
-  design      = 'controlled',
-  GoRegions   = 1L,
-  NoGoRegions = 9L,
-  gamma_go    = 0.27,
-  gamma_nogo  = 0.36,
-  pi_t1       = c(0.15, 0.25, 0.30, 0.40),
-  pi_t2       = c(0.20, 0.30, 0.35, 0.45),
-  rho_t       = rep(0.0, 4),
-  pi_c1       = rep(0.15, 4),
-  pi_c2       = rep(0.20, 4),
-  rho_c       = rep(0.0, 4),
-  n_t = 10, n_c = 10,
-  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
-  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
-  m_t = NULL, m_c = NULL,
-  theta_TV1   = 0.15, theta_MAV1 = 0.10,
-  theta_TV2   = 0.15, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
-  nMC = 100,
-  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
-)
 
-# Example 2: Posterior probability, controlled design (rho > 0)
+# Example 1: Posterior probability, controlled design (rho > 0)
 # Explores the impact of positive within-arm endpoint correlation.
 pbayesdecisionprob2bin(
   prob        = 'posterior',
@@ -392,8 +363,8 @@ pbayesdecisionprob2bin(
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
-# Example 3: Posterior probability, uncontrolled design
-# Hypothetical control specified via prior (a2_*) and pseudo-counts (z*).
+# Example 2: Posterior probability, uncontrolled design
+# Hypothetical control specified via pseudo-counts.
 pbayesdecisionprob2bin(
   prob        = 'posterior',
   design      = 'uncontrolled',
@@ -403,7 +374,7 @@ pbayesdecisionprob2bin(
   gamma_nogo  = 0.36,
   pi_t1       = c(0.15, 0.30, 0.40),
   pi_t2       = c(0.20, 0.35, 0.45),
-  rho_t       = rep(0.0, 3),
+  rho_t       = rep(0.2, 3),
   pi_c1       = NULL,
   pi_c2       = NULL,
   rho_c       = NULL,
@@ -422,7 +393,7 @@ pbayesdecisionprob2bin(
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
-# Example 4: Posterior probability, external control design
+# Example 3: Posterior probability, external control design
 # External control data incorporated via power prior (ae_c = 0.5).
 pbayesdecisionprob2bin(
   prob        = 'posterior',
@@ -452,7 +423,7 @@ pbayesdecisionprob2bin(
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
-# Example 5: Predictive probability, controlled design
+# Example 4: Predictive probability, controlled design
 # Future trial has m_t = m_c = 30 patients per arm.
 pbayesdecisionprob2bin(
   prob        = 'predictive',
@@ -463,10 +434,10 @@ pbayesdecisionprob2bin(
   gamma_nogo  = 0.80,
   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
-  rho_t       = rep(0.0, 4),
+  rho_t       = rep(0.3, 4),
   pi_c1       = rep(0.15, 4),
   pi_c2       = rep(0.20, 4),
-  rho_c       = rep(0.0, 4),
+  rho_c       = rep(0.3, 4),
   n_t = 10, n_c = 10,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
@@ -482,7 +453,7 @@ pbayesdecisionprob2bin(
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
-# Example 6: Predictive probability, uncontrolled design
+# Example 5: Predictive probability, uncontrolled design
 # Hypothetical control specified via pseudo-counts; future trial m_t = m_c = 30.
 pbayesdecisionprob2bin(
   prob        = 'predictive',
@@ -493,10 +464,10 @@ pbayesdecisionprob2bin(
   gamma_nogo  = 0.80,
   pi_t1       = c(0.15, 0.30, 0.40),
   pi_t2       = c(0.20, 0.35, 0.45),
-  rho_t       = rep(0.0, 3),
+  rho_t       = rep(0.7, 3),
   pi_c1       = rep(0.15, 3),
   pi_c2       = rep(0.20, 3),
-  rho_c       = rep(0.0, 3),
+  rho_c       = rep(0.7, 3),
   n_t = 10, n_c = 10,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
@@ -512,7 +483,7 @@ pbayesdecisionprob2bin(
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
-# Example 7: Predictive probability, external treatment design
+# Example 6: Predictive probability, external treatment design
 # External treatment data incorporated via power prior (ae_t = 0.5).
 pbayesdecisionprob2bin(
   prob        = 'predictive',
@@ -523,10 +494,10 @@ pbayesdecisionprob2bin(
   gamma_nogo  = 0.80,
   pi_t1       = c(0.15, 0.25, 0.30, 0.40),
   pi_t2       = c(0.20, 0.30, 0.35, 0.45),
-  rho_t       = rep(0.0, 4),
+  rho_t       = rep(0.5, 4),
   pi_c1       = rep(0.15, 4),
   pi_c2       = rep(0.20, 4),
-  rho_c       = rep(0.0, 4),
+  rho_c       = rep(0.5, 4),
   n_t = 10, n_c = 10,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
@@ -539,37 +510,6 @@ pbayesdecisionprob2bin(
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
   ae_t = 0.5, ae_c = NULL,
   nMC = 100,
-  error_if_Miss = FALSE, Gray_inc_Miss = FALSE
-)
-
-# Example 8: MC method, controlled design (faster for large n)
-# Uses direct simulation instead of full multinomial enumeration.
-pbayesdecisionprob2bin(
-  prob        = 'posterior',
-  design      = 'controlled',
-  GoRegions   = 1L,
-  NoGoRegions = 9L,
-  gamma_go    = 0.27,
-  gamma_nogo  = 0.36,
-  pi_t1       = c(0.15, 0.25, 0.30, 0.40),
-  pi_t2       = c(0.20, 0.30, 0.35, 0.45),
-  rho_t       = rep(0.0, 4),
-  pi_c1       = rep(0.15, 4),
-  pi_c2       = rep(0.20, 4),
-  rho_c       = rep(0.0, 4),
-  n_t = 10, n_c = 10,
-  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
-  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
-  m_t = NULL, m_c = NULL,
-  theta_TV1   = 0.15, theta_MAV1 = 0.10,
-  theta_TV2   = 0.15, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
-  nMC = 1000, nsim = 1000,
-  method = 'MC',
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 

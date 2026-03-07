@@ -78,10 +78,12 @@ Default is \code{NULL}.}
 posterior probabilities. Required if \code{CalcMethod = 'MC'};
 otherwise \code{NULL}.}
 
-\item{gamma_go}{A numeric value in (0, 1) representing the Go decision threshold.}
+\item{gamma_go}{A numeric scalar in \code{(0, 1)} giving the minimum posterior or
+predictive probability required for a Go decision. Typically 0.8 or higher.}
 
-\item{gamma_nogo}{A numeric value in (0, 1) representing the NoGo decision threshold.
-Must be strictly less than \code{gamma_go}.}
+\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the maximum posterior or
+predictive probability that triggers a NoGo decision. Must satisfy
+\code{gamma_nogo < gamma_go}.}
 
 \item{n_t}{A positive integer representing the sample size for the treatment group.}
 
@@ -160,11 +162,11 @@ treatment data are available.}
 the external data. Required if \code{design = 'external'} and external
 control data are available.}
 
-\item{alpha0e_t}{A numeric value in (0, 1] representing the power prior scale parameter
+\item{alpha0e_t}{A numeric value in \code{(0, 1]} representing the power prior scale parameter
 for the treatment group. Controls the degree of borrowing from external treatment data:
 0 = no borrowing, 1 = full borrowing. Required if \code{ne_t} is specified.}
 
-\item{alpha0e_c}{A numeric value in (0, 1] representing the power prior scale parameter
+\item{alpha0e_c}{A numeric value in \code{(0, 1]} representing the power prior scale parameter
 for the control group. Controls the degree of borrowing from external control data:
 0 = no borrowing, 1 = full borrowing. Required if \code{ne_c} is specified.}
 
@@ -282,7 +284,6 @@ pbayesdecisionprob1cont(
 )
 
 # Example 3: External design with control data using MM approximation
-\dontrun{
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'MM',
   theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL,
@@ -295,7 +296,6 @@ pbayesdecisionprob1cont(
   bar_ye_t = NULL, bar_ye_c = 0, se_t = NULL, se_c = 1,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4
 )
-}
 
 # Example 4: Controlled design with predictive probability
 pbayesdecisionprob1cont(
@@ -326,7 +326,6 @@ pbayesdecisionprob1cont(
 )
 
 # Example 6: External design with predictive probability using MC method
-\dontrun{
 pbayesdecisionprob1cont(
   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.5,
@@ -339,6 +338,5 @@ pbayesdecisionprob1cont(
   bar_ye_t = 2.3, bar_ye_c = 0.9, se_t = 1.2, se_c = 1.0,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 )
-}
 
 }
