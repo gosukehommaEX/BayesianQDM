@@ -281,6 +281,7 @@ The optimal \eqn{\gamma_go} is the \code{sel_go} (\code{"smallest"} or
 # Example 1: Controlled design, vague prior, posterior probability
 # gamma_go: smallest gamma such that Pr(Go) < 0.05
 # gamma_nogo: largest  gamma such that Pr(NoGo) < 0.20
+\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'controlled',
   prior = 'vague', CalcMethod = 'MM',
@@ -296,8 +297,10 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 1L
 )
+}
 
 # Example 2: Uncontrolled design, N-Inv-Chisq prior, posterior probability
+\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'uncontrolled',
   prior = 'N-Inv-Chisq', CalcMethod = 'NI',
@@ -313,8 +316,29 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 2L
 )
+}
 
-# Example 3: Controlled design, vague prior, predictive probability
+# Example 3: External design, vague prior, posterior probability
+\dontrun{
+getgamma1cont(
+  nsim = 1000L, prob = 'posterior', design = 'external',
+  prior = 'vague', CalcMethod = 'MM',
+  theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
+  mu_t = 1.0, mu_c = 1.0, sigma_t = 1.5, sigma_c = 1.5,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
+  n_t = 15L, n_c = 15L, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  r = NULL, ne_t = NULL, ne_c = 20L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = 0.0, se_t = NULL, se_c = 1.5,
+  gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 4L
+)
+}
+
+# Example 4: Controlled design, vague prior, predictive probability
+\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'predictive', design = 'controlled',
   prior = 'vague', CalcMethod = 'MM',
@@ -330,23 +354,43 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 3L
 )
+}
 
-# Example 4: External design, vague prior, posterior probability
+# Example 5: Uncontrolled design, vague prior, predictive probability
 \dontrun{
 getgamma1cont(
-  nsim = 1000L, prob = 'posterior', design = 'external',
+  nsim = 1000L, prob = 'predictive', design = 'uncontrolled',
   prior = 'vague', CalcMethod = 'MM',
-  theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
+  theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.0, nMC = NULL,
+  mu_t = 1.0, mu_c = NULL, sigma_t = 2.0, sigma_c = NULL,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
+  n_t = 15L, n_c = NULL, m_t = 50L, m_c = 50L,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = 0.0, sigma0_t = NULL, sigma0_c = NULL,
+  r = 1.0, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 5L
+)
+}
+
+# Example 6: External design, vague prior, predictive probability
+\dontrun{
+getgamma1cont(
+  nsim = 1000L, prob = 'predictive', design = 'external',
+  prior = 'vague', CalcMethod = 'MM',
+  theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.0, nMC = NULL,
   mu_t = 1.0, mu_c = 1.0, sigma_t = 1.5, sigma_c = 1.5,
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n_t = 12L, n_c = 12L, m_t = NULL, m_c = NULL,
+  n_t = 15L, n_c = 15L, m_t = 50L, m_c = 50L,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL, ne_t = NULL, ne_c = 20L, alpha0e_t = NULL, alpha0e_c = 0.5,
   bar_ye_t = NULL, bar_ye_c = 0.0, se_t = NULL, se_c = 1.5,
-  gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 4L
+  gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 6L
 )
 }
 

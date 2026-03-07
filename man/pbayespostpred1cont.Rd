@@ -2,8 +2,8 @@
 % Please edit documentation in R/pbayespostpred1cont.R
 \name{pbayespostpred1cont}
 \alias{pbayespostpred1cont}
-\title{Bayesian Posterior or Posterior Predictive Probability for a Clinical Trial
-with a Single Continuous Endpoint}
+\title{Bayesian Posterior or Posterior Predictive Probability for a Single
+Continuous Endpoint}
 \usage{
 pbayespostpred1cont(
   prob = "posterior",
@@ -45,20 +45,21 @@ pbayespostpred1cont(
 Must be \code{'posterior'} or \code{'predictive'}.}
 
 \item{design}{A character string specifying the trial design.
-Must be \code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.}
+Must be \code{'controlled'}, \code{'uncontrolled'}, or
+\code{'external'}.}
 
 \item{prior}{A character string specifying the prior type.
 Must be \code{'vague'} (Jeffreys) or \code{'N-Inv-Chisq'}
 (Normal-Inverse-Chi-squared conjugate).}
 
 \item{CalcMethod}{A character string specifying the calculation method.
-Must be \code{'NI'} (numerical integration), \code{'MC'} (Monte Carlo),
-or \code{'MM'} (Moment-Matching approximation).
-For large \code{nsim} or multi-scenario use, \code{'MM'} is strongly
-recommended; see Details.}
+Must be \code{'NI'} (numerical integration), \code{'MC'}
+(Monte Carlo), or \code{'MM'} (Moment-Matching approximation).
+For large \code{nsim} or multi-scenario use, \code{'MM'} is
+strongly recommended; see Details.}
 
-\item{theta0}{A numeric scalar giving the threshold for the treatment effect
-(difference in means).}
+\item{theta0}{A numeric scalar giving the threshold for the treatment
+effect (difference in means).}
 
 \item{nMC}{A positive integer giving the number of Monte Carlo draws.
 Required when \code{CalcMethod = 'MC'}; otherwise \code{NULL}.}
@@ -67,37 +68,42 @@ Required when \code{CalcMethod = 'MC'}; otherwise \code{NULL}.}
 treatment group in the proof-of-concept (PoC) trial.}
 
 \item{n_c}{A positive integer giving the number of patients in the
-control group in the PoC trial.  Required for \code{design = 'controlled'}
-or \code{'external'}; set to \code{NULL} for \code{design = 'uncontrolled'}.}
+control group in the PoC trial. Required for
+\code{design = 'controlled'} or \code{'external'}; set to
+\code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{m_t}{A positive integer giving the future sample size for the treatment
-group. Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
-
-\item{m_c}{A positive integer giving the future sample size for the control
-group. Required when \code{prob = 'predictive'}; otherwise \code{NULL}.}
-
-\item{kappa0_t}{A positive numeric scalar giving the prior precision parameter
-for the treatment group. Required when \code{prior = 'N-Inv-Chisq'};
+\item{m_t}{A positive integer giving the future sample size for the
+treatment group. Required when \code{prob = 'predictive'};
 otherwise \code{NULL}.}
 
-\item{kappa0_c}{A positive numeric scalar giving the prior precision parameter
-for the control group. Required when \code{prior = 'N-Inv-Chisq'} and
-\code{design = 'controlled'}; otherwise \code{NULL}.}
+\item{m_c}{A positive integer giving the future sample size for the
+control group. Required when \code{prob = 'predictive'};
+otherwise \code{NULL}.}
+
+\item{kappa0_t}{A positive numeric scalar giving the prior precision
+parameter for the treatment group. Required when
+\code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.}
+
+\item{kappa0_c}{A positive numeric scalar giving the prior precision
+parameter for the control group. Required when
+\code{prior = 'N-Inv-Chisq'} and \code{design = 'controlled'};
+otherwise \code{NULL}.}
 
 \item{nu0_t}{A positive numeric scalar giving the prior degrees of freedom
 for the treatment group. Required when \code{prior = 'N-Inv-Chisq'};
 otherwise \code{NULL}.}
 
 \item{nu0_c}{A positive numeric scalar giving the prior degrees of freedom
-for the control group. Required when \code{prior = 'N-Inv-Chisq'} and
-\code{design = 'controlled'}; otherwise \code{NULL}.}
+for the control group. Required when \code{prior = 'N-Inv-Chisq'}
+and \code{design = 'controlled'}; otherwise \code{NULL}.}
 
-\item{mu0_t}{A numeric scalar giving the prior mean for the treatment group.
-Required when \code{prior = 'N-Inv-Chisq'}; otherwise \code{NULL}.}
+\item{mu0_t}{A numeric scalar giving the prior mean for the treatment
+group. Required when \code{prior = 'N-Inv-Chisq'}; otherwise
+\code{NULL}.}
 
 \item{mu0_c}{A numeric scalar giving the prior mean for the control group
-(\code{design = 'controlled'} with \code{prior = 'N-Inv-Chisq'}) or the
-hypothetical control mean (\code{design = 'uncontrolled'}).
+(\code{design = 'controlled'} with \code{prior = 'N-Inv-Chisq'})
+or the hypothetical control mean (\code{design = 'uncontrolled'}).
 Required for uncontrolled design; otherwise \code{NULL}.}
 
 \item{sigma0_t}{A positive numeric scalar giving the prior scale for the
@@ -110,7 +116,8 @@ control group. Required when \code{prior = 'N-Inv-Chisq'} and
 
 \item{bar_y_t}{A numeric scalar or vector giving the sample mean for the
 treatment group. When a vector of length \code{nsim} is supplied,
-all posterior parameters are computed simultaneously for all replicates.}
+all posterior parameters are computed simultaneously for all
+replicates.}
 
 \item{bar_y_c}{A numeric scalar or vector giving the sample mean for the
 control group. Required for \code{design = 'controlled'} or
@@ -120,85 +127,92 @@ control group. Required for \code{design = 'controlled'} or
 deviation for the treatment group.}
 
 \item{s_c}{A positive numeric scalar or vector giving the sample standard
-deviation for the control group. Required for \code{design = 'controlled'}
-or \code{'external'}; otherwise \code{NULL}.}
+deviation for the control group. Required for
+\code{design = 'controlled'} or \code{'external'}; otherwise
+\code{NULL}.}
 
 \item{r}{A positive numeric scalar giving the variance scaling factor for
 the hypothetical control. Required for \code{design = 'uncontrolled'};
 otherwise \code{NULL}. The hypothetical control scale is
 \eqn{\mathrm{sd.control} = \sqrt{r} \cdot \mathrm{sd.treatment}}.}
 
-\item{ne_t}{A positive integer giving the external treatment group sample size.
-Required for \code{design = 'external'} with external treatment data;
-otherwise \code{NULL}.}
+\item{ne_t}{A positive integer giving the external treatment group sample
+size. Required for \code{design = 'external'} with external
+treatment data; otherwise \code{NULL}.}
 
-\item{ne_c}{A positive integer giving the external control group sample size.
-Required for \code{design = 'external'} with external control data;
-otherwise \code{NULL}.}
+\item{ne_c}{A positive integer giving the external control group sample
+size. Required for \code{design = 'external'} with external
+control data; otherwise \code{NULL}.}
 
-\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight
-for the treatment group. Required when \code{ne_t} is provided;
-otherwise \code{NULL}.}
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the treatment group. Required when \code{ne_t} is
+provided; otherwise \code{NULL}.}
 
-\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight
-for the control group. Required when \code{ne_c} is provided;
-otherwise \code{NULL}.}
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the control group. Required when \code{ne_c} is
+provided; otherwise \code{NULL}.}
 
-\item{bar_ye_t}{A numeric scalar giving the external treatment group sample mean.
-Required when \code{ne_t} is provided; otherwise \code{NULL}.}
+\item{bar_ye_t}{A numeric scalar giving the external treatment group
+sample mean. Required when \code{ne_t} is provided; otherwise
+\code{NULL}.}
 
-\item{bar_ye_c}{A numeric scalar giving the external control group sample mean.
-Required when \code{ne_c} is provided; otherwise \code{NULL}.}
+\item{bar_ye_c}{A numeric scalar giving the external control group sample
+mean. Required when \code{ne_c} is provided; otherwise \code{NULL}.}
 
 \item{se_t}{A positive numeric scalar giving the external treatment group
-sample SD. Required when \code{ne_t} is provided; otherwise \code{NULL}.}
+sample SD. Required when \code{ne_t} is provided; otherwise
+\code{NULL}.}
 
 \item{se_c}{A positive numeric scalar giving the external control group
-sample SD. Required when \code{ne_c} is provided; otherwise \code{NULL}.}
+sample SD. Required when \code{ne_c} is provided; otherwise
+\code{NULL}.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), returns
 \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
 \eqn{P(\mathrm{effect} > \theta_0)}.}
 }
 \value{
-A numeric scalar or vector in \code{[0, 1]}.  When the input data
+A numeric scalar or vector in \code{[0, 1]}. When the input data
 parameters (\code{bar_y_t}, etc.) are vectors of length \eqn{n},
 a vector of length \eqn{n} is returned.
 }
 \description{
-Computes the Bayesian posterior probability or posterior predictive probability
-for continuous-outcome clinical trials under a Normal-Inverse-Chi-squared
-(or vague Jeffreys) conjugate model. The function supports controlled,
-uncontrolled, and external designs, with optional incorporation of
-external data through power priors. Vector inputs for \code{bar_y_t}, \code{s_t},
-\code{bar_y_c}, and \code{s_c} are supported for efficient batch processing
-(e.g., across simulation replicates in \code{\link{pbayesdecisionprob1cont}}).
+Computes the Bayesian posterior probability or posterior predictive
+probability for continuous-outcome clinical trials under a
+Normal-Inverse-Chi-squared (or vague Jeffreys) conjugate model. The
+function supports controlled, uncontrolled, and external designs, with
+optional incorporation of external data through power priors. Vector
+inputs for \code{bar_y_t}, \code{s_t}, \code{bar_y_c}, and \code{s_c}
+are supported for efficient batch processing (e.g., across simulation
+replicates in \code{\link{pbayesdecisionprob1cont}}).
 }
 \details{
 Under the Normal-Inverse-Chi-squared (N-Inv-ChiSq) conjugate model, the
 marginal posterior/predictive distribution of the group mean follows a
-non-standardised t-distribution, parameterised by a location \eqn{\mu_k},
-a scale \eqn{\sigma_k}, and degrees of freedom \eqn{\nu_k} that depend on
-the design and probability type. The final probability is computed by one of
-three methods:
+non-standardised t-distribution, parameterised by a location
+\eqn{\mu_j}, a scale \eqn{\sigma_j}, and degrees of freedom \eqn{\nu_j}
+that depend on the design and probability type. The final probability is
+computed by one of three methods:
 \itemize{
 \item \code{NI}: exact numerical integration via \code{\link{ptdiff_NI}}.
 \item \code{MC}: Monte Carlo simulation via \code{\link{ptdiff_MC}}.
-\item \code{MM}: Moment-Matching approximation via \code{\link{ptdiff_MM}}.
+\item \code{MM}: Moment-Matching approximation via
+\code{\link{ptdiff_MM}}.
 }
 
-\strong{Performance note}: \code{CalcMethod = 'NI'} calls \code{integrate()}
-once per element of the input vector, which is prohibitively slow for large
-vectors (e.g., \code{nsim} x \code{n_scenarios}). \code{CalcMethod = 'MC'}
-creates an \code{nMC x n} matrix internally, consuming \eqn{O(nMC \cdot n)}
-memory. For large-scale simulation use \code{CalcMethod = 'MM'}, which is
-fully vectorised and exact in the normal limit.
+\strong{Performance note}: \code{CalcMethod = 'NI'} calls
+\code{integrate()} once per element of the input vector, which is
+prohibitively slow for large vectors (e.g., \code{nsim x n_scenarios}).
+\code{CalcMethod = 'MC'} creates an \code{nMC x n} matrix internally,
+consuming \eqn{O(nMC \cdot n)} memory. For large-scale simulation use
+\code{CalcMethod = 'MM'}, which is fully vectorised and exact in the
+normal limit.
 }
 \examples{
-# Example 1: Controlled design - posterior probability with N-Inv-Chisq prior
+# Example 1: Controlled design - posterior probability with N-Inv-Chisq
 pbayespostpred1cont(
-  prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'NI',
-  theta0 = 2, n_t = 12, n_c = 12,
+  prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq',
+  CalcMethod = 'NI', theta0 = 2, n_t = 12, n_c = 12,
   kappa0_t = 5, kappa0_c = 5, nu0_t = 5, nu0_c = 5,
   mu0_t = 5, mu0_c = 5, sigma0_t = sqrt(5), sigma0_c = sqrt(5),
   bar_y_t = 2, bar_y_c = 0, s_t = 1, s_c = 1,
@@ -208,10 +222,10 @@ pbayespostpred1cont(
   lower.tail = FALSE
 )
 
-# Example 2: Uncontrolled design with hypothetical control and vague prior
+# Example 2: Uncontrolled design - posterior probability with vague prior
 pbayespostpred1cont(
-  prob = 'posterior', design = 'uncontrolled', prior = 'vague', CalcMethod = 'MM',
-  theta0 = 1.5, n_t = 15, n_c = NULL,
+  prob = 'posterior', design = 'uncontrolled', prior = 'vague',
+  CalcMethod = 'MM', theta0 = 1.5, n_t = 15, n_c = NULL,
   bar_y_t = 3.5, bar_y_c = NULL, s_t = 1.2, s_c = NULL,
   mu0_c = 1.5, r = 1.2,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
@@ -222,46 +236,56 @@ pbayespostpred1cont(
   lower.tail = FALSE
 )
 
-# Example 3: Posterior predictive probability - controlled design
+# Example 3: External design - posterior probability
 pbayespostpred1cont(
-  prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq', CalcMethod = 'MM',
-  theta0 = 0.5, n_t = 15, n_c = 15, m_t = 100, m_c = 100,
-  kappa0_t = 3, kappa0_c = 3, nu0_t = 4, nu0_c = 4,
-  mu0_t = 2, mu0_c = 2, sigma0_t = 2, sigma0_c = 2,
-  bar_y_t = 2.5, bar_y_c = 1.8, s_t = 1.8, s_c = 1.6,
-  r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  prob = 'posterior', design = 'external', prior = 'N-Inv-Chisq',
+  CalcMethod = 'MM', theta0 = 2, n_t = 12, n_c = 12,
+  kappa0_t = 5, kappa0_c = 5, nu0_t = 5, nu0_c = 5,
+  mu0_t = 5, mu0_c = 5, sigma0_t = sqrt(5), sigma0_c = sqrt(5),
+  bar_y_t = 2.5, bar_y_c = 1, s_t = 1.1, s_c = 0.9,
+  m_t = NULL, m_c = NULL, r = NULL,
+  ne_t = 10, ne_c = 10, alpha0e_t = 0.5, alpha0e_c = 0.5,
+  bar_ye_t = 2, bar_ye_c = 0.5, se_t = 1, se_c = 0.8,
   lower.tail = FALSE
 )
 
-# Example 4: External control design with power prior
+# Example 4: Controlled design - posterior predictive probability
 pbayespostpred1cont(
-  prob = 'posterior', design = 'external', prior = 'vague', CalcMethod = 'NI',
-  theta0 = 1.5, n_t = 12, n_c = 12,
-  bar_y_t = 4, bar_y_c = 2, s_t = 1.2, s_c = 1.1,
-  ne_c = 20, alpha0e_c = 0.5, bar_ye_c = 1.8, se_c = 1.0,
-  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
-  m_t = NULL, m_c = NULL, r = NULL,
-  ne_t = NULL, alpha0e_t = NULL, bar_ye_t = NULL, se_t = NULL,
-  lower.tail = FALSE
-)
-
-# Example 5: Vectorised usage across simulation replicates
-set.seed(1)
-bar_y_t_vec <- rnorm(100, mean = 3, sd = 1 / sqrt(12))
-s_t_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
-bar_y_c_vec <- rnorm(100, mean = 1, sd = 1 / sqrt(12))
-s_c_vec     <- sqrt(rchisq(100, df = 11) * 1 / 11)
-pbayespostpred1cont(
-  prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'MM',
-  theta0 = 1.5, n_t = 12, n_c = 12,
-  bar_y_t = bar_y_t_vec, bar_y_c = bar_y_c_vec, s_t = s_t_vec, s_c = s_c_vec,
-  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
-  m_t = NULL, m_c = NULL, r = NULL,
+  prob = 'predictive', design = 'controlled', prior = 'N-Inv-Chisq',
+  CalcMethod = 'MM', theta0 = 1, n_t = 12, n_c = 12,
+  kappa0_t = 5, kappa0_c = 5, nu0_t = 5, nu0_c = 5,
+  mu0_t = 5, mu0_c = 5, sigma0_t = sqrt(5), sigma0_c = sqrt(5),
+  bar_y_t = 2, bar_y_c = 0, s_t = 1, s_c = 1,
+  m_t = 20, m_c = 20, r = NULL,
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  lower.tail = FALSE
+)
+
+# Example 5: Uncontrolled design - posterior predictive probability
+pbayespostpred1cont(
+  prob = 'predictive', design = 'uncontrolled', prior = 'vague',
+  CalcMethod = 'MM', theta0 = 1.5, n_t = 15, n_c = NULL,
+  bar_y_t = 3.5, bar_y_c = NULL, s_t = 1.2, s_c = NULL,
+  mu0_c = 1.5, r = 1.2,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  m_t = 20, m_c = 20,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  lower.tail = FALSE
+)
+
+# Example 6: External design - posterior predictive probability
+pbayespostpred1cont(
+  prob = 'predictive', design = 'external', prior = 'N-Inv-Chisq',
+  CalcMethod = 'MM', theta0 = 1, n_t = 12, n_c = 12,
+  kappa0_t = 5, kappa0_c = 5, nu0_t = 5, nu0_c = 5,
+  mu0_t = 5, mu0_c = 5, sigma0_t = sqrt(5), sigma0_c = sqrt(5),
+  bar_y_t = 2.5, bar_y_c = 1, s_t = 1.1, s_c = 0.9,
+  m_t = 20, m_c = 20, r = NULL,
+  ne_t = 10, ne_c = 10, alpha0e_t = 0.5, alpha0e_c = 0.5,
+  bar_ye_t = 2, bar_ye_c = 0.5, se_t = 1, se_c = 0.8,
   lower.tail = FALSE
 )
 

@@ -2,8 +2,8 @@
 % Please edit documentation in R/pbayespostpred2bin.R
 \name{pbayespostpred2bin}
 \alias{pbayespostpred2bin}
-\title{Bayesian Posterior or Posterior Predictive Probability for a Clinical Trial
-with Two Binary Endpoints}
+\title{Bayesian Posterior or Posterior Predictive Probability for Two Binary
+Endpoints}
 \usage{
 pbayespostpred2bin(
   prob = "posterior",
@@ -58,302 +58,306 @@ Must be \code{'controlled'}, \code{'uncontrolled'}, or
 \code{'external'}.}
 
 \item{theta_TV1}{A numeric scalar giving the target value (TV) threshold
-for Endpoint 1.  Required when \code{prob = 'posterior'}; must
-satisfy \code{theta_TV1 > theta_MAV1}.  Set to \code{NULL} when
+for Endpoint 1. Required when \code{prob = 'posterior'}; must
+satisfy \code{theta_TV1 > theta_MAV1}. Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
 \item{theta_MAV1}{A numeric scalar giving the minimum acceptable value
-(MAV) threshold for Endpoint 1.  Required when
+(MAV) threshold for Endpoint 1. Required when
 \code{prob = 'posterior'}; must satisfy
-\code{theta_TV1 > theta_MAV1}.  Set to \code{NULL} when
+\code{theta_TV1 > theta_MAV1}. Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
 \item{theta_TV2}{A numeric scalar giving the target value (TV) threshold
-for Endpoint 2.  Required when \code{prob = 'posterior'}; must
-satisfy \code{theta_TV2 > theta_MAV2}.  Set to \code{NULL} when
+for Endpoint 2. Required when \code{prob = 'posterior'}; must
+satisfy \code{theta_TV2 > theta_MAV2}. Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
 \item{theta_MAV2}{A numeric scalar giving the minimum acceptable value
-(MAV) threshold for Endpoint 2.  Required when
+(MAV) threshold for Endpoint 2. Required when
 \code{prob = 'posterior'}; must satisfy
-\code{theta_TV2 > theta_MAV2}.  Set to \code{NULL} when
+\code{theta_TV2 > theta_MAV2}. Set to \code{NULL} when
 \code{prob = 'predictive'}.}
 
 \item{theta_NULL1}{A numeric scalar giving the null hypothesis threshold
-for Endpoint 1.  Required when \code{prob = 'predictive'};
-set to \code{NULL} when \code{prob = 'posterior'}.}
+for Endpoint 1. Required when \code{prob = 'predictive'}; set to
+\code{NULL} when \code{prob = 'posterior'}.}
 
 \item{theta_NULL2}{A numeric scalar giving the null hypothesis threshold
-for Endpoint 2.  Required when \code{prob = 'predictive'};
-set to \code{NULL} when \code{prob = 'posterior'}.}
+for Endpoint 2. Required when \code{prob = 'predictive'}; set to
+\code{NULL} when \code{prob = 'posterior'}.}
 
-\item{x_t_00}{A non-negative integer giving the count of (0,0) responses
-in the treatment group (Endpoint 1 = 0, Endpoint 2 = 0).}
+\item{x_t_00}{A non-negative integer giving the count of
+\code{(0, 0)} responses in the treatment group (Endpoint 1 = 0,
+Endpoint 2 = 0).}
 
-\item{x_t_01}{A non-negative integer giving the count of (0,1) responses
-in the treatment group.}
+\item{x_t_01}{A non-negative integer giving the count of \code{(0, 1)}
+responses in the treatment group.}
 
-\item{x_t_10}{A non-negative integer giving the count of (1,0) responses
-in the treatment group.}
+\item{x_t_10}{A non-negative integer giving the count of \code{(1, 0)}
+responses in the treatment group.}
 
-\item{x_t_11}{A non-negative integer giving the count of (1,1) responses
-in the treatment group.}
+\item{x_t_11}{A non-negative integer giving the count of \code{(1, 1)}
+responses in the treatment group.}
 
-\item{x_c_00}{A non-negative integer giving the count of (0,0) responses
-in the control group.  Not used when \code{design = 'uncontrolled'};
-set to \code{NULL} in that case.}
+\item{x_c_00}{A non-negative integer giving the count of \code{(0, 0)}
+responses in the control group. Not used when
+\code{design = 'uncontrolled'}; set to \code{NULL} in that case.}
 
-\item{x_c_01}{A non-negative integer giving the count of (0,1) responses
-in the control group.  Not used when \code{design = 'uncontrolled'};
-set to \code{NULL} in that case.}
+\item{x_c_01}{A non-negative integer giving the count of \code{(0, 1)}
+responses in the control group. Not used when
+\code{design = 'uncontrolled'}; set to \code{NULL} in that case.}
 
-\item{x_c_10}{A non-negative integer giving the count of (1,0) responses
-in the control group.  Not used when \code{design = 'uncontrolled'};
-set to \code{NULL} in that case.}
+\item{x_c_10}{A non-negative integer giving the count of \code{(1, 0)}
+responses in the control group. Not used when
+\code{design = 'uncontrolled'}; set to \code{NULL} in that case.}
 
-\item{x_c_11}{A non-negative integer giving the count of (1,1) responses
-in the control group.  Not used when \code{design = 'uncontrolled'};
-set to \code{NULL} in that case.}
+\item{x_c_11}{A non-negative integer giving the count of \code{(1, 1)}
+responses in the control group. Not used when
+\code{design = 'uncontrolled'}; set to \code{NULL} in that case.}
 
 \item{a_t_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in the treatment group.}
+parameter for the \code{(0, 0)} response pattern in the treatment
+group.}
 
 \item{a_t_01}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,1) response pattern in the treatment group.}
+parameter for the \code{(0, 1)} response pattern in the treatment
+group.}
 
 \item{a_t_10}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,0) response pattern in the treatment group.}
+parameter for the \code{(1, 0)} response pattern in the treatment
+group.}
 
 \item{a_t_11}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,1) response pattern in the treatment group.}
+parameter for the \code{(1, 1)} response pattern in the treatment
+group.}
 
 \item{a_c_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in the control group.  For
-\code{design = 'uncontrolled'}, this serves as a hyperparameter
-of the hypothetical control distribution (see Details).}
+parameter for the \code{(0, 0)} response pattern in the control
+group. For \code{design = 'uncontrolled'}, serves as a
+hyperparameter of the hypothetical control distribution.}
 
 \item{a_c_01}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,1) response pattern in the control group.  For
-\code{design = 'uncontrolled'}, serves as a hyperparameter of
-the hypothetical control distribution.}
+parameter for the \code{(0, 1)} response pattern in the control
+group. For \code{design = 'uncontrolled'}, serves as a
+hyperparameter of the hypothetical control distribution.}
 
 \item{a_c_10}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,0) response pattern in the control group.  For
-\code{design = 'uncontrolled'}, serves as a hyperparameter of
-the hypothetical control distribution.}
+parameter for the \code{(1, 0)} response pattern in the control
+group. For \code{design = 'uncontrolled'}, serves as a
+hyperparameter of the hypothetical control distribution.}
 
 \item{a_c_11}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,1) response pattern in the control group.  For
-\code{design = 'uncontrolled'}, serves as a hyperparameter of
-the hypothetical control distribution.}
+parameter for the \code{(1, 1)} response pattern in the control
+group. For \code{design = 'uncontrolled'}, serves as a
+hyperparameter of the hypothetical control distribution.}
 
-\item{m_t}{A positive integer giving the future sample size for the treatment
-group. Required when \code{prob = 'predictive'}; otherwise set to
-\code{NULL}.}
+\item{m_t}{A positive integer giving the future sample size for the
+treatment group. Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{m_c}{A positive integer giving the future sample size for the control
-group. Required when \code{prob = 'predictive'}; otherwise set to
-\code{NULL}.}
+\item{m_c}{A positive integer giving the future sample size for the
+control group. Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
 \item{z00}{A non-negative integer giving the hypothetical control count
-for pattern (0,0).  Required when \code{design = 'uncontrolled'};
-otherwise set to \code{NULL}.}
+for pattern \code{(0, 0)}. Required when
+\code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
 \item{z01}{A non-negative integer giving the hypothetical control count
-for pattern (0,1).  Required when \code{design = 'uncontrolled'};
-otherwise set to \code{NULL}.}
+for pattern \code{(0, 1)}. Required when
+\code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
 \item{z10}{A non-negative integer giving the hypothetical control count
-for pattern (1,0).  Required when \code{design = 'uncontrolled'};
-otherwise set to \code{NULL}.}
+for pattern \code{(1, 0)}. Required when
+\code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
 \item{z11}{A non-negative integer giving the hypothetical control count
-for pattern (1,1).  Required when \code{design = 'uncontrolled'};
-otherwise set to \code{NULL}.}
+for pattern \code{(1, 1)}. Required when
+\code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
-\item{xe_t_00}{A non-negative integer giving the external treatment group count
-for pattern (0,0).  Required when \code{design = 'external'} and
-external treatment data are used; otherwise \code{NULL}.}
-
-\item{xe_t_01}{A non-negative integer giving the external treatment group count
-for pattern (0,1).  Required for external treatment data;
+\item{xe_t_00}{A non-negative integer giving the external treatment group
+count for pattern \code{(0, 0)}. Required when
+\code{design = 'external'} and external treatment data are used;
 otherwise \code{NULL}.}
 
-\item{xe_t_10}{A non-negative integer giving the external treatment group count
-for pattern (1,0).  Required for external treatment data;
+\item{xe_t_01}{A non-negative integer giving the external treatment group
+count for pattern \code{(0, 1)}. Required for external treatment
+data; otherwise \code{NULL}.}
+
+\item{xe_t_10}{A non-negative integer giving the external treatment group
+count for pattern \code{(1, 0)}. Required for external treatment
+data; otherwise \code{NULL}.}
+
+\item{xe_t_11}{A non-negative integer giving the external treatment group
+count for pattern \code{(1, 1)}. Required for external treatment
+data; otherwise \code{NULL}.}
+
+\item{xe_c_00}{A non-negative integer giving the external control group
+count for pattern \code{(0, 0)}. Required when
+\code{design = 'external'} and external control data are used;
 otherwise \code{NULL}.}
 
-\item{xe_t_11}{A non-negative integer giving the external treatment group count
-for pattern (1,1).  Required for external treatment data;
-otherwise \code{NULL}.}
+\item{xe_c_01}{A non-negative integer giving the external control group
+count for pattern \code{(0, 1)}. Required for external control
+data; otherwise \code{NULL}.}
 
-\item{xe_c_00}{A non-negative integer giving the external control group count
-for pattern (0,0).  Required when \code{design = 'external'} and
-external control data are used; otherwise \code{NULL}.}
+\item{xe_c_10}{A non-negative integer giving the external control group
+count for pattern \code{(1, 0)}. Required for external control
+data; otherwise \code{NULL}.}
 
-\item{xe_c_01}{A non-negative integer giving the external control group count
-for pattern (0,1).  Required for external control data; otherwise
-\code{NULL}.}
-
-\item{xe_c_10}{A non-negative integer giving the external control group count
-for pattern (1,0).  Required for external control data; otherwise
-\code{NULL}.}
-
-\item{xe_c_11}{A non-negative integer giving the external control group count
-for pattern (1,1).  Required for external control data; otherwise
-\code{NULL}.}
+\item{xe_c_11}{A non-negative integer giving the external control group
+count for pattern \code{(1, 1)}. Required for external control
+data; otherwise \code{NULL}.}
 
 \item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for the treatment group.  Required when external treatment data
-are used; otherwise \code{NULL}.}
+weight for the treatment group. Required when external treatment
+data are used; otherwise \code{NULL}.}
 
 \item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for the control group.  Required when external control data are
-used; otherwise \code{NULL}.}
+weight for the control group. Required when external control data
+are used; otherwise \code{NULL}.}
 
-\item{nMC}{A positive integer giving the number of Monte Carlo draws
-used to estimate region probabilities.  Default is \code{10000}.
-Larger values reduce Monte Carlo error at the cost of
-computation time.}
+\item{nMC}{A positive integer giving the number of Monte Carlo draws used
+to estimate region probabilities. Default is \code{10000}. Larger
+values reduce Monte Carlo error at the cost of computation time.}
 }
 \value{
-A named numeric vector of region probabilities.
-For \code{prob = 'posterior'}: length 9, named \code{R1}, ...,
+A named numeric vector of region probabilities. For
+\code{prob = 'posterior'}: length 9, named \code{R1}, ...,
 \code{R9}, corresponding to regions defined by TV and MAV
-thresholds for both endpoints (row-major order: Endpoint 1
-varies slowest).
-For \code{prob = 'predictive'}: length 4, named \code{R1}, ...,
-\code{R4}.
-All elements are non-negative and sum to 1.
+thresholds for both endpoints (row-major order: Endpoint 1 varies
+slowest). For \code{prob = 'predictive'}: length 4, named
+\code{R1}, ..., \code{R4}. All elements are non-negative and sum
+to 1.
 }
 \description{
 Computes the Bayesian posterior probability or posterior predictive
 probability for clinical trials with two binary endpoints under a
-Dirichlet-multinomial conjugate model.  The function returns probabilities
+Dirichlet-multinomial conjugate model. The function returns probabilities
 for nine decision regions (posterior) or four decision regions (predictive)
 defined by target values (TV) and minimum acceptable values (MAV) for both
-endpoints.  Three study designs are supported: controlled, uncontrolled
+endpoints. Three study designs are supported: controlled, uncontrolled
 (hypothetical control), and external (power prior).
 }
 \details{
-\strong{Model.}
-The four response categories are ordered as (0,0), (0,1), (1,0), (1,1).
-For each group \eqn{k \in \{1, 2\}}, the observed count vector follows a
-multinomial distribution, and a conjugate Dirichlet prior is placed on
-the cell probability vector \eqn{p_k}:
-\deqn{p_k \sim \mathrm{Dir}(\alpha_{k,00},\, \alpha_{k,01},\,
-      \alpha_{k,10},\, \alpha_{k,11}).}
+\strong{Model.} The four response categories are ordered as
+\code{(0, 0)}, \code{(0, 1)}, \code{(1, 0)}, \code{(1, 1)}. For each
+group \eqn{j}, the observed count vector follows a multinomial
+distribution, and a conjugate Dirichlet prior is placed on the cell
+probability vector \eqn{p_j}:
+\deqn{p_j \sim \mathrm{Dir}(\alpha_{j,00}, \alpha_{j,01}, \alpha_{j,10},
+      \alpha_{j,11}).}
 The posterior is
-\deqn{p_k \mid x_k \sim
-      \mathrm{Dir}(\alpha_{k,00} + x_{k,00},\; \alpha_{k,01} + x_{k,01},\;
-      \alpha_{k,10} + x_{k,10},\; \alpha_{k,11} + x_{k,11}).}
-Marginal response rates are
-\eqn{\pi_{k1} = p_{k,10} + p_{k,11}} (Endpoint 1) and
-\eqn{\pi_{k2} = p_{k,01} + p_{k,11}} (Endpoint 2).
-Treatment effects are
-\eqn{\theta_1 = \pi_{11} - \pi_{21}} and
-\eqn{\theta_2 = \pi_{12} - \pi_{22}}.
+\deqn{p_j \mid x_j \sim \mathrm{Dir}(\alpha_{j,00} + x_{j,00},
+      \alpha_{j,01} + x_{j,01}, \alpha_{j,10} + x_{j,10},
+      \alpha_{j,11} + x_{j,11}).}
 
-\strong{Uncontrolled design.}
-When \code{design = 'uncontrolled'}, no concurrent control data are
-available.  The hypothetical control distribution is specified as a
-Dirichlet distribution directly via the prior hyperparameters
-\code{a_c_00}, \code{a_c_01}, \code{a_c_10}, \code{a_c_11}, augmented by
-hypothetical control counts \code{z00}, \code{z01}, \code{z10},
-\code{z11}:
-\deqn{p_2 \sim \mathrm{Dir}(\alpha_{2,00} + z_{00},\; \alpha_{2,01} +
-      z_{01},\; \alpha_{2,10} + z_{10},\; \alpha_{2,11} + z_{11}).}
-Monte Carlo samples from this distribution replace data-derived posterior
-samples for the control group in all subsequent computations.
+Marginal response rates are \eqn{\pi_{j1} = p_{j,10} + p_{j,11}}
+(Endpoint 1) and \eqn{\pi_{j2} = p_{j,01} + p_{j,11}} (Endpoint 2).
+Treatment effects are \eqn{\theta_1 = \pi_{t1} - \pi_{c1}} and
+\eqn{\theta_2 = \pi_{t2} - \pi_{c2}}.
 
-\strong{External design.}
-When \code{design = 'external'}, the power prior augments the Dirichlet
-prior parameters:
-\deqn{\alpha_{k,lm}^{*} = \alpha_{k,lm} + a_{0k} \cdot x_{e k,lm}.}
+\strong{Uncontrolled design.} When \code{design = 'uncontrolled'}, the
+hypothetical control distribution is specified as a Dirichlet
+distribution directly via the prior hyperparameters and hypothetical
+control counts \code{z00}, \code{z01}, \code{z10}, \code{z11}.
 
-\strong{Posterior probability regions (prob = 'posterior').}
-The nine regions follow Table 1 of the reference (row-major order,
-Endpoint 1 varies slowest):
-\itemize{
-\item R1: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 > TV_2}
-\item R2: \eqn{\theta_1 > TV_1} AND \eqn{TV_2 \ge \theta_2 > MAV_2}
-\item R3: \eqn{\theta_1 > TV_1} AND \eqn{\theta_2 \le MAV_2}
-\item R4: \eqn{TV_1 \ge \theta_1 > MAV_1} AND \eqn{\theta_2 > TV_2}
-\item R5: \eqn{TV_1 \ge \theta_1 > MAV_1} AND
-\eqn{TV_2 \ge \theta_2 > MAV_2}
-\item R6: \eqn{TV_1 \ge \theta_1 > MAV_1} AND \eqn{\theta_2 \le MAV_2}
-\item R7: \eqn{\theta_1 \le MAV_1} AND \eqn{\theta_2 > TV_2}
-\item R8: \eqn{\theta_1 \le MAV_1} AND
-\eqn{TV_2 \ge \theta_2 > MAV_2}
-\item R9: \eqn{\theta_1 \le MAV_1} AND \eqn{\theta_2 \le MAV_2}
-}
-
-\strong{Predictive probability regions (prob = 'predictive').}
-The four regions follow Table 2 of the reference:
-\itemize{
-\item R1: \eqn{\tilde\theta_1 > NULL_1} AND
-\eqn{\tilde\theta_2 > NULL_2}
-\item R2: \eqn{\tilde\theta_1 > NULL_1} AND
-\eqn{\tilde\theta_2 \le NULL_2}
-\item R3: \eqn{\tilde\theta_1 \le NULL_1} AND
-\eqn{\tilde\theta_2 > NULL_2}
-\item R4: \eqn{\tilde\theta_1 \le NULL_1} AND
-\eqn{\tilde\theta_2 \le NULL_2}
-}
+\strong{External design.} When \code{design = 'external'}, the power
+prior augments the Dirichlet prior parameters.
 }
 \examples{
-# Example 1: Posterior probability, controlled design
+# Example 1: Controlled design - posterior probability
 pbayespostpred2bin(
   prob = 'posterior', design = 'controlled',
-  theta_TV1 = 0.20, theta_MAV1 = 0.10,
-  theta_TV2 = 0.20, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  x_t_00 = 5, x_t_01 = 3, x_t_10 = 4, x_t_11 = 8,
-  x_c_00 = 8, x_c_01 = 4, x_c_10 = 5, x_c_11 = 3,
-  a_t_00 = 0.5, a_t_01 = 0.5, a_t_10 = 0.5, a_t_11 = 0.5,
-  a_c_00 = 0.5, a_c_01 = 0.5, a_c_10 = 0.5, a_c_11 = 0.5,
-  m_t = NULL, m_c = NULL,
-  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
-  nMC = 10000
-)
-
-# Example 2: Posterior predictive probability, controlled design
-pbayespostpred2bin(
-  prob = 'predictive', design = 'controlled',
-  theta_TV1 = NULL, theta_MAV1 = NULL,
-  theta_TV2 = NULL, theta_MAV2 = NULL,
-  theta_NULL1 = 0.15, theta_NULL2 = 0.15,
-  x_t_00 = 3, x_t_01 = 2, x_t_10 = 3, x_t_11 = 7,
-  x_c_00 = 6, x_c_01 = 3, x_c_10 = 4, x_c_11 = 2,
+  theta_TV1 = 0.15, theta_MAV1 = 0.05, theta_TV2 = 0.10, theta_MAV2 = 0.0,
+  x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
+  x_c_00 = 3, x_c_01 = 2, x_c_10 = 4, x_c_11 = 1,
   a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
   a_c_00 = 1, a_c_01 = 1, a_c_10 = 1, a_c_11 = 1,
-  m_t = 50, m_c = 50,
-  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
-  nMC = 10000
-)
-
-# Example 3: Posterior probability, external control design
-pbayespostpred2bin(
-  prob = 'posterior', design = 'external',
-  theta_TV1 = 0.20, theta_MAV1 = 0.10,
-  theta_TV2 = 0.20, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  x_t_00 = 5, x_t_01 = 3, x_t_10 = 4, x_t_11 = 8,
-  x_c_00 = 8, x_c_01 = 4, x_c_10 = 5, x_c_11 = 3,
-  a_t_00 = 0.5, a_t_01 = 0.5, a_t_10 = 0.5, a_t_11 = 0.5,
-  a_c_00 = 0.5, a_c_01 = 0.5, a_c_10 = 0.5, a_c_11 = 0.5,
   m_t = NULL, m_c = NULL,
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = 3L, xe_c_01 = 2L, xe_c_10 = 3L, xe_c_11 = 2L,
-  ae_t = NULL, ae_c = 0.5,
-  nMC = 10000
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL
+)
+
+# Example 2: Uncontrolled design - posterior probability
+pbayespostpred2bin(
+  prob = 'posterior', design = 'uncontrolled',
+  theta_TV1 = 0.15, theta_MAV1 = 0.05, theta_TV2 = 0.10, theta_MAV2 = 0.0,
+  x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
+  x_c_00 = NULL, x_c_01 = NULL, x_c_10 = NULL, x_c_11 = NULL,
+  a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
+  a_c_00 = 1, a_c_01 = 1, a_c_10 = 1, a_c_11 = 1,
+  m_t = NULL, m_c = NULL,
+  z00 = 1, z01 = 2, z10 = 2, z11 = 1,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL
+)
+
+# Example 3: External design - posterior probability
+pbayespostpred2bin(
+  prob = 'posterior', design = 'external',
+  theta_TV1 = 0.15, theta_MAV1 = 0.05, theta_TV2 = 0.10, theta_MAV2 = 0.0,
+  x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
+  x_c_00 = 3, x_c_01 = 2, x_c_10 = 4, x_c_11 = 1,
+  a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
+  a_c_00 = 1, a_c_01 = 1, a_c_10 = 1, a_c_11 = 1,
+  m_t = NULL, m_c = NULL,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe_t_00 = 2, xe_t_01 = 2, xe_t_10 = 3, xe_t_11 = 1,
+  xe_c_00 = 2, xe_c_01 = 1, xe_c_10 = 2, xe_c_11 = 1,
+  ae_t = 0.5, ae_c = 0.5
+)
+
+# Example 4: Controlled design - posterior predictive probability
+pbayespostpred2bin(
+  prob = 'predictive', design = 'controlled',
+  theta_TV1 = NULL, theta_MAV1 = NULL, theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.05, theta_NULL2 = 0.0,
+  x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
+  x_c_00 = 3, x_c_01 = 2, x_c_10 = 4, x_c_11 = 1,
+  a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
+  a_c_00 = 1, a_c_01 = 1, a_c_10 = 1, a_c_11 = 1,
+  m_t = 20, m_c = 20,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL
+)
+
+# Example 5: Uncontrolled design - posterior predictive probability
+pbayespostpred2bin(
+  prob = 'predictive', design = 'uncontrolled',
+  theta_TV1 = NULL, theta_MAV1 = NULL, theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.05, theta_NULL2 = 0.0,
+  x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
+  x_c_00 = NULL, x_c_01 = NULL, x_c_10 = NULL, x_c_11 = NULL,
+  a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
+  a_c_00 = 1, a_c_01 = 1, a_c_10 = 1, a_c_11 = 1,
+  m_t = 20, m_c = 20,
+  z00 = 1, z01 = 2, z10 = 2, z11 = 1,
+  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+  ae_t = NULL, ae_c = NULL
+)
+
+# Example 6: External design - posterior predictive probability
+pbayespostpred2bin(
+  prob = 'predictive', design = 'external',
+  theta_TV1 = NULL, theta_MAV1 = NULL, theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.05, theta_NULL2 = 0.0,
+  x_t_00 = 2, x_t_01 = 3, x_t_10 = 5, x_t_11 = 2,
+  x_c_00 = 3, x_c_01 = 2, x_c_10 = 4, x_c_11 = 1,
+  a_t_00 = 1, a_t_01 = 1, a_t_10 = 1, a_t_11 = 1,
+  a_c_00 = 1, a_c_01 = 1, a_c_10 = 1, a_c_11 = 1,
+  m_t = 20, m_c = 20,
+  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+  xe_t_00 = 2, xe_t_01 = 2, xe_t_10 = 3, xe_t_11 = 1,
+  xe_c_00 = 2, xe_c_01 = 1, xe_c_10 = 2, xe_c_11 = 1,
+  ae_t = 0.5, ae_c = 0.5
 )
 
 }

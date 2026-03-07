@@ -364,37 +364,7 @@ getgamma2cont(
 )
 }
 
-# Example 2: Controlled design, posterior probability, N-Inv-Wishart prior
-\dontrun{
-Sigma  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
-Lambda <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
-getgamma2cont(
-  nsim = 1000L, prob = 'posterior', design = 'controlled',
-  prior = 'N-Inv-Wishart',
-  GoRegions = 1L, NoGoRegions = 9L,
-  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
-  mu_c = c(-10.0, -1.0), Sigma_c = Sigma,
-  target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
-  n_t = 30L, n_c = 30L,
-  theta_TV1 = 10.0, theta_MAV1 = 5.0,
-  theta_TV2 = 2.0,  theta_MAV2 = 1.0,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  m_t = NULL, m_c = NULL,
-  kappa0_t = 0.1, nu0_t = 4.0, mu0_t = c(0.0, 1.0),  Lambda0_t = Lambda,
-  kappa0_c = 0.1, nu0_c = 4.0, mu0_c = c(-10.0, -1.0), Lambda0_c = Lambda,
-  r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = 500L, method = 'MC',
-  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
-  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
-  seed = 1L
-)
-}
-
-# Example 3: Uncontrolled design, posterior probability, vague prior
+# Example 2: Uncontrolled design, posterior probability, vague prior
 \dontrun{
 Sigma <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
@@ -417,6 +387,37 @@ getgamma2cont(
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   nMC = NULL, method = 'MM',
+  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
+  seed = 1L
+)
+}
+
+# Example 3: External design (control only), posterior probability, NIW prior
+\dontrun{
+Sigma  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Lambda <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+se_c   <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+getgamma2cont(
+  nsim = 1000L, prob = 'posterior', design = 'external',
+  prior = 'N-Inv-Wishart',
+  GoRegions = 1L, NoGoRegions = 9L,
+  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
+  mu_c = c(-10.0, -1.0), Sigma_c = Sigma,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
+  n_t = 30L, n_c = 30L,
+  theta_TV1 = 10.0, theta_MAV1 = 5.0,
+  theta_TV2 = 2.0,  theta_MAV2 = 1.0,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 0.1, nu0_t = 4.0, mu0_t = c(0.0, 1.0),  Lambda0_t = Lambda,
+  kappa0_c = 0.1, nu0_c = 4.0, mu0_c = c(-10.0, -1.0), Lambda0_c = Lambda,
+  r = NULL,
+  ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = c(-10.0, -1.0), se_t = NULL, se_c = se_c,
+  nMC = 500L, method = 'MC',
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
   seed = 1L
@@ -447,6 +448,66 @@ getgamma2cont(
   r = NULL,
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  nMC = 500L, method = 'MC',
+  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
+  seed = 1L
+)
+}
+
+# Example 5: Uncontrolled design, predictive probability, vague prior
+\dontrun{
+Sigma <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+getgamma2cont(
+  nsim = 1000L, prob = 'predictive', design = 'uncontrolled',
+  prior = 'vague',
+  GoRegions = 1L, NoGoRegions = 4L,
+  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
+  mu_c = NULL, Sigma_c = NULL,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
+  n_t = 30L, n_c = NULL,
+  theta_TV1 = NULL, theta_MAV1 = NULL,
+  theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 5.0, theta_NULL2 = 1.0,
+  m_t = 100L, m_c = 100L,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = c(-10.0, -1.0), Lambda0_c = NULL,
+  r = 1.0,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  nMC = 500L, method = 'MC',
+  gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+  gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
+  seed = 1L
+)
+}
+
+# Example 6: External design (control only), predictive probability, NIW prior
+\dontrun{
+Sigma  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Lambda <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+se_c   <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+getgamma2cont(
+  nsim = 1000L, prob = 'predictive', design = 'external',
+  prior = 'N-Inv-Wishart',
+  GoRegions = 1L, NoGoRegions = 4L,
+  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
+  mu_c = c(-10.0, -1.0), Sigma_c = Sigma,
+  target_go = 0.05, target_nogo = 0.20,
+  crit_go = '<', crit_nogo = '<',
+  sel_go = 'smallest', sel_nogo = 'largest',
+  n_t = 30L, n_c = 30L,
+  theta_TV1 = NULL, theta_MAV1 = NULL,
+  theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 5.0, theta_NULL2 = 1.0,
+  m_t = 100L, m_c = 100L,
+  kappa0_t = 0.1, nu0_t = 4.0, mu0_t = c(0.0, 1.0),  Lambda0_t = Lambda,
+  kappa0_c = 0.1, nu0_c = 4.0, mu0_c = c(-10.0, -1.0), Lambda0_c = Lambda,
+  r = NULL,
+  ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = c(-10.0, -1.0), se_t = NULL, se_c = se_c,
   nMC = 500L, method = 'MC',
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),

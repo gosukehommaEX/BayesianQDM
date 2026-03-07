@@ -7,47 +7,47 @@
 allmultinom(n)
 }
 \arguments{
-\item{n}{A single non-negative integer giving the arm sample size.}
+\item{n}{A single non-negative integer giving the sample size of the group
+(\eqn{n_j}).}
 }
 \value{
-An integer matrix with \eqn{\binom{n+3}{3}} rows and 4 columns
+An integer matrix with \eqn{\binom{n_j + 3}{3}} rows and 4 columns
 named \code{x00}, \code{x01}, \code{x10}, \code{x11}.
 Each row is a distinct non-negative integer solution to
-\eqn{x_{00} + x_{01} + x_{10} + x_{11} = n}.
+\eqn{x_{00} + x_{01} + x_{10} + x_{11} = n_j}.
 Rows are ordered by \code{x00} (ascending), then \code{x10}
 (ascending), then \code{x01} (ascending).
 }
 \description{
 Generates the complete set of non-negative integer vectors
-\eqn{(x_{00}, x_{01}, x_{10}, x_{11})} that satisfy
-\eqn{x_{00} + x_{01} + x_{10} + x_{11} = n}, where \eqn{n} is the arm
-sample size.  Each row of the returned matrix corresponds to one possible
-realisation of the aggregated bivariate binary counts defined in
-Appendix A1.1 of the reference.  This enumeration is a prerequisite for
-exact scenario assessment (operating characteristics) in
-\code{pbayesdecisionprob2bin}.
+\eqn{(x_{00}, x_{01}, x_{10}, x_{11})} satisfying
+\eqn{x_{00} + x_{01} + x_{10} + x_{11} = n_j}, where \eqn{n_j} is the
+sample size of group \eqn{j \in \{t, c\}}. Each row of the returned matrix
+corresponds to one possible realisation of the aggregated bivariate binary
+counts. This enumeration is a prerequisite for exact operating
+characteristic assessment in \code{\link{pbayesdecisionprob2bin}}.
 }
 \details{
 The number of non-negative integer solutions to
-\eqn{x_{00} + x_{01} + x_{10} + x_{11} = n} is the stars-and-bars count
-\deqn{\binom{n+3}{3} = \frac{(n+1)(n+2)(n+3)}{6}.}
-For example, \eqn{n = 10} yields 286 rows and \eqn{n = 20} yields 1771
-rows.  The matrix is pre-allocated to avoid repeated memory reallocation,
-making the function efficient for the sample sizes typical in rare-disease
-proof-of-concept studies.
+\eqn{x_{00} + x_{01} + x_{10} + x_{11} = n_j} is the stars-and-bars count
+\deqn{\binom{n_j + 3}{3} = \frac{(n_j + 1)(n_j + 2)(n_j + 3)}{6}.}
+For example, \eqn{n_j = 10} yields 286 rows and \eqn{n_j = 20} yields
+1771 rows. The matrix is pre-allocated to avoid repeated memory
+reallocation, making the function efficient for the sample sizes typical
+in rare-disease proof-of-concept studies.
 
 This function is an internal computational building block used by
-\code{pbayesdecisionprob2bin} to enumerate the sample space over which multinomial
-probabilities and decision indicators are summed when computing exact
-operating characteristics.
+\code{\link{pbayesdecisionprob2bin}} to enumerate the sample space over
+which multinomial probabilities and decision indicators are summed when
+computing exact operating characteristics.
 }
 \examples{
 # Example 1: n = 2 (smallest non-trivial case)
 allmultinom(2)
 
-# Example 2: n = 10 (typical rare-disease PoC arm size)
+# Example 2: n = 10 (typical rare-disease PoC group size)
 mat <- allmultinom(10)
-nrow(mat)          # Should be choose(13, 3) = 286
+nrow(mat)              # Should be choose(13, 3) = 286
 all(rowSums(mat) == 10)  # Every row must sum to n
 
 # Example 3: n = 0 (edge case - only the all-zero row)

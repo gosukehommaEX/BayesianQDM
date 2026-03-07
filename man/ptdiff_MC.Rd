@@ -2,39 +2,42 @@
 % Please edit documentation in R/ptdiff_MC.R
 \name{ptdiff_MC}
 \alias{ptdiff_MC}
-\title{Cumulative Distribution Function of the Difference of Two t-Distributed Variables
-by Monte Carlo Simulation}
+\title{Cumulative Distribution Function of the Difference of Two
+Independent t-Distributed Variables via Monte Carlo Simulation}
 \usage{
 ptdiff_MC(nMC, q, mu_t, mu_c, sd_t, sd_c, nu_t, nu_c, lower.tail = TRUE)
 }
 \arguments{
-\item{nMC}{A positive integer giving the number of Monte Carlo draws. Typical
-values range from 10,000 (quick estimates) to 100,000 or more (high
-precision). Larger values reduce Monte Carlo error at the cost of
-computation time.}
+\item{nMC}{A positive integer giving the number of Monte Carlo draws.
+Typical values range from 10,000 (quick estimates) to 100,000
+or more (high precision). Larger values reduce Monte Carlo error
+at the cost of computation time.}
 
 \item{q}{A numeric scalar representing the quantile threshold.}
 
-\item{mu_t}{A numeric scalar or vector giving the location parameter of the
-first t-distribution (treatment).}
+\item{mu_t}{A numeric scalar or vector giving the location parameter of
+the t-distribution for the treatment group.}
 
-\item{mu_c}{A numeric scalar or vector giving the location parameter of the
-second t-distribution (control).}
+\item{mu_c}{A numeric scalar or vector giving the location parameter of
+the t-distribution for the control group.}
 
-\item{sd_t}{A positive numeric scalar or vector giving the scale parameter of
-the first t-distribution (treatment).}
+\item{sd_t}{A positive numeric scalar or vector giving the scale parameter
+of the t-distribution for the treatment group.}
 
-\item{sd_c}{A positive numeric scalar or vector giving the scale parameter of
-the second t-distribution (control).}
+\item{sd_c}{A positive numeric scalar or vector giving the scale parameter
+of the t-distribution for the control group.}
 
-\item{nu_t}{A numeric scalar giving the degrees of freedom of the first
-t-distribution (treatment). Must be greater than 2 for finite variance.}
+\item{nu_t}{A numeric scalar giving the degrees of freedom of the
+t-distribution for the treatment group.
+Must be greater than 2 for finite variance.}
 
-\item{nu_c}{A numeric scalar giving the degrees of freedom of the second
-t-distribution (control). Must be greater than 2 for finite variance.}
+\item{nu_c}{A numeric scalar giving the degrees of freedom of the
+t-distribution for the control group.
+Must be greater than 2 for finite variance.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
-returns \eqn{P(T_t - T_c \le q)}, otherwise \eqn{P(T_t - T_c > q)}.}
+returns \eqn{P(T_t - T_c \le q)}, otherwise
+\eqn{P(T_t - T_c > q)}.}
 }
 \value{
 A numeric scalar or vector in \code{[0, 1]}.  When \code{mu_t},
@@ -42,40 +45,42 @@ A numeric scalar or vector in \code{[0, 1]}.  When \code{mu_t},
 \eqn{n}, a vector of length \eqn{n} is returned.
 }
 \description{
-Calculates the cumulative distribution function (CDF) of the difference between
-two independent non-standardised t-distributed random variables using Monte Carlo
-simulation. Specifically, computes \eqn{P(T_t - T_c \le q)} or
-\eqn{P(T_t - T_c > q)}, where \eqn{T_k \sim t(\mu_k, \sigma_k^2, \nu_k)}
-for \eqn{k \in \{t, c\}}.
+Calculates the cumulative distribution function (CDF) of the difference
+between two independent non-standardised t-distributed random variables
+using Monte Carlo simulation. Specifically, computes
+\eqn{P(T_t - T_c \le q)} or \eqn{P(T_t - T_c > q)}, where
+\eqn{T_k \sim t(\mu_k, \sigma_k^2, \nu_k)} for \eqn{k \in \{t, c\}}.
 }
 \details{
 The algorithm proceeds as follows:
 \enumerate{
-\item Generate an \code{nMC x n} matrix of standard t draws for \eqn{T_t}
-(\eqn{\nu_t} degrees of freedom), then scale and shift each column
-by \code{sd_t[i]} and \code{mu_t[i]}.
+\item Generate an \code{nMC x n} matrix of standard t draws for
+\eqn{T_t} (\eqn{\nu_t} degrees of freedom), then scale and shift
+each column by \code{sd_t[i]} and \code{mu_t[i]}.
 \item Repeat for \eqn{T_c} with \eqn{\nu_c} degrees of freedom.
-\item Compute the \code{nMC x n} difference matrix \eqn{D = T_t - T_c}.
-\item Return \code{colMeans(D > q)} as the estimated \eqn{P(T_t - T_c > q)}
-for each parameter set.
+\item Compute the \code{nMC x n} difference matrix
+\eqn{D = T_t - T_c}.
+\item Return \code{colMeans(D > q)} as the estimated
+\eqn{P(T_t - T_c > q)} for each parameter set.
 }
 
 All operations are matrix-based (no R-level loop over parameter sets), so
-performance scales well with \eqn{n}. However, note that the matrix size is
-\code{nMC x n}, so memory usage grows linearly with both \code{nMC} and
-\eqn{n}. When \eqn{n} is large (e.g., \code{nsim x n_scenarios} in
-\code{\link{pbayesdecisionprob1cont}}), memory requirements can become prohibitive;
-in such cases prefer \code{CalcMethod = 'MM'}.
+performance scales well with \eqn{n}. However, note that the matrix size
+is \code{nMC x n}, so memory usage grows linearly with both \code{nMC}
+and \eqn{n}. When \eqn{n} is large (e.g., \code{nsim x n_scenarios} in
+\code{\link{pbayesdecisionprob1cont}}), memory requirements can become
+prohibitive; in such cases prefer \code{CalcMethod = 'MM'}.
 
-Monte Carlo error is approximately \eqn{\sqrt{p(1-p)/\mathrm{nMC}}};
-near \eqn{p = 0.5} this is roughly \eqn{0.5/\sqrt{\mathrm{nMC}}}.
+Monte Carlo error is approximately
+\eqn{\sqrt{p(1 - p) / \mathrm{nMC}}}; near \eqn{p = 0.5} this is
+roughly \eqn{0.5 / \sqrt{\mathrm{nMC}}}.
 }
 \examples{
 # P(T_t - T_c > 3) with equal parameters
 ptdiff_MC(nMC = 1e5, q = 3, mu_t = 2, mu_c = 0, sd_t = 1, sd_c = 1,
           nu_t = 17, nu_c = 17, lower.tail = FALSE)
 
-# P(T_t - T_c > 1) with unequal variances
+# P(T_t - T_c > 1) with unequal scales
 ptdiff_MC(nMC = 1e5, q = 1, mu_t = 5, mu_c = 3, sd_t = 2, sd_c = 1.5,
           nu_t = 10, nu_c = 15, lower.tail = FALSE)
 

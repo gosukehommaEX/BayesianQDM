@@ -138,16 +138,16 @@
 #'   \item Alpha parameters control the degree of borrowing (0 = no borrowing, 1 = full borrowing)
 #' }
 #'
-#' **Decision rules**:
+#' \strong{Decision rules}:
 #' \itemize{
-#'   \item **Go**: P(treatment effect > threshold) >= gamma_go
-#'   \item **NoGo**: P(treatment effect > threshold) <= gamma_nogo
-#'   \item **Gray**: gamma_nogo < P(treatment effect > threshold) < gamma_go
-#'   \item **Miss**: Both Go and NoGo criteria are met simultaneously (indicates
+#'   \item \strong{Go}: P(treatment effect > threshold) >= gamma_go
+#'   \item \strong{NoGo}: P(treatment effect > threshold) <= gamma_nogo
+#'   \item \strong{Gray}: gamma_nogo < P(treatment effect > threshold) < gamma_go
+#'   \item \strong{Miss}: Both Go and NoGo criteria are met simultaneously (indicates
 #'                   poorly chosen thresholds)
 #' }
 #'
-#' **Handling Miss probability**:
+#' \strong{Handling Miss probability}:
 #' \itemize{
 #'   \item When \code{error_if_Miss = TRUE} (default): Function stops with error if
 #'         Miss probability > 0, prompting reconsideration of thresholds
@@ -159,9 +159,9 @@
 #'
 #' The function can be used for:
 #' \itemize{
-#'   \item **Controlled design**: Two-arm randomized trial
-#'   \item **Uncontrolled design**: Single-arm trial with informative priors (historical control)
-#'   \item **External design**: Incorporating historical data through power priors
+#'   \item \strong{Controlled design}: Two-arm randomized trial
+#'   \item \strong{Uncontrolled design}: Single-arm trial with informative priors (historical control)
+#'   \item \strong{External design}: Incorporating historical data through power priors
 #' }
 #'
 #' @examples
@@ -224,7 +224,21 @@
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5
 #' )
 #'
-#' # Example 5: External design with predictive probability using MC method
+#' # Example 5: Uncontrolled design with predictive probability
+#' pbayesdecisionprob1cont(
+#'   nsim = 100, prob = 'predictive', design = 'uncontrolled', prior = 'vague', CalcMethod = 'NI',
+#'   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.0,
+#'   nMC = NULL, gamma_go = 0.75, gamma_nogo = 0.35,
+#'   n_t = 20, n_c = NULL, m_t = 40, m_c = 40,
+#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+#'   mu0_t = NULL, mu0_c = 1.5, sigma0_t = NULL, sigma0_c = NULL,
+#'   mu_t = 3, mu_c = NULL, sigma_t = 1.3, sigma_c = NULL,
+#'   r = 1, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+#'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 9
+#' )
+#'
+#' # Example 6: External design with predictive probability using MC method
 #' \dontrun{
 #' pbayesdecisionprob1cont(
 #'   nsim = 100, prob = 'predictive', design = 'external', prior = 'vague', CalcMethod = 'MC',
@@ -239,34 +253,6 @@
 #'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 6
 #' )
 #' }
-#'
-#' # Example 6: Report Miss probability separately when thresholds may be suboptimal
-#' pbayesdecisionprob1cont(
-#'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-#'   theta_TV = 1.0, theta_MAV = 0.8, theta_NULL = NULL,
-#'   nMC = NULL, gamma_go = 0.65, gamma_nogo = 0.55,
-#'   n_t = 10, n_c = 10, m_t = NULL, m_c = NULL,
-#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
-#'   mu_t = 2.5, mu_c = 1.5, sigma_t = 1.0, sigma_c = 1.0,
-#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 7
-#' )
-#'
-#' # Example 7: Include Miss probability in Gray when error_if_Miss = FALSE
-#' pbayesdecisionprob1cont(
-#'   nsim = 100, prob = 'posterior', design = 'controlled', prior = 'vague', CalcMethod = 'NI',
-#'   theta_TV = 1.0, theta_MAV = 0.8, theta_NULL = NULL,
-#'   nMC = NULL, gamma_go = 0.65, gamma_nogo = 0.55,
-#'   n_t = 10, n_c = 10, m_t = NULL, m_c = NULL,
-#'   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-#'   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
-#'   mu_t = 2.5, mu_c = 1.5, sigma_t = 1.0, sigma_c = 1.0,
-#'   r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-#'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   error_if_Miss = FALSE, Gray_inc_Miss = TRUE, seed = 8
-#' )
 #'
 #' @importFrom stats rnorm
 #' @export

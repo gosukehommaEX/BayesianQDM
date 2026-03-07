@@ -123,75 +123,84 @@ for treatment (required when \code{prior = 'N-Inv-Wishart'}).}
 \item{mu0_t}{Length-2 numeric vector or \code{NULL}. NIW prior mean for
 treatment (required when \code{prior = 'N-Inv-Wishart'}).}
 
-\item{Lambda0_t}{A 2x2 numeric matrix or \code{NULL}. NIW prior scale matrix
-for treatment (required when \code{prior = 'N-Inv-Wishart'}).}
-
-\item{kappa0_c}{Positive numeric or \code{NULL}. NIW prior pseudo sample
-size for control (required when \code{design} is
-\code{'controlled'} or \code{'external'} and
+\item{Lambda0_t}{A 2x2 positive-definite matrix or \code{NULL}. NIW prior
+scale matrix for treatment (required when
 \code{prior = 'N-Inv-Wishart'}).}
 
+\item{kappa0_c}{Positive numeric or \code{NULL}. NIW prior pseudo sample
+size for control (required when \code{prior = 'N-Inv-Wishart'} and
+\code{design \%in\% c('controlled', 'external')}).}
+
 \item{nu0_c}{Positive numeric or \code{NULL}. NIW prior degrees of freedom
-for control.}
+for control (required when \code{prior = 'N-Inv-Wishart'} and
+\code{design \%in\% c('controlled', 'external')}).}
 
 \item{mu0_c}{Length-2 numeric vector or \code{NULL}. NIW prior mean for
-control, or the hypothetical control mean when
+control, or hypothetical control mean for uncontrolled design.}
+
+\item{Lambda0_c}{A 2x2 positive-definite matrix or \code{NULL}. NIW prior
+scale matrix for control (required when
+\code{prior = 'N-Inv-Wishart'} and
+\code{design \%in\% c('controlled', 'external')}).}
+
+\item{r}{Positive numeric or \code{NULL}. Variance scaling factor for
+uncontrolled design: \code{Sigma_c = r * Sigma_t}. Required when
 \code{design = 'uncontrolled'}.}
 
-\item{Lambda0_c}{A 2x2 numeric matrix or \code{NULL}. NIW prior scale matrix
-for control.}
+\item{ne_t}{Positive integer or \code{NULL}. Number of patients in the
+treatment group of the external data. Required when
+\code{design = 'external'} and external treatment data are available.}
 
-\item{r}{Positive numeric or \code{NULL}. Variance scaling ratio for the
-hypothetical control group (required when
-\code{design = 'uncontrolled'}).}
+\item{ne_c}{Positive integer or \code{NULL}. Number of patients in the
+control group of the external data. Required when
+\code{design = 'external'} and external control data are available.}
 
-\item{ne_t}{Positive integer or \code{NULL}. External treatment sample size
-(used when \code{design = 'external'}).}
+\item{alpha0e_t}{Numeric in \code{(0, 1]} or \code{NULL}. Power prior
+parameter for treatment external data (0 = no borrowing,
+1 = full borrowing). Required when \code{ne_t} is specified.}
 
-\item{ne_c}{Positive integer or \code{NULL}. External control sample size
-(used when \code{design = 'external'}).}
+\item{alpha0e_c}{Numeric in \code{(0, 1]} or \code{NULL}. Power prior
+parameter for control external data. Required when \code{ne_c}
+is specified.}
 
-\item{alpha0e_t}{Numeric scalar in \code{(0, 1]}. Power prior weight for
-external treatment data.}
+\item{bar_ye_t}{Length-2 numeric vector or \code{NULL}. Sample mean of
+external treatment data. Required when \code{ne_t} is specified.}
 
-\item{alpha0e_c}{Numeric scalar in \code{(0, 1]}. Power prior weight for
-external control data.}
+\item{bar_ye_c}{Length-2 numeric vector or \code{NULL}. Sample mean of
+external control data. Required when \code{ne_c} is specified.}
 
-\item{bar_ye_t}{Length-2 numeric vector. External treatment sample mean.}
+\item{se_t}{A 2x2 positive-definite matrix or \code{NULL}. Sample
+covariance of external treatment data. Required when \code{ne_t}
+is specified.}
 
-\item{bar_ye_c}{Length-2 numeric vector. External control sample mean.}
-
-\item{se_t}{A 2x2 numeric matrix. External treatment sum-of-squares matrix.}
-
-\item{se_c}{A 2x2 numeric matrix. External control sum-of-squares matrix.}
+\item{se_c}{A 2x2 positive-definite matrix or \code{NULL}. Sample
+covariance of external control data. Required when \code{ne_c}
+is specified.}
 
 \item{nMC}{Positive integer or \code{NULL}. Number of Monte Carlo draws
-passed to \code{\link{pbayespostpred2cont}} to compute region
-probabilities for each simulated dataset.  Required when
-\code{method = 'MC'}; may be set to \code{NULL} when
-\code{method = 'MM'} (the MM method uses analytical
-\code{mvtnorm::pmvt} and does not require MC draws).
-Default \code{NULL}.}
+per simulated dataset (required when \code{method = 'MC'}).}
 
-\item{method}{Character scalar: \code{'MC'} or \code{'MM'}
-(Moment-Matching via \code{mvtnorm::pmvt}). Default \code{'MC'}.}
+\item{method}{Character scalar: \code{'MC'} (Monte Carlo) or \code{'MM'}
+(Moment Matching).}
 
-\item{error_if_Miss}{Logical scalar. If \code{TRUE} (default), the function
-stops when any scenario yields a positive Miss probability.}
+\item{error_if_Miss}{Logical. If \code{TRUE} (default), the function stops
+with an error when positive Miss probability is obtained. If
+\code{FALSE}, Miss probability is handled according to
+\code{Gray_inc_Miss}.}
 
-\item{Gray_inc_Miss}{Logical scalar. If \code{TRUE}, Miss probability is
-folded into Gray. If \code{FALSE} (default), Miss is reported
-separately. Active only when \code{error_if_Miss = FALSE}.}
+\item{Gray_inc_Miss}{Logical. If \code{TRUE}, Miss probability is included
+in Gray probability. If \code{FALSE} (default), Miss probability is
+reported as a separate column. Active only when
+\code{error_if_Miss = FALSE}.}
 
-\item{seed}{A numeric value for reproducible random number generation.}
+\item{seed}{A single numeric value. Seed for reproducible random number
+generation.}
 }
 \value{
-A \code{data.frame} with one row per scenario and columns
-\code{mu_t1}, \code{mu_t2} (and \code{mu_c1}, \code{mu_c2} for
-controlled/external), \code{Go}, \code{Gray}, \code{NoGo}, and optionally
-\code{Miss}.  The object has S3 class
-\code{c("pbayesdecisionprob2cont", "data.frame")} with all input
-parameters attached as attributes.
+A data frame of class \code{c("pbayesdecisionprob2cont", "data.frame")}
+with columns for the scenario parameters and Go, NoGo, Gray
+(and optionally Miss) probabilities.  All input parameters are
+attached as attributes.
 }
 \description{
 Computes the operating characteristics (Go, NoGo, Gray, and optionally Miss
@@ -242,32 +251,7 @@ pbayesdecisionprob2cont(
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1L
 )
 
-# Example 2: Controlled design, posterior probability, NIW prior
-Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
-L0    <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
-pbayesdecisionprob2cont(
-  nsim = 100L, prob = 'posterior', design = 'controlled',
-  prior = 'N-Inv-Wishart',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.8, gamma_nogo = 0.8,
-  theta_TV1 = 1.5, theta_MAV1 = 0.5,
-  theta_TV2 = 1.0, theta_MAV2 = 0.3,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
-  mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-  Sigma_t = Sigma,
-  mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-  Sigma_c = Sigma,
-  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
-  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
-  r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = 500L, method = 'MC',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2L
-)
-
-# Example 3: Uncontrolled design, posterior probability, NIW prior
+# Example 2: Uncontrolled design, posterior probability, NIW prior
 Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
 L0    <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
 pbayesdecisionprob2cont(
@@ -291,6 +275,34 @@ pbayesdecisionprob2cont(
   nMC = 500L, method = 'MC',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3L
 )
+
+# Example 3: External design (control only), posterior probability, NIW prior
+\dontrun{
+Sigma  <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
+L0     <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
+se_mat <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
+pbayesdecisionprob2cont(
+  nsim = 100L, prob = 'posterior', design = 'external',
+  prior = 'N-Inv-Wishart',
+  GoRegions = 1L, NoGoRegions = 9L,
+  gamma_go = 0.8, gamma_nogo = 0.8,
+  theta_TV1 = 1.5, theta_MAV1 = 0.5,
+  theta_TV2 = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
+  mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+  Sigma_t = Sigma,
+  mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+  Sigma_c = Sigma,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
+  r = NULL,
+  ne_t = NULL, ne_c = 15L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = c(0.2, 0.1), se_t = NULL, se_c = se_mat,
+  nMC = 500L, method = 'MC',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
+)
+}
 
 # Example 4: Controlled design, predictive probability, NIW prior
 Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
@@ -317,75 +329,17 @@ pbayesdecisionprob2cont(
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4L
 )
 
-# Example 5: External design (control only), posterior probability, NIW prior
-\dontrun{
-Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
-L0    <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
-se_c   <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
-pbayesdecisionprob2cont(
-  nsim = 100L, prob = 'posterior', design = 'external',
-  prior = 'N-Inv-Wishart',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.8, gamma_nogo = 0.8,
-  theta_TV1 = 1.5, theta_MAV1 = 0.5,
-  theta_TV2 = 1.0, theta_MAV2 = 0.3,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
-  mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-  Sigma_t = Sigma,
-  mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-  Sigma_c = Sigma,
-  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
-  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
-  r = NULL,
-  ne_t = NULL, ne_c = 15L, alpha0e_t = NULL, alpha0e_c = 0.5,
-  bar_ye_t = NULL, bar_ye_c = c(0.2, 0.1), se_t = NULL, se_c = se_c,
-  nMC = 500L, method = 'MC',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
-)
-}
-
-# Example 6: Controlled design, posterior probability, NIW prior, MM method
-# method = 'MM' uses analytical mvtnorm::pmvt; nMC = NULL is accepted.
-\dontrun{
-Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
-L0    <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
-pbayesdecisionprob2cont(
-  nsim = 100L, prob = 'posterior', design = 'controlled',
-  prior = 'N-Inv-Wishart',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.8, gamma_nogo = 0.8,
-  theta_TV1 = 1.5, theta_MAV1 = 0.5,
-  theta_TV2 = 1.0, theta_MAV2 = 0.3,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
-  mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
-  Sigma_t = Sigma,
-  mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-  Sigma_c = Sigma,
-  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
-  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
-  r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = NULL, method = 'MM',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 6L
-)
-}
-
-# Example 7: Uncontrolled design, posterior probability, vague prior, MM method
-# MM method with nMC = NULL: fully analytical, no Monte Carlo draws needed.
-\dontrun{
+# Example 5: Uncontrolled design, predictive probability, vague prior
 Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
 pbayesdecisionprob2cont(
-  nsim = 100L, prob = 'posterior', design = 'uncontrolled',
+  nsim = 100L, prob = 'predictive', design = 'uncontrolled',
   prior = 'vague',
-  GoRegions = 1L, NoGoRegions = 9L,
+  GoRegions = 1L, NoGoRegions = 4L,
   gamma_go = 0.8, gamma_nogo = 0.8,
-  theta_TV1 = 1.5, theta_MAV1 = 0.5,
-  theta_TV2 = 1.0, theta_MAV2 = 0.3,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  n_t = 20L, n_c = NULL, m_t = NULL, m_c = NULL,
+  theta_TV1 = NULL, theta_MAV1 = NULL,
+  theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.5, theta_NULL2 = 0.3,
+  n_t = 20L, n_c = NULL, m_t = 60L, m_c = 60L,
   mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
   Sigma_t = Sigma,
   mu_c = NULL,
@@ -395,8 +349,35 @@ pbayesdecisionprob2cont(
   r = 1.0,
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = NULL, method = 'MM',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 7L
+  nMC = 500L, method = 'MC',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 8L
+)
+
+# Example 6: External design (control only), predictive probability, NIW prior
+\dontrun{
+Sigma  <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
+L0     <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
+se_mat <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
+pbayesdecisionprob2cont(
+  nsim = 100L, prob = 'predictive', design = 'external',
+  prior = 'N-Inv-Wishart',
+  GoRegions = 1L, NoGoRegions = 4L,
+  gamma_go = 0.8, gamma_nogo = 0.8,
+  theta_TV1 = NULL, theta_MAV1 = NULL,
+  theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.5, theta_NULL2 = 0.3,
+  n_t = 20L, n_c = 20L, m_t = 60L, m_c = 60L,
+  mu_t = rbind(c(1.0, 0.5), c(2.5, 1.5), c(4.0, 2.5)),
+  Sigma_t = Sigma,
+  mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+  Sigma_c = Sigma,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
+  r = NULL,
+  ne_t = NULL, ne_c = 15L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = c(0.2, 0.1), se_t = NULL, se_c = se_mat,
+  nMC = 500L, method = 'MC',
+  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 9L
 )
 }
 

@@ -1,33 +1,36 @@
-#' Cumulative Distribution Function of the Difference Between Two Beta Variables
+#' Cumulative Distribution Function of the Difference Between Two
+#' Independent Beta Variables
 #'
 #' Calculates the cumulative distribution function (CDF) of the difference
 #' between two independent Beta-distributed random variables. Specifically,
-#' computes \eqn{P(X_t - X_c \le q)} or \eqn{P(X_t - X_c > q)}, where
-#' \eqn{X_t \sim \mathrm{Beta}(\alpha_t, \beta_t)} and
-#' \eqn{X_c \sim \mathrm{Beta}(\alpha_c, \beta_c)}.
+#' computes \eqn{P(\pi_t - \pi_c \le q)} or \eqn{P(\pi_t - \pi_c > q)}, where
+#' \eqn{\pi_j \sim \mathrm{Beta}(\alpha_j, \beta_j)} for
+#' \eqn{j \in \{t, c\}}.
 #'
-#' @param q A numeric scalar in \code{[-1, 1]} representing the quantile threshold.
-#' @param alpha_t A positive numeric scalar giving the first shape parameter of
-#'        the treatment Beta distribution.
-#' @param alpha_c A positive numeric scalar giving the first shape parameter of
-#'        the control Beta distribution.
-#' @param beta_t A positive numeric scalar giving the second shape parameter of
-#'        the treatment Beta distribution.
-#' @param beta_c A positive numeric scalar giving the second shape parameter of
-#'        the control Beta distribution.
+#' @param q A numeric scalar in \code{[-1, 1]} representing the quantile
+#'        threshold for the difference in proportions.
+#' @param alpha_t A positive numeric scalar giving the first shape parameter
+#'        of the Beta distribution for the treatment group.
+#' @param alpha_c A positive numeric scalar giving the first shape parameter
+#'        of the Beta distribution for the control group.
+#' @param beta_t A positive numeric scalar giving the second shape parameter
+#'        of the Beta distribution for the treatment group.
+#' @param beta_c A positive numeric scalar giving the second shape parameter
+#'        of the Beta distribution for the control group.
 #' @param lower.tail A logical scalar; if \code{TRUE} (default), the function
-#'        returns \eqn{P(X_t - X_c \le q)}, otherwise \eqn{P(X_t - X_c > q)}.
+#'        returns \eqn{P(\pi_t - \pi_c \le q)}, otherwise
+#'        \eqn{P(\pi_t - \pi_c > q)}.
 #'
 #' @return A numeric scalar in \code{[0, 1]}.
 #'
 #' @details
 #' The upper-tail probability is obtained via the convolution formula:
-#' \deqn{P(X_t - X_c > q)
-#'   = \int_0^1 P(X_c < x - q)\, f_t(x)\, dx
-#'   = \int_0^1 F_{\mathrm{Beta}(\alpha_c,\beta_c)}(x - q)\,
-#'              f_{\mathrm{Beta}(\alpha_t,\beta_t)}(x)\, dx}
-#' where \eqn{f_t} is the density of \eqn{X_t} and \eqn{F_c} is the CDF of
-#' \eqn{X_c}. Boundary cases are handled automatically by \code{pbeta}
+#' \deqn{P(\pi_t - \pi_c > q)
+#'   = \int_0^1 F_{\mathrm{Beta}(\alpha_c, \beta_c)}(x - q)\,
+#'              f_{\mathrm{Beta}(\alpha_t, \beta_t)}(x)\, dx}
+#' where \eqn{f_{\mathrm{Beta}(\alpha_t, \beta_t)}} is the density of
+#' \eqn{\pi_t} and \eqn{F_{\mathrm{Beta}(\alpha_c, \beta_c)}} is the CDF of
+#' \eqn{\pi_c}. Boundary cases are handled automatically by \code{pbeta}
 #' (\eqn{0} for \eqn{x - q \le 0}, \eqn{1} for \eqn{x - q \ge 1}), so
 #' integrating over \code{[0, 1]} is safe.
 #'
@@ -37,16 +40,16 @@
 #' \code{dbeta} are implemented in compiled C code.
 #'
 #' @examples
-#' # P(Beta(0.5, 0.5) - Beta(0.5, 0.5) > 0.2)
+#' # P(pi_t - pi_c > 0.2) with symmetric Beta(0.5, 0.5) priors
 #' pbetadiff(0.2, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
 #'
-#' # P(Beta(2, 3) - Beta(1, 4) > -0.1)
+#' # P(pi_t - pi_c > -0.1) with informative priors
 #' pbetadiff(-0.1, 2, 1, 3, 4, lower.tail = FALSE)
 #'
-#' # P(Beta(1, 1) - Beta(1, 1) > 0) - should be approximately 0.5
+#' # P(pi_t - pi_c > 0) with equal priors -- should be approximately 0.5
 #' pbetadiff(0, 1, 1, 1, 1, lower.tail = FALSE)
 #'
-#' # Lower tail: P(Beta(2, 2) - Beta(2, 2) <= 0.1)
+#' # Lower tail: P(pi_t - pi_c <= 0.1) with symmetric priors
 #' pbetadiff(0.1, 2, 2, 2, 2, lower.tail = TRUE)
 #'
 #' @importFrom stats dbeta integrate pbeta

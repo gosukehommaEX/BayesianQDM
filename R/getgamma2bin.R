@@ -73,9 +73,9 @@
 #'        \code{gamma_nogo_grid} satisfying the \code{crit_nogo} criterion.
 #'        Default is \code{"largest"}.
 #' @param n_t A positive integer giving the number of patients in the
-#'        treatment group (treatment group) in the PoC trial.
+#'        treatment group in the PoC trial.
 #' @param n_c A positive integer giving the number of patients in the
-#'        control group (control group) in the PoC trial.
+#'        control group in the PoC trial.
 #' @param a_t_00 A positive numeric scalar giving the Dirichlet prior
 #'        parameter for the (0,0) response pattern in the treatment group.
 #' @param a_t_01 A positive numeric scalar; see \code{a_t_00}.
@@ -226,7 +226,7 @@
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n_t = 10L, n_c = 10L,
+#'   n_t = 7L, n_c = 7L,
 #'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
 #'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
 #'   theta_TV1   = 0.15, theta_MAV1 = 0.10,
@@ -253,7 +253,7 @@
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n_t = 10L, n_c = 10L,
+#'   n_t = 7L, n_c = 7L,
 #'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
 #'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
 #'   theta_TV1   = 0.15, theta_MAV1 = 0.10,
@@ -270,23 +270,50 @@
 #' )
 #' }
 #'
-#' # Example 3: Controlled design, predictive probability
+#' # Example 3: External design, posterior probability
 #' \dontrun{
 #' getgamma2bin(
-#'   prob = 'predictive', design = 'controlled',
+#'   prob = 'posterior', design = 'external',
 #'   GoRegions = 1L, NoGoRegions = 9L,
 #'   pi_t1 = 0.15, pi_t2 = 0.20, rho_t = 0.0,
 #'   pi_c1 = 0.15, pi_c2 = 0.20, rho_c = 0.0,
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n_t = 10L, n_c = 10L,
+#'   n_t = 7L, n_c = 7L,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   theta_TV1   = 0.15, theta_MAV1 = 0.10,
+#'   theta_TV2   = 0.15, theta_MAV2 = 0.10,
+#'   theta_NULL1 = NULL, theta_NULL2 = NULL,
+#'   m_t = NULL, m_c = NULL,
+#'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = 3L, xe_c_01 = 2L, xe_c_10 = 3L, xe_c_11 = 2L,
+#'   ae_t = NULL, ae_c = 0.5,
+#'   nMC = 100L, method = 'Exact',
+#'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+#'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
+#' )
+#' }
+#'
+#' # Example 4: Controlled design, predictive probability
+#' \dontrun{
+#' getgamma2bin(
+#'   prob = 'predictive', design = 'controlled',
+#'   GoRegions = 1L, NoGoRegions = 4L,
+#'   pi_t1 = 0.15, pi_t2 = 0.20, rho_t = 0.0,
+#'   pi_c1 = 0.15, pi_c2 = 0.20, rho_c = 0.0,
+#'   target_go = 0.05, target_nogo = 0.20,
+#'   crit_go = '<', crit_nogo = '<',
+#'   sel_go = 'smallest', sel_nogo = 'largest',
+#'   n_t = 7L, n_c = 7L,
 #'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
 #'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
 #'   theta_TV1   = NULL, theta_MAV1 = NULL,
 #'   theta_TV2   = NULL, theta_MAV2 = NULL,
 #'   theta_NULL1 = 0.10, theta_NULL2 = 0.10,
-#'   m_t = 30L, m_c = 30L,
+#'   m_t = 5L, m_c = 5L,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
@@ -297,23 +324,50 @@
 #' )
 #' }
 #'
-#' # Example 4: External design, predictive probability
+#' # Example 5: Uncontrolled design, predictive probability
 #' \dontrun{
 #' getgamma2bin(
-#'   prob = 'predictive', design = 'external',
-#'   GoRegions = 1L, NoGoRegions = 9L,
+#'   prob = 'predictive', design = 'uncontrolled',
+#'   GoRegions = 1L, NoGoRegions = 4L,
 #'   pi_t1 = 0.15, pi_t2 = 0.20, rho_t = 0.0,
-#'   pi_c1 = 0.15, pi_c2 = 0.20, rho_c = 0.0,
+#'   pi_c1 = NULL, pi_c2 = NULL, rho_c = NULL,
 #'   target_go = 0.05, target_nogo = 0.20,
 #'   crit_go = '<', crit_nogo = '<',
 #'   sel_go = 'smallest', sel_nogo = 'largest',
-#'   n_t = 10L, n_c = 10L,
+#'   n_t = 7L, n_c = 7L,
 #'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
 #'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
 #'   theta_TV1   = NULL, theta_MAV1 = NULL,
 #'   theta_TV2   = NULL, theta_MAV2 = NULL,
 #'   theta_NULL1 = 0.10, theta_NULL2 = 0.10,
-#'   m_t = 30L, m_c = 30L,
+#'   m_t = 5L, m_c = 5L,
+#'   z00 = 3L, z01 = 2L, z10 = 3L, z11 = 2L,
+#'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
+#'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
+#'   ae_t = NULL, ae_c = NULL,
+#'   nMC = 100L, method = 'Exact',
+#'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
+#'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
+#' )
+#' }
+#'
+#' # Example 6: External design, predictive probability
+#' \dontrun{
+#' getgamma2bin(
+#'   prob = 'predictive', design = 'external',
+#'   GoRegions = 1L, NoGoRegions = 4L,
+#'   pi_t1 = 0.15, pi_t2 = 0.20, rho_t = 0.0,
+#'   pi_c1 = 0.15, pi_c2 = 0.20, rho_c = 0.0,
+#'   target_go = 0.05, target_nogo = 0.20,
+#'   crit_go = '<', crit_nogo = '<',
+#'   sel_go = 'smallest', sel_nogo = 'largest',
+#'   n_t = 7L, n_c = 7L,
+#'   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
+#'   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
+#'   theta_TV1   = NULL, theta_MAV1 = NULL,
+#'   theta_TV2   = NULL, theta_MAV2 = NULL,
+#'   theta_NULL1 = 0.10, theta_NULL2 = 0.10,
+#'   m_t = 5L, m_c = 5L,
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe_t_00 = 3L, xe_t_01 = 2L, xe_t_10 = 3L, xe_t_11 = 2L,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,

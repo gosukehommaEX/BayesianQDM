@@ -1,53 +1,62 @@
-#' Compute Joint Bivariate Binary Probabilities from Marginal Rates and Correlation
+#' Compute Joint Bivariate Binary Probabilities from Marginal Rates
+#' and Correlation
 #'
-#' Converts the parameterization \eqn{(\pi_{k1}, \pi_{k2}, \rho_k)} into the
-#' four-cell joint probability vector \eqn{(p_{k,00}, p_{k,01}, p_{k,10}, p_{k,11})}
-#' for a bivariate binary outcome in arm \eqn{k}.  The conversion uses the
-#' standard moment-matching identity for the Pearson correlation of two Bernoulli
+#' Converts the parameterisation \eqn{(\pi_{j1}, \pi_{j2}, \rho_j)} into the
+#' four-cell joint probability vector
+#' \eqn{(p_{j,00}, p_{j,01}, p_{j,10}, p_{j,11})} for a bivariate binary
+#' outcome in group \eqn{j \in \{t, c\}}. The conversion uses the standard
+#' moment-matching identity for the Pearson correlation of two Bernoulli
 #' variables, and checks that the requested correlation is feasible for the
 #' supplied marginal rates.
 #'
-#' @param pi1 A single numeric value in \eqn{(0, 1)} giving the marginal
-#'        response probability for Endpoint 1.
-#' @param pi2 A single numeric value in \eqn{(0, 1)} giving the marginal
-#'        response probability for Endpoint 2.
-#' @param rho A single numeric value giving the Pearson correlation between
-#'        Endpoint 1 and Endpoint 2.  Must lie within the feasible range
+#' @param pi1 A single numeric value in \code{(0, 1)} giving the marginal
+#'        response probability for Endpoint 1 (\eqn{\pi_{j1}}) in group
+#'        \eqn{j}.
+#' @param pi2 A single numeric value in \code{(0, 1)} giving the marginal
+#'        response probability for Endpoint 2 (\eqn{\pi_{j2}}) in group
+#'        \eqn{j}.
+#' @param rho A single numeric value giving the Pearson correlation
+#'        (\eqn{\rho_j}) between Endpoint 1 and Endpoint 2 in group \eqn{j}.
+#'        Must lie within the feasible range
 #'        \eqn{[\rho_{\min}, \rho_{\max}]} determined by \code{pi1} and
-#'        \code{pi2} (see Details).  Use \code{rho = 0} for independence.
+#'        \code{pi2} (see Details). Use \code{rho = 0} for independence.
 #' @param tol A single positive numeric value specifying the tolerance used
 #'        when checking whether \code{rho} lies within its feasible range and
-#'        whether the resulting probabilities are non-negative.  Default is
-#'        \code{1e-10}.
+#'        whether the resulting probabilities are non-negative.
+#'        Default is \code{1e-10}.
 #'
 #' @return A named numeric vector of length 4 with elements
 #'         \code{p00}, \code{p01}, \code{p10}, \code{p11}, where
-#'         \code{p_lm = Pr(Endpoint 1 = l, Endpoint 2 = m)}.
+#'         \code{p_lm = Pr(Endpoint 1 = l, Endpoint 2 = m)} for
+#'         \eqn{l, m \in \{0, 1\}}.
 #'         All elements are non-negative and sum to 1.
 #'
 #' @details
-#' For a bivariate binary outcome \eqn{(Y_1, Y_2)} with marginal success
-#' probabilities \eqn{\pi_1 = \Pr(Y_1 = 1)} and \eqn{\pi_2 = \Pr(Y_2 = 1)},
-#' the Pearson correlation is
+#' For a bivariate binary outcome \eqn{(Y_{i1}, Y_{i2})} of patient
+#' \eqn{i} (\eqn{i = 1, \ldots, n_j}) in group \eqn{j} with marginal success
+#' probabilities \eqn{\pi_{j1} = \Pr(Y_{i1} = 1)} and
+#' \eqn{\pi_{j2} = \Pr(Y_{i2} = 1)}, the Pearson correlation is
 #' \deqn{
-#'   \rho = \frac{p_{11} - \pi_1 \pi_2}
-#'              {\sqrt{\pi_1 (1-\pi_1) \pi_2 (1-\pi_2)}}.
+#'   \rho_j = \frac{p_{j,11} - \pi_{j1} \pi_{j2}}
+#'                 {\sqrt{\pi_{j1}(1 - \pi_{j1})\, \pi_{j2}(1 - \pi_{j2})}}.
 #' }
-#' Solving for \eqn{p_{11}} gives
-#' \deqn{p_{11} = \rho \sqrt{\pi_1(1-\pi_1)\pi_2(1-\pi_2)} + \pi_1 \pi_2,}
+#' Solving for \eqn{p_{j,11}} gives
+#' \deqn{p_{j,11} = \rho_j \sqrt{\pi_{j1}(1-\pi_{j1})\,\pi_{j2}(1-\pi_{j2})}
+#'   + \pi_{j1} \pi_{j2},}
 #' from which the remaining probabilities follow:
-#' \deqn{p_{10} = \pi_1 - p_{11}, \quad
-#'       p_{01} = \pi_2 - p_{11}, \quad
-#'       p_{00} = 1 - p_{10} - p_{01} - p_{11}.}
+#' \deqn{p_{j,10} = \pi_{j1} - p_{j,11}, \quad
+#'       p_{j,01} = \pi_{j2} - p_{j,11}, \quad
+#'       p_{j,00} = 1 - p_{j,10} - p_{j,01} - p_{j,11}.}
 #'
-#' For \eqn{p_{11}} to keep all four cell probabilities in \eqn{[0, 1]},
-#' the correlation must satisfy
+#' For all four cell probabilities to lie in \code{[0, 1]}, the correlation
+#' must satisfy
 #' \deqn{
-#'   \rho_{\min} = \frac{\max(0,\, \pi_1 + \pi_2 - 1) - \pi_1 \pi_2}
-#'                     {\sqrt{\pi_1(1-\pi_1)\pi_2(1-\pi_2)}}
-#'   \le \rho \le
-#'   \frac{\min(\pi_1, \pi_2) - \pi_1 \pi_2}
-#'        {\sqrt{\pi_1(1-\pi_1)\pi_2(1-\pi_2)}}
+#'   \rho_{\min} =
+#'     \frac{\max(0,\; \pi_{j1} + \pi_{j2} - 1) - \pi_{j1}\pi_{j2}}
+#'          {\sqrt{\pi_{j1}(1-\pi_{j1})\,\pi_{j2}(1-\pi_{j2})}}
+#'   \;\le\; \rho_j \;\le\;
+#'   \frac{\min(\pi_{j1}, \pi_{j2}) - \pi_{j1}\pi_{j2}}
+#'        {\sqrt{\pi_{j1}(1-\pi_{j1})\,\pi_{j2}(1-\pi_{j2})}}
 #'   = \rho_{\max}.
 #' }
 #' The function raises an error if \code{rho} falls outside this range
@@ -69,8 +78,8 @@
 #'
 #' # Example 5: Verify marginal recovery
 #' p <- getjointbin(pi1 = 0.25, pi2 = 0.35, rho = 0.1)
-#' p["p10"] + p["p11"]  # Should equal 0.25 (pi1)
-#' p["p01"] + p["p11"]  # Should equal 0.35 (pi2)
+#' p["p10"] + p["p11"]  # Should equal pi1 = 0.25
+#' p["p01"] + p["p11"]  # Should equal pi2 = 0.35
 #'
 #' @export
 getjointbin <- function(pi1, pi2, rho, tol = 1e-10) {

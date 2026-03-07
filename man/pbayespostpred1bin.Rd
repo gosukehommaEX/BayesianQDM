@@ -2,7 +2,8 @@
 % Please edit documentation in R/pbayespostpred1bin.R
 \name{pbayespostpred1bin}
 \alias{pbayespostpred1bin}
-\title{Bayesian Posterior or Posterior Predictive Probability for a Single Binary Endpoint}
+\title{Bayesian Posterior or Posterior Predictive Probability for a Single
+Binary Endpoint}
 \usage{
 pbayespostpred1bin(
   prob = "posterior",
@@ -33,60 +34,64 @@ pbayespostpred1bin(
 Must be \code{'posterior'} or \code{'predictive'}.}
 
 \item{design}{A character string specifying the trial design.
-Must be \code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.}
+Must be \code{'controlled'}, \code{'uncontrolled'}, or
+\code{'external'}.}
 
 \item{theta0}{A numeric scalar in \code{(-1, 1)} giving the pre-specified
 threshold for the treatment effect (difference in response rates).}
 
-\item{n_t}{A positive integer giving the number of patients in the treatment
-group in the proof-of-concept (PoC) trial.}
+\item{n_t}{A positive integer giving the number of patients in the
+treatment group in the proof-of-concept (PoC) trial.}
 
-\item{n_c}{A positive integer giving the number of patients in the control
-group in the PoC trial. For \code{design = 'uncontrolled'}, this is
-the hypothetical control sample size (required for consistency with
-other designs).}
+\item{n_c}{A positive integer giving the number of patients in the
+control group in the PoC trial. For \code{design = 'uncontrolled'},
+this is the hypothetical control sample size (required for
+consistency with other designs).}
 
-\item{y_t}{A non-negative integer or integer vector giving the observed number
-of responders in the treatment group (must satisfy \code{0 <= y_t <= n_t}).}
+\item{y_t}{A non-negative integer or integer vector giving the observed
+number of responders in the treatment group (must satisfy
+\code{0 <= y_t <= n_t}).}
 
 \item{y_c}{A non-negative integer or integer vector giving the number of
-responders in the control group (must satisfy \code{0 <= y_c <= n_c}).
-Set to \code{NULL} for \code{design = 'uncontrolled'} and use \code{z}
-instead. When provided as a vector, must have the same length as
-\code{y_t}.}
+responders in the control group (must satisfy
+\code{0 <= y_c <= n_c}). Set to \code{NULL} for
+\code{design = 'uncontrolled'} and use \code{z} instead. When
+provided as a vector, must have the same length as \code{y_t}.}
 
-\item{a_t}{A positive numeric scalar giving the first shape parameter (alpha)
-of the prior Beta distribution for the treatment group.}
+\item{a_t}{A positive numeric scalar giving the first shape parameter
+(alpha) of the prior Beta distribution for the treatment group.}
 
-\item{a_c}{A positive numeric scalar giving the first shape parameter (alpha)
-of the prior Beta distribution for the control group.}
+\item{a_c}{A positive numeric scalar giving the first shape parameter
+(alpha) of the prior Beta distribution for the control group.}
 
-\item{b_t}{A positive numeric scalar giving the second shape parameter (beta)
-of the prior Beta distribution for the treatment group.}
+\item{b_t}{A positive numeric scalar giving the second shape parameter
+(beta) of the prior Beta distribution for the treatment group.}
 
-\item{b_c}{A positive numeric scalar giving the second shape parameter (beta)
-of the prior Beta distribution for the control group.}
+\item{b_c}{A positive numeric scalar giving the second shape parameter
+(beta) of the prior Beta distribution for the control group.}
 
-\item{m_t}{A positive integer giving the number of patients in the treatment
-group for the future trial. Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+\item{m_t}{A positive integer giving the number of patients in the
+treatment group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{m_c}{A positive integer giving the number of patients in the control
-group for the future trial. Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+\item{m_c}{A positive integer giving the number of patients in the
+control group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
 \item{z}{A non-negative integer giving the hypothetical number of responders
 in the control group. Required when \code{design = 'uncontrolled'};
 otherwise set to \code{NULL}. When used, \code{y_c} should be
 \code{NULL}.}
 
-\item{ne_t}{A positive integer giving the number of patients in the treatment
-group of the external data set. Required when \code{design = 'external'}
-and external treatment data are available; otherwise set to \code{NULL}.}
+\item{ne_t}{A positive integer giving the number of patients in the
+treatment group of the external data set. Required when
+\code{design = 'external'} and external treatment data are
+available; otherwise set to \code{NULL}.}
 
-\item{ne_c}{A positive integer giving the number of patients in the control
-group of the external data set. Required when \code{design = 'external'}
-and external control data are available; otherwise set to \code{NULL}.}
+\item{ne_c}{A positive integer giving the number of patients in the
+control group of the external data set. Required when
+\code{design = 'external'} and external control data are available;
+otherwise set to \code{NULL}.}
 
 \item{ye_t}{A non-negative integer giving the number of responders in the
 treatment group of the external data set. Required when
@@ -96,83 +101,84 @@ treatment group of the external data set. Required when
 control group of the external data set. Required when
 \code{design = 'external'}; otherwise set to \code{NULL}.}
 
-\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight
-for the treatment group. Controls the degree of borrowing: 1 = full
-borrowing. Required when \code{design = 'external'}; otherwise set to
-\code{NULL}.}
-
-\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight
-for the control group. Required when \code{design = 'external'};
+\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the treatment group. Controls the degree of borrowing:
+1 = full borrowing. Required when \code{design = 'external'};
 otherwise set to \code{NULL}.}
+
+\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the control group. Required when
+\code{design = 'external'}; otherwise set to \code{NULL}.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
 returns \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
 \eqn{P(\mathrm{effect} > \theta_0)}.}
 }
 \value{
-A numeric scalar or vector in \code{[0, 1]}.  When \code{y_t} and
-\code{y_c} are vectors of length \eqn{n}, a vector of length \eqn{n}
-is returned.
+A numeric scalar or vector in \code{[0, 1]}. When \code{y_t} and
+\code{y_c} are vectors of length \eqn{n}, a vector of length
+\eqn{n} is returned.
 }
 \description{
-Computes the Bayesian posterior probability or posterior predictive probability
-for binary-outcome clinical trials under a beta-binomial conjugate model.
-The function supports controlled, uncontrolled, and external designs,
-with optional incorporation of external data through power priors.
-Vector inputs for \code{y_t} and \code{y_c} are supported for efficient batch
-processing (e.g., across all possible trial outcomes in
-\code{\link{pbayesdecisionprob1bin}}).
+Computes the Bayesian posterior probability or posterior predictive
+probability for binary-outcome clinical trials under a beta-binomial
+conjugate model. The function supports controlled, uncontrolled, and
+external designs, with optional incorporation of external data through
+power priors. Vector inputs for \code{y_t} and \code{y_c} are supported
+for efficient batch processing (e.g., across all possible trial outcomes
+in \code{\link{pbayesdecisionprob1bin}}).
 }
 \details{
-Posterior shape parameters are computed from the beta-binomial conjugate model:
+Posterior shape parameters are computed from the beta-binomial conjugate
+model:
 \itemize{
-\item Prior: \eqn{\pi_j \sim \mathrm{Beta}(a_j,\, b_j)}.
-\item Posterior: \eqn{\pi_j \mid y_j \sim
-        \mathrm{Beta}(a_j + y_j,\; b_j + n_j - y_j)}.
+\item Prior: \eqn{\pi_j \sim \mathrm{Beta}(a_j, b_j)}.
+\item Posterior:
+\eqn{\pi_j \mid y_j \sim \mathrm{Beta}(a_j + y_j, b_j + n_j - y_j)}.
 }
 
-For \code{design = 'external'}, external data are incorporated through the
-power prior, which inflates the prior by the weighted external sufficient
-statistics:
-\deqn{(\alpha_j^*, \beta_j^*) =
-  (a_j + ae_j \cdot ye_j,\; b_j + ae_j \cdot (ne_j - ye_j)).}
+For \code{design = 'external'}, external data are incorporated through
+the power prior, which inflates the prior by the weighted external
+sufficient statistics:
+\deqn{(\alpha_j^*, \beta_j^*) = (a_j + ae_j \cdot ye_j, b_j + ae_j \cdot
+      (ne_j - ye_j)).}
 
-For \code{design = 'uncontrolled'}, the hypothetical control value \code{z}
-is used in place of \code{y_c}, and \code{n_c} acts as the hypothetical
-control sample size.
+For \code{design = 'uncontrolled'}, the hypothetical control value
+\code{z} is used in place of \code{y_c}, and \code{n_c} acts as the
+hypothetical control sample size.
 
 The final probability is obtained by calling \code{\link{pbetadiff}} for
 \code{prob = 'posterior'} or \code{\link{pbetabinomdiff}} for
 \code{prob = 'predictive'}, applied element-wise via \code{mapply}.
 }
 \examples{
-# Example 1: Controlled design - posterior probability (scalar)
+# Example 1: Controlled design - posterior probability
 pbayespostpred1bin(
   prob = 'posterior', design = 'controlled', theta0 = 0.15,
   n_t = 12, n_c = 15, y_t = 7, y_c = 5,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = NULL, m_c = NULL, z = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
-  lower.tail = FALSE
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  ae_t = NULL, ae_c = NULL, lower.tail = FALSE
 )
 
-# Example 2: Controlled design - vectorised over outcomes
-pbayespostpred1bin(
-  prob = 'posterior', design = 'controlled', theta0 = 0.15,
-  n_t = 12, n_c = 15, y_t = c(5, 6, 7, 8), y_c = c(3, 4, 5, 6),
-  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
-  m_t = NULL, m_c = NULL, z = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
-  lower.tail = FALSE
-)
-
-# Example 3: Uncontrolled design - hypothetical control via z
+# Example 2: Uncontrolled design - posterior probability
 pbayespostpred1bin(
   prob = 'posterior', design = 'uncontrolled', theta0 = 0.20,
   n_t = 20, n_c = 20, y_t = 12, y_c = NULL,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = NULL, m_c = NULL, z = 3,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+)
+
+# Example 3: External design - posterior probability
+pbayespostpred1bin(
+  prob = 'posterior', design = 'external', theta0 = 0.15,
+  n_t = 12, n_c = 15, y_t = 7, y_c = 9,
+  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+  m_t = NULL, m_c = NULL, z = NULL,
+  ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, ae_t = 0.5, ae_c = 0.5,
   lower.tail = FALSE
 )
 
@@ -182,16 +188,26 @@ pbayespostpred1bin(
   n_t = 12, n_c = 15, y_t = 7, y_c = 5,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = 30, m_c = 30, z = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
-  lower.tail = FALSE
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  ae_t = NULL, ae_c = NULL, lower.tail = FALSE
 )
 
-# Example 5: External design - power prior with 50 percent borrowing
+# Example 5: Uncontrolled design - posterior predictive probability
 pbayespostpred1bin(
-  prob = 'posterior', design = 'external', theta0 = 0.15,
+  prob = 'predictive', design = 'uncontrolled', theta0 = 0.20,
+  n_t = 20, n_c = 20, y_t = 12, y_c = NULL,
+  a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
+  m_t = 30, m_c = 30, z = 3,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+)
+
+# Example 6: External design - posterior predictive probability
+pbayespostpred1bin(
+  prob = 'predictive', design = 'external', theta0 = 0.15,
   n_t = 12, n_c = 15, y_t = 7, y_c = 9,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
-  m_t = NULL, m_c = NULL, z = NULL,
+  m_t = 30, m_c = 30, z = NULL,
   ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, ae_t = 0.5, ae_c = 0.5,
   lower.tail = FALSE
 )

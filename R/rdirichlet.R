@@ -1,18 +1,21 @@
 #' Generate Random Samples from a Dirichlet Distribution
 #'
 #' Generates random samples from a Dirichlet distribution using the Gamma
-#' representation: if \eqn{Y_i \sim \mathrm{Gamma}(\alpha_i, 1)} independently,
-#' then \eqn{(Y_1/S, \ldots, Y_k/S) \sim \mathrm{Dirichlet}(\alpha_1, \ldots, \alpha_k)},
-#' where \eqn{S = \sum_i Y_i}.
+#' representation: if \eqn{Y_i \sim \mathrm{Gamma}(\alpha_i, 1)} independently
+#' for \eqn{i = 1, \ldots, K}, then
+#' \eqn{(Y_1 / S, \ldots, Y_K / S) \sim \mathrm{Dirichlet}(\alpha_1, \ldots, \alpha_K)},
+#' where \eqn{S = \sum_{i=1}^{K} Y_i}.
 #'
-#' @param n A positive integer specifying the number of random vectors to generate.
-#' @param alpha A numeric vector of length >= 2 containing positive concentration
-#'        parameters of the Dirichlet distribution. All elements must be strictly positive.
+#' @param n A positive integer specifying the number of random vectors to
+#'        generate.
+#' @param alpha A numeric vector of length \eqn{K \ge 2} containing positive
+#'        concentration parameters of the Dirichlet distribution.
+#'        All elements must be strictly positive.
 #'
-#' @return A numeric matrix of dimensions \code{n x length(alpha)} when \code{n > 1},
-#'         or a numeric vector of length \code{length(alpha)} when \code{n = 1}.
-#'         Each row is one random draw from the Dirichlet distribution, sums to 1,
-#'         and has all elements in \code{[0, 1]}.
+#' @return A numeric matrix of dimensions \code{n x K} where each row is one
+#'         random draw from the Dirichlet distribution, with all elements in
+#'         \code{[0, 1]} and each row summing to 1.
+#'         When \code{n = 1}, a numeric vector of length \code{K} is returned.
 #'
 #' @details
 #' The Dirichlet distribution is a multivariate generalisation of the Beta
@@ -20,24 +23,26 @@
 #' proportions in Bayesian statistics.
 #'
 #' The probability density function is:
-#' \deqn{f(x_1, \ldots, x_k) =
-#'   \frac{\Gamma(\sum_i \alpha_i)}{\prod_i \Gamma(\alpha_i)}
-#'   \prod_i x_i^{\alpha_i - 1}}
-#' where \eqn{x_i > 0} and \eqn{\sum_i x_i = 1}.
+#' \deqn{f(x_1, \ldots, x_K) =
+#'   \frac{\Gamma\!\left(\sum_{i=1}^{K} \alpha_i\right)}
+#'        {\prod_{i=1}^{K} \Gamma(\alpha_i)}
+#'   \prod_{i=1}^{K} x_i^{\alpha_i - 1}}
+#' where \eqn{x_i > 0} and \eqn{\sum_{i=1}^{K} x_i = 1}.
 #'
 #' Key properties:
 #' \itemize{
 #'   \item Each marginal follows a Beta distribution:
-#'         \eqn{X_i \sim \mathrm{Beta}(\alpha_i,\, \sum_{j \neq i} \alpha_j)}.
-#'   \item \eqn{E[X_i] = \alpha_i / \sum_j \alpha_j}.
+#'         \eqn{X_i \sim \mathrm{Beta}\!\left(\alpha_i,\,
+#'         \sum_{l \neq i} \alpha_l\right)}.
+#'   \item \eqn{E[X_i] = \alpha_i / \sum_{l=1}^{K} \alpha_l}.
 #'   \item Components are negatively correlated unless one component dominates.
 #' }
 #'
 #' Implementation steps:
 #' \enumerate{
 #'   \item Generate independent \eqn{Y_i \sim \mathrm{Gamma}(\alpha_i, 1)} for
-#'         each \eqn{i = 1, \ldots, k}.
-#'   \item Normalise: \eqn{X_i = Y_i / \sum_j Y_j}.
+#'         each \eqn{i = 1, \ldots, K}.
+#'   \item Normalise: \eqn{X_i = Y_i / \sum_{l=1}^{K} Y_l}.
 #' }
 #'
 #' @examples
