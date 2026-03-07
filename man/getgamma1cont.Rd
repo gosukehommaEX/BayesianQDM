@@ -281,7 +281,6 @@ The optimal \eqn{\gamma_go} is the \code{sel_go} (\code{"smallest"} or
 # Example 1: Controlled design, vague prior, posterior probability
 # gamma_go: smallest gamma such that Pr(Go) < 0.05
 # gamma_nogo: largest  gamma such that Pr(NoGo) < 0.20
-\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'controlled',
   prior = 'vague', CalcMethod = 'MM',
@@ -297,10 +296,8 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 1L
 )
-}
 
 # Example 2: Uncontrolled design, N-Inv-Chisq prior, posterior probability
-\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'uncontrolled',
   prior = 'N-Inv-Chisq', CalcMethod = 'NI',
@@ -316,10 +313,8 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 2L
 )
-}
 
 # Example 3: External design, vague prior, posterior probability
-\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'external',
   prior = 'vague', CalcMethod = 'MM',
@@ -335,10 +330,8 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = 0.0, se_t = NULL, se_c = 1.5,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 4L
 )
-}
 
 # Example 4: Controlled design, vague prior, predictive probability
-\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'predictive', design = 'controlled',
   prior = 'vague', CalcMethod = 'MM',
@@ -354,10 +347,8 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 3L
 )
-}
 
 # Example 5: Uncontrolled design, vague prior, predictive probability
-\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'predictive', design = 'uncontrolled',
   prior = 'vague', CalcMethod = 'MM',
@@ -373,10 +364,8 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 5L
 )
-}
 
 # Example 6: External design, vague prior, predictive probability
-\dontrun{
 getgamma1cont(
   nsim = 1000L, prob = 'predictive', design = 'external',
   prior = 'vague', CalcMethod = 'MM',
@@ -392,6 +381,5 @@ getgamma1cont(
   bar_ye_t = NULL, bar_ye_c = 0.0, se_t = NULL, se_c = 1.5,
   gamma_grid = seq(0.01, 0.99, by = 0.01), seed = 6L
 )
-}
 
 }

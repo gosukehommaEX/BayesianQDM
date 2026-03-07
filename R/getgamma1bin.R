@@ -54,9 +54,9 @@
 #'        among those satisfying the \code{crit_nogo} criterion.
 #'        Default is \code{"largest"}.
 #' @param n_t A positive integer giving the number of patients in the
-#'        treatment group (treatment) in the PoC trial.
+#'        treatment group in the PoC trial.
 #' @param n_c A positive integer giving the number of patients in the
-#'        control group (control) in the PoC trial.
+#'        control group in the PoC trial.
 #' @param a_t A positive numeric scalar giving the first shape parameter of the
 #'        Beta prior for the treatment group.
 #' @param a_c A positive numeric scalar giving the first shape parameter of the
@@ -145,7 +145,6 @@
 #' # Example 1: Controlled design, posterior probability
 #' # gamma_go: smallest gamma such that Pr(Go) < 0.05
 #' # gamma_nogo: largest  gamma such that Pr(NoGo) < 0.20
-#' \dontrun{
 #' getgamma1bin(
 #'   prob = 'posterior', design = 'controlled',
 #'   theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
@@ -158,10 +157,8 @@
 #'   z = NULL, m_t = NULL, m_c = NULL,
 #'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
 #' )
-#' }
 #'
 #' # Example 2: Uncontrolled design, posterior probability
-#' \dontrun{
 #' getgamma1bin(
 #'   prob = 'posterior', design = 'uncontrolled',
 #'   theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
@@ -174,10 +171,8 @@
 #'   z = 3L, m_t = NULL, m_c = NULL,
 #'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
 #' )
-#' }
 #'
 #' # Example 3: External design, posterior probability
-#' \dontrun{
 #' getgamma1bin(
 #'   prob = 'posterior', design = 'external',
 #'   theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
@@ -190,10 +185,8 @@
 #'   z = NULL, m_t = NULL, m_c = NULL,
 #'   ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, ae_t = 0.5, ae_c = 0.5
 #' )
-#' }
 #'
 #' # Example 4: Controlled design, predictive probability
-#' \dontrun{
 #' getgamma1bin(
 #'   prob = 'predictive', design = 'controlled',
 #'   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0.10,
@@ -206,10 +199,8 @@
 #'   z = NULL, m_t = 30L, m_c = 30L,
 #'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
 #' )
-#' }
 #'
 #' # Example 5: Uncontrolled design, predictive probability
-#' \dontrun{
 #' getgamma1bin(
 #'   prob = 'predictive', design = 'uncontrolled',
 #'   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0.10,
@@ -222,10 +213,8 @@
 #'   z = 3L, m_t = 30L, m_c = 30L,
 #'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
 #' )
-#' }
 #'
 #' # Example 6: External design, predictive probability
-#' \dontrun{
 #' getgamma1bin(
 #'   prob = 'predictive', design = 'external',
 #'   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0.10,
@@ -238,8 +227,6 @@
 #'   z = NULL, m_t = 30L, m_c = 30L,
 #'   ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, ae_t = 0.5, ae_c = 0.5
 #' )
-#' }
-#'
 #'
 #' @importFrom stats dbinom
 #' @export

@@ -150,9 +150,11 @@
 #'        matrix.  Required when external control data are used;
 #'        otherwise \code{NULL}.
 #' @param nMC A positive integer giving the number of Monte Carlo draws
-#'        passed to \code{\link{pbayespostpred2cont}} when
-#'        \code{method = 'MC'}.  Set to \code{NULL} when
-#'        \code{method = 'MM'}.  Default is \code{NULL}.
+#'        passed to \code{\link{pbayespostpred2cont}}.  Required when
+#'        \code{method = 'MC'}.  May be set to \code{NULL} when
+#'        \code{method = 'MM'} and \eqn{\nu_k > 4}; if \code{method = 'MM'}
+#'        but \eqn{\nu_k \le 4} causes a fallback to MC, \code{nMC} must be
+#'        a positive integer.  Default is \code{NULL}.
 #' @param method A character string specifying the computation method
 #'        passed to \code{\link{pbayespostpred2cont}}.  Must be
 #'        \code{'MC'} (default) or \code{'MM'}.

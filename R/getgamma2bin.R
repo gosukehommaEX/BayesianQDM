@@ -139,12 +139,6 @@
 #' @param nMC A positive integer giving the number of Dirichlet draws
 #'        used to evaluate region probabilities for each count
 #'        combination in Stage 1.  Default is \code{1000L}.
-#' @param method A character string specifying the computation method
-#'        passed to \code{\link{pbayespostpred2bin}} internally.
-#'        Must be \code{'Exact'} (default) or \code{'MC'}.
-#' @param nsim A positive integer giving the number of outer Monte Carlo
-#'        samples used when \code{method = 'MC'}.  Default is
-#'        \code{10000L}.
 #' @param gamma_go_grid A numeric vector of candidate Go threshold values
 #'        in \code{(0, 1)} to search over.  Defaults to
 #'        \code{seq(0.01, 0.99, by = 0.01)}.
@@ -237,7 +231,7 @@
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
 #'   ae_t = NULL, ae_c = NULL,
-#'   nMC = 100L, method = 'Exact',
+#'   nMC = 100L,
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 #' )
@@ -264,7 +258,7 @@
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
 #'   ae_t = NULL, ae_c = NULL,
-#'   nMC = 100L, method = 'Exact',
+#'   nMC = 100L,
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 #' )
@@ -291,7 +285,7 @@
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = 3L, xe_c_01 = 2L, xe_c_10 = 3L, xe_c_11 = 2L,
 #'   ae_t = NULL, ae_c = 0.5,
-#'   nMC = 100L, method = 'Exact',
+#'   nMC = 100L,
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 #' )
@@ -318,7 +312,7 @@
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
 #'   ae_t = NULL, ae_c = NULL,
-#'   nMC = 100L, method = 'Exact',
+#'   nMC = 100L,
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 #' )
@@ -345,7 +339,7 @@
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
 #'   ae_t = NULL, ae_c = NULL,
-#'   nMC = 100L, method = 'Exact',
+#'   nMC = 100L,
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 #' )
@@ -372,7 +366,7 @@
 #'   xe_t_00 = 3L, xe_t_01 = 2L, xe_t_10 = 3L, xe_t_11 = 2L,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
 #'   ae_t = 0.5, ae_c = NULL,
-#'   nMC = 100L, method = 'Exact',
+#'   nMC = 100L,
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
 #' )
@@ -401,8 +395,6 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
                          xe_c_10 = NULL, xe_c_11 = NULL,
                          ae_t = NULL, ae_c = NULL,
                          nMC    = 1000L,
-                         method = 'Exact',
-                         nsim   = 10000L,
                          gamma_go_grid = seq(0.01, 0.99, by = 0.01),
                          gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)) {
 
@@ -419,14 +411,15 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
     stop("'design' must be 'controlled', 'uncontrolled', or 'external'")
   }
 
+  max_region <- if (prob == 'posterior') 9L else 4L
   if (!is.integer(GoRegions) || length(GoRegions) < 1L ||
-      any(is.na(GoRegions)) || any(GoRegions < 1L) || any(GoRegions > 9L)) {
-    stop("'GoRegions' must be an integer vector with all values in 1:9")
+      any(is.na(GoRegions)) || any(GoRegions < 1L) || any(GoRegions > max_region)) {
+    stop(sprintf("'GoRegions' must be an integer vector with all values in 1:%d", max_region))
   }
   if (!is.integer(NoGoRegions) || length(NoGoRegions) < 1L ||
       any(is.na(NoGoRegions)) || any(NoGoRegions < 1L) ||
-      any(NoGoRegions > 9L)) {
-    stop("'NoGoRegions' must be an integer vector with all values in 1:9")
+      any(NoGoRegions > max_region)) {
+    stop(sprintf("'NoGoRegions' must be an integer vector with all values in 1:%d", max_region))
   }
   if (length(intersect(GoRegions, NoGoRegions)) > 0L) {
     stop("'GoRegions' and 'NoGoRegions' must be disjoint")
@@ -542,19 +535,9 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
     }
   }
 
-  if (!is.character(method) || length(method) != 1L ||
-      !method %in% c('Exact', 'MC')) {
-    stop("'method' must be either 'Exact' or 'MC'")
-  }
   if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
       nMC != floor(nMC) || nMC < 1L) {
     stop("'nMC' must be a single positive integer")
-  }
-  if (method == 'MC') {
-    if (!is.numeric(nsim) || length(nsim) != 1L || is.na(nsim) ||
-        nsim != floor(nsim) || nsim < 1L) {
-      stop("'nsim' must be a single positive integer when method = 'MC'")
-    }
   }
 
   for (gname in c("gamma_go_grid", "gamma_nogo_grid")) {
