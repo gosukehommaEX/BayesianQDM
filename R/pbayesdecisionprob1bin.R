@@ -491,78 +491,101 @@ pbayesdecisionprob1bin <- function(prob = 'posterior', design = 'controlled',
 #'
 #' @export
 print.pbayesdecisionprob1bin <- function(x, digits = 4, ...) {
-  # Helper to format a value as string (NULL -> "NULL")
-  fmt <- function(v) if(is.null(v)) 'NULL' else as.character(v)
+  # Helper: format value as string (NULL -> "NULL")
+  fmt <- function(v) if (is.null(v)) "NULL" else as.character(v)
 
   # Extract metadata from attributes
-  prob           <- attr(x, 'prob')
-  design         <- attr(x, 'design')
-  gamma_go       <- attr(x, 'gamma_go')
-  gamma_nogo     <- attr(x, 'gamma_nogo')
-  n_t            <- attr(x, 'n_t')
-  n_c            <- attr(x, 'n_c')
-  a_t            <- attr(x, 'a_t')
-  a_c            <- attr(x, 'a_c')
-  b_t            <- attr(x, 'b_t')
-  b_c            <- attr(x, 'b_c')
-  z              <- attr(x, 'z')
-  m_t            <- attr(x, 'm_t')
-  m_c            <- attr(x, 'm_c')
-  ne_t           <- attr(x, 'ne_t')
-  ne_c           <- attr(x, 'ne_c')
-  ye_t           <- attr(x, 'ye_t')
-  ye_c           <- attr(x, 'ye_c')
-  ae_t           <- attr(x, 'ae_t')
-  ae_c           <- attr(x, 'ae_c')
-  error_if_Miss  <- attr(x, 'error_if_Miss')
-  Gray_inc_Miss  <- attr(x, 'Gray_inc_Miss')
+  prob          <- attr(x, "prob")
+  design        <- attr(x, "design")
+  gamma_go      <- attr(x, "gamma_go")
+  gamma_nogo    <- attr(x, "gamma_nogo")
+  n_t           <- attr(x, "n_t")
+  n_c           <- attr(x, "n_c")
+  a_t           <- attr(x, "a_t")
+  a_c           <- attr(x, "a_c")
+  b_t           <- attr(x, "b_t")
+  b_c           <- attr(x, "b_c")
+  z             <- attr(x, "z")
+  m_t           <- attr(x, "m_t")
+  m_c           <- attr(x, "m_c")
+  ne_t          <- attr(x, "ne_t")
+  ne_c          <- attr(x, "ne_c")
+  ye_t          <- attr(x, "ye_t")
+  ye_c          <- attr(x, "ye_c")
+  ae_t          <- attr(x, "ae_t")
+  ae_c          <- attr(x, "ae_c")
+  error_if_Miss <- attr(x, "error_if_Miss")
+  Gray_inc_Miss <- attr(x, "Gray_inc_Miss")
 
   # Build threshold string based on probability type
-  if(prob == 'posterior') {
-    theta_str <- sprintf('TV = %s, MAV = %s',
-                         fmt(attr(x, 'theta_TV')), fmt(attr(x, 'theta_MAV')))
+  if (prob == "posterior") {
+    theta_str <- sprintf("TV = %s, MAV = %s",
+                         fmt(attr(x, "theta_TV")), fmt(attr(x, "theta_MAV")))
   } else {
-    theta_str <- sprintf('NULL = %s', fmt(attr(x, 'theta_NULL')))
+    theta_str <- sprintf("NULL = %s", fmt(attr(x, "theta_NULL")))
   }
 
   # Prior label depends on probability type
-  prior_label <- if(prob == 'posterior') 'Prior (Beta)     ' else 'Prior (Beta-bin) '
+  prior_label <- if (prob == "posterior") "Prior (Beta)    " else "Prior (Beta-bin)"
 
-  # Print header
-  cat('Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)\n')
-  cat(strrep('-', 60), '\n')
-  cat(sprintf('  Probability type : %s\n',   prob))
-  cat(sprintf('  Design           : %s\n',   design))
-  cat(sprintf('  Threshold(s)     : %s\n',   theta_str))
-  cat(sprintf('  Go  threshold    : gamma_go = %s\n', fmt(gamma_go)))
-  cat(sprintf('  NoGo threshold   : gamma_nogo = %s\n', fmt(gamma_nogo)))
-  cat(sprintf('  Sample size      : n_t = %s, n_c = %s\n', fmt(n_t), fmt(n_c)))
-  cat(sprintf('  %s: a_t = %s, a_c = %s, b_t = %s, b_c = %s\n',
-              prior_label, fmt(a_t), fmt(a_c), fmt(b_t), fmt(b_c)))
-  if(design == 'uncontrolled') {
-    cat(sprintf('  Uncontrolled     : z = %s\n', fmt(z)))
-  }
-  if(prob == 'predictive') {
-    cat(sprintf('  Future trial     : m_t = %s, m_c = %s\n', fmt(m_t), fmt(m_c)))
-  }
-  if(design == 'external') {
-    cat(sprintf('  External data    : ne_t = %s, ne_c = %s, ye_t = %s, ye_c = %s, ae_t = %s, ae_c = %s\n',
-                fmt(ne_t), fmt(ne_c), fmt(ye_t), fmt(ye_c), fmt(ae_t), fmt(ae_c)))
-  }
-  cat(sprintf('  Miss handling    : error_if_Miss = %s, Gray_inc_Miss = %s\n',
-              fmt(error_if_Miss), fmt(Gray_inc_Miss)))
-  cat(strrep('-', 60), '\n')
+  # Build info lines with fixed label width (lw) for consistent alignment
+  lw  <- 17L   # label field width
+  pad <- "  "  # left margin
 
-  # Format numeric columns (probability columns only, not pi_t/pi_c)
-  prob_cols <- names(x)[!names(x) %in% c('pi_t', 'pi_c')]
-  x_print <- x
+  lines <- character(0)
+  lines <- c(lines, sprintf("%s%-*s: %s", pad, lw, "Probability type", prob))
+  lines <- c(lines, sprintf("%s%-*s: %s", pad, lw, "Design",           design))
+  lines <- c(lines, sprintf("%s%-*s: %s", pad, lw, "Threshold(s)",     theta_str))
+  lines <- c(lines, sprintf("%s%-*s: gamma_go = %s",
+                            pad, lw, "Go  threshold",  fmt(gamma_go)))
+  lines <- c(lines, sprintf("%s%-*s: gamma_nogo = %s",
+                            pad, lw, "NoGo threshold", fmt(gamma_nogo)))
+  lines <- c(lines, sprintf("%s%-*s: n_t = %s, n_c = %s",
+                            pad, lw, "Sample size", fmt(n_t), fmt(n_c)))
+  lines <- c(lines, sprintf("%s%-*s: a_t = %s, a_c = %s, b_t = %s, b_c = %s",
+                            pad, lw, prior_label,
+                            fmt(a_t), fmt(a_c), fmt(b_t), fmt(b_c)))
+  if (design == "uncontrolled") {
+    lines <- c(lines, sprintf("%s%-*s: z = %s",
+                              pad, lw, "Uncontrolled", fmt(z)))
+  }
+  if (prob == "predictive") {
+    lines <- c(lines, sprintf("%s%-*s: m_t = %s, m_c = %s",
+                              pad, lw, "Future trial", fmt(m_t), fmt(m_c)))
+  }
+  if (design == "external") {
+    # Split external parameters across two lines to avoid overflow
+    lines <- c(lines, sprintf("%s%-*s: ne_t = %s, ne_c = %s, ye_t = %s, ye_c = %s",
+                              pad, lw, "External data",
+                              fmt(ne_t), fmt(ne_c), fmt(ye_t), fmt(ye_c)))
+    lines <- c(lines, sprintf("%s%-*s  ae_t = %s, ae_c = %s",
+                              pad, lw, "", fmt(ae_t), fmt(ae_c)))
+  }
+  lines <- c(lines, sprintf("%s%-*s: error_if_Miss = %s, Gray_inc_Miss = %s",
+                            pad, lw, "Miss handling",
+                            fmt(error_if_Miss), fmt(Gray_inc_Miss)))
+
+  # Determine separator width dynamically from the longest line
+  title     <- "Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)"
+  sep_width <- max(nchar(title), max(nchar(lines)))
+  sep       <- strrep("-", sep_width)
+
+  # Print header block
+  cat(title, "\n")
+  cat(sep, "\n")
+  for (ln in lines) cat(ln, "\n")
+  cat(sep, "\n")
+
+  # Format probability columns only (not pi_t / pi_c)
+  prob_cols <- names(x)[!names(x) %in% c("pi_t", "pi_c")]
+  x_print   <- x
   x_print[prob_cols] <- lapply(x[prob_cols], function(col) {
-    formatC(col, digits = digits, format = 'f')
+    formatC(col, digits = digits, format = "f")
   })
 
-  # Print table without row names (call print.data.frame explicitly to avoid recursion)
+  # Print table without row names (explicit call to avoid recursion)
   print.data.frame(x_print, row.names = FALSE, quote = FALSE)
-  cat(strrep('-', 60), '\n')
+  cat(sep, "\n")
 
   invisible(x)
 }

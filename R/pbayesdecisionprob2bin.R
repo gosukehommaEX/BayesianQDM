@@ -1177,6 +1177,14 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
   attr(results, 'z01')            <- z01
   attr(results, 'z10')            <- z10
   attr(results, 'z11')            <- z11
+  attr(results, 'xe_t_00')        <- xe_t_00
+  attr(results, 'xe_t_01')        <- xe_t_01
+  attr(results, 'xe_t_10')        <- xe_t_10
+  attr(results, 'xe_t_11')        <- xe_t_11
+  attr(results, 'xe_c_00')        <- xe_c_00
+  attr(results, 'xe_c_01')        <- xe_c_01
+  attr(results, 'xe_c_10')        <- xe_c_10
+  attr(results, 'xe_c_11')        <- xe_c_11
   attr(results, 'ae_t')           <- ae_t
   attr(results, 'ae_c')           <- ae_c
   attr(results, 'nMC')            <- nMC
@@ -1189,8 +1197,6 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
   return(results)
 }
-
-# ==============================================================================
 
 #' Print Method for pbayesdecisionprob2bin Objects
 #'
@@ -1208,112 +1214,155 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 print.pbayesdecisionprob2bin <- function(x, digits = 4, ...) {
 
   # Helper: format a value as string (NULL -> "NULL")
-  fmt <- function(v) if (is.null(v)) 'NULL' else as.character(v)
+  fmt <- function(v) if (is.null(v)) "NULL" else as.character(v)
 
   # Extract metadata
-  prob           <- attr(x, 'prob')
-  design         <- attr(x, 'design')
-  GoRegions      <- attr(x, 'GoRegions')
-  NoGoRegions    <- attr(x, 'NoGoRegions')
-  gamma_go       <- attr(x, 'gamma_go')
-  gamma_nogo     <- attr(x, 'gamma_nogo')
-  n_t            <- attr(x, 'n_t')
-  n_c            <- attr(x, 'n_c')
-  a_t_00         <- attr(x, 'a_t_00')
-  a_t_01         <- attr(x, 'a_t_01')
-  a_t_10         <- attr(x, 'a_t_10')
-  a_t_11         <- attr(x, 'a_t_11')
-  a_c_00         <- attr(x, 'a_c_00')
-  a_c_01         <- attr(x, 'a_c_01')
-  a_c_10         <- attr(x, 'a_c_10')
-  a_c_11         <- attr(x, 'a_c_11')
-  m_t            <- attr(x, 'm_t')
-  m_c            <- attr(x, 'm_c')
-  theta_TV1      <- attr(x, 'theta_TV1')
-  theta_MAV1     <- attr(x, 'theta_MAV1')
-  theta_TV2      <- attr(x, 'theta_TV2')
-  theta_MAV2     <- attr(x, 'theta_MAV2')
-  theta_NULL1    <- attr(x, 'theta_NULL1')
-  theta_NULL2    <- attr(x, 'theta_NULL2')
-  z00            <- attr(x, 'z00')
-  z01            <- attr(x, 'z01')
-  z10            <- attr(x, 'z10')
-  z11            <- attr(x, 'z11')
-  ae_t           <- attr(x, 'ae_t')
-  ae_c           <- attr(x, 'ae_c')
-  nMC            <- attr(x, 'nMC')
-  nsim           <- attr(x, 'nsim')
-  method         <- attr(x, 'method')
-  error_if_Miss  <- attr(x, 'error_if_Miss')
-  Gray_inc_Miss  <- attr(x, 'Gray_inc_Miss')
+  prob          <- attr(x, "prob")
+  design        <- attr(x, "design")
+  GoRegions     <- attr(x, "GoRegions")
+  NoGoRegions   <- attr(x, "NoGoRegions")
+  gamma_go      <- attr(x, "gamma_go")
+  gamma_nogo    <- attr(x, "gamma_nogo")
+  n_t           <- attr(x, "n_t")
+  n_c           <- attr(x, "n_c")
+  a_t_00        <- attr(x, "a_t_00")
+  a_t_01        <- attr(x, "a_t_01")
+  a_t_10        <- attr(x, "a_t_10")
+  a_t_11        <- attr(x, "a_t_11")
+  a_c_00        <- attr(x, "a_c_00")
+  a_c_01        <- attr(x, "a_c_01")
+  a_c_10        <- attr(x, "a_c_10")
+  a_c_11        <- attr(x, "a_c_11")
+  m_t           <- attr(x, "m_t")
+  m_c           <- attr(x, "m_c")
+  theta_TV1     <- attr(x, "theta_TV1")
+  theta_MAV1    <- attr(x, "theta_MAV1")
+  theta_TV2     <- attr(x, "theta_TV2")
+  theta_MAV2    <- attr(x, "theta_MAV2")
+  theta_NULL1   <- attr(x, "theta_NULL1")
+  theta_NULL2   <- attr(x, "theta_NULL2")
+  z00           <- attr(x, "z00")
+  z01           <- attr(x, "z01")
+  z10           <- attr(x, "z10")
+  z11           <- attr(x, "z11")
+  xe_t_00       <- attr(x, "xe_t_00")
+  xe_t_01       <- attr(x, "xe_t_01")
+  xe_t_10       <- attr(x, "xe_t_10")
+  xe_t_11       <- attr(x, "xe_t_11")
+  xe_c_00       <- attr(x, "xe_c_00")
+  xe_c_01       <- attr(x, "xe_c_01")
+  xe_c_10       <- attr(x, "xe_c_10")
+  xe_c_11       <- attr(x, "xe_c_11")
+  ae_t          <- attr(x, "ae_t")
+  ae_c          <- attr(x, "ae_c")
+  nMC           <- attr(x, "nMC")
+  nsim          <- attr(x, "nsim")
+  method        <- attr(x, "method")
+  error_if_Miss <- attr(x, "error_if_Miss")
+  Gray_inc_Miss <- attr(x, "Gray_inc_Miss")
 
-  # Build threshold string
-  if (prob == 'posterior') {
-    thresh_str <- sprintf(
-      'TV1 = %s, MAV1 = %s, TV2 = %s, MAV2 = %s',
-      fmt(theta_TV1), fmt(theta_MAV1), fmt(theta_TV2), fmt(theta_MAV2)
-    )
+  # Build info lines with fixed label width (lw) for consistent alignment
+  lw  <- 17L   # label field width
+  pad <- "  "  # left margin
+
+  lines <- character(0)
+  lines <- c(lines, sprintf("%s%-*s: %s",           pad, lw, "Probability type", prob))
+  lines <- c(lines, sprintf("%s%-*s: %s",           pad, lw, "Design",           design))
+
+  # Threshold(s): split posterior across two lines to avoid overflow
+  if (prob == "posterior") {
+    lines <- c(lines, sprintf("%s%-*s: TV1 = %s, MAV1 = %s",
+                              pad, lw, "Threshold(s)",
+                              fmt(theta_TV1), fmt(theta_MAV1)))
+    lines <- c(lines, sprintf("%s%-*s  TV2 = %s, MAV2 = %s",
+                              pad, lw, "",
+                              fmt(theta_TV2), fmt(theta_MAV2)))
   } else {
-    thresh_str <- sprintf(
-      'NULL1 = %s, NULL2 = %s',
-      fmt(theta_NULL1), fmt(theta_NULL2)
-    )
+    lines <- c(lines, sprintf("%s%-*s: NULL1 = %s, NULL2 = %s",
+                              pad, lw, "Threshold(s)",
+                              fmt(theta_NULL1), fmt(theta_NULL2)))
   }
 
-  # Build Dirichlet prior string
-  prior1_str <- sprintf('(%s, %s, %s, %s)',
-                        fmt(a_t_00), fmt(a_t_01), fmt(a_t_10), fmt(a_t_11))
-  prior2_str <- sprintf('(%s, %s, %s, %s)',
-                        fmt(a_c_00), fmt(a_c_01), fmt(a_c_10), fmt(a_c_11))
+  lines <- c(lines, sprintf("%s%-*s: gamma_go = %s",
+                            pad, lw, "Go  threshold",  fmt(gamma_go)))
+  lines <- c(lines, sprintf("%s%-*s: gamma_nogo = %s",
+                            pad, lw, "NoGo threshold", fmt(gamma_nogo)))
+  lines <- c(lines, sprintf("%s%-*s: {%s}",
+                            pad, lw, "Go  regions",
+                            paste(GoRegions,   collapse = ", ")))
+  lines <- c(lines, sprintf("%s%-*s: {%s}",
+                            pad, lw, "NoGo regions",
+                            paste(NoGoRegions, collapse = ", ")))
+  lines <- c(lines, sprintf("%s%-*s: n_t = %s, n_c = %s",
+                            pad, lw, "Sample size", fmt(n_t), fmt(n_c)))
 
-  # Print header
-  cat('Go/NoGo/Gray Decision Probabilities (Two Binary Endpoints)\n')
-  cat(strrep('-', 65), '\n')
-  cat(sprintf('  Probability type : %s\n', prob))
-  cat(sprintf('  Design           : %s\n', design))
-  cat(sprintf('  Threshold(s)     : %s\n', thresh_str))
-  cat(sprintf('  Go  threshold    : gamma_go = %s\n', fmt(gamma_go)))
-  cat(sprintf('  NoGo threshold   : gamma_nogo = %s\n', fmt(gamma_nogo)))
-  cat(sprintf('  Go  regions      : {%s}\n',
-              paste(GoRegions,   collapse = ', ')))
-  cat(sprintf('  NoGo regions     : {%s}\n',
-              paste(NoGoRegions, collapse = ', ')))
-  cat(sprintf('  Sample size      : n_t = %s, n_c = %s\n', fmt(n_t), fmt(n_c)))
-  cat(sprintf('  Prior (treatment): a = %s\n', prior1_str))
-  cat(sprintf('  Prior (control)  : a = %s\n', prior2_str))
+  # Dirichlet prior: treatment and control on separate lines
+  lines <- c(lines, sprintf(
+    "%s%-*s: a_t = (%s, %s, %s, %s)  [a_00, a_01, a_10, a_11]",
+    pad, lw, "Prior (treatment)",
+    fmt(a_t_00), fmt(a_t_01), fmt(a_t_10), fmt(a_t_11)))
+  lines <- c(lines, sprintf(
+    "%s%-*s: a_c = (%s, %s, %s, %s)  [a_00, a_01, a_10, a_11]",
+    pad, lw, "Prior (control)  ",
+    fmt(a_c_00), fmt(a_c_01), fmt(a_c_10), fmt(a_c_11)))
 
-  if (design == 'uncontrolled') {
-    cat(sprintf(
-      '  Hyp. control     : z = (%s, %s, %s, %s) [z00, z01, z10, z11]\n',
-      fmt(z00), fmt(z01), fmt(z10), fmt(z11)
-    ))
+  if (design == "uncontrolled") {
+    lines <- c(lines, sprintf(
+      "%s%-*s: z = (%s, %s, %s, %s)  [z00, z01, z10, z11]",
+      pad, lw, "Hyp. control",
+      fmt(z00), fmt(z01), fmt(z10), fmt(z11)))
   }
-  if (prob == 'predictive') {
-    cat(sprintf('  Future trial     : m_t = %s, m_c = %s\n', fmt(m_t), fmt(m_c)))
+  if (prob == "predictive") {
+    lines <- c(lines, sprintf("%s%-*s: m_t = %s, m_c = %s",
+                              pad, lw, "Future trial", fmt(m_t), fmt(m_c)))
   }
-  if (!is.null(ae_t) || !is.null(ae_c)) {
-    cat(sprintf('  Power prior      : ae_t = %s, ae_c = %s\n',
-                fmt(ae_t), fmt(ae_c)))
+  if (design == "external") {
+    # External data: treatment and control counts on separate lines,
+    # followed by power prior weights
+    lines <- c(lines, sprintf(
+      "%s%-*s: xe_t = (%s, %s, %s, %s)  [xe_00, xe_01, xe_10, xe_11]",
+      pad, lw, "External (treat.)",
+      fmt(xe_t_00), fmt(xe_t_01), fmt(xe_t_10), fmt(xe_t_11)))
+    lines <- c(lines, sprintf(
+      "%s%-*s: xe_c = (%s, %s, %s, %s)  [xe_00, xe_01, xe_10, xe_11]",
+      pad, lw, "External (cont.) ",
+      fmt(xe_c_00), fmt(xe_c_01), fmt(xe_c_10), fmt(xe_c_11)))
+    lines <- c(lines, sprintf("%s%-*s: ae_t = %s, ae_c = %s",
+                              pad, lw, "Power prior",
+                              fmt(ae_t), fmt(ae_c)))
   }
-  cat(sprintf('  MC draws  (nMC)  : %s\n', fmt(nMC)))
-  if (method == 'MC')
-    cat(sprintf('  Sim size  (nsim) : %s\n', fmt(nsim)))
-  cat(sprintf('  Method           : %s\n', fmt(method)))
-  cat(sprintf('  Miss handling    : error_if_Miss = %s, Gray_inc_Miss = %s\n',
-              fmt(error_if_Miss), fmt(Gray_inc_Miss)))
-  cat(strrep('-', 65), '\n')
+  lines <- c(lines, sprintf("%s%-*s: %s",           pad, lw, "Method",           fmt(method)))
+  lines <- c(lines, sprintf("%s%-*s: nMC = %s",     pad, lw, "MC draws",         fmt(nMC)))
+  if (method == "MC") {
+    lines <- c(lines, sprintf("%s%-*s: nsim = %s",  pad, lw, "Sim size",         fmt(nsim)))
+  }
+  lines <- c(lines, sprintf("%s%-*s: error_if_Miss = %s, Gray_inc_Miss = %s",
+                            pad, lw, "Miss handling",
+                            fmt(error_if_Miss), fmt(Gray_inc_Miss)))
+
+  # Determine separator width dynamically from the longest line
+  title     <- "Go/NoGo/Gray Decision Probabilities (Two Binary Endpoints)"
+  sep_width <- max(nchar(title), max(nchar(lines)))
+  sep       <- strrep("-", sep_width)
+
+  # Print header block
+  cat(title, "\n")
+  cat(sep, "\n")
+  for (ln in lines) cat(ln, "\n")
+  cat(sep, "\n")
 
   # Format probability columns only (not scenario columns)
-  scenario_cols <- c('pi_t1', 'pi_t2', 'rho_t', 'pi_c1', 'pi_c2', 'rho_c')
+  scenario_cols <- c("pi_t1", "pi_t2", "rho_t", "pi_c1", "pi_c2", "rho_c")
   prob_cols     <- names(x)[!names(x) %in% scenario_cols]
 
   x_print <- x
   x_print[prob_cols] <- lapply(x[prob_cols], function(col) {
-    formatC(col, digits = digits, format = 'f')
+    formatC(col, digits = digits, format = "f")
   })
 
+  # Print table without row names (explicit call to avoid recursion)
   print.data.frame(x_print, row.names = FALSE, quote = FALSE)
-  cat(strrep('-', 65), '\n')
+  cat(sep, "\n")
 
   invisible(x)
 }
