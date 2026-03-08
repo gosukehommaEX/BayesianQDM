@@ -20,37 +20,37 @@ library(BayesianQDM)
 
 ## Motivating Scenario
 
-We extend the single-endpoint RA trial to a **bivariate** design with two
+We extend the single-endpoint RA trial to a bivariate design with two
 co-primary continuous endpoints:
 
-- **Endpoint 1**: change from baseline in DAS28 score
-- **Endpoint 2**: change from baseline in HAQ-DI (Health Assessment
-  Questionnaire – Disability Index)
+- Endpoint 1: change from baseline in DAS28 score
+- Endpoint 2: change from baseline in HAQ-DI (Health Assessment
+  Questionnaire -- Disability Index)
 
-The trial enrolls $n_1 = n_2 = 20$ patients per arm (treatment vs. placebo)
+The trial enrolls $n_t = n_c = 20$ patients per group (treatment vs. placebo)
 in a 1:1 randomised controlled design.
 
-**Clinically meaningful thresholds** (posterior probability):
+Clinically meaningful thresholds (posterior probability):
 
-|                              | Endpoint 1 | Endpoint 2 |
-|------------------------------|:----------:|:----------:|
-| $\theta_{\mathrm{TV}}$       | 1.5        | 1.0        |
-| $\theta_{\mathrm{MAV}}$      | 0.5        | 0.3        |
+|                                       | Endpoint 1 | Endpoint 2 |
+|---------------------------------------|:----------:|:----------:|
+| $\theta_{\mathrm{TV},1}$             | 1.5        | 1.0        |
+| $\theta_{\mathrm{MAV},1}$            | 0.5        | 0.3        |
 
-**Null hypothesis thresholds** (predictive probability):
+Null hypothesis thresholds (predictive probability):
 $\theta_{\mathrm{NULL},1} = 0.5$, $\theta_{\mathrm{NULL},2} = 0.3$.
 
-**Decision thresholds**: $\gamma_1 = 0.80$ (Go), $\gamma_2 = 0.20$ (NoGo).
+Decision thresholds: $\gamma_1 = 0.80$ (Go), $\gamma_2 = 0.20$ (NoGo).
 
-**Observed data** (used in Sections 2–4):
+Observed data (used in Sections 2--4):
 
-- Treatment: $\bar{\mathbf{y}}_1 = (3.5, 2.1)^\top$,
-  $S_1 = \begin{pmatrix}18.0 & 3.6\\3.6 & 9.0\end{pmatrix}$
-- Control: $\bar{\mathbf{y}}_2 = (1.8, 1.0)^\top$,
-  $S_2 = \begin{pmatrix}16.0 & 2.8\\2.8 & 8.5\end{pmatrix}$
+- Treatment: $\bar{\mathbf{y}}_t = (3.5, 2.1)^\top$,
+  $S_t = \begin{pmatrix}18.0 & 3.6\\3.6 & 9.0\end{pmatrix}$
+- Control: $\bar{\mathbf{y}}_c = (1.8, 1.0)^\top$,
+  $S_c = \begin{pmatrix}16.0 & 2.8\\2.8 & 8.5\end{pmatrix}$
 
-where $S_k = \sum_{i=1}^{n_k}(\mathbf{y}_{ki} - \bar{\mathbf{y}}_k)
-(\mathbf{y}_{ki} - \bar{\mathbf{y}}_k)^\top$ is the sum-of-squares matrix.
+where $S_j = \sum_{i=1}^{n_j}(\mathbf{y}_{ij} - \bar{\mathbf{y}}_j)
+(\mathbf{y}_{ij} - \bar{\mathbf{y}}_j)^\top$ ($j = t, c$) is the sum-of-squares matrix.
 
 ---
 
@@ -58,55 +58,61 @@ where $S_k = \sum_{i=1}^{n_k}(\mathbf{y}_{ki} - \bar{\mathbf{y}}_k)
 
 ### 1.1 Prior Distribution
 
-For group $k$ ($k = t$: treatment, $k = c$: control), we model the
-bivariate outcomes as
+For group $j$ ($j = t$: treatment, $j = c$: control), we model the
+bivariate outcomes for patient $i$ ($i = 1, \ldots, n_j$) as
 
-$$\mathbf{y}_{ki} \mid \boldsymbol{\mu}_k, \Sigma_k \;\overset{iid}{\sim}\;
-  \mathcal{N}_2(\boldsymbol{\mu}_k,\, \Sigma_k).$$
+$$\mathbf{y}_{ij} \mid \boldsymbol{\mu}_j, \Sigma_j \;\overset{iid}{\sim}\;
+  \mathcal{N}_2(\boldsymbol{\mu}_j,\, \Sigma_j).$$
 
 The conjugate prior is the Normal-Inverse-Wishart (NIW) distribution:
 
-$$(\boldsymbol{\mu}_k, \Sigma_k) \;\sim\;
-  \mathrm{NIW}(\boldsymbol{\mu}_{0k},\, \kappa_{0k},\, \nu_{0k},\,
-  \Lambda_{0k}),$$
+$$(\boldsymbol{\mu}_j, \Sigma_j) \;\sim\;
+  \mathrm{NIW}(\boldsymbol{\mu}_{0j},\, \kappa_{0j},\, \nu_{0j},\,
+  \Lambda_{0j}),$$
 
-where $\boldsymbol{\mu}_{0k} \in \mathbb{R}^2$ is the prior mean,
-$\kappa_{0k} > 0$ the prior precision (pseudo-sample size),
-$\nu_{0k} > 3$ the prior degrees of freedom, and
-$\Lambda_{0k}$ a $2 \times 2$ positive-definite prior scale matrix.
+where $\boldsymbol{\mu}_{0j} \in \mathbb{R}^2$ is the prior mean
+(argument `mu0_t` or `mu0_c`),
+$\kappa_{0j} > 0$ is the prior concentration
+(`kappa0_t` or `kappa0_c`),
+$\nu_{0j} > 3$ is the prior degrees of freedom
+(`nu0_t` or `nu0_c`), and
+$\Lambda_{0j}$ is a $2 \times 2$ positive-definite prior scale matrix
+(`Lambda0_t` or `Lambda0_c`).
 
-The **vague (Jeffreys) prior** is obtained by letting
-$\kappa_{0k} \to 0$ and $\nu_{0k} \to 0$.
+The vague (Jeffreys) prior is obtained by letting
+$\kappa_{0j} \to 0$ and $\nu_{0j} \to 0$ (`prior = 'vague'`).
 
 ### 1.2 Posterior Distribution
 
-Given $n_k$ observations with sample mean $\bar{\mathbf{y}}_k$ and
-sum-of-squares matrix $S_k$, the NIW posterior has updated parameters:
+Given $n_j$ observations with sample mean $\bar{\mathbf{y}}_j$
+(`ybar_t` or `ybar_c`) and
+sum-of-squares matrix $S_j$ (`S_t` or `S_c`),
+the NIW posterior has updated parameters:
 
-$$\kappa_{nk} = \kappa_{0k} + n_k, \qquad
-  \nu_{nk} = \nu_{0k} + n_k,$$
+$$\kappa_{nj} = \kappa_{0j} + n_j, \qquad
+  \nu_{nj} = \nu_{0j} + n_j,$$
 
-$$\boldsymbol{\mu}_{nk} =
-  \frac{\kappa_{0k}\,\boldsymbol{\mu}_{0k} + n_k\,\bar{\mathbf{y}}_k}
-       {\kappa_{nk}},$$
+$$\boldsymbol{\mu}_{nj} =
+  \frac{\kappa_{0j}\,\boldsymbol{\mu}_{0j} + n_j\,\bar{\mathbf{y}}_j}
+       {\kappa_{nj}},$$
 
-$$\Lambda_{nk} = \Lambda_{0k} + S_k +
-  \frac{\kappa_{0k}\,n_k}{\kappa_{nk}}
-  (\bar{\mathbf{y}}_k - \boldsymbol{\mu}_{0k})
-  (\bar{\mathbf{y}}_k - \boldsymbol{\mu}_{0k})^\top.$$
+$$\Lambda_{nj} = \Lambda_{0j} + S_j +
+  \frac{\kappa_{0j}\,n_j}{\kappa_{nj}}
+  (\bar{\mathbf{y}}_j - \boldsymbol{\mu}_{0j})
+  (\bar{\mathbf{y}}_j - \boldsymbol{\mu}_{0j})^\top.$$
 
-The marginal posterior of the group mean $\boldsymbol{\mu}_k$ is a
+The marginal posterior of the group mean $\boldsymbol{\mu}_j$ is a
 bivariate non-standardised $t$-distribution:
 
-$$\boldsymbol{\mu}_k \mid \mathbf{Y}_k \;\sim\;
-  t_{\nu_{nk} - 1}\!\!\left(\boldsymbol{\mu}_{nk},\;
-  \frac{\Lambda_{nk}}{\kappa_{nk}(\nu_{nk} - 1)}\right).$$
+$$\boldsymbol{\mu}_j \mid \mathbf{Y}_j \;\sim\;
+  t_{\nu_{nj} - 1}\!\!\left(\boldsymbol{\mu}_{nj},\;
+  \frac{\Lambda_{nj}}{\kappa_{nj}(\nu_{nj} - 1)}\right).$$
 
-Under the **vague prior**, this simplifies to
+Under the vague prior, this simplifies to
 
-$$\boldsymbol{\mu}_k \mid \mathbf{Y}_k \;\sim\;
-  t_{n_k - 2}\!\!\left(\bar{\mathbf{y}}_k,\;
-  \frac{S_k}{n_k(n_k - 2)}\right).$$
+$$\boldsymbol{\mu}_j \mid \mathbf{Y}_j \;\sim\;
+  t_{n_j - 2}\!\!\left(\bar{\mathbf{y}}_j,\;
+  \frac{S_j}{n_j(n_j - 2)}\right).$$
 
 ### 1.3 Posterior of the Bivariate Treatment Effect
 
@@ -115,10 +121,10 @@ The bivariate treatment effect is $\boldsymbol{\theta} =
 independent, the posterior of $\boldsymbol{\theta}$ is the distribution
 of the difference of two independent bivariate $t$-vectors:
 
-$$T_k \;\sim\; t_{\nu_{nk}-1}(\boldsymbol{\mu}_{nk},\, V_k),$$
+$$T_j \;\sim\; t_{\nu_{nj}-1}(\boldsymbol{\mu}_{nj},\, V_j),$$
 
 where the posterior scale matrix is
-$V_k = \Lambda_{nk} / [\kappa_{nk}(\nu_{nk}-1)]$.
+$V_j = \Lambda_{nj} / [\kappa_{nj}(\nu_{nj}-1)]$.
 
 The posterior probability that $\boldsymbol{\theta}$ falls in a
 rectangular region $R$ defined by thresholds on each component is
@@ -130,8 +136,9 @@ computed by one of two methods (MC or MM) described in Section 3.
 
 ### 1.4 Nine-Region Grid (Posterior Probability)
 
-The bivariate threshold grid for $(\theta_1, \theta_2)$ creates the same
-$3 \times 3$ partition as for the two binary endpoint case:
+The bivariate threshold grid for $(\theta_1, \theta_2)$ creates a
+$3 \times 3$ partition using `theta_TV1`, `theta_MAV1`, `theta_TV2`,
+`theta_MAV2`:
 
 ```{r nine-region-cont, echo = FALSE, results = 'asis'}
 cat('
@@ -143,18 +150,18 @@ cat('
       linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
       min-width:80px; min-height:60px; padding:4px;">
     </th>
-    <th colspan="3" style="border:1px solid #aaa; padding:6px;">Endpoint 1</th>
+    <th colspan="3" style="border:1px solid #aaa; padding:6px; font-weight:normal;">Endpoint 1</th>
   </tr>
   <tr>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &gt; &theta;<sub>TV1</sub></th>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>TV1</sub> &ge; &theta;<sub>1</sub> &gt; &theta;<sub>MAV1</sub></th>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>MAV1</sub> &ge; &theta;<sub>1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>1</sub> &gt; &theta;<sub>TV1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>TV1</sub> &ge; &theta;<sub>1</sub> &gt; &theta;<sub>MAV1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>MAV1</sub> &ge; &theta;<sub>1</sub></th>
   </tr>
 </thead>
 <tbody>
   <tr>
     <td rowspan="3" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
-        transform:rotate(180deg); font-weight:bold;">Endpoint 2</td>
+        transform:rotate(180deg);">Endpoint 2</td>
     <td style="border:1px solid #aaa; padding:6px; text-align:left;">
       &theta;<sub>2</sub> &gt; &theta;<sub>TV2</sub></td>
     <td style="border:1px solid #aaa; padding:6px;">R1</td>
@@ -180,12 +187,14 @@ cat('
 ')
 ```
 
-Typical choices: **Go if $P(R1) \ge \gamma_1$**,
-**NoGo if $P(R9) \ge \gamma_2$**.
+Region $R_1$ (both endpoints exceed $\theta_{\mathrm{TV}}$) is typically
+designated as Go and $R_9$ (both endpoints below $\theta_{\mathrm{MAV}}$)
+as NoGo.
 
 ### 1.5 Four-Region Grid (Predictive Probability)
 
-For the predictive probability, a $2 \times 2$ partition is used:
+For the predictive probability, a $2 \times 2$ partition is used,
+defined by `theta_NULL1` and `theta_NULL2`:
 
 ```{r four-region-cont, echo = FALSE, results = 'asis'}
 cat('
@@ -197,17 +206,17 @@ cat('
       linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
       min-width:80px; min-height:60px; padding:4px;">
     </th>
-    <th colspan="2" style="border:1px solid #aaa; padding:6px;">Endpoint 1</th>
+    <th colspan="2" style="border:1px solid #aaa; padding:6px; font-weight:normal;">Endpoint 1</th>
   </tr>
   <tr>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &gt; &theta;<sub>NULL1</sub></th>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &le; &theta;<sub>NULL1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>1</sub> &gt; &theta;<sub>NULL1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>1</sub> &le; &theta;<sub>NULL1</sub></th>
   </tr>
 </thead>
 <tbody>
   <tr>
     <td rowspan="2" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
-        transform:rotate(180deg); font-weight:bold;">Endpoint 2</td>
+        transform:rotate(180deg);">Endpoint 2</td>
     <td style="border:1px solid #aaa; padding:6px; text-align:left;">
       &theta;<sub>2</sub> &gt; &theta;<sub>NULL2</sub></td>
     <td style="border:1px solid #aaa; padding:6px;">R1</td>
@@ -224,43 +233,46 @@ cat('
 ')
 ```
 
-Typical choices: **Go if $P(R1) \ge \gamma_1$**,
-**NoGo if $P(R4) \ge \gamma_2$**.
+Region $R_1$ (both endpoints exceed $\theta_{\mathrm{NULL}}$) is typically
+designated as Go and $R_4$ (both endpoints at or below $\theta_{\mathrm{NULL}}$)
+as NoGo.
 
 ---
 
 ## 2. Posterior Predictive Distribution
 
 The predictive distribution of the future sample mean
-$\bar{\tilde{\mathbf{y}}}_k$ based on $m_k$ future patients is again a
-bivariate $t$-distribution:
+$\bar{\tilde{\mathbf{y}}}_j$ based on $m_j$ future patients
+(`m_t` or `m_c`) is again a bivariate $t$-distribution:
 
-$$\bar{\tilde{\mathbf{y}}}_k \mid \mathbf{Y}_k \;\sim\;
-  t_{\nu_{nk}-1}\!\!\left(\boldsymbol{\mu}_{nk},\;
-  \frac{\Lambda_{nk}}{\kappa_{nk}(\nu_{nk}-1)}
-  \cdot \frac{\kappa_{nk} + 1}{\kappa_{nk}} \cdot \frac{1}{m_k}
+$$\bar{\tilde{\mathbf{y}}}_j \mid \mathbf{Y}_j \;\sim\;
+  t_{\nu_{nj}-1}\!\!\left(\boldsymbol{\mu}_{nj},\;
+  \frac{\Lambda_{nj}}{\kappa_{nj}(\nu_{nj}-1)}
+  \cdot \frac{\kappa_{nj} + 1}{\kappa_{nj}} \cdot \frac{1}{m_j}
   \right)$$
 
 under the NIW prior.  Under the vague prior the scale inflates to
-$S_k(n_k + 1) / [n_k^2(n_k - 2) m_k]$.
+$S_j(n_j + 1) / [n_j^2(n_j - 2) m_j]$.
 
 ---
 
 ## 3. Two Computation Methods
 
-### 3.1 Monte Carlo Simulation (MC)
+The computation method is specified via the `CalcMethod` argument.
 
-For each of $n_\mathrm{MC}$ draws, independent samples are generated:
+### 3.1 Monte Carlo Simulation (`CalcMethod = 'MC'`)
+
+For each of $n_\mathrm{MC}$ draws (`nMC`), independent samples are generated:
 
 $$T_t^{(i)} \;\sim\; t_{\nu_{nt}-1}(\boldsymbol{\mu}_{nt}, V_t), \qquad
   T_c^{(i)} \;\sim\; t_{\nu_{nc}-1}(\boldsymbol{\mu}_{nc}, V_c),$$
 
-and the probability of region $R_j$ is estimated as the empirical
+and the probability of region $R_\ell$ is estimated as the empirical
 proportion:
 
-$$\widehat{P}(R_j) =
+$$\widehat{P}(R_\ell) =
   \frac{1}{n_\mathrm{MC}} \sum_{i=1}^{n_\mathrm{MC}}
-  \mathbf{1}\!\left[T_t^{(i)} - T_c^{(i)} \in R_j\right].$$
+  \mathbf{1}\!\left[T_t^{(i)} - T_c^{(i)} \in R_\ell\right].$$
 
 When `pbayespostpred2cont()` is called in vectorised mode over
 $n_\mathrm{sim}$ replicates, all $n_\mathrm{MC}$ standard normal and
@@ -268,11 +280,11 @@ chi-squared draws are pre-generated once and reused; only the
 Cholesky factor of the replicate-specific scale matrix is recomputed
 per observation.
 
-### 3.2 Moment-Matching Approximation (MM)
+### 3.2 Moment-Matching Approximation (`CalcMethod = 'MM'`)
 
-For each marginal component $\ell = 1, 2$, the difference
-$D_\ell = T_{t,\ell} - T_{c,\ell}$ is approximated by a univariate
-$t_{\nu_\ell^*}(\mu_\ell^*, \sigma_\ell^*)$ using the same fourth-moment
+For each marginal component $k = 1, 2$, the difference
+$D_k = T_{t,k} - T_{c,k}$ is approximated by a univariate
+$t_{\nu_k^*}(\mu_k^*, \sigma_k^*)$ using the same fourth-moment
 equations as for the single-endpoint case (see
 `vignette("single-continuous")`).
 
@@ -281,9 +293,9 @@ using the bivariate $t$-distribution from `mvtnorm::pmvt()`, treating
 the two approximate marginals as jointly $t$-distributed with a
 correlation derived from the posterior covariance matrices.  This avoids
 simulation entirely and is exact in the normal limit
-($\nu_{nk} \to \infty$).
+($\nu_{nj} \to \infty$).
 
-The MM method requires $\nu_{nk} - 1 > 4$ for both arms; if this
+The MM method requires $\nu_{nj} - 1 > 4$ for both groups; if this
 condition is not met, the function falls back to MC automatically.
 
 ---
@@ -292,30 +304,30 @@ condition is not met, the function falls back to MC automatically.
 
 ### 4.1 Controlled Design
 
-Both arms are observed in the PoC trial.  All NIW posterior parameters
+Both groups are observed in the PoC trial.  All NIW posterior parameters
 are updated from the current data.
 
-**Posterior probability — vague prior:**
+Posterior probability -- vague prior:
 
 ```{r ctrl-post-vague}
-S1 <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
-S2 <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+S_t <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S_c <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 
 set.seed(42)
 p_post_vague <- pbayespostpred2cont(
   prob = 'posterior', design = 'controlled', prior = 'vague',
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 20L, n2 = 20L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = 20L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   nMC = 5000L
 )
 print(round(p_post_vague, 4))
@@ -341,7 +353,7 @@ cat(sprintf("Decision: %s\n",
 ))
 ```
 
-**Posterior probability — NIW informative prior:**
+Posterior probability -- NIW informative prior:
 
 ```{r ctrl-post-niw}
 L0 <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
@@ -349,41 +361,41 @@ L0 <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
 set.seed(42)
 p_post_niw <- pbayespostpred2cont(
   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Wishart',
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 20L, n2 = 20L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = NULL, m2 = NULL,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-  kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = 20L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   nMC = 5000L
 )
 print(round(p_post_niw, 4))
 ```
 
-**Posterior predictive probability** (future Phase III: $m_1 = m_2 = 60$):
+Posterior predictive probability (future Phase III: $m_t = m_c = 60$):
 
 ```{r ctrl-pred}
 set.seed(42)
 p_pred <- pbayespostpred2cont(
   prob = 'predictive', design = 'controlled', prior = 'vague',
-  theta.TV1 = NULL, theta.MAV1 = NULL,
-  theta.TV2 = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.5, theta.NULL2 = 0.3,
-  n1 = 20L, n2 = 20L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = 60L, m2 = 60L,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  theta_TV1 = NULL, theta_MAV1 = NULL,
+  theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.5, theta_NULL2 = 0.3,
+  n_t = 20L, n_c = 20L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = 60L, m_c = 60L,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   nMC = 5000L
 )
 print(round(p_pred, 4))
@@ -405,33 +417,34 @@ cat(sprintf("Decision: %s\n",
 
 ### 4.2 Uncontrolled Design
 
-No concurrent control arm is enrolled.  Under the NIW prior, the
+No concurrent control group is enrolled.  Under the NIW prior, the
 hypothetical control distribution is
 
 $$\boldsymbol{\mu}_c \;\sim\;
   t_{\nu_{nt}-1}\!\!\left(\boldsymbol{\mu}_{0c},\;
   r \cdot \frac{\Lambda_{nt}}{\kappa_{nt}(\nu_{nt}-1)}\right),$$
 
-where $\boldsymbol{\mu}_{0c}$ is the assumed control mean, $r > 0$ scales
-the covariance relative to the treatment arm, and $\Lambda_{nt}$ is the
-posterior scale matrix of the treatment arm.
+where $\boldsymbol{\mu}_{0c}$ (`mu0_c`) is the assumed control mean,
+$r > 0$ (`r`) scales
+the covariance relative to the treatment group, and $\Lambda_{nt}$ is the
+posterior scale matrix of the treatment group.
 
 ```{r unctrl-post}
 set.seed(1)
 p_unctrl <- pbayespostpred2cont(
   prob = 'posterior', design = 'uncontrolled', prior = 'N-Inv-Wishart',
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 20L, n2 = NULL,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = NULL,        S2 = NULL,
-  m1 = NULL, m2 = NULL,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-  kappa02 = NULL, nu02 = NULL, mu02 = c(0.0, 0.0), Lambda02 = NULL,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = NULL,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = NULL,        S_c = NULL,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = c(0.0, 0.0), Lambda0_c = NULL,
   r = 1.0,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   nMC = 5000L
 )
 print(round(p_unctrl, 4))
@@ -439,26 +452,27 @@ print(round(p_unctrl, 4))
 
 ### 4.3 External Control Design (Power Prior)
 
-External data for the control arm (sample size $n_{e2}$, sample mean
-$\bar{\mathbf{y}}_{e2}$, sum-of-squares $S_{e2}$) are incorporated via
-a power prior with weight $\alpha_{e2} \in (0,1]$.
+External data for the control group (sample size $n_{e,c}$, sample mean
+$\bar{\mathbf{y}}_{e,c}$, sum-of-squares $S_{e,c}$) are incorporated via
+a power prior with weight $\alpha_{0e,c} \in (0,1]$
+(arguments `ne_c`, `bar_ye_c`, `se_c`, `alpha0e_c`).
 
 Under the NIW conjugate formulation, the augmented prior for the control
-arm is first constructed from the external data:
+group is first constructed from the external data:
 
-$$\kappa_{0c}^{\mathrm{aug}} = \kappa_{0c} + \alpha_{e2}\,n_{e2}, \qquad
-  \nu_{0c}^{\mathrm{aug}} = \nu_{0c} + \alpha_{e2}\,n_{e2},$$
+$$\kappa_{0c}^{\mathrm{aug}} = \kappa_{0c} + \alpha_{0e,c}\,n_{e,c}, \qquad
+  \nu_{0c}^{\mathrm{aug}} = \nu_{0c} + \alpha_{0e,c}\,n_{e,c},$$
 
 $$\boldsymbol{\mu}_{0c}^{\mathrm{aug}} =
   \frac{\kappa_{0c}\,\boldsymbol{\mu}_{0c} +
-        \alpha_{e2}\,n_{e2}\,\bar{\mathbf{y}}_{e2}}
+        \alpha_{0e,c}\,n_{e,c}\,\bar{\mathbf{y}}_{e,c}}
        {\kappa_{0c}^{\mathrm{aug}}},$$
 
-$$\Lambda_{0c}^{\mathrm{aug}} = \Lambda_{0c} + \alpha_{e2}\,S_{e2} +
-  \frac{\kappa_{0c}\,\alpha_{e2}\,n_{e2}}
+$$\Lambda_{0c}^{\mathrm{aug}} = \Lambda_{0c} + \alpha_{0e,c}\,S_{e,c} +
+  \frac{\kappa_{0c}\,\alpha_{0e,c}\,n_{e,c}}
        {\kappa_{0c}^{\mathrm{aug}}}
-  (\bar{\mathbf{y}}_{e2} - \boldsymbol{\mu}_{0c})
-  (\bar{\mathbf{y}}_{e2} - \boldsymbol{\mu}_{0c})^\top.$$
+  (\bar{\mathbf{y}}_{e,c} - \boldsymbol{\mu}_{0c})
+  (\bar{\mathbf{y}}_{e,c} - \boldsymbol{\mu}_{0c})^\top.$$
 
 These augmented parameters replace $(\kappa_{0c}, \nu_{0c},
 \boldsymbol{\mu}_{0c}, \Lambda_{0c})$ in the posterior update.
@@ -469,18 +483,18 @@ Se2_ext <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
 set.seed(2)
 p_ext <- pbayespostpred2cont(
   prob = 'posterior', design = 'external', prior = 'N-Inv-Wishart',
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 20L, n2 = 20L,
-  ybar1 = c(3.5, 2.1), S1 = S1,
-  ybar2 = c(1.8, 1.0), S2 = S2,
-  m1 = NULL, m2 = NULL,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0,
-  kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = 20L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0,
+  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0,
   r = NULL,
-  ne1 = NULL, ne2 = 10L, alpha01e = NULL, alpha02e = 0.5,
-  ybar_e1 = NULL, ybar_e2 = c(1.5, 0.8), Se1 = NULL, Se2 = Se2_ext,
+  ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = c(1.5, 0.8), se_t = NULL, se_c = Se2_ext,
   nMC = 5000L
 )
 print(round(p_ext, 4))
@@ -492,9 +506,10 @@ print(round(p_ext, 4))
 
 ### 5.1 Definition
 
-For given true parameters $(\boldsymbol{\mu}_1, \Sigma_1,
-\boldsymbol{\mu}_2, \Sigma_2)$, the operating characteristics are
-estimated by Monte Carlo over $n_\mathrm{sim}$ replicates.  Let
+For given true parameters $(\boldsymbol{\mu}_t, \Sigma_t,
+\boldsymbol{\mu}_c, \Sigma_c)$ (`mu_t`, `Sigma_t`, `mu_c`, `Sigma_c`),
+the operating characteristics are
+estimated by Monte Carlo over $n_\mathrm{sim}$ replicates (`nsim`).  Let
 $\hat{g}_{\mathrm{Go},i} = P(\text{GoRegions} \mid \mathbf{Y}^{(i)})$
 and $\hat{g}_{\mathrm{NoGo},i} = P(\text{NoGoRegions} \mid \mathbf{Y}^{(i)})$
 for the $i$-th simulated dataset.  Then:
@@ -518,15 +533,17 @@ $$\widehat{\Pr}(\mathrm{Gray}) = 1 -
   \widehat{\Pr}(\mathrm{Go}) - \widehat{\Pr}(\mathrm{NoGo}) -
   \widehat{\Pr}(\mathrm{Miss}).$$
 
-A **Miss** ($\hat{g}_{\mathrm{Go}} \ge \gamma_1$ and
+Here $\gamma_1$ and $\gamma_2$ correspond to arguments `gamma_go` and
+`gamma_nogo`, respectively.
+A Miss ($\hat{g}_{\mathrm{Go}} \ge \gamma_1$ and
 $\hat{g}_{\mathrm{NoGo}} \ge \gamma_2$ simultaneously) indicates an
 inconsistent threshold configuration and triggers an error by default
 (`error_if_Miss = TRUE`).
 
-### 5.2 Controlled Design — Multiple Scenarios
+### 5.2 Controlled Design -- Multiple Scenarios
 
-Treatment effect scenarios are defined by varying $\boldsymbol{\mu}_1$
-while fixing $\boldsymbol{\mu}_2 = (0, 0)^\top$:
+Treatment effect scenarios are defined by varying $\boldsymbol{\mu}_t$
+(`mu_t`) while fixing $\boldsymbol{\mu}_c = (0, 0)^\top$ (`mu_c`):
 
 ```{r oc-controlled}
 Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
@@ -536,21 +553,21 @@ oc_ctrl <- pbayesdecisionprob2cont(
   nsim = 300L, prob = 'posterior', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
-  gamma1 = 0.80, gamma2 = 0.20,
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-  mu1 = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
-  Sigma1 = Sigma,
-  mu2 = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-  Sigma2 = Sigma,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  gamma_go = 0.80, gamma_nogo = 0.20,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
+  mu_t = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
+  Sigma_t = Sigma,
+  mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+  Sigma_c = Sigma,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, method = 'MC',
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  nMC = 500L, CalcMethod = 'MC',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 42L
 )
 print(oc_ctrl)
@@ -559,32 +576,32 @@ print(oc_ctrl)
 ### 5.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment Effect
 
 Operating characteristics are plotted as a function of the treatment
-effect on Endpoint 1 ($\mu_{1,1} - \mu_{2,1}$). Both endpoints increase
-together ($\mu_{1,2} = 0.6 \times \mu_{1,1}$) to show the transition
+effect on Endpoint 1 ($\mu_{t,1} - \mu_{c,1}$). Both endpoints increase
+together ($\mu_{t,2} = 0.6 \times \mu_{t,1}$) to show the transition
 from NoGo through Gray to Go clearly.
 
-```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect on Endpoint 1. Both endpoints increase proportionally (mu1_2 = 0.6 * mu1_1). Controlled design, vague prior, MC method. n1 = n2 = 20, gamma1 = 0.80, gamma2 = 0.20."}
+```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect on Endpoint 1. Both endpoints increase proportionally (mu_t2 = 0.6 * mu_t1). Controlled design, vague prior, MC method. n_t = n_c = 20, gamma_go = 0.80, gamma_nogo = 0.20."}
 delta1_seq <- seq(0.0, 3.5, by = 0.25)
 
 oc_grid <- pbayesdecisionprob2cont(
   nsim = 300L, prob = 'posterior', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
-  gamma1 = 0.80, gamma2 = 0.20,
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-  mu1    = cbind(delta1_seq, 0.6 * delta1_seq),
-  Sigma1 = Sigma,
-  mu2    = matrix(0, nrow = length(delta1_seq), ncol = 2),
-  Sigma2 = Sigma,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  gamma_go = 0.80, gamma_nogo = 0.20,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
+  mu_t    = cbind(delta1_seq, 0.6 * delta1_seq),
+  Sigma_t = Sigma,
+  mu_c    = matrix(0, nrow = length(delta1_seq), ncol = 2),
+  Sigma_c = Sigma,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, method = 'MC',
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  nMC = 500L, CalcMethod = 'MC',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 42L
 )
 
@@ -593,7 +610,7 @@ old_par <- par(mar = c(4.5, 4.5, 3, 1))
 plot(delta1_seq, oc_grid$Go,
      type = "b", pch = 16, lwd = 2, col = "#2166AC",
      ylim = c(0, 1),
-     xlab = expression(mu[paste("1,1")] - mu[paste("2,1")]),
+     xlab = expression(mu[paste("t,1")] - mu[paste("c,1")]),
      ylab = "Probability",
      main = "Operating Characteristics: Two Continuous Endpoints",
      las  = 1)
@@ -616,57 +633,57 @@ legend("right",
 par(old_par)
 ```
 
-### 5.4 Uncontrolled Design — Operating Characteristics
+### 5.4 Uncontrolled Design -- Operating Characteristics
 
 ```{r oc-uncontrolled}
 oc_unctrl <- pbayesdecisionprob2cont(
   nsim = 300L, prob = 'posterior', design = 'uncontrolled',
   prior = 'N-Inv-Wishart',
   GoRegions = 1L, NoGoRegions = 9L,
-  gamma1 = 0.80, gamma2 = 0.20,
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 20L, n2 = NULL, m1 = NULL, m2 = NULL,
-  mu1    = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
-  Sigma1 = Sigma,
-  mu2    = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-  Sigma2 = Sigma,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0oc,
-  kappa02 = NULL, nu02 = NULL, mu02 = c(0.0, 0.0), Lambda02 = NULL,
+  gamma_go = 0.80, gamma_nogo = 0.20,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = NULL, m_t = NULL, m_c = NULL,
+  mu_t    = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
+  Sigma_t = Sigma,
+  mu_c    = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+  Sigma_c = Sigma,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0oc,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = c(0.0, 0.0), Lambda0_c = NULL,
   r = 1.0,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, method = 'MC',
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  nMC = 500L, CalcMethod = 'MC',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1L
 )
 print(oc_unctrl)
 ```
 
-### 5.5 External Control Design — Operating Characteristics
+### 5.5 External Control Design -- Operating Characteristics
 
 ```{r oc-external}
-Se2_oc <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
+Se_c_oc <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
 
 oc_ext <- pbayesdecisionprob2cont(
   nsim = 300L, prob = 'posterior', design = 'external',
   prior = 'N-Inv-Wishart',
   GoRegions = 1L, NoGoRegions = 9L,
-  gamma1 = 0.80, gamma2 = 0.20,
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  n1 = 20L, n2 = 20L, m1 = NULL, m2 = NULL,
-  mu1    = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
-  Sigma1 = Sigma,
-  mu2    = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-  Sigma2 = Sigma,
-  kappa01 = 2.0, nu01 = 5.0, mu01 = c(2.0, 1.0), Lambda01 = L0oc,
-  kappa02 = 2.0, nu02 = 5.0, mu02 = c(0.0, 0.0), Lambda02 = L0oc,
+  gamma_go = 0.80, gamma_nogo = 0.20,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
+  mu_t    = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
+  Sigma_t = Sigma,
+  mu_c    = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+  Sigma_c = Sigma,
+  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0oc,
+  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0oc,
   r = NULL,
-  ne1 = NULL, ne2 = 15L, alpha01e = NULL, alpha02e = 0.5,
-  ybar_e1 = NULL, ybar_e2 = c(0.2, 0.1), Se1 = NULL, Se2 = Se2_oc,
-  nMC = 500L, method = 'MC',
+  ne_t = NULL, ne_c = 15L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = c(0.2, 0.1), se_t = NULL, se_c = Se_c_oc,
+  nMC = 500L, CalcMethod = 'MC',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2L
 )
 print(oc_ext)
@@ -679,22 +696,22 @@ print(oc_ext)
 ### 6.1 Objective and Algorithm
 
 Because there are two decision thresholds $(\gamma_1, \gamma_2)$, the
-optimal search is performed over a **two-dimensional grid**
-$\Gamma_1 \times \Gamma_2$.
+optimal search is performed over a two-dimensional grid
+$\Gamma_1 \times \Gamma_2$ (arguments `gamma_go_grid` and `gamma_nogo_grid`).
 
 `getgamma2cont()` uses a three-stage strategy:
 
-**Stage 1 (Simulate and precompute)**: $n_\mathrm{sim}$ bivariate datasets
-are generated from the null scenario $(\boldsymbol{\mu}_1^0,
-\boldsymbol{\mu}_2^0, \Sigma_1, \Sigma_2)$.  For each replicate $i$,
+Stage 1 (Simulate and precompute): $n_\mathrm{sim}$ bivariate datasets
+are generated from the scenario $(\boldsymbol{\mu}_t, \boldsymbol{\mu}_c,
+\Sigma_t, \Sigma_c)$.  For each replicate $i$,
 `pbayespostpred2cont()` is called once in vectorised mode to return the
 full region probability vector.  The Go and NoGo probabilities per
 replicate are:
 
-$$\hat{g}_{\mathrm{Go},i} = \sum_{j \in \text{GoRegions}} \hat{p}_{ij}, \qquad
-  \hat{g}_{\mathrm{NoGo},i} = \sum_{j \in \text{NoGoRegions}} \hat{p}_{ij}.$$
+$$\hat{g}_{\mathrm{Go},i} = \sum_{\ell \in \text{GoRegions}} \hat{p}_{i\ell}, \qquad
+  \hat{g}_{\mathrm{NoGo},i} = \sum_{\ell \in \text{NoGoRegions}} \hat{p}_{i\ell}.$$
 
-**Stage 2 (Gamma sweep)**: For every pair
+Stage 2 (Gamma sweep): For every pair
 $(\gamma_1, \gamma_2) \in \Gamma_1 \times \Gamma_2$:
 
 $$\Pr(\mathrm{Go} \mid \gamma_1, \gamma_2) =
@@ -708,9 +725,9 @@ $$\Pr(\mathrm{NoGo} \mid \gamma_1, \gamma_2) =
   \hat{g}_{\mathrm{Go},i} < \gamma_1\right].$$
 
 The results are stored as $|\Gamma_1| \times |\Gamma_2|$ matrices
-`PrGo_grid` and `PrNoGo_grid` — ideal for contour visualisation.
+`PrGo_grid` and `PrNoGo_grid` -- ideal for contour visualisation.
 
-**Stage 3 (Optimal selection)**: For each candidate $\gamma_1$, the
+Stage 3 (Optimal selection): For each candidate $\gamma_1$, the
 worst-case (maximum) $\Pr(\mathrm{Go})$ over all $\gamma_2$ is compared
 against `target_go` using `crit_go`; analogously for $\gamma_2$.
 
@@ -721,37 +738,37 @@ res_gamma <- getgamma2cont(
   nsim = 500L, prob = 'posterior', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
-  mu1 = c(0.5, 0.3), Sigma1 = Sigma,   # null: effect at MAV boundary
-  mu2 = c(0.0, 0.0), Sigma2 = Sigma,
+  mu_t = c(0.5, 0.3), Sigma_t = Sigma,   # null: effect at MAV boundary
+  mu_c = c(0.0, 0.0), Sigma_c = Sigma,
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go  = 'smallest', sel_nogo = 'largest',
-  n1 = 20L, n2 = 20L,
-  theta.TV1  = 1.5, theta.MAV1 = 0.5,
-  theta.TV2  = 1.0, theta.MAV2 = 0.3,
-  theta.NULL1 = NULL, theta.NULL2 = NULL,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  n_t = 20L, n_c = 20L,
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, method = 'MC',
-  gamma1_grid = seq(0.05, 0.95, by = 0.05),
-  gamma2_grid = seq(0.05, 0.95, by = 0.05),
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  nMC = 500L, CalcMethod = 'MC',
+  gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+  gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
   seed = 42L
 )
 cat(sprintf("Optimal gamma1* = %.2f  (Pr(Go) = %.4f)\n",
-            res_gamma$gamma1, res_gamma$PrGo_at_gamma))
+            res_gamma$gamma_go, res_gamma$PrGo_at_gamma_go))
 cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
-            res_gamma$gamma2, res_gamma$PrNoGo_at_gamma))
+            res_gamma$gamma_nogo, res_gamma$PrNoGo_at_gamma_nogo))
 ```
 
 ### 6.3 Figure: Contour Plot of Pr(Go) over $(\gamma_1, \gamma_2)$ Grid
 
-```{r gamma-contour-go, fig.cap = "Contour plot of Pr(Go) as a function of the candidate threshold pair (gamma1, gamma2) under the null scenario (mu1 = (0.5, 0.3), mu2 = (0, 0)). The dashed lines mark the optimal gamma1* (blue) and gamma2* (red). The 0.05 contour is highlighted in bold."}
-g1   <- res_gamma$gamma1_grid
-g2   <- res_gamma$gamma2_grid
+```{r gamma-contour-go, fig.cap = "Contour plot of Pr(Go) as a function of the candidate threshold pair (gamma1, gamma2) under the null scenario (mu_t = (0.5, 0.3), mu_c = (0, 0)). The dashed lines mark the optimal gamma1* (blue) and gamma2* (red). The 0.05 contour is highlighted in bold."}
+g1   <- res_gamma$gamma_go_grid
+g2   <- res_gamma$gamma_nogo_grid
 Z_go <- res_gamma$PrGo_grid   # rows = gamma1, cols = gamma2
 
 # Cap upper limit at 95th percentile to avoid sparse high-value bands
@@ -767,35 +784,35 @@ image(x = g1, y = g2, z = pmin(Z_go, go_upper),
       breaks = go_breaks, col = go_cols,
       xlab = expression(gamma[1]),
       ylab = expression(gamma[2]),
-      main = expression("Pr(Go) over (" * gamma[1] * ", " * gamma[2] * ") grid \u2014 Null scenario"),
+      main = expression("Pr(Go) over (" * gamma[1] * ", " * gamma[2] * ") grid -- Null scenario"),
       las  = 1)
 contour(x = g1, y = g2, z = Z_go,
         levels = 0.05, add = TRUE,
         lwd = 2.5, col = "#2166AC", labcex = 0.9)
-if (!is.na(res_gamma$gamma1))
-  abline(v = res_gamma$gamma1, lty = 2, lwd = 2, col = "#2166AC")
-if (!is.na(res_gamma$gamma2))
-  abline(h = res_gamma$gamma2, lty = 2, lwd = 2, col = "#D6604D")
+if (!is.na(res_gamma$gamma_go))
+  abline(v = res_gamma$gamma_go, lty = 2, lwd = 2, col = "#2166AC")
+if (!is.na(res_gamma$gamma_nogo))
+  abline(h = res_gamma$gamma_nogo, lty = 2, lwd = 2, col = "#D6604D")
 legend("topright",
        legend = c(
-         paste0("gamma1* = ", res_gamma$gamma1),
-         paste0("gamma2* = ", res_gamma$gamma2),
+         paste0("gamma1* = ", res_gamma$gamma_go),
+         paste0("gamma2* = ", res_gamma$gamma_nogo),
          "Pr(Go) = 0.05 contour"),
        col = c("#2166AC", "#D6604D", "#2166AC"),
        lty = c(2, 2, 1), lwd = c(2, 2, 2.5),
        bty = "n", cex = 0.85)
 
 # Color bar
-par(mar = c(4.5, 0.5, 3.5, 3)) 
-plot(NULL, xlim = c(0, 1), ylim = c(0, go_upper), type = "n", 
+par(mar = c(4.5, 0.5, 3.5, 3))
+plot(NULL, xlim = c(0, 1), ylim = c(0, go_upper), type = "n",
      axes = FALSE, xlab = "", ylab = "")
-rect(0, go_breaks[-11], 1, go_breaks[-1], 
-     col = go_cols, 
+rect(0, go_breaks[-11], 1, go_breaks[-1],
+     col = go_cols,
      border = NA)
 axis(4, at = seq(0, go_upper, length.out = 6), las = 1, cex.axis = 0.8)
 
 layout(1)
-par(mar = c(5, 4, 4, 2) + 0.1) 
+par(mar = c(5, 4, 4, 2) + 0.1)
 ```
 
 ### 6.4 Figure: Contour Plot of Pr(NoGo) over $(\gamma_1, \gamma_2)$ Grid
@@ -815,35 +832,35 @@ image(x = g1, y = g2, z = pmin(Z_nogo, nogo_upper),
       breaks = nogo_breaks, col = nogo_cols,
       xlab = expression(gamma[1]),
       ylab = expression(gamma[2]),
-      main = expression("Pr(NoGo) over (" * gamma[1] * ", " * gamma[2] * ") grid \u2014 Null scenario"),
+      main = expression("Pr(NoGo) over (" * gamma[1] * ", " * gamma[2] * ") grid -- Null scenario"),
       las  = 1)
 contour(x = g1, y = g2, z = Z_nogo,
         levels = 0.20, add = TRUE,
         lwd = 2.5, col = "#D6604D", labcex = 0.9)
-if (!is.na(res_gamma$gamma1))
-  abline(v = res_gamma$gamma1, lty = 2, lwd = 2, col = "#2166AC")
-if (!is.na(res_gamma$gamma2))
-  abline(h = res_gamma$gamma2, lty = 2, lwd = 2, col = "#D6604D")
+if (!is.na(res_gamma$gamma_go))
+  abline(v = res_gamma$gamma_go, lty = 2, lwd = 2, col = "#2166AC")
+if (!is.na(res_gamma$gamma_nogo))
+  abline(h = res_gamma$gamma_nogo, lty = 2, lwd = 2, col = "#D6604D")
 legend("topright",
        legend = c(
-         paste0("gamma1* = ", res_gamma$gamma1),
-         paste0("gamma2* = ", res_gamma$gamma2),
+         paste0("gamma1* = ", res_gamma$gamma_go),
+         paste0("gamma2* = ", res_gamma$gamma_nogo),
          "Pr(NoGo) = 0.20 contour"),
        col = c("#2166AC", "#D6604D", "#D6604D"),
        lty = c(2, 2, 1), lwd = c(2, 2, 2.5),
        bty = "n", cex = 0.85)
 
 # Color bar
-par(mar = c(4.5, 0.5, 3.5, 3)) 
-plot(NULL, xlim = c(0, 1), ylim = c(0, nogo_upper), type = "n", 
+par(mar = c(4.5, 0.5, 3.5, 3))
+plot(NULL, xlim = c(0, 1), ylim = c(0, nogo_upper), type = "n",
      axes = FALSE, xlab = "", ylab = "")
-rect(0, nogo_breaks[-11], 1, nogo_breaks[-1], 
-     col = nogo_cols, 
+rect(0, nogo_breaks[-11], 1, nogo_breaks[-1],
+     col = nogo_cols,
      border = NA)
 axis(4, at = seq(0, nogo_upper, length.out = 6), las = 1, cex.axis = 0.8)
 
 layout(1)
-par(mar = c(5, 4, 4, 2) + 0.1) 
+par(mar = c(5, 4, 4, 2) + 0.1)
 ```
 
 ### 6.5 Example: Controlled Design, Predictive Probability
@@ -853,30 +870,30 @@ res_gamma_pred <- getgamma2cont(
   nsim = 500L, prob = 'predictive', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 4L,
-  mu1 = c(0.5, 0.3), Sigma1 = Sigma,
-  mu2 = c(0.0, 0.0), Sigma2 = Sigma,
+  mu_t = c(0.5, 0.3), Sigma_t = Sigma,
+  mu_c = c(0.0, 0.0), Sigma_c = Sigma,
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go  = 'smallest', sel_nogo = 'largest',
-  n1 = 20L, n2 = 20L,
-  theta.TV1 = NULL, theta.MAV1 = NULL,
-  theta.TV2 = NULL, theta.MAV2 = NULL,
-  theta.NULL1 = 0.5, theta.NULL2 = 0.3,
-  m1 = 60L, m2 = 60L,
-  kappa01 = NULL, nu01 = NULL, mu01 = NULL, Lambda01 = NULL,
-  kappa02 = NULL, nu02 = NULL, mu02 = NULL, Lambda02 = NULL,
+  n_t = 20L, n_c = 20L,
+  theta_TV1 = NULL, theta_MAV1 = NULL,
+  theta_TV2 = NULL, theta_MAV2 = NULL,
+  theta_NULL1 = 0.5, theta_NULL2 = 0.3,
+  m_t = 60L, m_c = 60L,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01e = NULL, alpha02e = NULL,
-  ybar_e1 = NULL, ybar_e2 = NULL, Se1 = NULL, Se2 = NULL,
-  nMC = 500L, method = 'MC',
-  gamma1_grid = seq(0.05, 0.95, by = 0.05),
-  gamma2_grid = seq(0.05, 0.95, by = 0.05),
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
+  nMC = 500L, CalcMethod = 'MC',
+  gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+  gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
   seed = 3L
 )
 cat(sprintf("Optimal gamma1* = %.2f  (Pr(Go) = %.4f)\n",
-            res_gamma_pred$gamma1, res_gamma_pred$PrGo_at_gamma))
+            res_gamma_pred$gamma_go, res_gamma_pred$PrGo_at_gamma_go))
 cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
-            res_gamma_pred$gamma2, res_gamma_pred$PrNoGo_at_gamma))
+            res_gamma_pred$gamma_nogo, res_gamma_pred$PrNoGo_at_gamma_nogo))
 ```
 
 ---
@@ -885,23 +902,24 @@ cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
 
 This vignette covered two continuous endpoint analysis in BayesianQDM:
 
-1. **Bayesian model**: NIW conjugate posterior with explicit update
-   formulae for $\kappa_{nk}$, $\nu_{nk}$, $\boldsymbol{\mu}_{nk}$,
-   and $\Lambda_{nk}$; bivariate non-standardised $t$ marginal posterior.
-2. **Nine-region grid** for posterior probability and **four-region grid**
-   for predictive probability; typical choice Go = R1, NoGo = R9 (or R4).
-3. **Two computation methods**: MC (vectorised pre-generated draws with
+1. Bayesian model: NIW conjugate posterior with explicit update
+   formulae for $\kappa_{nj}$, $\nu_{nj}$, $\boldsymbol{\mu}_{nj}$,
+   and $\Lambda_{nj}$; bivariate non-standardised $t$ marginal posterior.
+2. Nine-region grid for posterior probability and four-region grid
+   for predictive probability; typical choice Go = R1, NoGo = R9 (posterior)
+   or R4 (predictive).
+3. Two computation methods: MC (vectorised pre-generated draws with
    Cholesky reuse) and MM (fourth-moment matching per component +
    `mvtnorm::pmvt` for the joint probability).
-4. **Three study designs**: controlled, uncontrolled ($\boldsymbol{\mu}_{0c}$
-   and $r$ fixed), external (NIW power prior with explicit augmentation
+4. Three study designs: controlled, uncontrolled ($\boldsymbol{\mu}_{0c}$
+   and $r$ fixed), external control (NIW power prior with explicit augmentation
    formulae for $\kappa_{0c}^{\mathrm{aug}}$, $\nu_{0c}^{\mathrm{aug}}$,
    $\boldsymbol{\mu}_{0c}^{\mathrm{aug}}$, $\Lambda_{0c}^{\mathrm{aug}}$).
-5. **Operating characteristics**: Monte Carlo estimation with vectorised
+5. Operating characteristics: Monte Carlo estimation with vectorised
    region probability computation.
-6. **Optimal threshold search**: three-stage strategy in `getgamma2cont()`
+6. Optimal threshold search: three-stage strategy in `getgamma2cont()`
    producing $|\Gamma_1| \times |\Gamma_2|$ matrices `PrGo_grid` and
-   `PrNoGo_grid` — visualised as contour plots with target level curves
+   `PrNoGo_grid` -- visualised as contour plots with target level curves
    ($\Pr(\mathrm{Go}) < 0.05$ under null, $\Pr(\mathrm{NoGo}) \ge 0.20$
    under null).
 

@@ -40,27 +40,27 @@ user-specified operating characteristic criteria.
 
 ### 1.1 Binary Endpoint: Beta-Binomial Conjugate Model
 
-Let $\pi_j$ denote the response rate in group $j$ ($j = 1$: treatment,
-$j = 2$: control).  We place independent Beta priors on each rate:
+Let $\pi_j$ denote the response rate in group $j$ ($j = t$: treatment,
+$j = c$: control).  We place independent Beta priors on each rate:
 
-$$\pi_j \sim \mathrm{Beta}(a_j,\, b_j).$$
+$$\pi_j \sim \mathrm{Beta}(a_j,\, b_j), \quad j = t, c.$$
 
 Given $n_j$ patients with $y_j$ responders, the posterior is
 
 $$\pi_j \mid y_j \;\sim\; \mathrm{Beta}\!\left(a_j + y_j,\; b_j + n_j - y_j\right).$$
 
-The treatment effect of interest is the difference $\theta = \pi_1 - \pi_2$.
+The treatment effect of interest is the difference $\theta = \pi_t - \pi_c$.
 Because the two groups are independent, the posterior of $\theta$ is the
 distribution of the difference of two independent Beta random variables,
 which has no closed-form CDF. The package evaluates
 
-$$P(\theta > \theta_0 \mid \mathbf{y}) = P(\pi_1 - \pi_2 > \theta_0 \mid \mathbf{y})$$
+$$P(\theta > \theta_0 \mid y_t, y_c) = P(\pi_t - \pi_c > \theta_0 \mid y_t, y_c)$$
 
 by numerical integration via `pbetadiff()`:
 
-$$P(\pi_1 - \pi_2 > \theta_0) = \int_{\max(0,\,\theta_0)}^{1}
-  f_{\mathrm{Beta}(a_1^*, b_1^*)}(u)\;
-  \bigl[1 - F_{\mathrm{Beta}(a_2^*, b_2^*)}(u - \theta_0)\bigr]\, du,$$
+$$P(\pi_t - \pi_c > \theta_0) = \int_{\max(0,\,\theta_0)}^{1}
+  f_{\mathrm{Beta}(a_t^*, b_t^*)}(u)\;
+  \bigl[1 - F_{\mathrm{Beta}(a_c^*, b_c^*)}(u - \theta_0)\bigr]\, du,$$
 
 where $a_j^* = a_j + y_j$ and $b_j^* = b_j + n_j - y_j$ are the posterior
 shape parameters.
@@ -68,7 +68,7 @@ shape parameters.
 ### 1.2 Continuous Endpoint: Normal-Inverse-Chi-Squared Conjugate Model
 
 Let $\mu_j$ and $\sigma_j^2$ denote the mean and variance of the outcome in
-group $j$.  Under the Normal-Inverse-Chi-squared (N-Inv-$\chi^2$) conjugate
+group $j$ ($j = t, c$).  Under the Normal-Inverse-Chi-squared (N-Inv-$\chi^2$) conjugate
 prior
 
 $$(\mu_j,\, \sigma_j^2) \;\sim\; \mathrm{N\text{-}Inv\text{-}\chi^2}
@@ -76,10 +76,12 @@ $$(\mu_j,\, \sigma_j^2) \;\sim\; \mathrm{N\text{-}Inv\text{-}\chi^2}
 
 where $\mu_{0j}$ is the prior mean, $\kappa_{0j}$ the prior precision
 (pseudo-sample size), $\nu_{0j}$ the prior degrees of freedom, and
-$\sigma_{0j}^2$ the prior scale.
+$\sigma_{0j}^2$ the prior scale (corresponding to `mu0_t`/`mu0_c`,
+`kappa0_t`/`kappa0_c`, `nu0_t`/`nu0_c`, `sigma0_t`/`sigma0_c`).
 
-Given sample mean $\bar{y}_j$, sample standard deviation $s_j$, and sample
-size $n_j$, the posterior parameters are updated as
+Given sample mean $\bar{y}_j$ (`bar_y_t`, `bar_y_c`), sample standard
+deviation $s_j$ (`s_t`, `s_c`), and sample size $n_j$ (`n_t`, `n_c`),
+the posterior parameters are updated as
 
 $$\kappa_{nj} = \kappa_{0j} + n_j, \qquad
   \nu_{nj} = \nu_{0j} + n_j,$$
@@ -91,22 +93,22 @@ $$\sigma_{nj}^2 = \frac{\nu_{0j}\,\sigma_{0j}^2 + (n_j-1)\,s_j^2 +
 
 The marginal posterior of $\mu_j$ is a non-standardised $t$-distribution:
 
-$$\mu_j \mid \mathbf{y} \;\sim\; t_{\nu_{nj}}\!\left(\mu_{nj},\;
+$$\mu_j \mid \bar{y}_j, s_j \;\sim\; t_{\nu_{nj}}\!\left(\mu_{nj},\;
   \frac{\sigma_{nj}^2}{\kappa_{nj}}\right),$$
 
 i.e., location $\mu_{nj}$, scale $\sigma_{nj}/\sqrt{\kappa_{nj}}$, and
 $\nu_{nj}$ degrees of freedom.
 
-**Vague (Jeffreys) prior** — the limiting case $\kappa_{0j} \to 0$,
+Vague (Jeffreys) prior — the limiting case $\kappa_{0j} \to 0$,
 $\nu_{0j} \to 0$ yields
 
-$$\mu_j \mid \mathbf{y} \;\sim\; t_{n_j - 1}\!\left(\bar{y}_j,\;
+$$\mu_j \mid \bar{y}_j, s_j \;\sim\; t_{n_j - 1}\!\left(\bar{y}_j,\;
   \frac{s_j}{\sqrt{n_j}}\right).$$
 
-The posterior of the treatment effect $\theta = \mu_1 - \mu_2$ is the
+The posterior of the treatment effect $\theta = \mu_t - \mu_c$ is the
 distribution of the difference of two independent non-standardised
 $t$-variables. Three methods are provided to evaluate
-$P(\theta > \theta_0 \mid \mathbf{y})$; see Section 3 for details.
+$P(\theta > \theta_0 \mid \bar{y}_t, s_t, \bar{y}_c, s_c)$; see Section 3 for details.
 
 ---
 
@@ -115,7 +117,8 @@ $P(\theta > \theta_0 \mid \mathbf{y})$; see Section 3 for details.
 ### 2.1 Binary Endpoint
 
 Let $\tilde{y}_j \mid \pi_j \sim \mathrm{Binomial}(m_j, \pi_j)$ denote
-future trial outcomes in group $j$ with future sample size $m_j$.
+future trial outcomes in group $j$ ($j = t, c$) with future sample size $m_j$
+(`m_t`, `m_c`).
 Integrating out the unknown response rates under their posteriors gives the
 posterior predictive (Beta-Binomial) distribution:
 
@@ -126,10 +129,10 @@ $$P(\tilde{y}_j = k) = \binom{m_j}{k}
 where $B(\cdot,\cdot)$ is the Beta function. The posterior predictive
 probability of a successful future trial is then
 
-$$P\!\left(\tilde{\theta} > \theta_0 \mid \mathbf{y}\right) =
-  \sum_{k_1=0}^{m_1}\sum_{k_2=0}^{m_2}
-  \mathbf{1}[k_1/m_1 - k_2/m_2 > \theta_0]\;
-  P(\tilde{y}_1 = k_1)\; P(\tilde{y}_2 = k_2),$$
+$$P\!\left(\tilde{\theta} > \theta_0 \mid y_t, y_c\right) =
+  \sum_{k_t=0}^{m_t}\sum_{k_c=0}^{m_c}
+  \mathbf{1}[k_t/m_t - k_c/m_c > \theta_0]\;
+  P(\tilde{y}_t = k_t)\; P(\tilde{y}_c = k_c),$$
 
 evaluated exactly by `pbetabinomdiff()`.
 
@@ -140,22 +143,22 @@ $\tilde{y}_j$ under the N-Inv-$\chi^2$ posterior is a non-standardised
 $t$-distribution. For the future sample mean $\bar{\tilde{y}}_j$ based
 on $m_j$ future patients, the scale is reduced by $\sqrt{m_j}$:
 
-$$\bar{\tilde{y}}_j \mid \mathbf{y} \;\sim\;
+$$\bar{\tilde{y}}_j \mid \bar{y}_j, s_j \;\sim\;
   t_{\nu_{nj}}\!\left(\mu_{nj},\;
   \sigma_{nj}\sqrt{\frac{1 + \kappa_{nj}}{\kappa_{nj}\, m_j}}\right).$$
 
 Under the vague prior ($\kappa_{0j} = \nu_{0j} = 0$, so $\kappa_{nj} = n_j$,
 $\sigma_{nj} = s_j$) this becomes
 
-$$\bar{\tilde{y}}_j \mid \mathbf{y} \;\sim\;
+$$\bar{\tilde{y}}_j \mid \bar{y}_j, s_j \;\sim\;
   t_{n_j - 1}\!\left(\bar{y}_j,\;
   s_j\sqrt{\frac{n_j + 1}{n_j\, m_j}}\right).$$
 
 The posterior predictive probability of the future treatment effect
 exceeding $\theta_0$ is
 
-$$P\!\left(\bar{\tilde{y}}_1 - \bar{\tilde{y}}_2 > \theta_0
-  \mid \mathbf{y}\right),$$
+$$P\!\left(\bar{\tilde{y}}_t - \bar{\tilde{y}}_c > \theta_0
+  \mid \bar{y}_t, s_t, \bar{y}_c, s_c\right),$$
 
 computed by the same three methods as the posterior probability (Section 3),
 with the predictive scale replacing the posterior scale.
@@ -165,20 +168,20 @@ with the predictive scale replacing the posterior scale.
 ## 3. Computation Methods for Continuous Endpoints
 
 The core computational challenge is evaluating the CDF of the difference
-$D = T_1 - T_2$ of two independent non-standardised $t$-variables
+$D = T_t - T_c$ of two independent non-standardised $t$-variables
 
-$$T_j \sim t_{\nu_j}(\mu_j, \sigma_j), \qquad j = 1, 2,$$
+$$T_j \sim t_{\nu_j}(\mu_j, \sigma_j), \qquad j = t, c,$$
 
 at a threshold $\theta_0$. Three methods are available.
 
 ### 3.1 Numerical Integration (NI)
 
-The CDF is expressed as a one-dimensional integral by integrating out $T_1$:
+The CDF is expressed as a one-dimensional integral by integrating out $T_t$:
 
 $$P(D \le \theta_0) =
   \int_{-\infty}^{\infty}
-  F_{t_{\nu_2}(\mu_2, \sigma_2)}\!\left(t - \theta_0\right)\;
-  f_{t_{\nu_1}(\mu_1, \sigma_1)}(t)\; dt,$$
+  F_{t_{\nu_c}(\mu_c, \sigma_c)}\!\left(t - \theta_0\right)\;
+  f_{t_{\nu_t}(\mu_t, \sigma_t)}(t)\; dt,$$
 
 where $F_{t_\nu(\mu,\sigma)}$ denotes the CDF and $f_{t_\nu(\mu,\sigma)}$
 the PDF of the non-standardised $t$-distribution. This integral is evaluated
@@ -191,15 +194,15 @@ simulations.
 
 Independent samples are drawn from each marginal distribution:
 
-$$T_1^{(i)} \sim t_{\nu_1}(\mu_1, \sigma_1), \quad
-  T_2^{(i)} \sim t_{\nu_2}(\mu_2, \sigma_2), \quad
+$$T_t^{(i)} \sim t_{\nu_t}(\mu_t, \sigma_t), \quad
+  T_c^{(i)} \sim t_{\nu_c}(\mu_c, \sigma_c), \quad
   i = 1, \ldots, n_{\mathrm{MC}},$$
 
 and the probability is estimated as the empirical proportion:
 
 $$\widehat{P}(D > \theta_0) =
   \frac{1}{n_{\mathrm{MC}}}
-  \sum_{i=1}^{n_{\mathrm{MC}}} \mathbf{1}\!\left[T_1^{(i)} - T_2^{(i)} > \theta_0\right].$$
+  \sum_{i=1}^{n_{\mathrm{MC}}} \mathbf{1}\!\left[T_t^{(i)} - T_c^{(i)} > \theta_0\right].$$
 
 The package implements this in `ptdiff_MC()` using a vectorised approach:
 when called from `pbayesdecisionprob1cont()` with a vector of $n_{\mathrm{sim}}$
@@ -208,31 +211,41 @@ matrix to avoid repeated loop overhead.
 
 ### 3.3 Moment-Matching Approximation (MM)
 
-The first two even moments (mean and variance) of $D = T_1 - T_2$ are
-matched to a single non-standardised $t$-distribution. For a
-non-standardised $t$-variable $T \sim t_\nu(\mu, \sigma)$:
+$D = T_t - T_c$ is approximated by a single non-standardised $t$-distribution
+$t_{\nu^*}(\mu^*, \sigma^*)$ by matching the first and second even moments.
+For $T_j \sim t_{\nu_j}(\mu_j, \sigma_j)$ with $\nu_j > 4$:
 
-$$E[T] = \mu \quad (\nu > 1), \qquad
-  \mathrm{Var}(T) = \sigma^2 \cdot \frac{\nu}{\nu - 2} \quad (\nu > 2).$$
+$$E[T_j] = \mu_j, \qquad
+  \mathrm{Var}(T_j) = \sigma_j^2\,\frac{\nu_j}{\nu_j - 2}, \qquad
+  E[(T_j - \mu_j)^4] = \frac{3\nu_j^2\,\sigma_j^4}{(\nu_j-2)(\nu_j-4)}.$$
 
-The mean and variance of $D$ are therefore
+The mean of $D$ is matched directly:
 
-$$E[D] = \mu_1 - \mu_2,$$
+$$\mu^* = \mu_t - \mu_c.$$
 
-$$\mathrm{Var}(D) = \sigma_1^2\,\frac{\nu_1}{\nu_1 - 2} +
-  \sigma_2^2\,\frac{\nu_2}{\nu_2 - 2}.$$
+Since $T_t$ and $T_c$ are independent, the second and fourth central moments
+of $D$ are
 
-A single $t$-distribution $t_{\nu^*}(\mu^*, \sigma^*)$ is fitted by
-equating its mean and variance to those of $D$:
+$$\mathrm{Var}(D) = \sigma_t^2\,\frac{\nu_t}{\nu_t - 2} +
+  \sigma_c^2\,\frac{\nu_c}{\nu_c - 2},$$
 
-$$\mu^* = \mu_1 - \mu_2, \qquad
-  \sigma^{*2} \cdot \frac{\nu^*}{\nu^* - 2} = \mathrm{Var}(D).$$
+$$E[(D - \mu^*)^4] = \frac{3\nu_t^2\,\sigma_t^4}{(\nu_t-2)(\nu_t-4)} +
+  \frac{3\nu_c^2\,\sigma_c^4}{(\nu_c-2)(\nu_c-4)} +
+  6\,\mathrm{Var}(T_t)\,\mathrm{Var}(T_c).$$
 
-The degrees of freedom $\nu^*$ and scale $\sigma^*$ are determined from
-the fourth moment matching or by a closed-form relationship derived from
-the Welch-Satterthwaite approximation. This yields a fully closed-form,
-vectorised approximation implemented in `ptdiff_MM()`, making it the
-recommended method for large-scale simulation studies.
+Denoting $Q^* = \{\mathrm{Var}(D)\}^2$ and
+$Q = E[(D-\mu^*)^4]/3$, the effective degrees of freedom are obtained by
+equating the normalised fourth moment of $D$ to that of $t_{\nu^*}$:
+
+$$\nu^* = \frac{2Q^* - 4Q}{Q^* - Q}.$$
+
+The scale parameter follows from the second-moment equation:
+
+$$\sigma^* = \sqrt{\mathrm{Var}(D)\,\frac{\nu^* - 2}{\nu^*}}.$$
+
+This yields a fully closed-form, vectorised approximation implemented in
+`ptdiff_MM()`, making it the recommended method for large-scale simulation
+studies. The approximation requires $\nu_t > 4$ and $\nu_c > 4$.
 
 ---
 
@@ -241,66 +254,67 @@ recommended method for large-scale simulation studies.
 ### 4.1 Controlled Design
 
 The standard parallel-group randomised controlled trial (RCT) with
-concurrent treatment ($j = 1$) and control ($j = 2$) arms. Both
+concurrent treatment ($j = t$) and control ($j = c$) groups. Both
 posterior distributions are updated from the observed PoC data, and the
-probability is evaluated for the treatment effect $\theta = \pi_1 - \pi_2$
-(binary) or $\theta = \mu_1 - \mu_2$ (continuous).
+probability is evaluated for the treatment effect $\theta = \pi_t - \pi_c$
+(binary) or $\theta = \mu_t - \mu_c$ (continuous).
 
 ### 4.2 Uncontrolled Design (Single-Arm with Hypothetical Control)
 
-When no concurrent control arm is available (single-arm PoC trial), the
+When no concurrent control group is available (single-group PoC trial), the
 control distribution is specified from external knowledge rather than
 observed data.
 
-**Binary endpoint**: a hypothetical responder count $z$ is specified for the
-control group of size $n_2$, yielding posterior shape parameters
-$a_2^* = a_2 + z$ and $b_2^* = b_2 + n_2 - z$.
+Binary endpoint: a hypothetical responder count $z$ is specified for the
+control group of size $n_c$, yielding posterior shape parameters
+$a_c^* = a_c + z$ and $b_c^* = b_c + n_c - z$.
 
-**Continuous endpoint**: the hypothetical control mean $\mu_{02}$ is fixed
-from prior knowledge and the control variance is scaled relative to the
+Continuous endpoint: the hypothetical control mean $\mu_{0c}$ (`mu0_c`) is
+fixed from prior knowledge and the control variance is scaled relative to the
 treatment posterior variance via a scaling factor $r > 0$:
 
-$$\sigma_{\mathrm{control}} = \sqrt{r} \cdot \sigma_{\mathrm{treatment}},$$
+$$\sigma_c = \sqrt{r} \cdot \sigma_t,$$
 
 so the scale of the control $t$-distribution is $\sqrt{r}$ times that of
 the treatment.
 
-### 4.3 External Control Design (Power Prior)
+### 4.3 External Design (Power Prior)
 
-Historical or external data are incorporated through a **power prior** with
-borrowing weight $\alpha_e \in (0, 1]$. Under the Beta-Binomial model for
+Historical or external data are incorporated through a power prior with
+borrowing weight $\alpha_{0e} \in (0, 1]$. Under the Beta-Binomial model for
 group $j$, the power prior augments the initial prior by a fraction
-$\alpha_{ej}$ of the external data sufficient statistics:
+$\alpha_{0ej}$ (`alpha0e_t`, `alpha0e_c`) of the external data sufficient statistics:
 
 $$(\alpha_j^*,\; \beta_j^*) =
-  \left(a_j + \alpha_{ej}\, y_{ej},\;\;
-  b_j + \alpha_{ej}(n_{ej} - y_{ej})\right),$$
+  \left(a_j + \alpha_{0ej}\, y_{ej},\;\;
+  b_j + \alpha_{0ej}(n_{ej} - y_{ej})\right),$$
 
-where $n_{ej}$ and $y_{ej}$ are the external sample size and responder
-count for group $j$. These augmented parameters then serve as the prior for
-the current PoC data, yielding a closed-form posterior without MCMC.
+where $n_{ej}$ (`ne_t`, `ne_c`) and $y_{ej}$ (`ye_t`, `ye_c`) are the
+external sample size and responder count for group $j$. These augmented
+parameters then serve as the prior for the current PoC data, yielding a
+closed-form posterior without MCMC.
 
 Under the N-Inv-$\chi^2$ model, the power prior inflates the prior
 precision and degrees of freedom by the weighted external sample:
 
-$$\kappa_{0j}^* = \alpha_{ej}\, n_{ej}, \quad
-  \nu_{0j}^* = \alpha_{ej}\, n_{ej} - 1,$$
+$$\kappa_{0j}^* = \alpha_{0ej}\, n_{ej}, \quad
+  \nu_{0j}^* = \alpha_{0ej}\, n_{ej} - 1,$$
 
 $$\mu_{0j}^* = \bar{y}_{ej}, \quad
   \sigma_{0j}^{*2} = s_{ej}^2,$$
 
 leading to the posterior updates
 
-$$\mu_{nj} = \frac{\alpha_{ej} n_{ej}\, \bar{y}_{ej} + n_j\, \bar{y}_j}
-  {\alpha_{ej} n_{ej} + n_j},$$
+$$\mu_{nj} = \frac{\alpha_{0ej} n_{ej}\, \bar{y}_{ej} + n_j\, \bar{y}_j}
+  {\alpha_{0ej} n_{ej} + n_j},$$
 
-$$\sigma_{nj}^2 = \frac{\alpha_{ej}(n_{ej}-1) s_{ej}^2 + (n_j-1) s_j^2 +
-  \dfrac{\alpha_{ej} n_{ej} n_j (\bar{y}_{ej} - \bar{y}_j)^2}
-        {\alpha_{ej} n_{ej} + n_j}}
-  {\alpha_{ej} n_{ej} + n_j},$$
+$$\sigma_{nj}^2 = \frac{\alpha_{0ej}(n_{ej}-1) s_{ej}^2 + (n_j-1) s_j^2 +
+  \dfrac{\alpha_{0ej} n_{ej} n_j (\bar{y}_{ej} - \bar{y}_j)^2}
+        {\alpha_{0ej} n_{ej} + n_j}}
+  {\alpha_{0ej} n_{ej} + n_j},$$
 
-with degrees of freedom $\nu_{nj} = \alpha_{ej} n_{ej} + n_j - 1$.
-Setting $\alpha_{ej} = 1$ corresponds to full borrowing; $\alpha_{ej} \to 0$
+with degrees of freedom $\nu_{nj} = \alpha_{0ej} n_{ej} + n_j - 1$.
+Setting $\alpha_{0ej} = 1$ corresponds to full borrowing; $\alpha_{0ej} \to 0$
 recovers the vague-prior result from the current data alone.
 
 ---
@@ -310,68 +324,68 @@ recovers the vague-prior result from the current data alone.
 ### 5.1 Single Endpoint
 
 The Go/NoGo/Gray decision rule uses two pre-specified thresholds
-$\gamma_1 > \gamma_2$ applied to a pair of probabilities
-$(g_{\mathrm{Go}},\, g_{\mathrm{NoGo}})$:
+$\gamma_{\mathrm{go}} > \gamma_{\mathrm{nogo}}$ (`gamma_go`, `gamma_nogo`) applied to a
+pair of probabilities $(g_{\mathrm{go}},\, g_{\mathrm{nogo}})$:
 
 $$\text{Decision} = \begin{cases}
-  \textbf{Go}   & \text{if } g_{\mathrm{Go}}   \ge \gamma_1 \text{ AND }
-                              g_{\mathrm{NoGo}} <  \gamma_2 \\
-  \textbf{NoGo} & \text{if } g_{\mathrm{Go}}   <  \gamma_1 \text{ AND }
-                              g_{\mathrm{NoGo}} \ge \gamma_2 \\
-  \textbf{Miss} & \text{if } g_{\mathrm{Go}}   \ge \gamma_1 \text{ AND }
-                              g_{\mathrm{NoGo}} \ge \gamma_2 \\
-  \textbf{Gray} & \text{otherwise (neither Go nor NoGo criterion met).}
+  \text{Go}   & \text{if } g_{\mathrm{go}}   \ge \gamma_{\mathrm{go}} \text{ AND }
+                              g_{\mathrm{nogo}} <  \gamma_{\mathrm{nogo}} \\
+  \text{NoGo} & \text{if } g_{\mathrm{go}}   <  \gamma_{\mathrm{go}} \text{ AND }
+                              g_{\mathrm{nogo}} \ge \gamma_{\mathrm{nogo}} \\
+  \text{Miss} & \text{if } g_{\mathrm{go}}   \ge \gamma_{\mathrm{go}} \text{ AND }
+                              g_{\mathrm{nogo}} \ge \gamma_{\mathrm{nogo}} \\
+  \text{Gray} & \text{otherwise (neither Go nor NoGo criterion met).}
 \end{cases}$$
 
 A Miss occurs when both Go and NoGo criteria are simultaneously satisfied,
 which indicates an inconsistent threshold configuration. By default the
 functions stop with an error if Miss probability $> 0$ (`error_if_Miss = TRUE`).
 
-For **posterior probability**, $\theta_{\mathrm{TV}}$ (Target Value) and
-$\theta_{\mathrm{MAV}}$ (Minimum Acceptable Value,
+For posterior probability, $\theta_{\mathrm{TV}}$ (`theta_TV`, Target Value) and
+$\theta_{\mathrm{MAV}}$ (`theta_MAV`, Minimum Acceptable Value,
 $\theta_{\mathrm{TV}} > \theta_{\mathrm{MAV}}$) define two separate
 probabilities:
 
-$$g_{\mathrm{Go}} = P(\theta > \theta_{\mathrm{TV}} \mid \mathbf{y}), \qquad
-  g_{\mathrm{NoGo}} = P(\theta \le \theta_{\mathrm{MAV}} \mid \mathbf{y}).$$
+$$g_{\mathrm{go}} = P(\theta > \theta_{\mathrm{TV}} \mid y_t, y_c), \qquad
+  g_{\mathrm{nogo}} = P(\theta \le \theta_{\mathrm{MAV}} \mid y_t, y_c).$$
 
-For **posterior predictive probability**, a single null threshold
-$\theta_{\mathrm{NULL}}$ is used and the same probability serves both roles:
+For posterior predictive probability, a single null threshold
+$\theta_{\mathrm{NULL}}$ (`theta_NULL`) is used and the same probability serves both roles:
 
-$$g_{\mathrm{Go}} = g_{\mathrm{NoGo}} =
-  P(\tilde{\theta} > \theta_{\mathrm{NULL}} \mid \mathbf{y}),$$
+$$g_{\mathrm{go}} = g_{\mathrm{nogo}} =
+  P(\tilde{\theta} > \theta_{\mathrm{NULL}} \mid y_t, y_c),$$
 
-so the decision reduces to Go if $g \ge \gamma_1$, NoGo if $g < \gamma_2$,
+so the decision reduces to Go if $g \ge \gamma_{\mathrm{go}}$, NoGo if $g < \gamma_{\mathrm{nogo}}$,
 and Gray otherwise (Miss cannot occur in this case).
 
 ### 5.2 Operating Characteristics
 
 For a given true parameter value (e.g., true treatment effect), the
-**operating characteristics** are the marginal probabilities of each
+operating characteristics are the marginal probabilities of each
 decision outcome:
 
-$$\Pr(\mathrm{Go}) = \sum_{\mathbf{y}} \mathbf{1}[\mathrm{decision}(\mathbf{y}) = \mathrm{Go}]\;
-  P(\mathbf{y} \mid \text{true parameter}),$$
+$$\Pr(\mathrm{Go}) = \sum_{y_t, y_c} \mathbf{1}[\mathrm{decision}(y_t, y_c) = \mathrm{Go}]\;
+  P(y_t, y_c \mid \text{true parameter}),$$
 
 and analogously for $\Pr(\mathrm{NoGo})$ and $\Pr(\mathrm{Gray})$, where
-$\mathbf{y}$ denotes the observed data and the sum (or integral for
+$(y_t, y_c)$ denotes the observed data and the sum (or integral for
 continuous outcomes) is taken over all possible outcomes under the true
 parameter.
 
 For binary endpoints, the exact marginal probabilities over all possible
-outcome pairs $(y_1, y_2) \in \{0,\ldots,n_1\} \times \{0,\ldots,n_2\}$ are
+outcome pairs $(y_t, y_c) \in \{0,\ldots,n_t\} \times \{0,\ldots,n_c\}$ are
 computed by `pbayesdecisionprob1bin()` using binomial probability weights:
 
-$$\Pr(\mathrm{Go}) = \sum_{y_1=0}^{n_1} \sum_{y_2=0}^{n_2}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma_1
-    \;\text{ and }\; g_{\mathrm{NoGo}}(y_1, y_2) < \gamma_2\right]\;
-  \binom{n_1}{y_1} \pi_1^{y_1}(1-\pi_1)^{n_1-y_1}\;
-  \binom{n_2}{y_2} \pi_2^{y_2}(1-\pi_2)^{n_2-y_2}.$$
+$$\Pr(\mathrm{Go}) = \sum_{y_t=0}^{n_t} \sum_{y_c=0}^{n_c}
+  \mathbf{1}\!\left[g_{\mathrm{go}}(y_t, y_c) \ge \gamma_{\mathrm{go}}
+    \;\text{ and }\; g_{\mathrm{nogo}}(y_t, y_c) < \gamma_{\mathrm{nogo}}\right]\;
+  \binom{n_t}{y_t} \pi_t^{y_t}(1-\pi_t)^{n_t-y_t}\;
+  \binom{n_c}{y_c} \pi_c^{y_c}(1-\pi_c)^{n_c-y_c}.$$
 
 For continuous endpoints, the operating characteristics are estimated by
 Monte Carlo simulation over $n_{\mathrm{sim}}$ replicates in
 `pbayesdecisionprob1cont()`: for each replicate $i$, a dataset
-$(\bar{y}_1^{(i)}, s_1^{(i)}, \bar{y}_2^{(i)}, s_2^{(i)})$ is generated
+$(\bar{y}_t^{(i)}, s_t^{(i)}, \bar{y}_c^{(i)}, s_c^{(i)})$ is generated
 from the true parameter distribution, the probability $g^{(i)}$ is
 computed, and the decision is recorded. Empirical proportions over all
 replicates yield the estimated operating characteristics.
@@ -379,23 +393,23 @@ replicates yield the estimated operating characteristics.
 ### 5.3 Optimal Threshold Search
 
 The `getgamma` family of functions finds the optimal pair
-$(\gamma_1, \gamma_2)$ by grid search over a user-supplied candidate grid
+$(\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}})$ by grid search over a user-supplied candidate grid
 $\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\} \subset (0, 1)$.
-A **two-stage precompute-then-sweep** strategy is used for efficiency:
+A two-stage precompute-then-sweep strategy is used for efficiency:
 
-**Stage 1 (Precomputation):** all posterior/predictive probabilities
-$g(y_1, y_2)$ (binary) or $g^{(i)}$ (continuous, over $n_{\mathrm{sim}}$
+Stage 1 (Precomputation): all posterior/predictive probabilities
+$g(y_t, y_c)$ (binary) or $g^{(i)}$ (continuous, over $n_{\mathrm{sim}}$
 replicates) are computed once, independently of $\gamma$.
 
-**Stage 2 (Gamma sweep):** for each candidate $\gamma \in \Gamma$,
+Stage 2 (Gamma sweep): for each candidate $\gamma \in \Gamma$,
 $\Pr(\mathrm{Go} \mid \gamma)$ and $\Pr(\mathrm{NoGo} \mid \gamma)$ are
 obtained by fast indicator summations over the precomputed values without
 additional probability evaluations.
 
-The optimal $\gamma_1$ is then selected as the smallest (or largest)
-value in $\Gamma$ such that $\Pr(\mathrm{Go} \mid \gamma_1)$ satisfies a
+The optimal $\gamma_{\mathrm{go}}$ is then selected as the smallest (or largest)
+value in $\Gamma$ such that $\Pr(\mathrm{Go} \mid \gamma_{\mathrm{go}})$ satisfies a
 user-specified criterion (e.g., $\Pr(\mathrm{Go}) < 0.05$ under the null
-scenario), and $\gamma_2$ is selected analogously for the NoGo criterion.
+scenario), and $\gamma_{\mathrm{nogo}}$ is selected analogously for the NoGo criterion.
 
 ---
 
@@ -407,9 +421,9 @@ When two endpoints are evaluated jointly, the treatment effect vector is
 $\boldsymbol{\theta} = (\theta_1, \theta_2)$.  For each endpoint $k = 1, 2$,
 three zones are defined by $\theta_{\mathrm{TV}k}$ and $\theta_{\mathrm{MAV}k}$:
 
-- **Go zone**: $\theta_k > \theta_{\mathrm{TV}k}$
-- **Gray zone**: $\theta_{\mathrm{MAV}k} < \theta_k \le \theta_{\mathrm{TV}k}$
-- **NoGo zone**: $\theta_k \le \theta_{\mathrm{MAV}k}$
+- Go zone: $\theta_k > \theta_{\mathrm{TV}k}$
+- Gray zone: $\theta_{\mathrm{MAV}k} < \theta_k \le \theta_{\mathrm{TV}k}$
+- NoGo zone: $\theta_k \le \theta_{\mathrm{MAV}k}$
 
 Their Cartesian product defines nine mutually exclusive regions
 $R_1, \ldots, R_9$:
@@ -424,18 +438,18 @@ cat('
       linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
       min-width:80px; min-height:60px; padding:4px;">
     </th>
-    <th colspan="3" style="border:1px solid #aaa; padding:6px;">Endpoint 1</th>
+    <th colspan="3" style="border:1px solid #aaa; padding:6px; font-weight:normal;">Endpoint 1</th>
   </tr>
   <tr>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &gt; &theta;<sub>TV1</sub></th>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>TV1</sub> &ge; &theta;<sub>1</sub> &gt; &theta;<sub>MAV1</sub></th>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>MAV1</sub> &ge; &theta;<sub>1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>1</sub> &gt; &theta;<sub>TV1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>TV1</sub> &ge; &theta;<sub>1</sub> &gt; &theta;<sub>MAV1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>MAV1</sub> &ge; &theta;<sub>1</sub></th>
   </tr>
 </thead>
 <tbody>
   <tr>
     <td rowspan="3" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
-        transform:rotate(180deg); font-weight:bold;">Endpoint 2</td>
+        transform:rotate(180deg);">Endpoint 2</td>
     <td style="border:1px solid #aaa; padding:6px; text-align:left;">
       &theta;<sub>2</sub> &gt; &theta;<sub>TV2</sub></td>
     <td style="border:1px solid #aaa; padding:6px;">R1</td>
@@ -462,8 +476,8 @@ cat('
 ```
 
 Region $R_1$ (both endpoints exceed $\theta_{\mathrm{TV}}$) is typically
-designated as **Go** and $R_9$ (both endpoints below $\theta_{\mathrm{MAV}}$)
-as **NoGo**.
+designated as Go and $R_9$ (both endpoints below $\theta_{\mathrm{MAV}}$)
+as NoGo.
 
 ### 6.2 Four-Region Grid (Predictive Probability)
 
@@ -480,17 +494,17 @@ cat('
       linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
       min-width:80px; min-height:60px; padding:4px;">
     </th>
-    <th colspan="2" style="border:1px solid #aaa; padding:6px;">Endpoint 1</th>
+    <th colspan="2" style="border:1px solid #aaa; padding:6px; font-weight:normal;">Endpoint 1</th>
   </tr>
   <tr>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &gt; &theta;<sub>NULL1</sub></th>
-    <th style="border:1px solid #aaa; padding:6px;">&theta;<sub>1</sub> &le; &theta;<sub>NULL1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>1</sub> &gt; &theta;<sub>NULL1</sub></th>
+    <th style="border:1px solid #aaa; padding:6px; font-weight:normal;">&theta;<sub>1</sub> &le; &theta;<sub>NULL1</sub></th>
   </tr>
 </thead>
 <tbody>
   <tr>
     <td rowspan="2" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
-        transform:rotate(180deg); font-weight:bold;">Endpoint 2</td>
+        transform:rotate(180deg);">Endpoint 2</td>
     <td style="border:1px solid #aaa; padding:6px; text-align:left;">
       &theta;<sub>2</sub> &gt; &theta;<sub>NULL2</sub></td>
     <td style="border:1px solid #aaa; padding:6px;">R1</td>
@@ -509,18 +523,18 @@ cat('
 
 ### 6.3 Joint Posterior for Two Binary Endpoints
 
-For two binary endpoints with response rates $(\pi_1^{(1)}, \pi_2^{(1)})$
-(endpoint 1) and $(\pi_1^{(2)}, \pi_2^{(2)})$ (endpoint 2), a
-Dirichlet-multinomial model is used. In a treatment arm of size $n_1$,
+For two binary endpoints with response rates $(\pi_t^{(1)}, \pi_c^{(1)})$
+(endpoint 1) and $(\pi_t^{(2)}, \pi_c^{(2)})$ (endpoint 2), a
+Dirichlet-multinomial model is used. In a treatment group of size $n_t$,
 define the four mutually exclusive categories (both respond, only endpoint 1
 responds, only endpoint 2 responds, neither responds) with probabilities
-$\mathbf{p}_1 = (p_{11}, p_{10}, p_{01}, p_{00})$.
+$\mathbf{p}_t = (p_{t,11}, p_{t,10}, p_{t,01}, p_{t,00})$.
 
-A Dirichlet prior $\mathrm{Dir}(\mathbf{a}_1)$ and the observed
-multinomial counts $\mathbf{x}_1$ yield the conjugate posterior
+A Dirichlet prior $\mathrm{Dir}(\mathbf{a}_t)$ and the observed
+multinomial counts $\mathbf{x}_t$ yield the conjugate posterior
 
-$$\mathbf{p}_1 \mid \mathbf{x}_1 \;\sim\;
-  \mathrm{Dir}(\mathbf{a}_1 + \mathbf{x}_1).$$
+$$\mathbf{p}_t \mid \mathbf{x}_t \;\sim\;
+  \mathrm{Dir}(\mathbf{a}_t + \mathbf{x}_t).$$
 
 The joint probabilities for the nine regions are computed by
 Monte Carlo draws from the Dirichlet posteriors in
@@ -532,8 +546,8 @@ For two continuous endpoints, a Normal-Inverse-Wishart (N-Inv-W)
 conjugate prior is placed on $(\boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j)$:
 
 $$(\boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j) \;\sim\;
-  \mathrm{N\text{-}Inv\text{-}W}(\mathbf{m}_{0j},\, \kappa_{0j},\,
-  \nu_{0j},\, \mathbf{V}_{0j}).$$
+  \mathrm{N\text{-}Inv\text{-}W}(\boldsymbol{\mu}_{0j},\, \kappa_{0j},\,
+  \nu_{0j},\, \mathbf{V}_{0j}), \quad j = t, c.$$
 
 Given $n_j$ bivariate observations, the posterior parameters are updated
 analogously to the univariate case, yielding a matrix-$t$ predictive
@@ -596,10 +610,11 @@ knitr::kable(data.frame(
 # Observed: 7/10 responders (treatment), 3/10 (control)
 pbayespostpred1bin(
   prob = 'posterior', design = 'controlled', theta0 = 0.05,
-  n1 = 10, n2 = 10, y1 = 7, y2 = 3,
-  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
-  m1 = NULL, m2 = NULL, z = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL,
+  n_t = 10, n_c = 10, y_t = 7, y_c = 3,
+  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
+  m_t = NULL, m_c = NULL, z = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   lower.tail = FALSE
 )
 ```
@@ -612,15 +627,15 @@ pbayespostpred1bin(
 pbayespostpred1cont(
   prob = 'posterior', design = 'controlled', prior = 'vague',
   CalcMethod = 'MM', theta0 = 1.0, nMC = NULL,
-  n1 = 10, n2 = 10,
-  bar.y1 = 3.5, s1 = 2.0,
-  bar.y2 = 1.2, s2 = 2.0,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  n_t = 10, n_c = 10,
+  bar_y_t = 3.5, s_t = 2.0,
+  bar_y_c = 1.2, s_c = 2.0,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL
 )
 ```
 
@@ -631,33 +646,35 @@ pbayespostpred1cont(
 pbayesdecisionprob1bin(
   prob      = 'posterior',
   design    = 'controlled',
-  theta.TV  = 0.20,  theta.MAV = 0.05,  theta.NULL = NULL,
-  gamma1    = 0.80,  gamma2    = 0.20,
-  pi1       = c(0.15, 0.30, 0.50),
-  pi2       = rep(0.15, 3),
-  n1 = 10,  n2 = 10,
-  a1 = 0.5, b1 = 0.5, a2 = 0.5, b2 = 0.5,
-  z = NULL, m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  theta_TV  = 0.20,  theta_MAV = 0.05,  theta_NULL = NULL,
+  gamma_go  = 0.80,  gamma_nogo = 0.20,
+  pi_t      = c(0.15, 0.30, 0.50),
+  pi_c      = rep(0.15, 3),
+  n_t = 10,  n_c = 10,
+  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
+  z = NULL, m_t = NULL, m_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL
 )
 ```
 
 ### 8.4 Optimal Threshold Search
 
 ```{r qs-gamma}
-# Find gamma1 (smallest gamma s.t. Pr(Go) < 0.05 under null)
-# and gamma2 (largest gamma s.t. Pr(NoGo) < 0.20 under null)
+# Find gamma_go (smallest gamma s.t. Pr(Go) < 0.05 under null)
+# and gamma_nogo (largest gamma s.t. Pr(NoGo) < 0.20 under null)
 getgamma1bin(
   prob = 'posterior', design = 'controlled',
-  theta.TV = 0.20, theta.MAV = 0.05, theta.NULL = NULL,
-  pi1 = 0.15, pi2 = 0.15,
+  theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
+  pi_t = 0.15, pi_c = 0.15,
   target_go = 0.05, target_nogo = 0.20,
   crit_go = '<', crit_nogo = '<',
   sel_go = 'smallest', sel_nogo = 'largest',
-  n1 = 12L, n2 = 12L,
-  a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5,
-  z = NULL, m1 = NULL, m2 = NULL,
-  ne1 = NULL, ne2 = NULL, ye1 = NULL, ye2 = NULL, ae1 = NULL, ae2 = NULL
+  n_t = 12L, n_c = 12L,
+  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
+  z = NULL, m_t = NULL, m_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL
 )
 ```
 

@@ -23,24 +23,25 @@ library(BayesianQDM)
 We use a hypothetical Phase IIa proof-of-concept (PoC) trial in
 moderate-to-severe rheumatoid arthritis (RA). The investigational drug
 is compared with placebo in a 1:1 randomised controlled trial with
-$n_1 = n_2 = 15$ patients per arm.
+$n_t = n_c = 15$ patients per group.
 
-**Endpoint**: change from baseline in DAS28 score (a larger decrease
+Endpoint: change from baseline in DAS28 score (a larger decrease
 indicates greater improvement).
 
-**Clinically meaningful thresholds** (posterior probability):
+Clinically meaningful thresholds (posterior probability):
 
 - Target Value ($\theta_{\mathrm{TV}}$) = 1.5 (ambitious target)
 - Minimum Acceptable Value ($\theta_{\mathrm{MAV}}$) = 0.5 (lower bar)
 
-**Null hypothesis threshold** (predictive probability):
+Null hypothesis threshold (predictive probability):
 $\theta_{\mathrm{NULL}} = 1.0$.
 
-**Decision thresholds**: $\gamma_1 = 0.80$ (Go), $\gamma_2 = 0.20$ (NoGo).
+Decision thresholds: $\gamma_{\mathrm{go}} = 0.80$ (Go),
+$\gamma_{\mathrm{nogo}} = 0.20$ (NoGo).
 
-**Observed data** (used in Sections 2–4):
-$\bar{y}_1 = 3.2$, $s_1 = 2.0$ (treatment);
-$\bar{y}_2 = 1.1$, $s_2 = 1.8$ (control).
+Observed data (used in Sections 2--4):
+$\bar{y}_t = 3.2$, $s_t = 2.0$ (treatment);
+$\bar{y}_c = 1.1$, $s_c = 1.8$ (control).
 
 ---
 
@@ -48,10 +49,10 @@ $\bar{y}_2 = 1.1$, $s_2 = 1.8$ (control).
 
 ### 1.1 Prior Distribution
 
-For group $j$ ($j = 1$: treatment, $j = 2$: control), we model the
-continuous outcome as
+For group $j$ ($j = t$: treatment, $j = c$: control), patient $i$
+($i = 1, \ldots, n_j$), we model the continuous outcome as
 
-$$y_{ji} \mid \mu_j, \sigma_j^2 \;\overset{iid}{\sim}\;
+$$y_{ij} \mid \mu_j, \sigma_j^2 \;\overset{iid}{\sim}\;
   \mathcal{N}(\mu_j,\, \sigma_j^2).$$
 
 The conjugate prior is the Normal-Inverse-Chi-squared (N-Inv-$\chi^2$)
@@ -61,11 +62,13 @@ $$(\mu_j,\, \sigma_j^2) \;\sim\;
   \mathrm{N\text{-}Inv\text{-}\chi^2}
   \!\left(\mu_{0j},\, \kappa_{0j},\, \nu_{0j},\, \sigma_{0j}^2\right),$$
 
-where $\mu_{0j}$ is the prior mean, $\kappa_{0j} > 0$ the prior precision
-(pseudo-sample size), $\nu_{0j} > 0$ the prior degrees of freedom, and
-$\sigma_{0j}^2 > 0$ the prior scale.
+where $\mu_{0j}$ (`mu0_t`, `mu0_c`) is the prior mean,
+$\kappa_{0j}$ (`kappa0_t`, `kappa0_c`) $> 0$ the prior precision
+(pseudo-sample size), $\nu_{0j}$ (`nu0_t`, `nu0_c`) $> 0$ the prior
+degrees of freedom, and $\sigma_{0j}^2$ (`sigma0_t`, `sigma0_c`) $> 0$
+the prior scale.
 
-**Vague (Jeffreys) prior** is obtained by letting
+The vague (Jeffreys) prior is obtained by letting
 $\kappa_{0j} \to 0$ and $\nu_{0j} \to 0$, which places minimal information
 on the parameters.
 
@@ -90,7 +93,7 @@ $$\mu_j \mid \mathbf{y}_j \;\sim\;
   t_{\nu_{nj}}\!\!\left(\mu_{nj},\;
   \frac{\sigma_{nj}}{\sqrt{\kappa_{nj}}}\right).$$
 
-Under the **vague prior** ($\kappa_{0j} = \nu_{0j} = 0$), this simplifies to
+Under the vague prior ($\kappa_{0j} = \nu_{0j} = 0$), this simplifies to
 
 $$\mu_j \mid \mathbf{y}_j \;\sim\;
   t_{n_j - 1}\!\!\left(\bar{y}_j,\;
@@ -98,12 +101,12 @@ $$\mu_j \mid \mathbf{y}_j \;\sim\;
 
 ### 1.3 Posterior of the Treatment Effect
 
-The treatment effect is $\theta = \mu_1 - \mu_2$.  Since the two groups
+The treatment effect is $\theta = \mu_t - \mu_c$.  Since the two groups
 are independent, the posterior of $\theta$ is the distribution of the
 difference of two independent non-standardised $t$-variables:
 
 $$T_j \;\sim\; t_{\nu_{nj}}(\mu_{nj},\, \sigma_{nj}^{\dagger}), \qquad
-  j = 1, 2,$$
+  j = t, c,$$
 
 where the posterior scale is
 $\sigma_{nj}^{\dagger} = \sigma_{nj} / \sqrt{\kappa_{nj}}$.
@@ -111,7 +114,7 @@ $\sigma_{nj}^{\dagger} = \sigma_{nj} / \sqrt{\kappa_{nj}}$.
 The posterior probability that $\theta$ exceeds a threshold $\theta_0$,
 
 $$P(\theta > \theta_0 \mid \mathbf{y}) =
-  P(T_1 - T_2 > \theta_0),$$
+  P(T_t - T_c > \theta_0),$$
 
 is computed by one of three methods described in Section 3.
 
@@ -141,7 +144,7 @@ $$\bar{\tilde{y}}_j \mid \mathbf{y}_j \;\sim\;
 The posterior predictive probability that the future treatment effect
 exceeds the null threshold $\theta_{\mathrm{NULL}}$ is
 
-$$P\!\left(\bar{\tilde{y}}_1 - \bar{\tilde{y}}_2 > \theta_{\mathrm{NULL}}
+$$P\!\left(\bar{\tilde{y}}_t - \bar{\tilde{y}}_c > \theta_{\mathrm{NULL}}
   \mid \mathbf{y}\right),$$
 
 computed by the same three methods as the posterior probability but with
@@ -153,12 +156,12 @@ the predictive scale replacing the posterior scale.
 
 ### 3.1 Numerical Integration (NI)
 
-The exact CDF of $D = T_1 - T_2$ is expressed as a one-dimensional integral:
+The exact CDF of $D = T_t - T_c$ is expressed as a one-dimensional integral:
 
 $$P(D \le \theta_0) =
   \int_{-\infty}^{\infty}
-  F_{t_{\nu_2}(\mu_2, \sigma_2)}\!\left(t - \theta_0\right)\,
-  f_{t_{\nu_1}(\mu_1, \sigma_1)}(t)\; dt,$$
+  F_{t_{\nu_c}(\mu_c, \sigma_c)}\!\left(t - \theta_0\right)\,
+  f_{t_{\nu_t}(\mu_t, \sigma_t)}(t)\; dt,$$
 
 where $F_{t_\nu(\mu,\sigma)}$ and $f_{t_\nu(\mu,\sigma)}$ are the CDF and
 PDF of the non-standardised $t$-distribution respectively. This integral is
@@ -170,8 +173,8 @@ and is therefore slow for large-scale simulation.
 
 $n_{\mathrm{MC}}$ independent samples are drawn from each marginal:
 
-$$T_1^{(i)} \;\sim\; t_{\nu_1}(\mu_1, \sigma_1), \quad
-  T_2^{(i)} \;\sim\; t_{\nu_2}(\mu_2, \sigma_2), \quad
+$$T_t^{(i)} \;\sim\; t_{\nu_t}(\mu_t, \sigma_t), \quad
+  T_c^{(i)} \;\sim\; t_{\nu_c}(\mu_c, \sigma_c), \quad
   i = 1, \ldots, n_{\mathrm{MC}},$$
 
 and the probability is estimated as
@@ -179,7 +182,7 @@ and the probability is estimated as
 $$\widehat{P}(D > \theta_0) =
   \frac{1}{n_{\mathrm{MC}}}
   \sum_{i=1}^{n_{\mathrm{MC}}}
-  \mathbf{1}\!\left[T_1^{(i)} - T_2^{(i)} > \theta_0\right].$$
+  \mathbf{1}\!\left[T_t^{(i)} - T_c^{(i)} > \theta_0\right].$$
 
 When called from `pbayesdecisionprob1cont()` with $n_{\mathrm{sim}}$
 simulation replicates, all draws are generated as a single
@@ -187,26 +190,26 @@ $n_{\mathrm{MC}} \times n_{\mathrm{sim}}$ matrix to avoid loop overhead.
 
 ### 3.3 Moment-Matching Approximation (MM)
 
-The difference $D = T_1 - T_2$ is approximated by a single
+The difference $D = T_t - T_c$ is approximated by a single
 non-standardised $t$-distribution
 $D \approx t_{\nu^*}(\mu^*, \sigma^*)$ by matching its first two even
 moments.
 
-**Step 1**: The mean of $D$ is
+Step 1: The mean of $D$ is
 
-$$\mu^* = \mu_1 - \mu_2.$$
+$$\mu^* = \mu_t - \mu_c.$$
 
-**Step 2**: The variance of each $T_j$ is
+Step 2: The variance of each $T_j$ is
 
 $$\mathrm{Var}(T_j) = \sigma_j^2 \cdot \frac{\nu_j}{\nu_j - 2}
   \qquad (\nu_j > 2),$$
 
 so the variance of $D$ is
 
-$$V = \mathrm{Var}(D) = \sigma_1^2\,\frac{\nu_1}{\nu_1 - 2} +
-  \sigma_2^2\,\frac{\nu_2}{\nu_2 - 2}.$$
+$$V = \mathrm{Var}(D) = \sigma_t^2\,\frac{\nu_t}{\nu_t - 2} +
+  \sigma_c^2\,\frac{\nu_c}{\nu_c - 2}.$$
 
-**Step 3**: The effective degrees of freedom $\nu^*$ are obtained from
+Step 3: The effective degrees of freedom $\nu^*$ are obtained from
 the fourth-moment equation. The fourth central moment of
 $T_j \sim t_{\nu_j}(\mu_j, \sigma_j)$ is
 
@@ -221,23 +224,23 @@ $$\nu^* =
 
 where
 
-$$Q = \sigma_1^4\,\frac{\nu_1^2}{(\nu_1-2)(\nu_1-4)} +
-      \sigma_2^4\,\frac{\nu_2^2}{(\nu_2-2)(\nu_2-4)} +
-      2\,\mathrm{Var}(T_1)\,\mathrm{Var}(T_2).$$
+$$Q = \sigma_t^4\,\frac{\nu_t^2}{(\nu_t-2)(\nu_t-4)} +
+      \sigma_c^4\,\frac{\nu_c^2}{(\nu_c-2)(\nu_c-4)} +
+      2\,\mathrm{Var}(T_t)\,\mathrm{Var}(T_c).$$
 
-**Step 4**: The scale $\sigma^*$ is determined from the second-moment
+Step 4: The scale $\sigma^*$ is determined from the second-moment
 equation:
 
 $$\sigma^* = \sqrt{V \cdot \frac{\nu^* - 2}{\nu^*}}.$$
 
-**Step 5**: The CDF is evaluated as
+Step 5: The CDF is evaluated as
 
 $$P(D > \theta_0) = P\!\left(Z > \frac{\theta_0 - \mu^*}{\sigma^*}\right),
   \quad Z \sim t_{\nu^*}(0, 1),$$
 
 via a single call to `stats::pt()`. This method requires $\nu_j > 4$,
 is exact in the normal limit ($\nu_j \to \infty$), and is fully vectorised
-— making it the recommended method for large-scale simulation.
+--- making it the recommended method for large-scale simulation.
 
 ### 3.4 Comparison of the Three Methods
 
@@ -246,15 +249,15 @@ is exact in the normal limit ($\nu_j \to \infty$), and is fully vectorised
 args_base <- list(
   prob = 'posterior', design = 'controlled', prior = 'vague',
   theta0 = 1.0,
-  n1 = 15, n2 = 15,
-  bar.y1 = 3.2, s1 = 2.0,
-  bar.y2 = 1.1, s2 = 1.8,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  n_t = 15, n_c = 15,
+  bar_y_t = 3.2, s_t = 2.0,
+  bar_y_c = 1.1, s_c = 1.8,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL
 )
 
 p_ni <- do.call(pbayespostpred1cont,
@@ -277,40 +280,40 @@ cat(sprintf("MC : %.6f  (n_MC=10000)\n", p_mc))
 ### 4.1 Controlled Design
 
 Standard parallel-group RCT with observed data from both treatment
-($n_1$, $\bar{y}_1$, $s_1$) and control ($n_2$, $\bar{y}_2$, $s_2$) arms.
+($n_t$, $\bar{y}_t$, $s_t$) and control ($n_c$, $\bar{y}_c$, $s_c$) groups.
 Both posteriors are updated from the PoC data.
 
-**Vague prior — posterior probability**:
+Vague prior --- posterior probability:
 
 ```{r ctrl-post}
-# P(mu1 - mu2 > theta_TV | data) and P(mu1 - mu2 <= theta_MAV | data)
+# P(mu_t - mu_c > theta_TV | data) and P(mu_t - mu_c <= theta_MAV | data)
 p_tv <- pbayespostpred1cont(
   prob = 'posterior', design = 'controlled', prior = 'vague',
   CalcMethod = 'NI', theta0 = 1.5, nMC = NULL,
-  n1 = 15, n2 = 15,
-  bar.y1 = 3.2, s1 = 2.0,
-  bar.y2 = 1.1, s2 = 1.8,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  n_t = 15, n_c = 15,
+  bar_y_t = 3.2, s_t = 2.0,
+  bar_y_c = 1.1, s_c = 1.8,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
   lower.tail = FALSE
 )
 
 p_mav <- pbayespostpred1cont(
   prob = 'posterior', design = 'controlled', prior = 'vague',
   CalcMethod = 'NI', theta0 = 0.5, nMC = NULL,
-  n1 = 15, n2 = 15,
-  bar.y1 = 3.2, s1 = 2.0,
-  bar.y2 = 1.1, s2 = 1.8,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  n_t = 15, n_c = 15,
+  bar_y_t = 3.2, s_t = 2.0,
+  bar_y_c = 1.1, s_c = 1.8,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
   lower.tail = FALSE
 )
 
@@ -324,58 +327,59 @@ cat(sprintf("Decision: %s\n",
                           ifelse(p_tv >= 0.80 & (1 - p_mav) >= 0.20, "Miss", "Gray")))))
 ```
 
-**N-Inv-$\chi^2$ informative prior**:
+N-Inv-$\chi^2$ informative prior:
 
 Historical knowledge suggests treatment mean $\sim 3.0$ and control mean
-$\sim 1.0$ with prior pseudo-sample size $\kappa_{0j} = 5$ and
-degrees of freedom $\nu_{0j} = 5$.
+$\sim 1.0$ with prior pseudo-sample size $\kappa_{0t} = \kappa_{0c} = 5$
+(`kappa0_t`, `kappa0_c`) and degrees of freedom
+$\nu_{0t} = \nu_{0c} = 5$ (`nu0_t`, `nu0_c`).
 
 ```{r ctrl-post-niChisq}
 p_tv_inf <- pbayespostpred1cont(
   prob = 'posterior', design = 'controlled', prior = 'N-Inv-Chisq',
   CalcMethod = 'NI', theta0 = 1.5, nMC = NULL,
-  n1 = 15, n2 = 15,
-  bar.y1 = 3.2, s1 = 2.0,
-  bar.y2 = 1.1, s2 = 1.8,
-  m1 = NULL, m2 = NULL,
-  kappa01 = 5, kappa02 = 5,
-  nu01    = 5, nu02    = 5,
-  mu01    = 3.0, mu02  = 1.0,
-  sigma01 = 2.0, sigma02 = 1.8,
+  n_t = 15, n_c = 15,
+  bar_y_t = 3.2, s_t = 2.0,
+  bar_y_c = 1.1, s_c = 1.8,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = 5, kappa0_c = 5,
+  nu0_t    = 5, nu0_c    = 5,
+  mu0_t    = 3.0, mu0_c  = 1.0,
+  sigma0_t = 2.0, sigma0_c = 1.8,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
   lower.tail = FALSE
 )
 cat(sprintf("P(theta > theta_TV | data, N-Inv-Chisq prior) = %.4f\n", p_tv_inf))
 ```
 
-**Posterior predictive probability** (future Phase III: $m_1 = m_2 = 60$):
+Posterior predictive probability (future Phase III: $m_t = m_c = 60$):
 
 ```{r ctrl-pred}
 p_pred <- pbayespostpred1cont(
   prob = 'predictive', design = 'controlled', prior = 'vague',
   CalcMethod = 'NI', theta0 = 1.0, nMC = NULL,
-  n1 = 15, n2 = 15, m1 = 60, m2 = 60,
-  bar.y1 = 3.2, s1 = 2.0,
-  bar.y2 = 1.1, s2 = 1.8,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  n_t = 15, n_c = 15, m_t = 60, m_c = 60,
+  bar_y_t = 3.2, s_t = 2.0,
+  bar_y_c = 1.1, s_c = 1.8,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
   lower.tail = FALSE
 )
-cat(sprintf("Predictive probability (m1 = m2 = 60) = %.4f\n", p_pred))
+cat(sprintf("Predictive probability (m_t = m_c = 60) = %.4f\n", p_pred))
 ```
 
 ### 4.2 Uncontrolled Design (Single-Arm)
 
-When no concurrent control arm is enrolled, the control distribution is
+When no concurrent control group is enrolled, the control distribution is
 specified from external knowledge:
 
-- Hypothetical control mean: $\mu_{02}$ (fixed scalar)
-- Variance scaling: $\sigma_{\mathrm{control}} = \sqrt{r} \cdot \sigma_{\mathrm{treatment}}$,
+- Hypothetical control mean: $\mu_{0c}$ (`mu0_c`, fixed scalar)
+- Variance scaling: $\sigma_c = \sqrt{r} \cdot \sigma_t$,
   so $r = 1$ assumes equal variances
 
 The posterior of the control mean is not updated from observed data;
@@ -385,16 +389,16 @@ only the treatment posterior is updated.
 p_unctrl <- pbayespostpred1cont(
   prob = 'posterior', design = 'uncontrolled', prior = 'vague',
   CalcMethod = 'MM', theta0 = 1.5, nMC = NULL,
-  n1 = 15, n2 = 15,
-  bar.y1 = 3.2, s1 = 2.0,
-  bar.y2 = NULL, s2 = NULL,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = 1.0,   # hypothetical control mean
-  sigma01 = NULL, sigma02 = NULL,
-  r = 1.0,                   # equal variance assumption
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
+  n_t = 15, n_c = NULL,
+  bar_y_t = 3.2, s_t = 2.0,
+  bar_y_c = NULL, s_c = NULL,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = 1.0,   # hypothetical control mean
+  sigma0_t = NULL, sigma0_c = NULL,
+  r = 1.0,                     # equal variance assumption
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
   lower.tail = FALSE
 )
 cat(sprintf("P(theta > theta_TV | data, uncontrolled) = %.4f\n", p_unctrl))
@@ -402,65 +406,67 @@ cat(sprintf("P(theta > theta_TV | data, uncontrolled) = %.4f\n", p_unctrl))
 
 ### 4.3 External Control Design (Power Prior)
 
-Historical external data from a prior study are incorporated via a power
-prior with borrowing weight $\alpha_{e2} \in (0, 1]$. The augmented
-posterior parameters for the control group are:
+In the external control design, historical external data from a prior study
+are incorporated via a power prior with borrowing weight
+$\alpha_{0e,c} \in (0, 1]$ (`alpha0e_c`). The augmented posterior parameters
+for the control group are:
 
-$$\mu_{n2} = \frac{\alpha_{e2} n_{e2}\, \bar{y}_{e2} + n_2\, \bar{y}_2}
-  {\alpha_{e2} n_{e2} + n_2},$$
+$$\mu_{nc} = \frac{\alpha_{0e,c}\, n_{e,c}\, \bar{y}_{e,c} + n_c\, \bar{y}_c}
+  {\alpha_{0e,c}\, n_{e,c} + n_c},$$
 
-$$\sigma_{n2}^2 = \frac{\alpha_{e2}(n_{e2}-1) s_{e2}^2 + (n_2-1) s_2^2 +
-  \dfrac{\alpha_{e2} n_{e2} n_2 (\bar{y}_{e2} - \bar{y}_2)^2}
-        {\alpha_{e2} n_{e2} + n_2}}
-  {\alpha_{e2} n_{e2} + n_2},$$
+$$\sigma_{nc}^2 = \frac{\alpha_{0e,c}(n_{e,c}-1)\, s_{e,c}^2 + (n_c-1)\, s_c^2 +
+  \dfrac{\alpha_{0e,c}\, n_{e,c}\, n_c\, (\bar{y}_{e,c} - \bar{y}_c)^2}
+        {\alpha_{0e,c}\, n_{e,c} + n_c}}
+  {\alpha_{0e,c}\, n_{e,c} + n_c},$$
 
-with degrees of freedom $\nu_{n2} = \alpha_{e2} n_{e2} + n_2 - 1$.
+with degrees of freedom $\nu_{nc} = \alpha_{0e,c}\, n_{e,c} + n_c - 1$.
 
-Here, $n_{e2} = 20$, $\bar{y}_{e2} = 0.9$, $s_{e2} = 1.8$,
-$\alpha_{e2} = 0.5$ (50% borrowing from external control):
+Here, $n_{e,c} = 20$ (`ne_c`), $\bar{y}_{e,c} = 0.9$ (`bar_ye_c`),
+$s_{e,c} = 1.8$ (`se_c`), $\alpha_{0e,c} = 0.5$ (`alpha0e_c`)
+(50% borrowing from external control):
 
 ```{r ext-post}
 p_ext <- pbayespostpred1cont(
   prob = 'posterior', design = 'external', prior = 'vague',
   CalcMethod = 'MM', theta0 = 1.5, nMC = NULL,
-  n1 = 15, n2 = 15,
-  bar.y1 = 3.2, s1 = 2.0,
-  bar.y2 = 1.1, s2 = 1.8,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  n_t = 15, n_c = 15,
+  bar_y_t = 3.2, s_t = 2.0,
+  bar_y_c = 1.1, s_c = 1.8,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = 20L, alpha01 = NULL, alpha02 = 0.5,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = 0.9, se2 = 1.8,
+  ne_t = NULL, ne_c = 20L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = 0.9, se_c = 1.8,
   lower.tail = FALSE
 )
-cat(sprintf("P(theta > theta_TV | data, external control, alpha=0.5) = %.4f\n",
+cat(sprintf("P(theta > theta_TV | data, external control design, alpha=0.5) = %.4f\n",
             p_ext))
 ```
 
-**Effect of the borrowing weight**: varying $\alpha_{e2}$ from 0 to 1
+Effect of the borrowing weight: varying $\alpha_{0e,c}$ from 0 to 1
 shows how external data influence the posterior.
 
 ```{r ext-borrowing}
-# alpha02 must be in (0, 1]; start from 0.01 to avoid validation error
+# alpha0e_c must be in (0, 1]; start from 0.01 to avoid validation error
 alpha_seq <- c(0.01, seq(0.1, 1.0, by = 0.1))
 p_alpha   <- sapply(alpha_seq, function(a) {
   pbayespostpred1cont(
     prob = 'posterior', design = 'external', prior = 'vague',
     CalcMethod = 'MM', theta0 = 1.5, nMC = NULL,
-    n1 = 15, n2 = 15,
-    bar.y1 = 3.2, s1 = 2.0,
-    bar.y2 = 1.1, s2 = 1.8,
-    m1 = NULL, m2 = NULL,
-    kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-    mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+    n_t = 15, n_c = 15,
+    bar_y_t = 3.2, s_t = 2.0,
+    bar_y_c = 1.1, s_c = 1.8,
+    m_t = NULL, m_c = NULL,
+    kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+    mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
     r = NULL,
-    ne1 = NULL, ne2 = 20L, alpha01 = NULL, alpha02 = a,
-    bar.ye1 = NULL, se1 = NULL, bar.ye2 = 0.9, se2 = 1.8,
+    ne_t = NULL, ne_c = 20L, alpha0e_t = NULL, alpha0e_c = a,
+    bar_ye_t = NULL, se_t = NULL, bar_ye_c = 0.9, se_c = 1.8,
     lower.tail = FALSE
   )
 })
-data.frame(alpha_e2 = alpha_seq, P_gt_TV = round(p_alpha, 4))
+data.frame(alpha_ec = alpha_seq, P_gt_TV = round(p_alpha, 4))
 ```
 
 ---
@@ -469,21 +475,22 @@ data.frame(alpha_e2 = alpha_seq, P_gt_TV = round(p_alpha, 4))
 
 ### 5.1 Definition
 
-For a given true parameter $(\mu_1, \mu_2, \sigma_1, \sigma_2)$, the
+For given true parameters $(\mu_t, \mu_c, \sigma_t, \sigma_c)$, the
 operating characteristics are the probabilities of each decision outcome
-under the Go/NoGo/Gray/Miss rule with thresholds $(\gamma_1, \gamma_2)$.
+under the Go/NoGo/Gray/Miss rule with thresholds
+$(\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}})$.
 These are estimated by Monte Carlo simulation over $n_{\mathrm{sim}}$
 replicates:
 
 $$\widehat{\Pr}(\mathrm{Go}) =
   \frac{1}{n_{\mathrm{sim}}} \sum_{i=1}^{n_{\mathrm{sim}}}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}^{(i)} \ge \gamma_1
-    \;\text{ and }\; g_{\mathrm{NoGo}}^{(i)} < \gamma_2\right],$$
+  \mathbf{1}\!\left[g_{\mathrm{Go}}^{(i)} \ge \gamma_{\mathrm{go}}
+    \;\text{ and }\; g_{\mathrm{NoGo}}^{(i)} < \gamma_{\mathrm{nogo}}\right],$$
 
 $$\widehat{\Pr}(\mathrm{NoGo}) =
   \frac{1}{n_{\mathrm{sim}}} \sum_{i=1}^{n_{\mathrm{sim}}}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}^{(i)} < \gamma_1
-    \;\text{ and }\; g_{\mathrm{NoGo}}^{(i)} \ge \gamma_2\right],$$
+  \mathbf{1}\!\left[g_{\mathrm{Go}}^{(i)} < \gamma_{\mathrm{go}}
+    \;\text{ and }\; g_{\mathrm{NoGo}}^{(i)} \ge \gamma_{\mathrm{nogo}}\right],$$
 
 $$\widehat{\Pr}(\mathrm{Gray}) = 1 -
   \widehat{\Pr}(\mathrm{Go}) - \widehat{\Pr}(\mathrm{NoGo}) -
@@ -496,11 +503,12 @@ $$g_{\mathrm{Go}}^{(i)} = P(\theta > \theta_{\mathrm{TV}} \mid \mathbf{y}^{(i)})
 g_{\mathrm{NoGo}}^{(i)} = P(\theta \le \theta_{\mathrm{MAV}} \mid \mathbf{y}^{(i)})$$
 
 are evaluated for the $i$-th simulated dataset $\mathbf{y}^{(i)}$.
-A Miss ($g_{\mathrm{Go}} \ge \gamma_1$ AND $g_{\mathrm{NoGo}} \ge \gamma_2$)
+A Miss ($g_{\mathrm{Go}} \ge \gamma_{\mathrm{go}}$ AND
+$g_{\mathrm{NoGo}} \ge \gamma_{\mathrm{nogo}}$)
 indicates an inconsistent threshold configuration and triggers an error by
 default (`error_if_Miss = TRUE`).
 
-### 5.2 Controlled Design — Multiple Scenarios
+### 5.2 Controlled Design --- Multiple Scenarios
 
 ```{r oc-controlled}
 oc_ctrl <- pbayesdecisionprob1cont(
@@ -509,20 +517,20 @@ oc_ctrl <- pbayesdecisionprob1cont(
   design     = 'controlled',
   prior      = 'vague',
   CalcMethod = 'MM',
-  theta.TV   = 1.5,  theta.MAV = 0.5,  theta.NULL = NULL,
+  theta_TV   = 1.5,  theta_MAV = 0.5,  theta_NULL = NULL,
   nMC        = NULL,
-  gamma1     = 0.80, gamma2    = 0.20,
-  n1 = 15,   n2 = 15,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1    = c(1.0, 1.5, 2.0, 2.5, 3.0, 3.5),
-  mu2    = 1.0,
-  sigma1 = 2.0,
-  sigma2 = 2.0,
+  gamma_go   = 0.80, gamma_nogo = 0.20,
+  n_t = 15,   n_c = 15,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t    = c(1.0, 1.5, 2.0, 2.5, 3.0, 3.5),
+  mu_c    = 1.0,
+  sigma_t = 2.0,
+  sigma_c = 2.0,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE,
   seed = 42L
 )
@@ -531,9 +539,9 @@ print(oc_ctrl)
 
 ### 5.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment Effect
 
-```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect (mu1 - mu2). Controlled design, vague prior, MM method. True mu2 = 1.0, sigma1 = sigma2 = 2.0, n1 = n2 = 15, gamma1 = 0.80, gamma2 = 0.20."}
+```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect (mu_t - mu_c). Controlled design, vague prior, MM method. True mu_c = 1.0, sigma_t = sigma_c = 2.0, n_t = n_c = 15, gamma_go = 0.80, gamma_nogo = 0.20."}
 # Compute OC over a finer grid of true treatment means
-mu1_seq <- seq(1.0, 4.5, by = 0.5)
+mu_t_seq <- seq(1.0, 4.5, by = 0.5)
 
 oc_grid <- pbayesdecisionprob1cont(
   nsim       = 500L,
@@ -541,25 +549,25 @@ oc_grid <- pbayesdecisionprob1cont(
   design     = 'controlled',
   prior      = 'vague',
   CalcMethod = 'MM',
-  theta.TV   = 1.5,  theta.MAV = 0.5,  theta.NULL = NULL,
+  theta_TV   = 1.5,  theta_MAV = 0.5,  theta_NULL = NULL,
   nMC        = NULL,
-  gamma1     = 0.80, gamma2    = 0.20,
-  n1 = 15,   n2 = 15,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1    = mu1_seq,
-  mu2    = 1.0,
-  sigma1 = 2.0,
-  sigma2 = 2.0,
+  gamma_go   = 0.80, gamma_nogo = 0.20,
+  n_t = 15,   n_c = 15,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t    = mu_t_seq,
+  mu_c    = 1.0,
+  sigma_t = 2.0,
+  sigma_c = 2.0,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE,
   seed = 42L
 )
 
-delta   <- oc_grid$mu1 - 1.0  # true treatment effect (mu1 - mu2)
+delta   <- oc_grid$mu_t - 1.0  # true treatment effect (mu_t - mu_c)
 
 # --- Plot ---
 old_par <- par(mar = c(4.5, 4.5, 3, 1))
@@ -567,7 +575,7 @@ old_par <- par(mar = c(4.5, 4.5, 3, 1))
 plot(delta, oc_grid$Go,
      type = "b", pch = 16, lwd = 2,
      col  = "#2166AC",
-     ylim = c(0, 1), xlab = expression(mu[1] - mu[2]),
+     ylim = c(0, 1), xlab = expression(mu[t] - mu[c]),
      ylab = "Probability",
      main = "Operating Characteristics: Controlled Design (Posterior Prob.)",
      las  = 1)
@@ -590,7 +598,7 @@ text(1.5,  0.05, expression(theta[TV]),  col = "gray40", cex = 0.8)
 par(old_par)
 ```
 
-### 5.4 Uncontrolled Design — Operating Characteristics
+### 5.4 Uncontrolled Design --- Operating Characteristics
 
 ```{r oc-uncontrolled}
 oc_unctrl <- pbayesdecisionprob1cont(
@@ -599,27 +607,27 @@ oc_unctrl <- pbayesdecisionprob1cont(
   design     = 'uncontrolled',
   prior      = 'vague',
   CalcMethod = 'MM',
-  theta.TV   = 1.5,  theta.MAV = 0.5,  theta.NULL = NULL,
+  theta_TV   = 1.5,  theta_MAV = 0.5,  theta_NULL = NULL,
   nMC        = NULL,
-  gamma1     = 0.80, gamma2    = 0.20,
-  n1 = 15,   n2 = 15,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = 1.0, sigma01 = NULL, sigma02 = NULL,
-  mu1    = c(1.5, 2.0, 2.5, 3.0, 3.5),
-  mu2    = 1.0,
-  sigma1 = 2.0,
-  sigma2 = 2.0,
-  r      = 1.0,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = NULL, se2 = NULL,
+  gamma_go   = 0.80, gamma_nogo = 0.20,
+  n_t = 15,   n_c = NULL,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = 1.0, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t    = c(1.5, 2.0, 2.5, 3.0, 3.5),
+  mu_c    = NULL,
+  sigma_t = 2.0,
+  sigma_c = NULL,
+  r       = 1.0,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE,
   seed = 1L
 )
 print(oc_unctrl)
 ```
 
-### 5.5 External Control Design — Operating Characteristics
+### 5.5 External Control Design --- Operating Characteristics
 
 ```{r oc-external}
 oc_ext <- pbayesdecisionprob1cont(
@@ -628,20 +636,20 @@ oc_ext <- pbayesdecisionprob1cont(
   design     = 'external',
   prior      = 'vague',
   CalcMethod = 'MM',
-  theta.TV   = 1.5,  theta.MAV = 0.5,  theta.NULL = NULL,
+  theta_TV   = 1.5,  theta_MAV = 0.5,  theta_NULL = NULL,
   nMC        = NULL,
-  gamma1     = 0.80, gamma2    = 0.20,
-  n1 = 15,   n2 = 15,
-  m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
-  mu1    = c(1.5, 2.0, 2.5, 3.0, 3.5),
-  mu2    = 1.0,
-  sigma1 = 2.0,
-  sigma2 = 2.0,
+  gamma_go   = 0.80, gamma_nogo = 0.20,
+  n_t = 15,   n_c = 15,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
+  mu_t    = c(1.5, 2.0, 2.5, 3.0, 3.5),
+  mu_c    = 1.0,
+  sigma_t = 2.0,
+  sigma_c = 2.0,
   r = NULL,
-  ne1 = NULL, ne2 = 20L, alpha01 = NULL, alpha02 = 0.5,
-  bar.ye1 = NULL, se1 = NULL, bar.ye2 = 0.9, se2 = 1.8,
+  ne_t = NULL, ne_c = 20L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, se_t = NULL, bar_ye_c = 0.9, se_c = 1.8,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE,
   seed = 2L
 )
@@ -655,24 +663,26 @@ print(oc_ext)
 ### 6.1 Objective
 
 The `getgamma1cont()` function finds the optimal pair
-$(\gamma_1^*, \gamma_2^*)$ by grid search over
+$(\gamma_{\mathrm{go}}^*, \gamma_{\mathrm{nogo}}^*)$ by grid search over
 $\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\} \subset (0, 1)$, where:
 
-- $\gamma_1^*$: selected so that $\Pr(\mathrm{Go} \mid \gamma_1^*)$ satisfies
+- $\gamma_{\mathrm{go}}^*$: selected so that
+  $\Pr(\mathrm{Go} \mid \gamma_{\mathrm{go}}^*)$ satisfies
   a criterion against a target value (e.g., $\Pr(\mathrm{Go}) < 0.05$
-  under the null scenario $\mu_1 = \mu_2$).
-- $\gamma_2^*$: selected so that $\Pr(\mathrm{NoGo} \mid \gamma_2^*)$
+  under the null scenario $\mu_t = \mu_c$).
+- $\gamma_{\mathrm{nogo}}^*$: selected so that
+  $\Pr(\mathrm{NoGo} \mid \gamma_{\mathrm{nogo}}^*)$
   satisfies a criterion (e.g., $\Pr(\mathrm{NoGo}) < 0.20$ under the null
   scenario).
 
 The search uses a two-stage strategy:
 
-**Stage 1 (Simulate once)**: $n_{\mathrm{sim}}$ datasets are generated
+Stage 1 (Simulate once): $n_{\mathrm{sim}}$ datasets are generated
 from the true parameter distribution and the probabilities
 $g_{\mathrm{Go}}^{(i)}$ and $g_{\mathrm{NoGo}}^{(i)}$ are computed for
-each replicate — independently of $\gamma$.
+each replicate --- independently of $\gamma$.
 
-**Stage 2 (Sweep over $\Gamma$)**: for each candidate $\gamma \in \Gamma$,
+Stage 2 (Sweep over $\Gamma$): for each candidate $\gamma \in \Gamma$,
 $\Pr(\mathrm{Go} \mid \gamma)$ and $\Pr(\mathrm{NoGo} \mid \gamma)$ are
 computed as empirical proportions over the precomputed indicator values
 without further probability evaluations.
@@ -686,19 +696,19 @@ res_gamma <- getgamma1cont(
   design     = 'controlled',
   prior      = 'vague',
   CalcMethod = 'MM',
-  theta.TV   = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
+  theta_TV   = 1.5, theta_MAV = 0.5, theta_NULL = NULL,
   nMC        = NULL,
-  mu1 = 1.0, mu2 = 1.0,   # null scenario: no treatment effect
-  sigma1 = 2.0, sigma2 = 2.0,
+  mu_t = 1.0, mu_c = 1.0,   # null scenario: no treatment effect
+  sigma_t = 2.0, sigma_c = 2.0,
   target_go   = 0.05, target_nogo   = 0.20,
   crit_go     = '<',  crit_nogo     = '<',
   sel_go      = 'smallest', sel_nogo = 'largest',
-  n1 = 15L, n2 = 15L, m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  n_t = 15L, n_c = 15L, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01),
   seed = 42L
 )
@@ -707,7 +717,7 @@ print(res_gamma)
 
 ### 6.3 Figure: Pr(Go) and Pr(NoGo) Over the Gamma Grid
 
-```{r gamma-plot, fig.cap = "Pr(Go) and Pr(NoGo) as a function of the candidate threshold gamma. The optimal gamma1 (vertical blue dashed line) is the smallest gamma satisfying Pr(Go) < 0.05 under the null scenario. The optimal gamma2 (vertical red dashed line) is the largest gamma satisfying Pr(NoGo) < 0.20 under the null scenario."}
+```{r gamma-plot, fig.cap = "Pr(Go) and Pr(NoGo) as a function of the candidate threshold gamma. The optimal gamma_go (vertical blue dashed line) is the smallest gamma satisfying Pr(Go) < 0.05 under the null scenario. The optimal gamma_nogo (vertical red dashed line) is the largest gamma satisfying Pr(NoGo) < 0.20 under the null scenario."}
 grid_df <- data.frame(
   gamma   = res_gamma$gamma_grid,
   PrGo    = res_gamma$PrGo_grid,
@@ -731,17 +741,17 @@ lines(grid_df$gamma, grid_df$PrNoGo,
 abline(h = 0.05, lty = 2, col = "#2166AC", lwd = 1.2)
 abline(h = 0.20, lty = 2, col = "#D6604D", lwd = 1.2)
 
-if (!is.na(res_gamma$gamma1)) {
-  abline(v = res_gamma$gamma1, lty = 2, col = "#2166AC", lwd = 2)
-  text(res_gamma$gamma1 + 0.02, 0.85,
-       paste0("gamma1* = ", res_gamma$gamma1),
+if (!is.na(res_gamma$gamma_go)) {
+  abline(v = res_gamma$gamma_go, lty = 2, col = "#2166AC", lwd = 2)
+  text(res_gamma$gamma_go + 0.02, 0.85,
+       paste0("gamma_go* = ", res_gamma$gamma_go),
        col = "#2166AC", cex = 0.85, adj = 0)
 }
 
-if (!is.na(res_gamma$gamma2)) {
-  abline(v = res_gamma$gamma2, lty = 2, col = "#D6604D", lwd = 2)
-  text(res_gamma$gamma2 - 0.02, 0.70,
-       paste0("gamma2* = ", res_gamma$gamma2),
+if (!is.na(res_gamma$gamma_nogo)) {
+  abline(v = res_gamma$gamma_nogo, lty = 2, col = "#D6604D", lwd = 2)
+  text(res_gamma$gamma_nogo - 0.02, 0.70,
+       paste0("gamma_nogo* = ", res_gamma$gamma_nogo),
        col = "#D6604D", cex = 0.85, adj = 1)
 }
 
@@ -764,19 +774,19 @@ res_gamma_unctrl <- getgamma1cont(
   design     = 'uncontrolled',
   prior      = 'vague',
   CalcMethod = 'MM',
-  theta.TV   = 1.5, theta.MAV = 0.5, theta.NULL = NULL,
+  theta_TV   = 1.5, theta_MAV = 0.5, theta_NULL = NULL,
   nMC        = NULL,
-  mu1 = 1.0, mu2 = NULL,
-  sigma1 = 2.0, sigma2 = NULL,
+  mu_t = 1.0, mu_c = NULL,
+  sigma_t = 2.0, sigma_c = NULL,
   target_go   = 0.05, target_nogo   = 0.20,
   crit_go     = '<',  crit_nogo     = '<',
   sel_go      = 'smallest', sel_nogo = 'largest',
-  n1 = 15L, n2 = 15L, m1 = NULL, m2 = NULL,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = 1.0, sigma01 = NULL, sigma02 = NULL,
+  n_t = 15L, n_c = NULL, m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = 1.0, sigma0_t = NULL, sigma0_c = NULL,
   r = 1.0,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01),
   seed = 1L
 )
@@ -792,19 +802,19 @@ res_gamma_pred <- getgamma1cont(
   design     = 'controlled',
   prior      = 'vague',
   CalcMethod = 'MM',
-  theta.TV   = NULL, theta.MAV = NULL, theta.NULL = 1.0,
+  theta_TV   = NULL, theta_MAV = NULL, theta_NULL = 1.0,
   nMC        = NULL,
-  mu1 = 1.0, mu2 = 1.0,
-  sigma1 = 2.0, sigma2 = 2.0,
+  mu_t = 1.0, mu_c = 1.0,
+  sigma_t = 2.0, sigma_c = 2.0,
   target_go   = 0.05, target_nogo   = 0.20,
   crit_go     = '<',  crit_nogo     = '<',
   sel_go      = 'smallest', sel_nogo = 'largest',
-  n1 = 15L, n2 = 15L, m1 = 60L, m2 = 60L,
-  kappa01 = NULL, kappa02 = NULL, nu01 = NULL, nu02 = NULL,
-  mu01 = NULL, mu02 = NULL, sigma01 = NULL, sigma02 = NULL,
+  n_t = 15L, n_c = 15L, m_t = 60L, m_c = 60L,
+  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
+  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
   r = NULL,
-  ne1 = NULL, ne2 = NULL, alpha01 = NULL, alpha02 = NULL,
-  bar.ye1 = NULL, bar.ye2 = NULL, se1 = NULL, se2 = NULL,
+  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
+  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01),
   seed = 3L
 )
@@ -817,21 +827,21 @@ print(res_gamma_pred)
 
 This vignette covered single continuous endpoint analysis in BayesianQDM:
 
-1. **Bayesian model**: N-Inv-$\chi^2$ conjugate posterior (vague and
+1. Bayesian model: N-Inv-$\chi^2$ conjugate posterior (vague and
    informative priors) with explicit update formulae for $\kappa_{nj}$,
    $\nu_{nj}$, $\mu_{nj}$, and $\sigma_{nj}^2$.
-2. **Posterior and predictive distributions**: marginal $t$-distributions
+2. Posterior and predictive distributions: marginal $t$-distributions
    for $\mu_j$ and $\bar{\tilde{y}}_j$, with explicit scale expressions.
-3. **Three computation methods**: NI (exact), MC (simulation), MM
+3. Three computation methods: NI (exact), MC (simulation), MM
    (moment-matching via fourth-moment equation); MM is recommended for
    large-scale simulation ($\nu_j > 4$ required).
-4. **Three study designs**: controlled (both arms observed), uncontrolled
-   ($\mu_{02}$ and $r$ fixed from prior knowledge), external control
-   (power prior with borrowing weight $\alpha_{ej}$).
-5. **Operating characteristics**: Monte Carlo estimation of
+4. Three study designs: controlled (both groups observed), uncontrolled
+   ($\mu_{0c}$ and $r$ fixed from prior knowledge), external control design
+   (power prior with borrowing weight $\alpha_{0e,c}$).
+5. Operating characteristics: Monte Carlo estimation of
    $\Pr(\mathrm{Go})$, $\Pr(\mathrm{NoGo})$, $\Pr(\mathrm{Gray})$
    across true parameter scenarios.
-6. **Optimal threshold search**: two-stage precompute-then-sweep strategy
+6. Optimal threshold search: two-stage precompute-then-sweep strategy
    in `getgamma1cont()` with user-specified criteria and selection rules.
 
 See `vignette("single-binary")` for the analogous binary endpoint analysis.
