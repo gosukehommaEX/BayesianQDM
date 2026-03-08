@@ -44,8 +44,8 @@ pbayespostpred2bin(
   xe_c_01 = NULL,
   xe_c_10 = NULL,
   xe_c_11 = NULL,
-  ae_t = NULL,
-  ae_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
   nMC = 10000L
 )
 }
@@ -152,13 +152,13 @@ parameter for the \code{(1, 1)} response pattern in the control
 group. For \code{design = 'uncontrolled'}, serves as a
 hyperparameter of the hypothetical control distribution.}
 
-\item{m_t}{A positive integer giving the future sample size for the
-treatment group. Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+\item{m_t}{A positive integer giving the number of patients in the
+treatment group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{m_c}{A positive integer giving the future sample size for the
-control group. Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+\item{m_c}{A positive integer giving the number of patients in the
+control group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
 \item{z00}{A non-negative integer giving the hypothetical control count
 for pattern \code{(0, 0)}. Required when
@@ -210,13 +210,13 @@ data; otherwise \code{NULL}.}
 count for pattern \code{(1, 1)}. Required for external control
 data; otherwise \code{NULL}.}
 
-\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for the treatment group. Required when external treatment
-data are used; otherwise \code{NULL}.}
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the external treatment data. Required when external
+treatment data are used; otherwise set to \code{NULL}.}
 
-\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for the control group. Required when external control data
-are used; otherwise \code{NULL}.}
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the external control data. Required when external
+control data are used; otherwise set to \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Monte Carlo draws used
 to estimate region probabilities. Default is \code{10000}. Larger
@@ -280,7 +280,7 @@ pbayespostpred2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL
+  alpha0e_t = NULL, alpha0e_c = NULL
 )
 
 # Example 2: Uncontrolled design - posterior probability
@@ -296,7 +296,7 @@ pbayespostpred2bin(
   z00 = 1, z01 = 2, z10 = 2, z11 = 1,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL
+  alpha0e_t = NULL, alpha0e_c = NULL
 )
 
 # Example 3: External design - posterior probability
@@ -312,7 +312,7 @@ pbayespostpred2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = 2, xe_t_01 = 2, xe_t_10 = 3, xe_t_11 = 1,
   xe_c_00 = 2, xe_c_01 = 1, xe_c_10 = 2, xe_c_11 = 1,
-  ae_t = 0.5, ae_c = 0.5
+  alpha0e_t = 0.5, alpha0e_c = 0.5
 )
 
 # Example 4: Controlled design - posterior predictive probability
@@ -328,7 +328,7 @@ pbayespostpred2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL
+  alpha0e_t = NULL, alpha0e_c = NULL
 )
 
 # Example 5: Uncontrolled design - posterior predictive probability
@@ -344,7 +344,7 @@ pbayespostpred2bin(
   z00 = 1, z01 = 2, z10 = 2, z11 = 1,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL
+  alpha0e_t = NULL, alpha0e_c = NULL
 )
 
 # Example 6: External design - posterior predictive probability
@@ -360,7 +360,7 @@ pbayespostpred2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = 2, xe_t_01 = 2, xe_t_10 = 3, xe_t_11 = 1,
   xe_c_00 = 2, xe_c_01 = 1, xe_c_10 = 2, xe_c_11 = 1,
-  ae_t = 0.5, ae_c = 0.5
+  alpha0e_t = 0.5, alpha0e_c = 0.5
 )
 
 }

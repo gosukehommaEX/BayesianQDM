@@ -28,10 +28,11 @@
 #'        posterior probabilities. Required if \code{CalcMethod = 'MC'};
 #'        otherwise \code{NULL}.
 #' @param gamma_go A numeric scalar in \code{(0, 1)} giving the minimum posterior or
-#'        predictive probability required for a Go decision. Typically 0.8 or higher.
-#' @param gamma_nogo A numeric scalar in \code{(0, 1)} giving the maximum posterior or
-#'        predictive probability that triggers a NoGo decision. Must satisfy
-#'        \code{gamma_nogo < gamma_go}.
+#'        predictive probability required for a Go decision.
+#' @param gamma_nogo A numeric scalar in \code{(0, 1)} giving the minimum posterior or
+#'        predictive probability required for a NoGo decision. No ordering
+#'        constraint on \code{gamma_go} and \code{gamma_nogo} is imposed, though
+#'        their combination determines the frequency of Miss outcomes.
 #' @param n_t A positive integer representing the sample size for the treatment group.
 #' @param n_c A positive integer representing the sample size for the control group.
 #'        Required if \code{design = 'controlled'} or \code{design = 'external'}.
@@ -142,11 +143,10 @@
 #'
 #' \strong{Decision rules}:
 #' \itemize{
-#'   \item \strong{Go}: P(treatment effect > threshold) >= gamma_go
-#'   \item \strong{NoGo}: P(treatment effect > threshold) <= gamma_nogo
-#'   \item \strong{Gray}: gamma_nogo < P(treatment effect > threshold) < gamma_go
-#'   \item \strong{Miss}: Both Go and NoGo criteria are met simultaneously (indicates
-#'                   poorly chosen thresholds)
+#'   \item \strong{Go}: gGo >= gamma_go and gNoGo < gamma_nogo
+#'   \item \strong{NoGo}: gGo < gamma_go and gNoGo >= gamma_nogo
+#'   \item \strong{Gray}: neither Go nor NoGo criterion is met
+#'   \item \strong{Miss}: both Go and NoGo criteria are met simultaneously
 #' }
 #'
 #' \strong{Handling Miss probability}:
@@ -317,10 +317,6 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
   if (!is.numeric(gamma_nogo) || length(gamma_nogo) != 1L || is.na(gamma_nogo) ||
       gamma_nogo <= 0 || gamma_nogo >= 1) {
     stop("'gamma_nogo' must be a single numeric value in (0, 1)")
-  }
-
-  if (gamma_nogo >= gamma_go) {
-    stop("'gamma_nogo' must be strictly less than 'gamma_go'")
   }
 
   if (!is.numeric(sigma_t) || length(sigma_t) != 1L || is.na(sigma_t) || sigma_t <= 0) {
@@ -553,6 +549,7 @@ pbayesdecisionprob1cont <- function(nsim, prob, design, prior, CalcMethod,
     lower.tail = TRUE
   )
 
+  # --- Decision indicators (Go, NoGo, Miss are mutually exclusive; Gray is the complement) ---
   # Reshape results into nsim x n_scenarios matrices and compute decision
   # probabilities per scenario using colMeans (no R-level loop needed).
   probs_Go_mat   <- matrix((gPost_Go_all >= gamma_go) & (gPost_NoGo_all <  gamma_nogo),

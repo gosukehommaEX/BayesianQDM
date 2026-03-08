@@ -62,13 +62,12 @@
 #' @param ye_c A non-negative integer giving the number of responders in the
 #'        control group of the external data set. Required when
 #'        \code{design = 'external'}; otherwise set to \code{NULL}.
-#' @param ae_t A numeric scalar in \code{(0, 1]} giving the power prior
-#'        weight for the treatment group. Controls the degree of borrowing:
-#'        1 = full borrowing. Required when \code{design = 'external'};
-#'        otherwise set to \code{NULL}.
-#' @param ae_c A numeric scalar in \code{(0, 1]} giving the power prior
-#'        weight for the control group. Required when
-#'        \code{design = 'external'}; otherwise set to \code{NULL}.
+#' @param alpha0e_t A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the external treatment data. Required when external
+#'        treatment data are used; otherwise set to \code{NULL}.
+#' @param alpha0e_c A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the external control data. Required when external
+#'        control data are used; otherwise set to \code{NULL}.
 #' @param lower.tail A logical scalar; if \code{TRUE} (default), the function
 #'        returns \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
 #'        \eqn{P(\mathrm{effect} > \theta_0)}.
@@ -108,7 +107,7 @@
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   m_t = NULL, m_c = NULL, z = NULL,
 #'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-#'   ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+#'   alpha0e_t = NULL, alpha0e_c = NULL, lower.tail = FALSE
 #' )
 #'
 #' # Example 2: Uncontrolled design - posterior probability
@@ -118,7 +117,7 @@
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   m_t = NULL, m_c = NULL, z = 3,
 #'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-#'   ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+#'   alpha0e_t = NULL, alpha0e_c = NULL, lower.tail = FALSE
 #' )
 #'
 #' # Example 3: External design - posterior probability
@@ -127,7 +126,7 @@
 #'   n_t = 12, n_c = 15, y_t = 7, y_c = 9,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   m_t = NULL, m_c = NULL, z = NULL,
-#'   ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, ae_t = 0.5, ae_c = 0.5,
+#'   ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, alpha0e_t = 0.5, alpha0e_c = 0.5,
 #'   lower.tail = FALSE
 #' )
 #'
@@ -138,7 +137,7 @@
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   m_t = 30, m_c = 30, z = NULL,
 #'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-#'   ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+#'   alpha0e_t = NULL, alpha0e_c = NULL, lower.tail = FALSE
 #' )
 #'
 #' # Example 5: Uncontrolled design - posterior predictive probability
@@ -148,7 +147,7 @@
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   m_t = 30, m_c = 30, z = 3,
 #'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-#'   ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+#'   alpha0e_t = NULL, alpha0e_c = NULL, lower.tail = FALSE
 #' )
 #'
 #' # Example 6: External design - posterior predictive probability
@@ -157,7 +156,7 @@
 #'   n_t = 12, n_c = 15, y_t = 7, y_c = 9,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   m_t = 30, m_c = 30, z = NULL,
-#'   ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, ae_t = 0.5, ae_c = 0.5,
+#'   ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, alpha0e_t = 0.5, alpha0e_c = 0.5,
 #'   lower.tail = FALSE
 #' )
 #'
@@ -168,7 +167,7 @@ pbayespostpred1bin <- function(prob = 'posterior', design = 'controlled', theta0
                                m_t = NULL, m_c = NULL, z = NULL,
                                ne_t = NULL, ne_c = NULL,
                                ye_t = NULL, ye_c = NULL,
-                               ae_t = NULL, ae_c = NULL,
+                               alpha0e_t = NULL, alpha0e_c = NULL,
                                lower.tail = TRUE) {
 
   # --- Input validation ---
@@ -234,7 +233,7 @@ pbayespostpred1bin <- function(prob = 'posterior', design = 'controlled', theta0
   }
 
   if (design == 'external') {
-    for (nm in c("ne_t", "ne_c", "ye_t", "ye_c", "ae_t", "ae_c")) {
+    for (nm in c("ne_t", "ne_c", "ye_t", "ye_c", "alpha0e_t", "alpha0e_c")) {
       val <- get(nm)
       if (is.null(val)) {
         stop(paste0("'", nm, "' must be non-NULL when design = 'external'"))
@@ -255,7 +254,7 @@ pbayespostpred1bin <- function(prob = 'posterior', design = 'controlled', theta0
         stop(paste0("'", nm, "' must be a single non-negative integer not exceeding the corresponding ne"))
       }
     }
-    for (nm in c("ae_t", "ae_c")) {
+    for (nm in c("alpha0e_t", "alpha0e_c")) {
       val <- get(nm)
       if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
           val <= 0 || val > 1) {
@@ -294,10 +293,10 @@ pbayespostpred1bin <- function(prob = 'posterior', design = 'controlled', theta0
   # --- Compute posterior shape parameters (vectorised) ---
   if (design == 'external') {
     # Power prior: augment the prior with weighted external sufficient statistics
-    s_t1 <- y_t + a_t + ae_t * ye_t
-    s_t2 <- n_t - y_t + b_t + ae_t * (ne_t - ye_t)
-    s_c1 <- y_c + a_c + ae_c * ye_c
-    s_c2 <- n_c - y_c + b_c + ae_c * (ne_c - ye_c)
+    s_t1 <- y_t + a_t + alpha0e_t * ye_t
+    s_t2 <- n_t - y_t + b_t + alpha0e_t * (ne_t - ye_t)
+    s_c1 <- y_c + a_c + alpha0e_c * ye_c
+    s_c2 <- n_c - y_c + b_c + alpha0e_c * (ne_c - ye_c)
   } else {
     # Controlled or uncontrolled (y_c already set to z for uncontrolled)
     s_t1 <- y_t + a_t

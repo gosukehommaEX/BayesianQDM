@@ -87,12 +87,12 @@
 #'        parameter for the \code{(1, 1)} response pattern in the control
 #'        group. For \code{design = 'uncontrolled'}, serves as a
 #'        hyperparameter of the hypothetical control distribution.
-#' @param m_t A positive integer giving the future sample size for the
-#'        treatment group. Required when \code{prob = 'predictive'};
-#'        otherwise set to \code{NULL}.
-#' @param m_c A positive integer giving the future sample size for the
-#'        control group. Required when \code{prob = 'predictive'};
-#'        otherwise set to \code{NULL}.
+#' @param m_t A positive integer giving the number of patients in the
+#'        treatment group for the future trial. Required when
+#'        \code{prob = 'predictive'}; otherwise set to \code{NULL}.
+#' @param m_c A positive integer giving the number of patients in the
+#'        control group for the future trial. Required when
+#'        \code{prob = 'predictive'}; otherwise set to \code{NULL}.
 #' @param z00 A non-negative integer giving the hypothetical control count
 #'        for pattern \code{(0, 0)}. Required when
 #'        \code{design = 'uncontrolled'}; otherwise set to \code{NULL}.
@@ -131,12 +131,12 @@
 #' @param xe_c_11 A non-negative integer giving the external control group
 #'        count for pattern \code{(1, 1)}. Required for external control
 #'        data; otherwise \code{NULL}.
-#' @param ae_t A numeric scalar in \code{(0, 1]} giving the power prior
-#'        weight for the treatment group. Required when external treatment
-#'        data are used; otherwise \code{NULL}.
-#' @param ae_c A numeric scalar in \code{(0, 1]} giving the power prior
-#'        weight for the control group. Required when external control data
-#'        are used; otherwise \code{NULL}.
+#' @param alpha0e_t A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the external treatment data. Required when external
+#'        treatment data are used; otherwise set to \code{NULL}.
+#' @param alpha0e_c A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the external control data. Required when external
+#'        control data are used; otherwise set to \code{NULL}.
 #' @param nMC A positive integer giving the number of Monte Carlo draws used
 #'        to estimate region probabilities. Default is \code{10000}. Larger
 #'        values reduce Monte Carlo error at the cost of computation time.
@@ -189,7 +189,7 @@
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-#'   ae_t = NULL, ae_c = NULL
+#'   alpha0e_t = NULL, alpha0e_c = NULL
 #' )
 #'
 #' # Example 2: Uncontrolled design - posterior probability
@@ -205,7 +205,7 @@
 #'   z00 = 1, z01 = 2, z10 = 2, z11 = 1,
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-#'   ae_t = NULL, ae_c = NULL
+#'   alpha0e_t = NULL, alpha0e_c = NULL
 #' )
 #'
 #' # Example 3: External design - posterior probability
@@ -221,7 +221,7 @@
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe_t_00 = 2, xe_t_01 = 2, xe_t_10 = 3, xe_t_11 = 1,
 #'   xe_c_00 = 2, xe_c_01 = 1, xe_c_10 = 2, xe_c_11 = 1,
-#'   ae_t = 0.5, ae_c = 0.5
+#'   alpha0e_t = 0.5, alpha0e_c = 0.5
 #' )
 #'
 #' # Example 4: Controlled design - posterior predictive probability
@@ -237,7 +237,7 @@
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-#'   ae_t = NULL, ae_c = NULL
+#'   alpha0e_t = NULL, alpha0e_c = NULL
 #' )
 #'
 #' # Example 5: Uncontrolled design - posterior predictive probability
@@ -253,7 +253,7 @@
 #'   z00 = 1, z01 = 2, z10 = 2, z11 = 1,
 #'   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
 #'   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-#'   ae_t = NULL, ae_c = NULL
+#'   alpha0e_t = NULL, alpha0e_c = NULL
 #' )
 #'
 #' # Example 6: External design - posterior predictive probability
@@ -269,7 +269,7 @@
 #'   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
 #'   xe_t_00 = 2, xe_t_01 = 2, xe_t_10 = 3, xe_t_11 = 1,
 #'   xe_c_00 = 2, xe_c_01 = 1, xe_c_10 = 2, xe_c_11 = 1,
-#'   ae_t = 0.5, ae_c = 0.5
+#'   alpha0e_t = 0.5, alpha0e_c = 0.5
 #' )
 #'
 #' @export
@@ -290,7 +290,7 @@ pbayespostpred2bin <- function(prob    = 'posterior',
                                xe_t_10 = NULL, xe_t_11 = NULL,
                                xe_c_00 = NULL, xe_c_01 = NULL,
                                xe_c_10 = NULL, xe_c_11 = NULL,
-                               ae_t = NULL, ae_c = NULL,
+                               alpha0e_t = NULL, alpha0e_c = NULL,
                                nMC = 10000L) {
 
   # ---------------------------------------------------------------------------
@@ -418,16 +418,16 @@ pbayespostpred2bin <- function(prob    = 'posterior',
   # --- External data parameters (required for external) ---
   if (design == 'external') {
     has_ext1 <- !is.null(xe_t_00) && !is.null(xe_t_01) &&
-      !is.null(xe_t_10) && !is.null(xe_t_11) && !is.null(ae_t)
+      !is.null(xe_t_10) && !is.null(xe_t_11) && !is.null(alpha0e_t)
     has_ext2 <- !is.null(xe_c_00) && !is.null(xe_c_01) &&
-      !is.null(xe_c_10) && !is.null(xe_c_11) && !is.null(ae_c)
+      !is.null(xe_c_10) && !is.null(xe_c_11) && !is.null(alpha0e_c)
 
     if (!has_ext1 && !has_ext2) {
       stop(paste0("For design = 'external', at least one complete set of ",
-                  "external data (xe1_* + ae_t or xe2_* + ae_c) must be provided"))
+                  "external data (xe1_* + alpha0e_t or xe2_* + alpha0e_c) must be provided"))
     }
 
-    for (nm in c("ae_t", "ae_c")) {
+    for (nm in c("alpha0e_t", "alpha0e_c")) {
       val <- get(nm)
       if (!is.null(val)) {
         if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
@@ -465,7 +465,7 @@ pbayespostpred2bin <- function(prob    = 'posterior',
   # ---------------------------------------------------------------------------
 
   # Group 1: base prior + observed data + optional external data (power prior)
-  xe_t_weight <- if (!is.null(ae_t) && design == 'external') ae_t else 0
+  xe_t_weight <- if (!is.null(alpha0e_t) && design == 'external') alpha0e_t else 0
   alpha_t <- c(
     a_t_00 + x_t_00 + xe_t_weight * ifelse(!is.null(xe_t_00), xe_t_00, 0),
     a_t_01 + x_t_01 + xe_t_weight * ifelse(!is.null(xe_t_01), xe_t_01, 0),
@@ -486,7 +486,7 @@ pbayespostpred2bin <- function(prob    = 'posterior',
     )
   } else {
     # Controlled or external: posterior from observed control data
-    xe_c_weight <- if (!is.null(ae_c) && design == 'external') ae_c else 0
+    xe_c_weight <- if (!is.null(alpha0e_c) && design == 'external') alpha0e_c else 0
     alpha_c <- c(
       a_c_00 + x_c_00 + xe_c_weight * ifelse(!is.null(xe_c_00), xe_c_00, 0),
       a_c_01 + x_c_01 + xe_c_weight * ifelse(!is.null(xe_c_01), xe_c_01, 0),

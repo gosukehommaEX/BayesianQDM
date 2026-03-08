@@ -49,10 +49,10 @@ pbayesdecisionprob2bin(
   xe_c_01 = NULL,
   xe_c_10 = NULL,
   xe_c_11 = NULL,
-  ae_t = NULL,
-  ae_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
   nMC = 10000L,
-  method = "Exact",
+  CalcMethod = "Exact",
   error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE
 )
@@ -60,18 +60,18 @@ pbayesdecisionprob2bin(
 \arguments{
 \item{nsim}{A positive integer giving the number of PoC count vectors
 sampled via \code{rmultinom} per arm per scenario when
-\code{method = 'MC'} (outer loop).  The sampled vectors are
+\code{CalcMethod = 'MC'} (outer loop).  The sampled vectors are
 deduplicated into \eqn{K_t} and \eqn{K_c} unique vectors
 (\eqn{K_t, K_c \ll} \code{nsim}); Dirichlet sampling is then
 performed only for these unique vectors using \code{nMC} draws each.
-Ignored when \code{method = 'Exact'}.  Default is \code{10000}.}
+Ignored when \code{CalcMethod = 'Exact'}.  Default is \code{10000}.}
 
-\item{prob}{A character string specifying the probability type for
-decision-making.  Must be \code{'posterior'} or
-\code{'predictive'}.}
+\item{prob}{A character string specifying the probability type.
+Must be \code{'posterior'} or \code{'predictive'}.}
 
-\item{design}{A character string specifying the trial design.  Must be
-\code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.}
+\item{design}{A character string specifying the trial design.
+Must be \code{'controlled'}, \code{'uncontrolled'}, or
+\code{'external'}.}
 
 \item{GoRegions}{An integer vector specifying which of the nine posterior
 regions (R1--R9) or four predictive regions (R1--R4) constitute a
@@ -85,15 +85,13 @@ NoGo decision.  A common choice is \code{NoGoRegions = 9} (both
 endpoints below MAV) for posterior, or \code{NoGoRegions = 4} for
 predictive.  Must be disjoint from \code{GoRegions}.}
 
-\item{gamma_go}{A numeric scalar in \code{(0, 1)} giving the minimum
-posterior/predictive probability required for a Go decision.}
+\item{gamma_go}{A numeric scalar in \code{(0, 1)}. Go threshold:
+a Go decision is made if \eqn{P(\mathrm{GoRegions}) \ge \gamma_1}.}
 
-\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the minimum
-posterior/predictive probability required for a NoGo decision.
-Unlike single-endpoint designs, \code{gamma_nogo} may be greater than,
-equal to, or less than \code{gamma_go}, because the Go and NoGo
-regions are structurally asymmetric (e.g., Go = R1 only vs
-NoGo = R9 only) and their calibrated thresholds are independent.}
+\item{gamma_nogo}{A numeric scalar in \code{(0, 1)}. NoGo threshold:
+a NoGo decision is made if \eqn{P(\mathrm{NoGoRegions}) \ge \gamma_2}.
+No ordering constraint on \code{gamma_go} and \code{gamma_nogo} is
+imposed; their combination determines the frequency of Miss outcomes.}
 
 \item{pi_t1}{A numeric vector of true treatment response probabilities
 for Endpoint 1.  Each element must be in \code{(0, 1)}.}
@@ -125,116 +123,148 @@ calculations.  Must have the same length as \code{pi_t1}.}
 treatment group in the proof-of-concept (PoC) trial.}
 
 \item{n_c}{A positive integer giving the number of patients in the
-control group in the PoC trial.}
+control group in the PoC trial. For \code{design = 'uncontrolled'},
+this is the hypothetical control sample size (required for
+consistency with other designs).}
 
 \item{a_t_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in the treatment group.}
+parameter for the \code{(0, 0)} response pattern in the treatment
+group.}
 
 \item{a_t_01}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,1) response pattern in the treatment group.}
+parameter for the \code{(0, 1)} response pattern in the treatment
+group.}
 
 \item{a_t_10}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,0) response pattern in the treatment group.}
+parameter for the \code{(1, 0)} response pattern in the treatment
+group.}
 
 \item{a_t_11}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,1) response pattern in the treatment group.}
+parameter for the \code{(1, 1)} response pattern in the treatment
+group.}
 
 \item{a_c_00}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,0) response pattern in the control group.
-For \code{design = 'uncontrolled'}, serves as a hyperparameter of
-the hypothetical control distribution.}
+parameter for the \code{(0, 0)} response pattern in the control
+group. For \code{design = 'uncontrolled'}, serves as a
+hyperparameter of the hypothetical control distribution.}
 
 \item{a_c_01}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (0,1) response pattern in the control group.}
+parameter for the \code{(0, 1)} response pattern in the control
+group. For \code{design = 'uncontrolled'}, serves as a
+hyperparameter of the hypothetical control distribution.}
 
 \item{a_c_10}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,0) response pattern in the control group.}
+parameter for the \code{(1, 0)} response pattern in the control
+group. For \code{design = 'uncontrolled'}, serves as a
+hyperparameter of the hypothetical control distribution.}
 
 \item{a_c_11}{A positive numeric scalar giving the Dirichlet prior
-parameter for the (1,1) response pattern in the control group.}
+parameter for the \code{(1, 1)} response pattern in the control
+group. For \code{design = 'uncontrolled'}, serves as a
+hyperparameter of the hypothetical control distribution.}
 
-\item{m_t}{A positive integer giving the future sample size for the
-treatment group. Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+\item{m_t}{A positive integer giving the number of patients in the
+treatment group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{m_c}{A positive integer giving the future sample size for the
-control group. Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+\item{m_c}{A positive integer giving the number of patients in the
+control group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{theta_TV1}{A numeric scalar giving the TV threshold for Endpoint 1.
-Required when \code{prob = 'posterior'}; otherwise set to
-\code{NULL}.}
+\item{theta_TV1}{A numeric scalar giving the target value (TV) threshold
+for Endpoint 1. Required when \code{prob = 'posterior'}; must
+satisfy \code{theta_TV1 > theta_MAV1}. Set to \code{NULL} when
+\code{prob = 'predictive'}.}
 
-\item{theta_MAV1}{A numeric scalar giving the MAV threshold for Endpoint
-1.  Required when \code{prob = 'posterior'}; otherwise set to
-\code{NULL}.}
+\item{theta_MAV1}{A numeric scalar giving the minimum acceptable value
+(MAV) threshold for Endpoint 1. Required when
+\code{prob = 'posterior'}; must satisfy
+\code{theta_TV1 > theta_MAV1}. Set to \code{NULL} when
+\code{prob = 'predictive'}.}
 
-\item{theta_TV2}{A numeric scalar giving the TV threshold for Endpoint 2.
-Required when \code{prob = 'posterior'}; otherwise set to
-\code{NULL}.}
+\item{theta_TV2}{A numeric scalar giving the target value (TV) threshold
+for Endpoint 2. Required when \code{prob = 'posterior'}; must
+satisfy \code{theta_TV2 > theta_MAV2}. Set to \code{NULL} when
+\code{prob = 'predictive'}.}
 
-\item{theta_MAV2}{A numeric scalar giving the MAV threshold for Endpoint
-2.  Required when \code{prob = 'posterior'}; otherwise set to
-\code{NULL}.}
+\item{theta_MAV2}{A numeric scalar giving the minimum acceptable value
+(MAV) threshold for Endpoint 2. Required when
+\code{prob = 'posterior'}; must satisfy
+\code{theta_TV2 > theta_MAV2}. Set to \code{NULL} when
+\code{prob = 'predictive'}.}
 
 \item{theta_NULL1}{A numeric scalar giving the null hypothesis threshold
-for Endpoint 1.  Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+for Endpoint 1. Required when \code{prob = 'predictive'}; set to
+\code{NULL} when \code{prob = 'posterior'}.}
 
 \item{theta_NULL2}{A numeric scalar giving the null hypothesis threshold
-for Endpoint 2.  Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+for Endpoint 2. Required when \code{prob = 'predictive'}; set to
+\code{NULL} when \code{prob = 'posterior'}.}
 
 \item{z00}{A non-negative integer giving the hypothetical control count
-for pattern (0,0).  Required when \code{design = 'uncontrolled'};
-otherwise set to \code{NULL}.}
+for pattern \code{(0, 0)}. Required when
+\code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
 \item{z01}{A non-negative integer giving the hypothetical control count
-for pattern (0,1).  Required when \code{design = 'uncontrolled'};
-otherwise set to \code{NULL}.}
+for pattern \code{(0, 1)}. Required when
+\code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
 \item{z10}{A non-negative integer giving the hypothetical control count
-for pattern (1,0).  Required when \code{design = 'uncontrolled'};
-otherwise set to \code{NULL}.}
+for pattern \code{(1, 0)}. Required when
+\code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
 \item{z11}{A non-negative integer giving the hypothetical control count
-for pattern (1,1).  Required when \code{design = 'uncontrolled'};
-otherwise set to \code{NULL}.}
+for pattern \code{(1, 1)}. Required when
+\code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
 
 \item{xe_t_00}{A non-negative integer giving the external treatment group
-count for pattern (0,0).  Required when \code{design = 'external'} and
-external treatment data are used; otherwise \code{NULL}.}
+count for pattern \code{(0, 0)}. Required when
+\code{design = 'external'} and external treatment data are used;
+otherwise \code{NULL}.}
 
-\item{xe_t_01}{A non-negative integer; see \code{xe_t_00}.}
+\item{xe_t_01}{A non-negative integer giving the external treatment group
+count for pattern \code{(0, 1)}. Required for external treatment
+data; otherwise \code{NULL}.}
 
-\item{xe_t_10}{A non-negative integer; see \code{xe_t_00}.}
+\item{xe_t_10}{A non-negative integer giving the external treatment group
+count for pattern \code{(1, 0)}. Required for external treatment
+data; otherwise \code{NULL}.}
 
-\item{xe_t_11}{A non-negative integer; see \code{xe_t_00}.}
+\item{xe_t_11}{A non-negative integer giving the external treatment group
+count for pattern \code{(1, 1)}. Required for external treatment
+data; otherwise \code{NULL}.}
 
 \item{xe_c_00}{A non-negative integer giving the external control group
-count for pattern (0,0).  Required when \code{design = 'external'} and
-external control data are used; otherwise \code{NULL}.}
+count for pattern \code{(0, 0)}. Required when
+\code{design = 'external'} and external control data are used;
+otherwise \code{NULL}.}
 
-\item{xe_c_01}{A non-negative integer; see \code{xe_c_00}.}
+\item{xe_c_01}{A non-negative integer giving the external control group
+count for pattern \code{(0, 1)}. Required for external control
+data; otherwise \code{NULL}.}
 
-\item{xe_c_10}{A non-negative integer; see \code{xe_c_00}.}
+\item{xe_c_10}{A non-negative integer giving the external control group
+count for pattern \code{(1, 0)}. Required for external control
+data; otherwise \code{NULL}.}
 
-\item{xe_c_11}{A non-negative integer; see \code{xe_c_00}.}
+\item{xe_c_11}{A non-negative integer giving the external control group
+count for pattern \code{(1, 1)}. Required for external control
+data; otherwise \code{NULL}.}
 
-\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
 weight for the treatment group.  Required when external treatment
 data are used; otherwise \code{NULL}.}
 
-\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior
 weight for the control group.  Required when external control
 data are used; otherwise \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Dirichlet draws used to
 evaluate the decision probability for each count combination in
-Stage 1.  Used by both \code{method = 'Exact'} and
-\code{method = 'MC'} (inner loop).  Default is \code{10000}.}
+Stage 1.  Used by both \code{CalcMethod = 'Exact'} and
+\code{CalcMethod = 'MC'} (inner loop).  Default is \code{10000}.}
 
-\item{method}{A character string specifying the computation method.
+\item{CalcMethod}{A character string specifying the computation method.
 Must be \code{'Exact'} (default) or \code{'MC'}.
 \code{'Exact'} uses full enumeration of all possible multinomial
 count combinations (two-stage approach described in Details).
@@ -358,7 +388,7 @@ pbayesdecisionprob2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
@@ -388,13 +418,13 @@ pbayesdecisionprob2bin(
   z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 3: Posterior probability, external control design
-# External control data incorporated via power prior (ae_c = 0.5).
+# External control data incorporated via power prior (alpha0e_c = 0.5).
 pbayesdecisionprob2bin(
   prob        = 'posterior',
   design      = 'external',
@@ -418,7 +448,7 @@ pbayesdecisionprob2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = 4L,  xe_c_01 = 2L,  xe_c_10 = 3L,  xe_c_11 = 1L,
-  ae_t = NULL, ae_c = 0.5,
+  alpha0e_t = NULL, alpha0e_c = 0.5,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
@@ -448,7 +478,7 @@ pbayesdecisionprob2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
@@ -478,13 +508,13 @@ pbayesdecisionprob2bin(
   z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )
 
 # Example 6: Predictive probability, external treatment design
-# External treatment data incorporated via power prior (ae_t = 0.5).
+# External treatment data incorporated via power prior (alpha0e_t = 0.5).
 pbayesdecisionprob2bin(
   prob        = 'predictive',
   design      = 'external',
@@ -508,7 +538,7 @@ pbayesdecisionprob2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = 3L, xe_t_01 = 2L, xe_t_10 = 3L, xe_t_11 = 2L,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = 0.5, ae_c = NULL,
+  alpha0e_t = 0.5, alpha0e_c = NULL,
   nMC = 100,
   error_if_Miss = FALSE, Gray_inc_Miss = FALSE
 )

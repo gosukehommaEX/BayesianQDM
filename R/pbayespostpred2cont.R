@@ -36,11 +36,12 @@
 #' @param theta_NULL2 A numeric scalar giving the null hypothesis threshold
 #'        for Endpoint 2. Required when \code{prob = 'predictive'}; set to
 #'        \code{NULL} when \code{prob = 'posterior'}.
-#' @param n_t A positive integer giving the sample size for the treatment
-#'        group.
-#' @param n_c A positive integer giving the sample size for the control group.
-#'        Not used when \code{design = 'uncontrolled'}; set to \code{NULL}
-#'        in that case.
+#' @param n_t A positive integer giving the number of patients in the
+#'        treatment group in the proof-of-concept (PoC) trial.
+#' @param n_c A positive integer giving the number of patients in the
+#'        control group in the PoC trial. For \code{design = 'uncontrolled'},
+#'        this is the hypothetical control sample size (required for
+#'        consistency with other designs).
 #' @param ybar_t A numeric vector of length 2 \strong{or} a numeric matrix
 #'        with 2 columns giving the sample mean(s) for the treatment group.
 #'        When a matrix with \eqn{N} rows is supplied, the function computes
@@ -57,12 +58,12 @@
 #' @param S_c A 2x2 numeric matrix, a list of 2x2 matrices, or \code{NULL}
 #'        giving the sum-of-squares matrix/matrices for the control group.
 #'        Not used when \code{design = 'uncontrolled'}.
-#' @param m_t A positive integer giving the pivotal study sample size for the
-#'        treatment group. Required when \code{prob = 'predictive'};
-#'        otherwise set to \code{NULL}.
-#' @param m_c A positive integer giving the pivotal study sample size for the
-#'        control group. Required when \code{prob = 'predictive'} and
-#'        \code{design != 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param m_t A positive integer giving the number of patients in the
+#'        treatment group for the future trial. Required when
+#'        \code{prob = 'predictive'}; otherwise set to \code{NULL}.
+#' @param m_c A positive integer giving the number of patients in the
+#'        control group for the future trial. Required when
+#'        \code{prob = 'predictive'}; otherwise set to \code{NULL}.
 #' @param kappa0_t A positive numeric scalar giving the NIW prior
 #'        concentration parameter for the treatment group. Required when
 #'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
@@ -120,16 +121,16 @@
 #'        used; otherwise set to \code{NULL}.
 #' @param nMC A positive integer giving the number of Monte Carlo draws used
 #'        to estimate region probabilities. Default is \code{10000}. Required
-#'        when \code{method = 'MC'}. May be set to \code{NULL} when
-#'        \code{method = 'MM'} and \eqn{\nu_k > 4} (the MM method uses
-#'        \code{mvtnorm::pmvt} analytically); if \code{method = 'MM'} but
+#'        when \code{CalcMethod = 'MC'}. May be set to \code{NULL} when
+#'        \code{CalcMethod = 'MM'} and \eqn{\nu_k > 4} (the MM method uses
+#'        \code{mvtnorm::pmvt} analytically); if \code{CalcMethod = 'MM'} but
 #'        \eqn{\nu_k \le 4} causes a fallback to MC, \code{nMC} must be a
 #'        positive integer.
-#' @param method A character string specifying the computation method.
+#' @param CalcMethod A character string specifying the computation method.
 #'        Must be \code{'MC'} (Monte Carlo, default) or \code{'MM'}
 #'        (Moment-Matching via \code{mvtnorm::pmvt}). When
-#'        \code{method = 'MM'} and \eqn{\nu_k \le 4}, a warning is issued
-#'        and the function falls back to \code{method = 'MC'}.
+#'        \code{CalcMethod = 'MM'} and \eqn{\nu_k \le 4}, a warning is issued
+#'        and the function falls back to \code{CalcMethod = 'MC'}.
 #'
 #' @return When \code{ybar_t} is a length-2 vector (single observation): a
 #'         named numeric vector of length 9 (\code{R1}--\code{R9}) for
@@ -215,10 +216,10 @@
 #' \code{S_t} as a list of \eqn{N} scatter matrices, the function computes
 #' region probabilities for all \eqn{N} observations in a single call,
 #' returning an \eqn{N \times n_{\rm regions}} matrix.  For
-#' \code{method = 'MC'}, standard normal and chi-squared variates are
+#' \code{CalcMethod = 'MC'}, standard normal and chi-squared variates are
 #' pre-generated once (size \code{nMC}) and reused across all observations,
 #' with only the Cholesky factor of the replicate-specific scale matrix
-#' recomputed per observation.  For \code{method = 'MM'}, the
+#' recomputed per observation.  For \code{CalcMethod = 'MM'}, the
 #' moment-matching parameters are computed per observation (since they depend
 #' on the replicate-specific \eqn{V_k}) and \code{mvtnorm::pmvt} is called
 #' once per region per observation.
@@ -354,10 +355,10 @@
 pbayespostpred2cont <- function(prob,
                                 design,
                                 prior,
-                                theta_TV1   = NULL, theta_MAV1  = NULL,
-                                theta_TV2   = NULL, theta_MAV2  = NULL,
-                                theta_NULL1 = NULL, theta_NULL2 = NULL,
-                                n_t, n_c      = NULL,
+                                theta_TV1    = NULL, theta_MAV1   = NULL,
+                                theta_TV2    = NULL, theta_MAV2   = NULL,
+                                theta_NULL1  = NULL, theta_NULL2  = NULL,
+                                n_t, n_c     = NULL,
                                 ybar_t, S_t,
                                 ybar_c       = NULL, S_c          = NULL,
                                 m_t          = NULL, m_c          = NULL,
@@ -365,13 +366,13 @@ pbayespostpred2cont <- function(prob,
                                 mu0_t        = NULL, Lambda0_t    = NULL,
                                 kappa0_c     = NULL, nu0_c        = NULL,
                                 mu0_c        = NULL, Lambda0_c    = NULL,
-                                r           = NULL,
+                                r            = NULL,
                                 ne_t         = NULL, ne_c         = NULL,
                                 alpha0e_t    = NULL, alpha0e_c    = NULL,
                                 bar_ye_t     = NULL, bar_ye_c     = NULL,
                                 se_t         = NULL, se_c         = NULL,
-                                nMC         = 10000L,
-                                method      = 'MC') {
+                                nMC          = 10000L,
+                                CalcMethod   = 'MC') {
 
   # ---------------------------------------------------------------------------
   # Section 1: Input validation
@@ -505,20 +506,20 @@ pbayespostpred2cont <- function(prob,
     if (!is.null(ne_c)) ne_c <- as.integer(ne_c)
   }
 
-  if (!is.character(method) || length(method) != 1L ||
-      !method %in% c('MC', 'MM'))
-    stop("'method' must be either 'MC' or 'MM'")
+  if (!is.character(CalcMethod) || length(CalcMethod) != 1L ||
+      !CalcMethod %in% c('MC', 'MM'))
+    stop("'CalcMethod' must be either 'MC' or 'MM'")
 
-  # nMC validation: required for method = 'MC', optional for method = 'MM'
-  if (method == 'MC') {
+  # nMC validation: required for CalcMethod = 'MC', optional for CalcMethod = 'MM'
+  if (CalcMethod == 'MC') {
     if (is.null(nMC))
-      stop("'nMC' must be non-NULL when method = 'MC'")
+      stop("'nMC' must be non-NULL when CalcMethod = 'MC'")
     if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
         nMC != floor(nMC) || nMC < 1L)
       stop("'nMC' must be a single positive integer")
     nMC <- as.integer(nMC)
   } else {
-    # method == 'MM': nMC may be NULL or a positive integer
+    # CalcMethod == 'MM': nMC may be NULL or a positive integer
     if (!is.null(nMC)) {
       if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
           nMC != floor(nMC) || nMC < 1L)
@@ -601,7 +602,7 @@ pbayespostpred2cont <- function(prob,
   }
 
   # ---------------------------------------------------------------------------
-  # Section 3: MM helpers (constructed only when method = 'MM')
+  # Section 3: MM helpers (constructed only when CalcMethod = 'MM')
   # ---------------------------------------------------------------------------
 
   # MM: moment-matching parameters for the difference of two bivariate t's
@@ -681,11 +682,11 @@ pbayespostpred2cont <- function(prob,
   }
 
   # Check MM feasibility
-  use_mm <- (method == 'MM')
+  use_mm <- (CalcMethod == 'MM')
   if (use_mm && (df_t <= 4L || df_c <= 4L)) {
     warning(
       "MM method requires df > 4 for both groups (df_t = ", df_t,
-      ", df_c = ", df_c, "). Falling back to method = 'MC'."
+      ", df_c = ", df_c, "). Falling back to CalcMethod = 'MC'."
     )
     use_mm <- FALSE
   }
@@ -693,7 +694,7 @@ pbayespostpred2cont <- function(prob,
   # Pre-generate MC raw variates (only for MC path; also used as fallback for MM)
   if (!use_mm) {
     if (is.null(nMC))
-      stop(paste0("'nMC' must be a positive integer when method = 'MM' falls ",
+      stop(paste0("'nMC' must be a positive integer when CalcMethod = 'MM' falls ",
                   "back to MC (nu_k <= 4)"))
     Z_t <- matrix(rnorm(nMC * 2L), nrow = nMC, ncol = 2L)
     W_t <- rchisq(nMC, df = df_t)

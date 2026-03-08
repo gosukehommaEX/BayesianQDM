@@ -40,7 +40,7 @@ pbayespostpred2cont(
   se_t = NULL,
   se_c = NULL,
   nMC = 10000L,
-  method = "MC"
+  CalcMethod = "MC"
 )
 }
 \arguments{
@@ -84,12 +84,13 @@ for Endpoint 1. Required when \code{prob = 'predictive'}; set to
 for Endpoint 2. Required when \code{prob = 'predictive'}; set to
 \code{NULL} when \code{prob = 'posterior'}.}
 
-\item{n_t}{A positive integer giving the sample size for the treatment
-group.}
+\item{n_t}{A positive integer giving the number of patients in the
+treatment group in the proof-of-concept (PoC) trial.}
 
-\item{n_c}{A positive integer giving the sample size for the control group.
-Not used when \code{design = 'uncontrolled'}; set to \code{NULL}
-in that case.}
+\item{n_c}{A positive integer giving the number of patients in the
+control group in the PoC trial. For \code{design = 'uncontrolled'},
+this is the hypothetical control sample size (required for
+consistency with other designs).}
 
 \item{ybar_t}{A numeric vector of length 2 \strong{or} a numeric matrix
 with 2 columns giving the sample mean(s) for the treatment group.
@@ -111,13 +112,13 @@ group. Not used when \code{design = 'uncontrolled'}.}
 giving the sum-of-squares matrix/matrices for the control group.
 Not used when \code{design = 'uncontrolled'}.}
 
-\item{m_t}{A positive integer giving the pivotal study sample size for the
-treatment group. Required when \code{prob = 'predictive'};
-otherwise set to \code{NULL}.}
+\item{m_t}{A positive integer giving the number of patients in the
+treatment group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{m_c}{A positive integer giving the pivotal study sample size for the
-control group. Required when \code{prob = 'predictive'} and
-\code{design != 'uncontrolled'}; otherwise set to \code{NULL}.}
+\item{m_c}{A positive integer giving the number of patients in the
+control group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
 \item{kappa0_t}{A positive numeric scalar giving the NIW prior
 concentration parameter for the treatment group. Required when
@@ -193,17 +194,17 @@ used; otherwise set to \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Monte Carlo draws used
 to estimate region probabilities. Default is \code{10000}. Required
-when \code{method = 'MC'}. May be set to \code{NULL} when
-\code{method = 'MM'} and \eqn{\nu_k > 4} (the MM method uses
-\code{mvtnorm::pmvt} analytically); if \code{method = 'MM'} but
+when \code{CalcMethod = 'MC'}. May be set to \code{NULL} when
+\code{CalcMethod = 'MM'} and \eqn{\nu_k > 4} (the MM method uses
+\code{mvtnorm::pmvt} analytically); if \code{CalcMethod = 'MM'} but
 \eqn{\nu_k \le 4} causes a fallback to MC, \code{nMC} must be a
 positive integer.}
 
-\item{method}{A character string specifying the computation method.
+\item{CalcMethod}{A character string specifying the computation method.
 Must be \code{'MC'} (Monte Carlo, default) or \code{'MM'}
 (Moment-Matching via \code{mvtnorm::pmvt}). When
-\code{method = 'MM'} and \eqn{\nu_k \le 4}, a warning is issued
-and the function falls back to \code{method = 'MC'}.}
+\code{CalcMethod = 'MM'} and \eqn{\nu_k \le 4}, a warning is issued
+and the function falls back to \code{CalcMethod = 'MC'}.}
 }
 \value{
 When \code{ybar_t} is a length-2 vector (single observation): a
@@ -297,10 +298,10 @@ When \code{ybar_t} is supplied as an \eqn{N \times 2} matrix and
 \code{S_t} as a list of \eqn{N} scatter matrices, the function computes
 region probabilities for all \eqn{N} observations in a single call,
 returning an \eqn{N \times n_{\rm regions}} matrix.  For
-\code{method = 'MC'}, standard normal and chi-squared variates are
+\code{CalcMethod = 'MC'}, standard normal and chi-squared variates are
 pre-generated once (size \code{nMC}) and reused across all observations,
 with only the Cholesky factor of the replicate-specific scale matrix
-recomputed per observation.  For \code{method = 'MM'}, the
+recomputed per observation.  For \code{CalcMethod = 'MM'}, the
 moment-matching parameters are computed per observation (since they depend
 on the replicate-specific \eqn{V_k}) and \code{mvtnorm::pmvt} is called
 once per region per observation.

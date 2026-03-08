@@ -5,38 +5,65 @@
 #' framework by Monte Carlo simulation over treatment scenarios.
 #'
 #' @param nsim A positive integer. Number of simulated datasets per scenario.
-#' @param prob Character scalar: \code{'posterior'} or \code{'predictive'}.
-#' @param design Character scalar: \code{'controlled'}, \code{'uncontrolled'},
-#'        or \code{'external'}.
-#' @param prior Character scalar: \code{'vague'} or \code{'N-Inv-Wishart'}.
-#' @param GoRegions Integer vector. Region indices (1--9 for posterior,
-#'        1--4 for predictive) that trigger a Go decision.
-#' @param NoGoRegions Integer vector. Region indices that trigger a NoGo
-#'        decision. Must be disjoint from \code{GoRegions}.
-#' @param gamma_go Numeric scalar in \code{(0, 1)}. Go threshold:
-#'        Go if \eqn{P(\mathrm{GoRegions}) \ge \gamma_1}.
-#' @param gamma_nogo Numeric scalar in \code{(0, 1)}. NoGo threshold:
-#'        NoGo if \eqn{P(\mathrm{NoGoRegions}) \ge \gamma_2}.
-#' @param theta_TV1 Numeric scalar or \code{NULL}. Target value for
-#'        Endpoint 1 (required when \code{prob = 'posterior'}).
-#' @param theta_MAV1 Numeric scalar or \code{NULL}. Minimum acceptable value
-#'        for Endpoint 1 (required when \code{prob = 'posterior'}).
-#' @param theta_TV2 Numeric scalar or \code{NULL}. Target value for
-#'        Endpoint 2 (required when \code{prob = 'posterior'}).
-#' @param theta_MAV2 Numeric scalar or \code{NULL}. Minimum acceptable value
-#'        for Endpoint 2 (required when \code{prob = 'posterior'}).
-#' @param theta_NULL1 Numeric scalar or \code{NULL}. Null value for Endpoint 1
-#'        (required when \code{prob = 'predictive'}).
-#' @param theta_NULL2 Numeric scalar or \code{NULL}. Null value for Endpoint 2
-#'        (required when \code{prob = 'predictive'}).
-#' @param n_t Positive integer. Treatment group sample size.
-#' @param n_c Positive integer or \code{NULL}. Control group sample size
-#'        (required when \code{design} is \code{'controlled'} or
-#'        \code{'external'}).
-#' @param m_t Positive integer or \code{NULL}. Future treatment group size
-#'        (required when \code{prob = 'predictive'}).
-#' @param m_c Positive integer or \code{NULL}. Future control group size
-#'        (required when \code{prob = 'predictive'}).
+#' @param prob A character string specifying the probability type.
+#'        Must be \code{'posterior'} or \code{'predictive'}.
+#' @param design A character string specifying the trial design.
+#'        Must be \code{'controlled'}, \code{'uncontrolled'}, or
+#'        \code{'external'}.
+#' @param prior A character string specifying the prior distribution.
+#'        Must be \code{'vague'} or \code{'N-Inv-Wishart'}.
+#' @param GoRegions An integer vector specifying which of the nine posterior
+#'        regions (R1--R9) or four predictive regions (R1--R4) constitute a
+#'        Go decision.  For \code{prob = 'posterior'}, valid values are
+#'        integers in 1--9; for \code{prob = 'predictive'}, in 1--4.
+#'        A common choice is \code{GoRegions = 1} (both endpoints exceed TV
+#'        or NULL for posterior/predictive, respectively).
+#' @param NoGoRegions An integer vector specifying which regions constitute a
+#'        NoGo decision.  A common choice is \code{NoGoRegions = 9} (both
+#'        endpoints below MAV) for posterior, or \code{NoGoRegions = 4} for
+#'        predictive.  Must be disjoint from \code{GoRegions}.
+#' @param gamma_go A numeric scalar in \code{(0, 1)}. Go threshold:
+#'        a Go decision is made if \eqn{P(\mathrm{GoRegions}) \ge \gamma_1}.
+#' @param gamma_nogo A numeric scalar in \code{(0, 1)}. NoGo threshold:
+#'        a NoGo decision is made if \eqn{P(\mathrm{NoGoRegions}) \ge \gamma_2}.
+#'        No ordering constraint on \code{gamma_go} and \code{gamma_nogo} is
+#'        imposed; their combination determines the frequency of Miss outcomes.
+#' @param theta_TV1 A numeric scalar giving the target value (TV) threshold
+#'        for Endpoint 1. Required when \code{prob = 'posterior'}; must
+#'        satisfy \code{theta_TV1 > theta_MAV1}. Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta_MAV1 A numeric scalar giving the minimum acceptable value
+#'        (MAV) threshold for Endpoint 1. Required when
+#'        \code{prob = 'posterior'}; must satisfy
+#'        \code{theta_TV1 > theta_MAV1}. Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta_TV2 A numeric scalar giving the target value (TV) threshold
+#'        for Endpoint 2. Required when \code{prob = 'posterior'}; must
+#'        satisfy \code{theta_TV2 > theta_MAV2}. Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta_MAV2 A numeric scalar giving the minimum acceptable value
+#'        (MAV) threshold for Endpoint 2. Required when
+#'        \code{prob = 'posterior'}; must satisfy
+#'        \code{theta_TV2 > theta_MAV2}. Set to \code{NULL} when
+#'        \code{prob = 'predictive'}.
+#' @param theta_NULL1 A numeric scalar giving the null hypothesis threshold
+#'        for Endpoint 1. Required when \code{prob = 'predictive'}; set to
+#'        \code{NULL} when \code{prob = 'posterior'}.
+#' @param theta_NULL2 A numeric scalar giving the null hypothesis threshold
+#'        for Endpoint 2. Required when \code{prob = 'predictive'}; set to
+#'        \code{NULL} when \code{prob = 'posterior'}.
+#' @param n_t A positive integer giving the number of patients in the
+#'        treatment group in the proof-of-concept (PoC) trial.
+#' @param n_c A positive integer giving the number of patients in the
+#'        control group in the PoC trial. For \code{design = 'uncontrolled'},
+#'        this is the hypothetical control sample size (required for
+#'        consistency with other designs).
+#' @param m_t A positive integer giving the number of patients in the
+#'        treatment group for the future trial. Required when
+#'        \code{prob = 'predictive'}; otherwise set to \code{NULL}.
+#' @param m_c A positive integer giving the number of patients in the
+#'        control group for the future trial. Required when
+#'        \code{prob = 'predictive'}; otherwise set to \code{NULL}.
 #' @param mu_t Numeric matrix with 2 columns. Each row gives the true treatment
 #'        mean vector for one scenario.  A length-2 vector is coerced to a
 #'        1-row matrix.
@@ -44,56 +71,73 @@
 #' @param mu_c Numeric matrix with 2 columns or a length-2 vector. True control
 #'        (or hypothetical control) mean vector(s).
 #' @param Sigma_c A 2x2 positive-definite matrix. True control covariance.
-#' @param kappa0_t Positive numeric or \code{NULL}. NIW prior pseudo sample
-#'        size for treatment (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param nu0_t Positive numeric or \code{NULL}. NIW prior degrees of freedom
-#'        for treatment (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param mu0_t Length-2 numeric vector or \code{NULL}. NIW prior mean for
-#'        treatment (required when \code{prior = 'N-Inv-Wishart'}).
-#' @param Lambda0_t A 2x2 positive-definite matrix or \code{NULL}. NIW prior
-#'        scale matrix for treatment (required when
-#'        \code{prior = 'N-Inv-Wishart'}).
-#' @param kappa0_c Positive numeric or \code{NULL}. NIW prior pseudo sample
-#'        size for control (required when \code{prior = 'N-Inv-Wishart'} and
-#'        \code{design \%in\% c('controlled', 'external')}).
-#' @param nu0_c Positive numeric or \code{NULL}. NIW prior degrees of freedom
-#'        for control (required when \code{prior = 'N-Inv-Wishart'} and
-#'        \code{design \%in\% c('controlled', 'external')}).
-#' @param mu0_c Length-2 numeric vector or \code{NULL}. NIW prior mean for
-#'        control, or hypothetical control mean for uncontrolled design.
-#' @param Lambda0_c A 2x2 positive-definite matrix or \code{NULL}. NIW prior
-#'        scale matrix for control (required when
+#' @param kappa0_t A positive numeric scalar giving the NIW prior
+#'        concentration parameter for the treatment group. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param nu0_t A numeric scalar giving the NIW prior degrees of freedom for
+#'        the treatment group. Must be greater than 3. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param mu0_t A numeric vector of length 2 giving the NIW prior mean for
+#'        the treatment group. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param Lambda0_t A 2x2 positive-definite numeric matrix giving the NIW
+#'        prior scale matrix for the treatment group. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param kappa0_c A positive numeric scalar giving the NIW prior
+#'        concentration parameter for the control group. Required when
 #'        \code{prior = 'N-Inv-Wishart'} and
-#'        \code{design \%in\% c('controlled', 'external')}).
-#' @param r Positive numeric or \code{NULL}. Variance scaling factor for
-#'        uncontrolled design: \code{Sigma_c = r * Sigma_t}. Required when
-#'        \code{design = 'uncontrolled'}.
-#' @param ne_t Positive integer or \code{NULL}. Number of patients in the
-#'        treatment group of the external data. Required when
-#'        \code{design = 'external'} and external treatment data are available.
-#' @param ne_c Positive integer or \code{NULL}. Number of patients in the
-#'        control group of the external data. Required when
-#'        \code{design = 'external'} and external control data are available.
-#' @param alpha0e_t Numeric in \code{(0, 1]} or \code{NULL}. Power prior
-#'        parameter for treatment external data (0 = no borrowing,
-#'        1 = full borrowing). Required when \code{ne_t} is specified.
-#' @param alpha0e_c Numeric in \code{(0, 1]} or \code{NULL}. Power prior
-#'        parameter for control external data. Required when \code{ne_c}
-#'        is specified.
-#' @param bar_ye_t Length-2 numeric vector or \code{NULL}. Sample mean of
-#'        external treatment data. Required when \code{ne_t} is specified.
-#' @param bar_ye_c Length-2 numeric vector or \code{NULL}. Sample mean of
-#'        external control data. Required when \code{ne_c} is specified.
-#' @param se_t A 2x2 positive-definite matrix or \code{NULL}. Sample
-#'        covariance of external treatment data. Required when \code{ne_t}
-#'        is specified.
-#' @param se_c A 2x2 positive-definite matrix or \code{NULL}. Sample
-#'        covariance of external control data. Required when \code{ne_c}
-#'        is specified.
-#' @param nMC Positive integer or \code{NULL}. Number of Monte Carlo draws
-#'        per simulated dataset (required when \code{method = 'MC'}).
-#' @param method Character scalar: \code{'MC'} (Monte Carlo) or \code{'MM'}
-#'        (Moment Matching).
+#'        \code{design != 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param nu0_c A numeric scalar giving the NIW prior degrees of freedom for
+#'        the control group. Must be greater than 3. Required when
+#'        \code{prior = 'N-Inv-Wishart'} and
+#'        \code{design != 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param mu0_c A numeric vector of length 2 giving the NIW prior mean for
+#'        the control group, or the hypothetical control location when
+#'        \code{design = 'uncontrolled'}. Required when
+#'        \code{prior = 'N-Inv-Wishart'}; otherwise set to \code{NULL}.
+#' @param Lambda0_c A 2x2 positive-definite numeric matrix giving the NIW
+#'        prior scale matrix for the control group. Required when
+#'        \code{prior = 'N-Inv-Wishart'} and
+#'        \code{design != 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param r A positive numeric scalar giving the variance scaling factor for
+#'        the hypothetical control distribution. Required when
+#'        \code{design = 'uncontrolled'}; otherwise set to \code{NULL}.
+#' @param ne_t A positive integer giving the external treatment group sample
+#'        size. Required when \code{design = 'external'} and external
+#'        treatment data are used; otherwise set to \code{NULL}.
+#' @param ne_c A positive integer giving the external control group sample
+#'        size. Required when \code{design = 'external'} and external
+#'        control data are used; otherwise set to \code{NULL}.
+#' @param alpha0e_t A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the external treatment data. Required when external
+#'        treatment data are used; otherwise set to \code{NULL}.
+#' @param alpha0e_c A numeric scalar in \code{(0, 1]} giving the power prior
+#'        weight for the external control data. Required when external
+#'        control data are used; otherwise set to \code{NULL}.
+#' @param bar_ye_t A numeric vector of length 2 giving the external treatment
+#'        group sample mean. Required when external treatment data are used;
+#'        otherwise set to \code{NULL}.
+#' @param bar_ye_c A numeric vector of length 2 giving the external control
+#'        group sample mean. Required when external control data are used;
+#'        otherwise set to \code{NULL}.
+#' @param se_t A 2x2 numeric matrix giving the external treatment group
+#'        sum-of-squares matrix. Required when external treatment data are
+#'        used; otherwise set to \code{NULL}.
+#' @param se_c A 2x2 numeric matrix giving the external control group
+#'        sum-of-squares matrix. Required when external control data are
+#'        used; otherwise set to \code{NULL}.
+#' @param nMC A positive integer giving the number of Monte Carlo draws used
+#'        to estimate region probabilities. Default is \code{10000}. Required
+#'        when \code{CalcMethod = 'MC'}. May be set to \code{NULL} when
+#'        \code{CalcMethod = 'MM'} and \eqn{\nu_k > 4} (the MM method uses
+#'        \code{mvtnorm::pmvt} analytically); if \code{CalcMethod = 'MM'} but
+#'        \eqn{\nu_k \le 4} causes a fallback to MC, \code{nMC} must be a
+#'        positive integer.
+#' @param CalcMethod A character string specifying the computation method.
+#'        Must be \code{'MC'} (Monte Carlo, default) or \code{'MM'}
+#'        (Moment-Matching via \code{mvtnorm::pmvt}). When
+#'        \code{CalcMethod = 'MM'} and \eqn{\nu_k \le 4}, a warning is issued
+#'        and the function falls back to \code{CalcMethod = 'MC'}.
 #' @param error_if_Miss Logical. If \code{TRUE} (default), the function stops
 #'        with an error when positive Miss probability is obtained. If
 #'        \code{FALSE}, Miss probability is handled according to
@@ -150,7 +194,7 @@
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1L
 #' )
 #'
@@ -175,7 +219,7 @@
 #'   r = 1.0,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 3L
 #' )
 #'
@@ -201,7 +245,7 @@
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = 15L, alpha0e_t = NULL, alpha0e_c = 0.5,
 #'   bar_ye_t = NULL, bar_ye_c = c(0.2, 0.1), se_t = NULL, se_c = se_mat,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 5L
 #' )
 #'
@@ -226,7 +270,7 @@
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 4L
 #' )
 #'
@@ -250,7 +294,7 @@
 #'   r = 1.0,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 8L
 #' )
 #'
@@ -276,7 +320,7 @@
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = 15L, alpha0e_t = NULL, alpha0e_c = 0.5,
 #'   bar_ye_t = NULL, bar_ye_c = c(0.2, 0.1), se_t = NULL, se_c = se_mat,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 9L
 #' )
 #'
@@ -305,7 +349,7 @@ pbayesdecisionprob2cont <- function(nsim,
                                     bar_ye_t      = NULL, bar_ye_c    = NULL,
                                     se_t          = NULL, se_c        = NULL,
                                     nMC           = NULL,
-                                    method        = 'MC',
+                                    CalcMethod    = 'MC',
                                     error_if_Miss = TRUE,
                                     Gray_inc_Miss = FALSE,
                                     seed) {
@@ -463,20 +507,20 @@ pbayesdecisionprob2cont <- function(nsim,
                   "external data must be provided"))
   }
 
-  if (!is.character(method) || length(method) != 1L ||
-      !method %in% c('MC', 'MM'))
-    stop("'method' must be either 'MC' or 'MM'")
+  if (!is.character(CalcMethod) || length(CalcMethod) != 1L ||
+      !CalcMethod %in% c('MC', 'MM'))
+    stop("'CalcMethod' must be either 'MC' or 'MM'")
 
-  # nMC validation: required for method = 'MC', optional for method = 'MM'
-  if (method == 'MC') {
+  # nMC validation: required for CalcMethod = 'MC', optional for CalcMethod = 'MM'
+  if (CalcMethod == 'MC') {
     if (is.null(nMC))
-      stop("'nMC' must be non-NULL when method = 'MC'")
+      stop("'nMC' must be non-NULL when CalcMethod = 'MC'")
     if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
         nMC != floor(nMC) || nMC < 1L)
       stop("'nMC' must be a single positive integer")
     nMC <- as.integer(nMC)
   } else {
-    # method == 'MM': nMC may be NULL or a positive integer
+    # CalcMethod == 'MM': nMC may be NULL or a positive integer
     if (!is.null(nMC)) {
       if (!is.numeric(nMC) || length(nMC) != 1L || is.na(nMC) ||
           nMC != floor(nMC) || nMC < 1L)
@@ -593,7 +637,7 @@ pbayesdecisionprob2cont <- function(nsim,
       bar_ye_t  = bar_ye_t,  bar_ye_c  = bar_ye_c,
       se_t      = se_t,      se_c      = se_c,
       nMC    = nMC,
-      method = method
+      CalcMethod = CalcMethod
     )
     # Pr_R_mat: nsim x n_regions (column names R1...R9 or R1...R4)
 
@@ -601,7 +645,7 @@ pbayesdecisionprob2cont <- function(nsim,
     PrGo_vec   <- rowSums(Pr_R_mat[, GoRegions,   drop = FALSE])
     PrNoGo_vec <- rowSums(Pr_R_mat[, NoGoRegions, drop = FALSE])
 
-    # Classify into Go, NoGo, Miss
+    # --- Decision indicators (Go, NoGo, Miss are mutually exclusive; Gray is the complement) ---
     ind_Go   <- (PrGo_vec >= gamma_go) & (PrNoGo_vec <  gamma_nogo)
     ind_NoGo <- (PrGo_vec <  gamma_go) & (PrNoGo_vec >= gamma_nogo)
     ind_Miss <- (PrGo_vec >= gamma_go) & (PrNoGo_vec >= gamma_nogo)
@@ -662,7 +706,7 @@ pbayesdecisionprob2cont <- function(nsim,
   attr(results, 'prior')          <- prior
   attr(results, 'nsim')           <- nsim
   attr(results, 'nMC')            <- nMC
-  attr(results, 'method')         <- method
+  attr(results, 'CalcMethod')     <- CalcMethod
   attr(results, 'GoRegions')      <- GoRegions
   attr(results, 'NoGoRegions')    <- NoGoRegions
   attr(results, 'gamma_go')       <- gamma_go
@@ -740,7 +784,7 @@ print.pbayesdecisionprob2cont <- function(x, digits = 4, ...) {
   prior         <- attr(x, "prior")
   nsim          <- attr(x, "nsim")
   nMC           <- attr(x, "nMC")
-  method        <- attr(x, "method")
+  CalcMethod    <- attr(x, "CalcMethod")
   GoRegions     <- attr(x, "GoRegions")
   NoGoRegions   <- attr(x, "NoGoRegions")
   gamma_go      <- attr(x, "gamma_go")
@@ -786,7 +830,7 @@ print.pbayesdecisionprob2cont <- function(x, digits = 4, ...) {
   lines <- c(lines, sprintf("%s%-*s: %s",        pad, lw, "Probability type", prob))
   lines <- c(lines, sprintf("%s%-*s: %s",        pad, lw, "Design",           design))
   lines <- c(lines, sprintf("%s%-*s: %s",        pad, lw, "Prior",            prior))
-  lines <- c(lines, sprintf("%s%-*s: %s",        pad, lw, "Method",           fmt(method)))
+  lines <- c(lines, sprintf("%s%-*s: %s",        pad, lw, "Method",           fmt(CalcMethod)))
   lines <- c(lines, sprintf("%s%-*s: nsim = %s", pad, lw, "Simulations",      fmt(nsim)))
   lines <- c(lines, sprintf("%s%-*s: nMC = %s",  pad, lw, "MC draws",         fmt(nMC)))
   lines <- c(lines, sprintf("%s%-*s: %s",        pad, lw, "Seed",             fmt(seed)))

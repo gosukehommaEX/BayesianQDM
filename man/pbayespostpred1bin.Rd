@@ -24,8 +24,8 @@ pbayespostpred1bin(
   ne_c = NULL,
   ye_t = NULL,
   ye_c = NULL,
-  ae_t = NULL,
-  ae_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
   lower.tail = TRUE
 )
 }
@@ -101,14 +101,13 @@ treatment group of the external data set. Required when
 control group of the external data set. Required when
 \code{design = 'external'}; otherwise set to \code{NULL}.}
 
-\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for the treatment group. Controls the degree of borrowing:
-1 = full borrowing. Required when \code{design = 'external'};
-otherwise set to \code{NULL}.}
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the external treatment data. Required when external
+treatment data are used; otherwise set to \code{NULL}.}
 
-\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for the control group. Required when
-\code{design = 'external'}; otherwise set to \code{NULL}.}
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for the external control data. Required when external
+control data are used; otherwise set to \code{NULL}.}
 
 \item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
 returns \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
@@ -159,7 +158,7 @@ pbayespostpred1bin(
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = NULL, m_c = NULL, z = NULL,
   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+  alpha0e_t = NULL, alpha0e_c = NULL, lower.tail = FALSE
 )
 
 # Example 2: Uncontrolled design - posterior probability
@@ -169,7 +168,7 @@ pbayespostpred1bin(
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = NULL, m_c = NULL, z = 3,
   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+  alpha0e_t = NULL, alpha0e_c = NULL, lower.tail = FALSE
 )
 
 # Example 3: External design - posterior probability
@@ -178,7 +177,7 @@ pbayespostpred1bin(
   n_t = 12, n_c = 15, y_t = 7, y_c = 9,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = NULL, m_c = NULL, z = NULL,
-  ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, ae_t = 0.5, ae_c = 0.5,
+  ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, alpha0e_t = 0.5, alpha0e_c = 0.5,
   lower.tail = FALSE
 )
 
@@ -189,7 +188,7 @@ pbayespostpred1bin(
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = 30, m_c = 30, z = NULL,
   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+  alpha0e_t = NULL, alpha0e_c = NULL, lower.tail = FALSE
 )
 
 # Example 5: Uncontrolled design - posterior predictive probability
@@ -199,7 +198,7 @@ pbayespostpred1bin(
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = 30, m_c = 30, z = 3,
   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  ae_t = NULL, ae_c = NULL, lower.tail = FALSE
+  alpha0e_t = NULL, alpha0e_c = NULL, lower.tail = FALSE
 )
 
 # Example 6: External design - posterior predictive probability
@@ -208,7 +207,7 @@ pbayespostpred1bin(
   n_t = 12, n_c = 15, y_t = 7, y_c = 9,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   m_t = 30, m_c = 30, z = NULL,
-  ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, ae_t = 0.5, ae_c = 0.5,
+  ne_t = 12, ne_c = 12, ye_t = 6, ye_c = 6, alpha0e_t = 0.5, alpha0e_c = 0.5,
   lower.tail = FALSE
 )
 

@@ -4,10 +4,11 @@
 #' clinical trials under the Bayesian framework by enumerating all possible trial
 #' outcomes. The function supports controlled, uncontrolled, and external designs.
 #'
-#' @param prob A character string specifying the probability type for decision-making.
+#' @param prob A character string specifying the probability type.
 #'        Must be \code{'posterior'} or \code{'predictive'}.
 #' @param design A character string specifying the trial design.
-#'        Must be \code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.
+#'        Must be \code{'controlled'}, \code{'uncontrolled'}, or
+#'        \code{'external'}.
 #' @param theta_TV A numeric scalar giving the target value (TV) threshold used for
 #'        the Go decision when \code{prob = 'posterior'}. Set to \code{NULL} when
 #'        \code{prob = 'predictive'}.
@@ -19,10 +20,11 @@
 #'        both Go and NoGo decisions when \code{prob = 'predictive'}. Set to
 #'        \code{NULL} when \code{prob = 'posterior'}.
 #' @param gamma_go A numeric scalar in \code{(0, 1)} giving the minimum posterior or
-#'        predictive probability required for a Go decision. Typically 0.8 or higher.
-#' @param gamma_nogo A numeric scalar in \code{(0, 1)} giving the maximum posterior or
-#'        predictive probability that triggers a NoGo decision. Must satisfy
-#'        \code{gamma_nogo < gamma_go}.
+#'        predictive probability required for a Go decision.
+#' @param gamma_nogo A numeric scalar in \code{(0, 1)} giving the minimum posterior or
+#'        predictive probability required for a NoGo decision. No ordering
+#'        constraint on \code{gamma_go} and \code{gamma_nogo} is imposed, though
+#'        their combination determines the frequency of Miss outcomes.
 #' @param pi_t A numeric value or vector giving the true response probability(s) for
 #'        the treatment group used to evaluate operating characteristics. Each element
 #'        must be in \code{(0, 1)}.
@@ -30,40 +32,48 @@
 #'        the control group. For \code{design = 'uncontrolled'}, this parameter is
 #'        not used in calculations but must be supplied; it is excluded from the output.
 #'        When supplied as a vector, must have the same length as \code{pi_t}.
-#' @param n_t A positive integer giving the number of patients in the treatment group in the
-#'        proof-of-concept (PoC) trial.
-#' @param n_c A positive integer giving the number of patients in the control group in the
-#'        PoC trial (also used as the hypothetical control size for uncontrolled design).
-#' @param a_t A positive numeric scalar giving the first shape parameter (alpha) of the
-#'        prior Beta distribution for the treatment group.
-#' @param a_c A positive numeric scalar giving the first shape parameter (alpha) of the
-#'        prior Beta distribution for the control group.
-#' @param b_t A positive numeric scalar giving the second shape parameter (beta) of the
-#'        prior Beta distribution for the treatment group.
-#' @param b_c A positive numeric scalar giving the second shape parameter (beta) of the
-#'        prior Beta distribution for the control group.
-#' @param z A non-negative integer giving the hypothetical control responder count.
-#'        Required when \code{design = 'uncontrolled'}; otherwise set to \code{NULL}.
-#' @param m_t A positive integer giving the future sample size for the treatment group.
-#'        Required when \code{prob = 'predictive'}; otherwise set to \code{NULL}.
-#' @param m_c A positive integer giving the future sample size for the control group.
-#'        Required when \code{prob = 'predictive'}; otherwise set to \code{NULL}.
-#' @param ne_t A positive integer giving the number of patients in the treatment group
-#'        of the external data set. Required when \code{design = 'external'}; otherwise
+#' @param n_t A positive integer giving the number of patients in the
+#'        treatment group in the proof-of-concept (PoC) trial.
+#' @param n_c A positive integer giving the number of patients in the
+#'        control group in the PoC trial. For \code{design = 'uncontrolled'},
+#'        this is the hypothetical control sample size (required for
+#'        consistency with other designs).
+#' @param a_t A positive numeric scalar giving the first shape parameter
+#'        (alpha) of the prior Beta distribution for the treatment group.
+#' @param a_c A positive numeric scalar giving the first shape parameter
+#'        (alpha) of the prior Beta distribution for the control group.
+#' @param b_t A positive numeric scalar giving the second shape parameter
+#'        (beta) of the prior Beta distribution for the treatment group.
+#' @param b_c A positive numeric scalar giving the second shape parameter
+#'        (beta) of the prior Beta distribution for the control group.
+#' @param z A non-negative integer giving the hypothetical number of responders
+#'        in the control group. Required when \code{design = 'uncontrolled'};
+#'        otherwise set to \code{NULL}. When used, \code{y_c} should be
 #'        \code{NULL}.
-#' @param ne_c A positive integer giving the number of patients in the control group
-#'        of the external data set. Required when \code{design = 'external'}; otherwise
-#'        \code{NULL}.
+#' @param m_t A positive integer giving the number of patients in the
+#'        treatment group for the future trial. Required when
+#'        \code{prob = 'predictive'}; otherwise set to \code{NULL}.
+#' @param m_c A positive integer giving the number of patients in the
+#'        control group for the future trial. Required when
+#'        \code{prob = 'predictive'}; otherwise set to \code{NULL}.
+#' @param ne_t A positive integer giving the number of patients in the
+#'        treatment group of the external data set. Required when
+#'        \code{design = 'external'} and external treatment data are
+#'        available; otherwise set to \code{NULL}.
+#' @param ne_c A positive integer giving the number of patients in the
+#'        control group of the external data set. Required when
+#'        \code{design = 'external'} and external control data are available;
+#'        otherwise set to \code{NULL}.
 #' @param ye_t A non-negative integer giving the number of responders in the
 #'        treatment group of the external data set. Required when
-#'        \code{design = 'external'}; otherwise \code{NULL}.
+#'        \code{design = 'external'}; otherwise set to \code{NULL}.
 #' @param ye_c A non-negative integer giving the number of responders in the
 #'        control group of the external data set. Required when
-#'        \code{design = 'external'}; otherwise \code{NULL}.
-#' @param ae_t A numeric scalar in \code{(0, 1]} giving the power prior weight for
+#'        \code{design = 'external'}; otherwise set to \code{NULL}.
+#' @param alpha0e_t A numeric scalar in \code{(0, 1]} giving the power prior weight for
 #'        the treatment group. Required when \code{design = 'external'};
 #'        otherwise \code{NULL}.
-#' @param ae_c A numeric scalar in \code{(0, 1]} giving the power prior weight for
+#' @param alpha0e_c A numeric scalar in \code{(0, 1]} giving the power prior weight for
 #'        the control group. Required when \code{design = 'external'};
 #'        otherwise \code{NULL}.
 #' @param error_if_Miss A logical scalar; if \code{TRUE} (default), the function stops
@@ -116,7 +126,7 @@
 #'   n_t = 12, n_c = 12,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = NULL, m_t = NULL, m_c = NULL,
-#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 #' )
 #'
@@ -129,7 +139,7 @@
 #'   n_t = 15, n_c = 15,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = 5, m_t = NULL, m_c = NULL,
-#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 #' )
 #'
@@ -142,7 +152,7 @@
 #'   n_t = 12, n_c = 12,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = NULL, m_t = NULL, m_c = NULL,
-#'   ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, ae_t = 0.5, ae_c = 0.5,
+#'   ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, alpha0e_t = 0.5, alpha0e_c = 0.5,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 #' )
 #'
@@ -155,7 +165,7 @@
 #'   n_t = 12, n_c = 12,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = NULL, m_t = 30, m_c = 30,
-#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 #' )
 #'
@@ -168,7 +178,7 @@
 #'   n_t = 15, n_c = 15,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = 5, m_t = 30, m_c = 30,
-#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 #' )
 #'
@@ -181,7 +191,7 @@
 #'   n_t = 12, n_c = 12,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = NULL, m_t = 30, m_c = 30,
-#'   ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, ae_t = 0.5, ae_c = 0.5,
+#'   ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, alpha0e_t = 0.5, alpha0e_c = 0.5,
 #'   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 #' )
 #'
@@ -195,7 +205,7 @@ pbayesdecisionprob1bin <- function(prob = 'posterior', design = 'controlled',
                                    z = NULL, m_t = NULL, m_c = NULL,
                                    ne_t = NULL, ne_c = NULL,
                                    ye_t = NULL, ye_c = NULL,
-                                   ae_t = NULL, ae_c = NULL,
+                                   alpha0e_t = NULL, alpha0e_c = NULL,
                                    error_if_Miss = TRUE,
                                    Gray_inc_Miss = FALSE) {
 
@@ -218,10 +228,6 @@ pbayesdecisionprob1bin <- function(prob = 'posterior', design = 'controlled',
   if (!is.numeric(gamma_nogo) || length(gamma_nogo) != 1L || is.na(gamma_nogo) ||
       gamma_nogo <= 0 || gamma_nogo >= 1) {
     stop("'gamma_nogo' must be a single numeric value in (0, 1)")
-  }
-
-  if (gamma_nogo >= gamma_go) {
-    stop("'gamma_nogo' must be strictly less than 'gamma_go'")
   }
 
   for (nm in c("n_t", "n_c")) {
@@ -312,8 +318,8 @@ pbayesdecisionprob1bin <- function(prob = 'posterior', design = 'controlled',
   }
 
   if (design == 'external') {
-    if (any(sapply(list(ne_t, ne_c, ye_t, ye_c, ae_t, ae_c), is.null))) {
-      stop("'ne_t', 'ne_c', 'ye_t', 'ye_c', 'ae_t', and 'ae_c' must all be non-NULL when design = 'external'")
+    if (any(sapply(list(ne_t, ne_c, ye_t, ye_c, alpha0e_t, alpha0e_c), is.null))) {
+      stop("'ne_t', 'ne_c', 'ye_t', 'ye_c', 'alpha0e_t', and 'alpha0e_c' must all be non-NULL when design = 'external'")
     }
     for (nm in c("ne_t", "ne_c")) {
       val <- get(nm)
@@ -330,7 +336,7 @@ pbayesdecisionprob1bin <- function(prob = 'posterior', design = 'controlled',
         stop(paste0("'", nm, "' must be a single non-negative integer not exceeding the corresponding ne"))
       }
     }
-    for (nm in c("ae_t", "ae_c")) {
+    for (nm in c("alpha0e_t", "alpha0e_c")) {
       val <- get(nm)
       if (!is.numeric(val) || length(val) != 1L || is.na(val) ||
           val <= 0 || val > 1) {
@@ -368,7 +374,7 @@ pbayesdecisionprob1bin <- function(prob = 'posterior', design = 'controlled',
     n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = if (design == 'uncontrolled') NULL else all_y_c,
     a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
     m_t = m_t, m_c = m_c, z = z_arg,
-    ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
+    ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
     lower.tail = FALSE
   )
 
@@ -377,11 +383,11 @@ pbayesdecisionprob1bin <- function(prob = 'posterior', design = 'controlled',
     n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = if (design == 'uncontrolled') NULL else all_y_c,
     a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
     m_t = m_t, m_c = m_c, z = z_arg,
-    ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
+    ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
     lower.tail = TRUE
   )
 
-  # --- Decision indicators (mutually exclusive: Go, NoGo, Miss; Gray = complement) ---
+  # --- Decision indicators (Go, NoGo, Miss are mutually exclusive; Gray is the complement) ---
   probs_Go   <- (gPost_Go  >= gamma_go) & (gPost_NoGo <  gamma_nogo)
   probs_NoGo <- (gPost_Go  <  gamma_go) & (gPost_NoGo >= gamma_nogo)
   probs_Miss <- (gPost_Go  >= gamma_go) & (gPost_NoGo >= gamma_nogo)
@@ -466,8 +472,8 @@ pbayesdecisionprob1bin <- function(prob = 'posterior', design = 'controlled',
   attr(results, 'ne_c')           <- ne_c
   attr(results, 'ye_t')           <- ye_t
   attr(results, 'ye_c')           <- ye_c
-  attr(results, 'ae_t')           <- ae_t
-  attr(results, 'ae_c')           <- ae_c
+  attr(results, 'alpha0e_t')           <- alpha0e_t
+  attr(results, 'alpha0e_c')           <- alpha0e_c
   attr(results, 'error_if_Miss')  <- error_if_Miss
   attr(results, 'Gray_inc_Miss')  <- Gray_inc_Miss
 
@@ -512,8 +518,8 @@ print.pbayesdecisionprob1bin <- function(x, digits = 4, ...) {
   ne_c          <- attr(x, "ne_c")
   ye_t          <- attr(x, "ye_t")
   ye_c          <- attr(x, "ye_c")
-  ae_t          <- attr(x, "ae_t")
-  ae_c          <- attr(x, "ae_c")
+  alpha0e_t          <- attr(x, "alpha0e_t")
+  alpha0e_c          <- attr(x, "alpha0e_c")
   error_if_Miss <- attr(x, "error_if_Miss")
   Gray_inc_Miss <- attr(x, "Gray_inc_Miss")
 
@@ -558,8 +564,8 @@ print.pbayesdecisionprob1bin <- function(x, digits = 4, ...) {
     lines <- c(lines, sprintf("%s%-*s: ne_t = %s, ne_c = %s, ye_t = %s, ye_c = %s",
                               pad, lw, "External data",
                               fmt(ne_t), fmt(ne_c), fmt(ye_t), fmt(ye_c)))
-    lines <- c(lines, sprintf("%s%-*s  ae_t = %s, ae_c = %s",
-                              pad, lw, "", fmt(ae_t), fmt(ae_c)))
+    lines <- c(lines, sprintf("%s%-*s  alpha0e_t = %s, alpha0e_c = %s",
+                              pad, lw, "", fmt(alpha0e_t), fmt(alpha0e_c)))
   }
   lines <- c(lines, sprintf("%s%-*s: error_if_Miss = %s, Gray_inc_Miss = %s",
                             pad, lw, "Miss handling",

@@ -79,11 +79,12 @@ posterior probabilities. Required if \code{CalcMethod = 'MC'};
 otherwise \code{NULL}.}
 
 \item{gamma_go}{A numeric scalar in \code{(0, 1)} giving the minimum posterior or
-predictive probability required for a Go decision. Typically 0.8 or higher.}
+predictive probability required for a Go decision.}
 
-\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the maximum posterior or
-predictive probability that triggers a NoGo decision. Must satisfy
-\code{gamma_nogo < gamma_go}.}
+\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the minimum posterior or
+predictive probability required for a NoGo decision. No ordering
+constraint on \code{gamma_go} and \code{gamma_nogo} is imposed, though
+their combination determines the frequency of Miss outcomes.}
 
 \item{n_t}{A positive integer representing the sample size for the treatment group.}
 
@@ -229,11 +230,10 @@ For external designs, power priors are incorporated using exact conjugate repres
 
 \strong{Decision rules}:
 \itemize{
-\item \strong{Go}: P(treatment effect > threshold) >= gamma_go
-\item \strong{NoGo}: P(treatment effect > threshold) <= gamma_nogo
-\item \strong{Gray}: gamma_nogo < P(treatment effect > threshold) < gamma_go
-\item \strong{Miss}: Both Go and NoGo criteria are met simultaneously (indicates
-poorly chosen thresholds)
+\item \strong{Go}: gGo >= gamma_go and gNoGo < gamma_nogo
+\item \strong{NoGo}: gGo < gamma_go and gNoGo >= gamma_nogo
+\item \strong{Gray}: neither Go nor NoGo criterion is met
+\item \strong{Miss}: both Go and NoGo criteria are met simultaneously
 }
 
 \strong{Handling Miss probability}:

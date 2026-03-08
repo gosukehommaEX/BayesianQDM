@@ -72,13 +72,13 @@ control group in the PoC trial. Required for
 \code{design = 'controlled'} or \code{'external'}; set to
 \code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{m_t}{A positive integer giving the future sample size for the
-treatment group. Required when \code{prob = 'predictive'};
-otherwise \code{NULL}.}
+\item{m_t}{A positive integer giving the number of patients in the
+treatment group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
-\item{m_c}{A positive integer giving the future sample size for the
-control group. Required when \code{prob = 'predictive'};
-otherwise \code{NULL}.}
+\item{m_c}{A positive integer giving the number of patients in the
+control group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
 
 \item{kappa0_t}{A positive numeric scalar giving the prior precision
 parameter for the treatment group. Required when
@@ -136,21 +136,23 @@ the hypothetical control. Required for \code{design = 'uncontrolled'};
 otherwise \code{NULL}. The hypothetical control scale is
 \eqn{\mathrm{sd.control} = \sqrt{r} \cdot \mathrm{sd.treatment}}.}
 
-\item{ne_t}{A positive integer giving the external treatment group sample
-size. Required for \code{design = 'external'} with external
-treatment data; otherwise \code{NULL}.}
+\item{ne_t}{A positive integer giving the number of patients in the
+treatment group of the external data set. Required when
+\code{design = 'external'} and external treatment data are
+available; otherwise set to \code{NULL}.}
 
-\item{ne_c}{A positive integer giving the external control group sample
-size. Required for \code{design = 'external'} with external
-control data; otherwise \code{NULL}.}
+\item{ne_c}{A positive integer giving the number of patients in the
+control group of the external data set. Required when
+\code{design = 'external'} and external control data are available;
+otherwise set to \code{NULL}.}
 
 \item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for the treatment group. Required when \code{ne_t} is
-provided; otherwise \code{NULL}.}
+weight for the external treatment data. Required when external
+treatment data are used; otherwise set to \code{NULL}.}
 
 \item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior
-weight for the control group. Required when \code{ne_c} is
-provided; otherwise \code{NULL}.}
+weight for the external control data. Required when external
+control data are used; otherwise set to \code{NULL}.}
 
 \item{bar_ye_t}{A numeric scalar giving the external treatment group
 sample mean. Required when \code{ne_t} is provided; otherwise
@@ -167,8 +169,8 @@ sample SD. Required when \code{ne_t} is provided; otherwise
 sample SD. Required when \code{ne_c} is provided; otherwise
 \code{NULL}.}
 
-\item{lower.tail}{A logical scalar; if \code{TRUE} (default), returns
-\eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
+\item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
+returns \eqn{P(\mathrm{effect} \le \theta_0)}, otherwise
 \eqn{P(\mathrm{effect} > \theta_0)}.}
 }
 \value{

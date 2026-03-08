@@ -27,18 +27,19 @@ pbayesdecisionprob1bin(
   ne_c = NULL,
   ye_t = NULL,
   ye_c = NULL,
-  ae_t = NULL,
-  ae_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
   error_if_Miss = TRUE,
   Gray_inc_Miss = FALSE
 )
 }
 \arguments{
-\item{prob}{A character string specifying the probability type for decision-making.
+\item{prob}{A character string specifying the probability type.
 Must be \code{'posterior'} or \code{'predictive'}.}
 
 \item{design}{A character string specifying the trial design.
-Must be \code{'controlled'}, \code{'uncontrolled'}, or \code{'external'}.}
+Must be \code{'controlled'}, \code{'uncontrolled'}, or
+\code{'external'}.}
 
 \item{theta_TV}{A numeric scalar giving the target value (TV) threshold used for
 the Go decision when \code{prob = 'posterior'}. Set to \code{NULL} when
@@ -54,11 +55,12 @@ both Go and NoGo decisions when \code{prob = 'predictive'}. Set to
 \code{NULL} when \code{prob = 'posterior'}.}
 
 \item{gamma_go}{A numeric scalar in \code{(0, 1)} giving the minimum posterior or
-predictive probability required for a Go decision. Typically 0.8 or higher.}
+predictive probability required for a Go decision.}
 
-\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the maximum posterior or
-predictive probability that triggers a NoGo decision. Must satisfy
-\code{gamma_nogo < gamma_go}.}
+\item{gamma_nogo}{A numeric scalar in \code{(0, 1)} giving the minimum posterior or
+predictive probability required for a NoGo decision. No ordering
+constraint on \code{gamma_go} and \code{gamma_nogo} is imposed, though
+their combination determines the frequency of Miss outcomes.}
 
 \item{pi_t}{A numeric value or vector giving the true response probability(s) for
 the treatment group used to evaluate operating characteristics. Each element
@@ -69,54 +71,62 @@ the control group. For \code{design = 'uncontrolled'}, this parameter is
 not used in calculations but must be supplied; it is excluded from the output.
 When supplied as a vector, must have the same length as \code{pi_t}.}
 
-\item{n_t}{A positive integer giving the number of patients in the treatment group in the
-proof-of-concept (PoC) trial.}
+\item{n_t}{A positive integer giving the number of patients in the
+treatment group in the proof-of-concept (PoC) trial.}
 
-\item{n_c}{A positive integer giving the number of patients in the control group in the
-PoC trial (also used as the hypothetical control size for uncontrolled design).}
+\item{n_c}{A positive integer giving the number of patients in the
+control group in the PoC trial. For \code{design = 'uncontrolled'},
+this is the hypothetical control sample size (required for
+consistency with other designs).}
 
-\item{a_t}{A positive numeric scalar giving the first shape parameter (alpha) of the
-prior Beta distribution for the treatment group.}
+\item{a_t}{A positive numeric scalar giving the first shape parameter
+(alpha) of the prior Beta distribution for the treatment group.}
 
-\item{a_c}{A positive numeric scalar giving the first shape parameter (alpha) of the
-prior Beta distribution for the control group.}
+\item{a_c}{A positive numeric scalar giving the first shape parameter
+(alpha) of the prior Beta distribution for the control group.}
 
-\item{b_t}{A positive numeric scalar giving the second shape parameter (beta) of the
-prior Beta distribution for the treatment group.}
+\item{b_t}{A positive numeric scalar giving the second shape parameter
+(beta) of the prior Beta distribution for the treatment group.}
 
-\item{b_c}{A positive numeric scalar giving the second shape parameter (beta) of the
-prior Beta distribution for the control group.}
+\item{b_c}{A positive numeric scalar giving the second shape parameter
+(beta) of the prior Beta distribution for the control group.}
 
-\item{z}{A non-negative integer giving the hypothetical control responder count.
-Required when \code{design = 'uncontrolled'}; otherwise set to \code{NULL}.}
-
-\item{m_t}{A positive integer giving the future sample size for the treatment group.
-Required when \code{prob = 'predictive'}; otherwise set to \code{NULL}.}
-
-\item{m_c}{A positive integer giving the future sample size for the control group.
-Required when \code{prob = 'predictive'}; otherwise set to \code{NULL}.}
-
-\item{ne_t}{A positive integer giving the number of patients in the treatment group
-of the external data set. Required when \code{design = 'external'}; otherwise
+\item{z}{A non-negative integer giving the hypothetical number of responders
+in the control group. Required when \code{design = 'uncontrolled'};
+otherwise set to \code{NULL}. When used, \code{y_c} should be
 \code{NULL}.}
 
-\item{ne_c}{A positive integer giving the number of patients in the control group
-of the external data set. Required when \code{design = 'external'}; otherwise
-\code{NULL}.}
+\item{m_t}{A positive integer giving the number of patients in the
+treatment group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
+
+\item{m_c}{A positive integer giving the number of patients in the
+control group for the future trial. Required when
+\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
+
+\item{ne_t}{A positive integer giving the number of patients in the
+treatment group of the external data set. Required when
+\code{design = 'external'} and external treatment data are
+available; otherwise set to \code{NULL}.}
+
+\item{ne_c}{A positive integer giving the number of patients in the
+control group of the external data set. Required when
+\code{design = 'external'} and external control data are available;
+otherwise set to \code{NULL}.}
 
 \item{ye_t}{A non-negative integer giving the number of responders in the
 treatment group of the external data set. Required when
-\code{design = 'external'}; otherwise \code{NULL}.}
+\code{design = 'external'}; otherwise set to \code{NULL}.}
 
 \item{ye_c}{A non-negative integer giving the number of responders in the
 control group of the external data set. Required when
-\code{design = 'external'}; otherwise \code{NULL}.}
+\code{design = 'external'}; otherwise set to \code{NULL}.}
 
-\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
 the treatment group. Required when \code{design = 'external'};
 otherwise \code{NULL}.}
 
-\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight for
 the control group. Required when \code{design = 'external'};
 otherwise \code{NULL}.}
 
@@ -177,7 +187,7 @@ pbayesdecisionprob1bin(
   n_t = 12, n_c = 12,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = NULL, m_t = NULL, m_c = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
@@ -190,7 +200,7 @@ pbayesdecisionprob1bin(
   n_t = 15, n_c = 15,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = 5, m_t = NULL, m_c = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
@@ -203,7 +213,7 @@ pbayesdecisionprob1bin(
   n_t = 12, n_c = 12,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = NULL, m_t = NULL, m_c = NULL,
-  ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, ae_t = 0.5, ae_c = 0.5,
+  ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, alpha0e_t = 0.5, alpha0e_c = 0.5,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
@@ -216,7 +226,7 @@ pbayesdecisionprob1bin(
   n_t = 12, n_c = 12,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = NULL, m_t = 30, m_c = 30,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
@@ -229,7 +239,7 @@ pbayesdecisionprob1bin(
   n_t = 15, n_c = 15,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = 5, m_t = 30, m_c = 30,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
@@ -242,7 +252,7 @@ pbayesdecisionprob1bin(
   n_t = 12, n_c = 12,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = NULL, m_t = 30, m_c = 30,
-  ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, ae_t = 0.5, ae_c = 0.5,
+  ne_t = 15, ne_c = 15, ye_t = 6, ye_c = 4, alpha0e_t = 0.5, alpha0e_c = 0.5,
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
 
