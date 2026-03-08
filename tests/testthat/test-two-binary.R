@@ -21,7 +21,7 @@ test_that("pbayespostpred2bin posterior controlled returns 9 named probs", {
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL, nMC = 50L
+    alpha0e_t = NULL, alpha0e_c = NULL, nMC = 50L
   )
   expect_type(result, "double")
   expect_length(result, 9L)
@@ -45,7 +45,7 @@ test_that("pbayespostpred2bin predictive controlled returns 4 named probs", {
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL, nMC = 50L
+    alpha0e_t = NULL, alpha0e_c = NULL, nMC = 50L
   )
   expect_type(result, "double")
   expect_length(result, 4L)
@@ -68,7 +68,7 @@ test_that("pbayespostpred2bin posterior uncontrolled returns 9 named probs", {
     z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL, nMC = 50L
+    alpha0e_t = NULL, alpha0e_c = NULL, nMC = 50L
   )
   expect_type(result, "double")
   expect_length(result, 9L)
@@ -90,7 +90,7 @@ test_that("pbayespostpred2bin input validation works", {
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL, nMC = 50L
+    alpha0e_t = NULL, alpha0e_c = NULL, nMC = 50L
   ))
 })
 
@@ -118,7 +118,7 @@ test_that("pbayesdecisionprob2bin posterior controlled returns data.frame", {
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL, nMC = 50L,
+    alpha0e_t = NULL, alpha0e_c = NULL, nMC = 50L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE
   )
   expect_s3_class(result, "pbayesdecisionprob2bin")
@@ -150,7 +150,7 @@ test_that("pbayesdecisionprob2bin predictive controlled returns data.frame", {
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL, nMC = 50L,
+    alpha0e_t = NULL, alpha0e_c = NULL, nMC = 50L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE
   )
   expect_s3_class(result, "pbayesdecisionprob2bin")
@@ -177,7 +177,7 @@ test_that("pbayesdecisionprob2bin input validation works", {
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL, nMC = 50L,
+    alpha0e_t = NULL, alpha0e_c = NULL, nMC = 50L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE
   ))
 })
@@ -201,7 +201,7 @@ test_that("pbayesdecisionprob2bin posterior uncontrolled returns correct class",
     z00 = 2L, z01 = 1L, z10 = 2L, z11 = 1L,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL, nMC = 50L,
+    alpha0e_t = NULL, alpha0e_c = NULL, nMC = 50L,
     error_if_Miss = FALSE, Gray_inc_Miss = FALSE
   )
   expect_s3_class(result, "pbayesdecisionprob2bin")
@@ -240,9 +240,8 @@ test_that("getgamma2bin posterior controlled returns correct class and structure
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL,
-    nMC = 50L, method = 'Exact',
-    nsim = 100L,
+    alpha0e_t = NULL, alpha0e_c = NULL,
+    nMC = 50L,
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
@@ -271,9 +270,8 @@ test_that("getgamma2bin posterior controlled PrGo_grid and PrNoGo_grid in [0, 1]
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL,
-    nMC = 50L, method = 'Exact',
-    nsim = 100L,
+    alpha0e_t = NULL, alpha0e_c = NULL,
+    nMC = 50L,
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
@@ -302,9 +300,8 @@ test_that("getgamma2bin posterior controlled gamma values in (0, 1) or NA", {
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL,
-    nMC = 50L, method = 'Exact',
-    nsim = 100L,
+    alpha0e_t = NULL, alpha0e_c = NULL,
+    nMC = 50L,
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
@@ -331,9 +328,8 @@ test_that("getgamma2bin predictive controlled returns correct class", {
     z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL,
-    nMC = 50L, method = 'Exact',
-    nsim = 100L,
+    alpha0e_t = NULL, alpha0e_c = NULL,
+    nMC = 50L,
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )
@@ -359,9 +355,8 @@ test_that("getgamma2bin posterior uncontrolled returns correct class", {
     z00 = 1L, z01 = 1L, z10 = 1L, z11 = 1L,
     xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
     xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-    ae_t = NULL, ae_c = NULL,
-    nMC = 50L, method = 'Exact',
-    nsim = 100L,
+    alpha0e_t = NULL, alpha0e_c = NULL,
+    nMC = 50L,
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
   )

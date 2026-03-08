@@ -1,6 +1,6 @@
 # Tests for two continuous endpoint functions
 # Note: pbayespostpred2cont and pbayesdecisionprob2cont are computationally
-#       intensive. nMC is required even for method = 'MM' (used internally
+#       intensive. nMC is required even for CalcMethod = 'MM' (used internally
 #       for predictive or validation); set to minimum values.
 #       skip_on_cran() is applied to the most expensive tests.
 
@@ -10,7 +10,7 @@
 
 # ---------------------------------------------------------------------------
 # pbayespostpred2cont
-# nMC is always required (default = 10000L); method = 'MM' also uses nMC
+# nMC is always required (default = 10000L); CalcMethod = 'MM' also uses nMC
 # ---------------------------------------------------------------------------
 
 test_that("pbayespostpred2cont posterior vague MC returns 9 named probs", {
@@ -29,7 +29,7 @@ test_that("pbayespostpred2cont posterior vague MC returns 9 named probs", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    nMC = 100L, method = 'MC'
+    nMC = 100L, CalcMethod = 'MC'
   )
   expect_type(result, "double")
   expect_length(result, 9L)
@@ -53,7 +53,7 @@ test_that("pbayespostpred2cont posterior vague MM returns 9 named probs", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    nMC = 100L, method = 'MM'
+    nMC = 100L, CalcMethod = 'MM'
   )
   expect_type(result, "double")
   expect_length(result, 9L)
@@ -78,7 +78,7 @@ test_that("pbayespostpred2cont MC and MM posterior results are close", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    nMC = 2000L, method = 'MC'
+    nMC = 2000L, CalcMethod = 'MC'
   )
   p_mm <- pbayespostpred2cont(
     prob = 'posterior', design = 'controlled', prior = 'vague',
@@ -94,7 +94,7 @@ test_that("pbayespostpred2cont MC and MM posterior results are close", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    nMC = 2000L, method = 'MM'
+    nMC = 2000L, CalcMethod = 'MM'
   )
   # R1 (best region) should agree within 10%
   expect_equal(p_mc["R1"], p_mm["R1"], tolerance = 0.10)
@@ -116,7 +116,7 @@ test_that("pbayespostpred2cont predictive vague MC returns 4 named probs", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    nMC = 100L, method = 'MC'
+    nMC = 100L, CalcMethod = 'MC'
   )
   expect_type(result, "double")
   expect_length(result, 4L)
@@ -141,7 +141,7 @@ test_that("pbayespostpred2cont input validation works", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    nMC = 100L, method = 'MC'
+    nMC = 100L, CalcMethod = 'MC'
   ))
 })
 
@@ -160,7 +160,7 @@ test_that("pbayespostpred2cont posterior uncontrolled vague MM returns 9 named p
     r = 1.0,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    nMC = 100L, method = 'MM'
+    nMC = 100L, CalcMethod = 'MM'
   )
   expect_type(result, "double")
   expect_length(result, 9L)
@@ -194,7 +194,7 @@ test_that("pbayesdecisionprob2cont posterior vague MM returns correct class", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    method = 'MM', nMC = 100L,
+    CalcMethod = 'MM', nMC = 100L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1
   )
   expect_s3_class(result, "pbayesdecisionprob2cont")
@@ -227,7 +227,7 @@ test_that("pbayesdecisionprob2cont predictive vague MM returns correct class", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    method = 'MM', nMC = 100L,
+    CalcMethod = 'MM', nMC = 100L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2
   )
   expect_s3_class(result, "pbayesdecisionprob2cont")
@@ -254,7 +254,7 @@ test_that("pbayesdecisionprob2cont input validation works", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    method = 'MM', nMC = 100L,
+    CalcMethod = 'MM', nMC = 100L,
     error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1
   ))
 })
@@ -278,7 +278,7 @@ test_that("pbayesdecisionprob2cont posterior uncontrolled vague MM returns corre
     r = 1.0,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-    method = 'MM', nMC = 100L,
+    CalcMethod = 'MM', nMC = 100L,
     error_if_Miss = FALSE, Gray_inc_Miss = FALSE, seed = 1
   )
   expect_s3_class(result, "pbayesdecisionprob2cont")
@@ -317,7 +317,7 @@ test_that("getgamma2cont posterior vague MM controlled returns correct class and
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-    nMC = NULL, method = 'MM',
+    nMC = NULL, CalcMethod = 'MM',
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 1L
@@ -348,7 +348,7 @@ test_that("getgamma2cont posterior vague MM PrGo_grid and PrNoGo_grid in [0, 1]"
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-    nMC = NULL, method = 'MM',
+    nMC = NULL, CalcMethod = 'MM',
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 1L
@@ -379,7 +379,7 @@ test_that("getgamma2cont posterior vague MM gamma values in (0, 1) or NA", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-    nMC = NULL, method = 'MM',
+    nMC = NULL, CalcMethod = 'MM',
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 1L
@@ -408,7 +408,7 @@ test_that("getgamma2cont posterior uncontrolled vague MM returns correct class",
     r = 1.0,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-    nMC = NULL, method = 'MM',
+    nMC = NULL, CalcMethod = 'MM',
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 2L
@@ -436,7 +436,7 @@ test_that("getgamma2cont predictive vague MC returns correct class", {
     r = NULL,
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-    nMC = 50L, method = 'MC',
+    nMC = 50L, CalcMethod = 'MC',
     gamma_go_grid = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 3L
