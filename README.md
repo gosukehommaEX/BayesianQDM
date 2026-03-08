@@ -97,7 +97,7 @@ For single continuous endpoints, three methods are available for computing the C
 - **MC** (Monte Carlo): Simulation-based estimation; supports vectorised batch processing
 - **MM** (Moment-Matching): Closed-form approximation by matching the first two even moments of the difference distribution to a single t-distribution; fully vectorised and recommended for large-scale simulation studies
 
-For two continuous endpoints, MC and MM methods are available for computing joint rectangular region probabilities under a bivariate t-distribution approximation (Theorem 3, Homma and Yamaguchi, 2025).
+For two continuous endpoints, MC and MM methods are available for computing joint rectangular region probabilities under a bivariate t-distribution approximation.
 
 ## Optimal Threshold Search
 
