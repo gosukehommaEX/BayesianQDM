@@ -44,7 +44,8 @@ Suggests:
     dplyr,
     ggplot2,
     tidyr,
-    purrr
+    purrr,
+    spelling
 VignetteBuilder: knitr
 URL: https://gosukehommaEX.github.io/BayesianQDM/, https://github.com/gosukehommaEX/BayesianQDM
 BugReports: https://github.com/gosukehommaEX/BayesianQDM/issues
