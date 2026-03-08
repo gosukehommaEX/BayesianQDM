@@ -86,10 +86,10 @@
 #' @param ye_c A non-negative integer giving the number of responders in the
 #'        control group of the external data set.  Required when
 #'        \code{design = 'external'}; set to \code{NULL} otherwise.
-#' @param ae_t A numeric scalar in \code{(0, 1]} giving the power prior weight
+#' @param alpha0e_t A numeric scalar in \code{(0, 1]} giving the power prior weight
 #'        for the treatment group.  Required when \code{design = 'external'};
 #'        set to \code{NULL} otherwise.
-#' @param ae_c A numeric scalar in \code{(0, 1]} giving the power prior weight
+#' @param alpha0e_c A numeric scalar in \code{(0, 1]} giving the power prior weight
 #'        for the control group.  Required when \code{design = 'external'};
 #'        set to \code{NULL} otherwise.
 #' @param gamma_grid A numeric vector of candidate threshold values in
@@ -155,7 +155,7 @@
 #'   n_t = 12L, n_c = 12L,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = NULL, m_t = NULL, m_c = NULL,
-#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
 #' )
 #'
 #' # Example 2: Uncontrolled design, posterior probability
@@ -169,7 +169,7 @@
 #'   n_t = 12L, n_c = 12L,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = 3L, m_t = NULL, m_c = NULL,
-#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
 #' )
 #'
 #' # Example 3: External design, posterior probability
@@ -183,7 +183,7 @@
 #'   n_t = 12L, n_c = 12L,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = NULL, m_t = NULL, m_c = NULL,
-#'   ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, ae_t = 0.5, ae_c = 0.5
+#'   ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, alpha0e_t = 0.5, alpha0e_c = 0.5
 #' )
 #'
 #' # Example 4: Controlled design, predictive probability
@@ -197,7 +197,7 @@
 #'   n_t = 12L, n_c = 12L,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = NULL, m_t = 30L, m_c = 30L,
-#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
 #' )
 #'
 #' # Example 5: Uncontrolled design, predictive probability
@@ -211,7 +211,7 @@
 #'   n_t = 12L, n_c = 12L,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = 3L, m_t = 30L, m_c = 30L,
-#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+#'   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
 #' )
 #'
 #' # Example 6: External design, predictive probability
@@ -225,7 +225,7 @@
 #'   n_t = 12L, n_c = 12L,
 #'   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
 #'   z = NULL, m_t = 30L, m_c = 30L,
-#'   ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, ae_t = 0.5, ae_c = 0.5
+#'   ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, alpha0e_t = 0.5, alpha0e_c = 0.5
 #' )
 #'
 #' @importFrom stats dbinom
@@ -241,7 +241,7 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
                          z = NULL, m_t = NULL, m_c = NULL,
                          ne_t = NULL, ne_c = NULL,
                          ye_t = NULL, ye_c = NULL,
-                         ae_t = NULL, ae_c = NULL,
+                         alpha0e_t = NULL, alpha0e_c = NULL,
                          gamma_grid = seq(0.01, 0.99, by = 0.01)) {
 
   # ---------------------------------------------------------------------------
@@ -380,7 +380,7 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
         ye_c != floor(ye_c) || ye_c < 0L || ye_c > ne_c) {
       stop("'ye_c' must be a non-negative integer not exceeding 'ne_c'")
     }
-    for (nm in c("ae_t", "ae_c")) {
+    for (nm in c("alpha0e_t", "alpha0e_c")) {
       val <- get(nm)
       if (is.null(val) || !is.numeric(val) || length(val) != 1L ||
           is.na(val) || val <= 0 || val > 1) {
@@ -410,7 +410,7 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
       n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = NULL,
       a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
       m_t = m_t, m_c = m_c, z = z,
-      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
+      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
       lower.tail = FALSE
     )
 
@@ -419,7 +419,7 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
       n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = NULL,
       a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
       m_t = m_t, m_c = m_c, z = z,
-      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
+      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
       lower.tail = TRUE
     )
 
@@ -435,7 +435,7 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
       n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = all_y_c,
       a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
       m_t = m_t, m_c = m_c, z = NULL,
-      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
+      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
       lower.tail = FALSE
     )
 
@@ -444,7 +444,7 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
       n_t = n_t, n_c = n_c, y_t = all_y_t, y_c = all_y_c,
       a_t = a_t, a_c = a_c, b_t = b_t, b_c = b_c,
       m_t = m_t, m_c = m_c, z = NULL,
-      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, ae_t = ae_t, ae_c = ae_c,
+      ne_t = ne_t, ne_c = ne_c, ye_t = ye_t, ye_c = ye_c, alpha0e_t = alpha0e_t, alpha0e_c = alpha0e_c,
       lower.tail = TRUE
     )
 

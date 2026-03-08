@@ -31,8 +31,8 @@ getgamma1bin(
   ne_c = NULL,
   ye_t = NULL,
   ye_c = NULL,
-  ae_t = NULL,
-  ae_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
   gamma_grid = seq(0.01, 0.99, by = 0.01)
 )
 }
@@ -141,11 +141,11 @@ treatment group of the external data set.  Required when
 control group of the external data set.  Required when
 \code{design = 'external'}; set to \code{NULL} otherwise.}
 
-\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior weight
 for the treatment group.  Required when \code{design = 'external'};
 set to \code{NULL} otherwise.}
 
-\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior weight
 for the control group.  Required when \code{design = 'external'};
 set to \code{NULL} otherwise.}
 
@@ -222,7 +222,7 @@ getgamma1bin(
   n_t = 12L, n_c = 12L,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = NULL, m_t = NULL, m_c = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
 )
 
 # Example 2: Uncontrolled design, posterior probability
@@ -236,7 +236,7 @@ getgamma1bin(
   n_t = 12L, n_c = 12L,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = 3L, m_t = NULL, m_c = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
 )
 
 # Example 3: External design, posterior probability
@@ -250,7 +250,7 @@ getgamma1bin(
   n_t = 12L, n_c = 12L,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = NULL, m_t = NULL, m_c = NULL,
-  ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, ae_t = 0.5, ae_c = 0.5
+  ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, alpha0e_t = 0.5, alpha0e_c = 0.5
 )
 
 # Example 4: Controlled design, predictive probability
@@ -264,7 +264,7 @@ getgamma1bin(
   n_t = 12L, n_c = 12L,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = NULL, m_t = 30L, m_c = 30L,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
 )
 
 # Example 5: Uncontrolled design, predictive probability
@@ -278,7 +278,7 @@ getgamma1bin(
   n_t = 12L, n_c = 12L,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = 3L, m_t = 30L, m_c = 30L,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
 )
 
 # Example 6: External design, predictive probability
@@ -292,7 +292,7 @@ getgamma1bin(
   n_t = 12L, n_c = 12L,
   a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
   z = NULL, m_t = 30L, m_c = 30L,
-  ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, ae_t = 0.5, ae_c = 0.5
+  ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, alpha0e_t = 0.5, alpha0e_c = 0.5
 )
 
 }

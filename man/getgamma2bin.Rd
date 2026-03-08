@@ -51,8 +51,8 @@ getgamma2bin(
   xe_c_01 = NULL,
   xe_c_10 = NULL,
   xe_c_11 = NULL,
-  ae_t = NULL,
-  ae_c = NULL,
+  alpha0e_t = NULL,
+  alpha0e_c = NULL,
   nMC = 1000L,
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
@@ -226,11 +226,11 @@ used; otherwise \code{NULL}.}
 
 \item{xe_c_11}{A non-negative integer; see \code{xe_c_00}.}
 
-\item{ae_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
 weight for external treatment group data.  Required when external
 treatment data are used; otherwise \code{NULL}.}
 
-\item{ae_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior
 weight for external control group data.  Required when external
 control data are used; otherwise \code{NULL}.}
 
@@ -341,7 +341,7 @@ getgamma2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   nMC = 100L,
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
@@ -368,7 +368,7 @@ getgamma2bin(
   z00 = 3L, z01 = 2L, z10 = 3L, z11 = 2L,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   nMC = 100L,
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
@@ -395,7 +395,7 @@ getgamma2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = 3L, xe_c_01 = 2L, xe_c_10 = 3L, xe_c_11 = 2L,
-  ae_t = NULL, ae_c = 0.5,
+  alpha0e_t = NULL, alpha0e_c = 0.5,
   nMC = 100L,
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
@@ -422,7 +422,7 @@ getgamma2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   nMC = 100L,
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
@@ -449,7 +449,7 @@ getgamma2bin(
   z00 = 3L, z01 = 2L, z10 = 3L, z11 = 2L,
   xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = NULL, ae_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
   nMC = 100L,
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)
@@ -476,7 +476,7 @@ getgamma2bin(
   z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
   xe_t_00 = 3L, xe_t_01 = 2L, xe_t_10 = 3L, xe_t_11 = 2L,
   xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  ae_t = 0.5, ae_c = NULL,
+  alpha0e_t = 0.5, alpha0e_c = NULL,
   nMC = 100L,
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01)

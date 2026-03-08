@@ -151,11 +151,11 @@
 #'        otherwise \code{NULL}.
 #' @param nMC A positive integer giving the number of Monte Carlo draws
 #'        passed to \code{\link{pbayespostpred2cont}}.  Required when
-#'        \code{method = 'MC'}.  May be set to \code{NULL} when
-#'        \code{method = 'MM'} and \eqn{\nu_k > 4}; if \code{method = 'MM'}
+#'        \code{CalcMethod = 'MC'}.  May be set to \code{NULL} when
+#'        \code{CalcMethod = 'MM'} and \eqn{\nu_k > 4}; if \code{CalcMethod = 'MM'}
 #'        but \eqn{\nu_k \le 4} causes a fallback to MC, \code{nMC} must be
 #'        a positive integer.  Default is \code{NULL}.
-#' @param method A character string specifying the computation method
+#' @param CalcMethod A character string specifying the computation method
 #'        passed to \code{\link{pbayespostpred2cont}}.  Must be
 #'        \code{'MC'} (default) or \code{'MM'}.
 #' @param gamma_go_grid A numeric vector of candidate Go threshold values
@@ -254,7 +254,7 @@
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
 #'   seed = 1L
@@ -283,7 +283,7 @@
 #'   r = 1.0,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = NULL, method = 'MM',
+#'   nMC = NULL, CalcMethod = 'MM',
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
 #'   seed = 1L
@@ -314,7 +314,7 @@
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
 #'   bar_ye_t = NULL, bar_ye_c = c(-10.0, -1.0), se_t = NULL, se_c = se_c,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
 #'   seed = 1L
@@ -345,7 +345,7 @@
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
 #'   seed = 1L
@@ -374,7 +374,7 @@
 #'   r = 1.0,
 #'   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
 #'   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
 #'   seed = 1L
@@ -405,7 +405,7 @@
 #'   r = NULL,
 #'   ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
 #'   bar_ye_t = NULL, bar_ye_c = c(-10.0, -1.0), se_t = NULL, se_c = se_c,
-#'   nMC = 500L, method = 'MC',
+#'   nMC = 500L, CalcMethod = 'MC',
 #'   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
 #'   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
 #'   seed = 1L
@@ -439,7 +439,7 @@ getgamma2cont <- function(nsim        = 10000L,
                           bar_ye_t  = NULL, bar_ye_c  = NULL,
                           se_t      = NULL, se_c      = NULL,
                           nMC    = NULL,
-                          method = 'MC',
+                          CalcMethod = 'MC',
                           gamma_go_grid = seq(0.01, 0.99, by = 0.01),
                           gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
                           seed = NULL) {
@@ -568,14 +568,14 @@ getgamma2cont <- function(nsim        = 10000L,
     }
   }
 
-  if (!is.character(method) || length(method) != 1L ||
-      !method %in% c('MC', 'MM')) {
-    stop("'method' must be either 'MC' or 'MM'")
+  if (!is.character(CalcMethod) || length(CalcMethod) != 1L ||
+      !CalcMethod %in% c('MC', 'MM')) {
+    stop("'CalcMethod' must be either 'MC' or 'MM'")
   }
-  if (method == 'MC') {
+  if (CalcMethod == 'MC') {
     if (is.null(nMC) || !is.numeric(nMC) || length(nMC) != 1L ||
         is.na(nMC) || nMC != floor(nMC) || nMC < 1L) {
-      stop("'nMC' must be a single positive integer when method = 'MC'")
+      stop("'nMC' must be a single positive integer when CalcMethod = 'MC'")
     }
   }
 
@@ -669,7 +669,7 @@ getgamma2cont <- function(nsim        = 10000L,
     bar_ye_t  = bar_ye_t,  bar_ye_c  = bar_ye_c,
     se_t      = se_t,      se_c      = se_c,
     nMC    = nMC,
-    method = method
+    CalcMethod = CalcMethod
   )
   # Pr_R_mat: nsim x 9 matrix
 

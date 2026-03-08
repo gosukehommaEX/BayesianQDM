@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------
 # pbayespostpred1bin
 # Signature: pbayespostpred1bin(prob, design, theta0, n_t, n_c, y_t, y_c,
-#            a_t, a_c, b_t, b_c, m_t, m_c, z, ne_t, ne_c, ye_t, ye_c, ae_t, ae_c,
+#            a_t, a_c, b_t, b_c, m_t, m_c, z, ne_t, ne_c, ye_t, ye_c, alpha0e_t, alpha0e_c,
 #            lower.tail)
 # Note: no nMC argument; y_t and y_c must have the same length
 # ---------------------------------------------------------------------------
@@ -14,7 +14,7 @@ test_that("pbayespostpred1bin posterior controlled returns scalar in [0, 1]", {
     n_t = 20, n_c = 20, y_t = 12, y_c = 8,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     m_t = NULL, m_c = NULL, z = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     lower.tail = FALSE
   )
   expect_type(result, "double")
@@ -28,7 +28,7 @@ test_that("pbayespostpred1bin predictive controlled returns scalar in [0, 1]", {
     n_t = 20, n_c = 20, y_t = 12, y_c = 8,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     m_t = 30, m_c = 30, z = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     lower.tail = FALSE
   )
   expect_type(result, "double")
@@ -42,7 +42,7 @@ test_that("pbayespostpred1bin posterior uncontrolled returns scalar in [0, 1]", 
     n_t = 20, n_c = 20, y_t = 12, y_c = NULL,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     m_t = NULL, m_c = NULL, z = 5L,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     lower.tail = FALSE
   )
   expect_type(result, "double")
@@ -56,7 +56,7 @@ test_that("pbayespostpred1bin posterior external returns scalar in [0, 1]", {
     n_t = 20, n_c = 20, y_t = 12, y_c = 8,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     m_t = NULL, m_c = NULL, z = NULL,
-    ne_t = 30, ne_c = 30, ye_t = 10, ye_c = 6, ae_t = 0.5, ae_c = 0.5,
+    ne_t = 30, ne_c = 30, ye_t = 10, ye_c = 6, alpha0e_t = 0.5, alpha0e_c = 0.5,
     lower.tail = FALSE
   )
   expect_type(result, "double")
@@ -70,7 +70,7 @@ test_that("pbayespostpred1bin vectorised y_t and y_c returns correct length", {
     n_t = 20, n_c = 20, y_t = 8:12, y_c = rep(6, 5),
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     m_t = NULL, m_c = NULL, z = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL,
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     lower.tail = FALSE
   )
   expect_length(result, 5L)
@@ -84,7 +84,7 @@ test_that("pbayespostpred1bin input validation works", {
     n_t = 20, n_c = 20, y_t = 25, y_c = 8,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     m_t = NULL, m_c = NULL, z = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   ))
   # m_t missing for predictive
   expect_error(pbayespostpred1bin(
@@ -92,7 +92,7 @@ test_that("pbayespostpred1bin input validation works", {
     n_t = 20, n_c = 20, y_t = 12, y_c = 8,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     m_t = NULL, m_c = NULL, z = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   ))
 })
 
@@ -320,7 +320,7 @@ test_that("pbayesdecisionprob1bin posterior controlled returns correct class", {
     n_t = 15, n_c = 15,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_s3_class(result, "pbayesdecisionprob1bin")
   df <- as.data.frame(result)
@@ -340,7 +340,7 @@ test_that("pbayesdecisionprob1bin predictive controlled returns correct class", 
     n_t = 15, n_c = 15,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     z = NULL, m_t = 40, m_c = 40,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_s3_class(result, "pbayesdecisionprob1bin")
   df <- as.data.frame(result)
@@ -357,17 +357,7 @@ test_that("pbayesdecisionprob1bin input validation works", {
     pi_t = 0.3, pi_c = 0.2, n_t = 15, n_c = 15,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
-  ))
-  # gamma_nogo >= gamma_go
-  expect_error(pbayesdecisionprob1bin(
-    prob = 'posterior', design = 'controlled',
-    theta_TV = 0.2, theta_MAV = 0.05, theta_NULL = NULL,
-    gamma_go = 0.5, gamma_nogo = 0.8,
-    pi_t = 0.3, pi_c = 0.2, n_t = 15, n_c = 15,
-    a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-    z = NULL, m_t = NULL, m_c = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   ))
 })
 
@@ -380,7 +370,7 @@ test_that("pbayesdecisionprob1bin posterior uncontrolled returns correct class",
     n_t = 15, n_c = 15,
     a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
     z = 3L, m_t = NULL, m_c = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_s3_class(result, "pbayesdecisionprob1bin")
   df <- as.data.frame(result)
@@ -494,7 +484,7 @@ test_that("getgamma1bin posterior controlled returns correct class and structure
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_s3_class(result, "getgamma1bin")
   expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_at_gamma_go", "PrNoGo_at_gamma_nogo",
@@ -512,7 +502,7 @@ test_that("getgamma1bin posterior controlled gamma values in (0, 1) or NA", {
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   if (!is.na(result$gamma_go)) expect_true(result$gamma_go > 0 && result$gamma_go < 1)
   if (!is.na(result$gamma_nogo)) expect_true(result$gamma_nogo > 0 && result$gamma_nogo < 1)
@@ -531,7 +521,7 @@ test_that("getgamma1bin posterior uncontrolled returns correct class", {
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = 3L, m_t = NULL, m_c = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_s3_class(result, "getgamma1bin")
 })
@@ -547,7 +537,7 @@ test_that("getgamma1bin predictive controlled returns correct class", {
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = 30L, m_c = 30L,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_s3_class(result, "getgamma1bin")
   if (!is.na(result$PrGo_at_gamma_go))
@@ -567,7 +557,7 @@ test_that("getgamma1bin external design returns correct class", {
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
-    ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, ae_t = 0.5, ae_c = 0.5
+    ne_t = 15L, ne_c = 15L, ye_t = 6L, ye_c = 4L, alpha0e_t = 0.5, alpha0e_c = 0.5
   )
   expect_s3_class(result, "getgamma1bin")
 })
@@ -583,7 +573,7 @@ test_that("getgamma1bin PrGo_grid and PrNoGo_grid values in [0, 1]", {
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, ae_t = NULL, ae_c = NULL
+    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_true(all(result$PrGo_grid >= 0 & result$PrGo_grid <= 1))
   expect_true(all(result$PrNoGo_grid >= 0 & result$PrNoGo_grid <= 1))

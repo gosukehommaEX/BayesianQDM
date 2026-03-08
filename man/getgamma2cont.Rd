@@ -49,7 +49,7 @@ getgamma2cont(
   se_t = NULL,
   se_c = NULL,
   nMC = NULL,
-  method = "MC",
+  CalcMethod = "MC",
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
   seed = NULL
@@ -240,12 +240,12 @@ otherwise \code{NULL}.}
 
 \item{nMC}{A positive integer giving the number of Monte Carlo draws
 passed to \code{\link{pbayespostpred2cont}}.  Required when
-\code{method = 'MC'}.  May be set to \code{NULL} when
-\code{method = 'MM'} and \eqn{\nu_k > 4}; if \code{method = 'MM'}
+\code{CalcMethod = 'MC'}.  May be set to \code{NULL} when
+\code{CalcMethod = 'MM'} and \eqn{\nu_k > 4}; if \code{CalcMethod = 'MM'}
 but \eqn{\nu_k \le 4} causes a fallback to MC, \code{nMC} must be
 a positive integer.  Default is \code{NULL}.}
 
-\item{method}{A character string specifying the computation method
+\item{CalcMethod}{A character string specifying the computation method
 passed to \code{\link{pbayespostpred2cont}}.  Must be
 \code{'MC'} (default) or \code{'MM'}.}
 
@@ -359,7 +359,7 @@ getgamma2cont(
   r = NULL,
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = 500L, method = 'MC',
+  nMC = 500L, CalcMethod = 'MC',
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
   seed = 1L
@@ -388,7 +388,7 @@ getgamma2cont(
   r = 1.0,
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = NULL, method = 'MM',
+  nMC = NULL, CalcMethod = 'MM',
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
   seed = 1L
@@ -419,7 +419,7 @@ getgamma2cont(
   r = NULL,
   ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
   bar_ye_t = NULL, bar_ye_c = c(-10.0, -1.0), se_t = NULL, se_c = se_c,
-  nMC = 500L, method = 'MC',
+  nMC = 500L, CalcMethod = 'MC',
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
   seed = 1L
@@ -450,7 +450,7 @@ getgamma2cont(
   r = NULL,
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = 500L, method = 'MC',
+  nMC = 500L, CalcMethod = 'MC',
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
   seed = 1L
@@ -479,7 +479,7 @@ getgamma2cont(
   r = 1.0,
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = 500L, method = 'MC',
+  nMC = 500L, CalcMethod = 'MC',
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
   seed = 1L
@@ -510,7 +510,7 @@ getgamma2cont(
   r = NULL,
   ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
   bar_ye_t = NULL, bar_ye_c = c(-10.0, -1.0), se_t = NULL, se_c = se_c,
-  nMC = 500L, method = 'MC',
+  nMC = 500L, CalcMethod = 'MC',
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
   seed = 1L
