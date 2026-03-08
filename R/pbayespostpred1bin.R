@@ -14,8 +14,8 @@
 #' @param design A character string specifying the trial design.
 #'        Must be \code{'controlled'}, \code{'uncontrolled'}, or
 #'        \code{'external'}.
-#' @param theta0 A numeric scalar in \code{(-1, 1)} giving the pre-specified
-#'        threshold for the treatment effect (difference in response rates).
+#' @param theta0 A numeric scalar in \code{(-1, 1)} giving the threshold for the
+#'        treatment effect (difference in response rates).
 #' @param n_t A positive integer giving the number of patients in the
 #'        treatment group in the proof-of-concept (PoC) trial.
 #' @param n_c A positive integer giving the number of patients in the

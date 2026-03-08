@@ -33,10 +33,12 @@
 #'        predictive probability required for a NoGo decision. No ordering
 #'        constraint on \code{gamma_go} and \code{gamma_nogo} is imposed, though
 #'        their combination determines the frequency of Miss outcomes.
-#' @param n_t A positive integer representing the sample size for the treatment group.
-#' @param n_c A positive integer representing the sample size for the control group.
-#'        Required if \code{design = 'controlled'} or \code{design = 'external'}.
-#'        Set to \code{NULL} if \code{design = 'uncontrolled'}.
+#' @param n_t A positive integer giving the number of patients in the
+#'        treatment group in the proof-of-concept (PoC) trial.
+#' @param n_c A positive integer giving the number of patients in the
+#'        control group in the proof-of-concept (PoC) trial. Required for
+#'        \code{design = 'controlled'} or \code{'external'}; set to
+#'        \code{NULL} for \code{design = 'uncontrolled'}.
 #' @param m_t A positive integer representing the future sample size for the
 #'        treatment group. Required if \code{prob = 'predictive'};
 #'        otherwise \code{NULL}. Default is \code{NULL}.
