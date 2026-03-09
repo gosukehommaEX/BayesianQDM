@@ -11,16 +11,16 @@ getgamma2cont(
   prior = "vague",
   GoRegions,
   NoGoRegions,
-  mu_t,
-  Sigma_t,
-  mu_c = NULL,
-  Sigma_c = NULL,
+  mu_t_go,
+  Sigma_t_go,
+  mu_c_go = NULL,
+  Sigma_c_go = NULL,
+  mu_t_nogo,
+  Sigma_t_nogo,
+  mu_c_nogo = NULL,
+  Sigma_c_nogo = NULL,
   target_go,
   target_nogo,
-  crit_go = "<",
-  crit_nogo = "<",
-  sel_go = "smallest",
-  sel_nogo = "largest",
   n_t,
   n_c = NULL,
   theta_TV1 = NULL,
@@ -52,12 +52,13 @@ getgamma2cont(
   CalcMethod = "MC",
   gamma_go_grid = seq(0.01, 0.99, by = 0.01),
   gamma_nogo_grid = seq(0.01, 0.99, by = 0.01),
-  seed = NULL
+  seed
 )
 }
 \arguments{
 \item{nsim}{A positive integer giving the number of Monte Carlo
-datasets to simulate.  Default is \code{10000L}.}
+datasets to simulate per calibration scenario.  Default is
+\code{10000L}.}
 
 \item{prob}{A character string specifying the probability type.
 Must be \code{'posterior'} or \code{'predictive'}.}
@@ -82,57 +83,54 @@ where \eqn{z_i = 1} if \eqn{\theta_i > TV_i}, \eqn{z_i = 2} if
 \code{1:9}) that constitute the NoGo region.
 Must be disjoint from \code{GoRegions}.}
 
-\item{mu_t}{A length-2 numeric vector giving the true bivariate mean
-for the treatment group for the scenario used to search
-for the optimal thresholds.}
+\item{mu_t_go}{A length-2 numeric vector giving the true bivariate mean
+for the treatment group under the Go-calibration scenario
+(typically Null).}
 
-\item{Sigma_t}{A 2x2 positive-definite numeric matrix giving the
-true within-group covariance in the treatment group.}
+\item{Sigma_t_go}{A 2x2 positive-definite numeric matrix giving the
+true within-group covariance in the treatment group under the
+Go-calibration scenario.}
 
-\item{mu_c}{A length-2 numeric vector giving the true bivariate mean
-for the control group.  Required for
+\item{mu_c_go}{A length-2 numeric vector giving the true bivariate mean
+for the control group under the Go-calibration scenario.  Required
+for \code{design = 'controlled'} or \code{'external'};
+set to \code{NULL} for \code{design = 'uncontrolled'}.}
+
+\item{Sigma_c_go}{A 2x2 positive-definite numeric matrix giving the
+true within-group covariance in the control group under the
+Go-calibration scenario.  Required for
 \code{design = 'controlled'} or \code{'external'};
 set to \code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{Sigma_c}{A 2x2 positive-definite numeric matrix giving the
-true within-group covariance in the control group.  Required for
+\item{mu_t_nogo}{A length-2 numeric vector giving the true bivariate mean
+for the treatment group under the NoGo-calibration scenario
+(typically Alternative).}
+
+\item{Sigma_t_nogo}{A 2x2 positive-definite numeric matrix giving the
+true within-group covariance in the treatment group under the
+NoGo-calibration scenario.}
+
+\item{mu_c_nogo}{A length-2 numeric vector giving the true bivariate mean
+for the control group under the NoGo-calibration scenario.  Required
+for \code{design = 'controlled'} or \code{'external'};
+set to \code{NULL} for \code{design = 'uncontrolled'}.}
+
+\item{Sigma_c_nogo}{A 2x2 positive-definite numeric matrix giving the
+true within-group covariance in the control group under the
+NoGo-calibration scenario.  Required for
 \code{design = 'controlled'} or \code{'external'};
 set to \code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{target_go}{A numeric scalar in \code{(0, 1)} giving the target
-value for \eqn{\Pr(\mathrm{Go})} used to select the optimal
-\eqn{\gamma_go}.  For each candidate \eqn{\gamma_go}, the
-worst-case \eqn{\Pr(\mathrm{Go})} over all \eqn{\gamma_nogo} in
-\code{gamma_nogo_grid} is compared against \code{target_go} using
-the operator specified by \code{crit_go}.}
+\item{target_go}{A numeric scalar in \code{(0, 1)} giving the upper bound
+on the worst-case marginal Go probability under the Go-calibration
+scenario.  The optimal \eqn{\gamma_{\mathrm{go}}} is the smallest
+grid value satisfying the constraint.}
 
-\item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the
-target value for \eqn{\Pr(\mathrm{NoGo})} used to select the
-optimal \eqn{\gamma_nogo}.  For each candidate \eqn{\gamma_nogo},
-the worst-case \eqn{\Pr(\mathrm{NoGo})} over all
-\eqn{\gamma_go} in \code{gamma_go_grid} is compared against
-\code{target_nogo} using the operator specified by
-\code{crit_nogo}.}
-
-\item{crit_go}{A character string specifying the comparison operator
-applied to \eqn{\Pr(\mathrm{Go})} when searching for
-\eqn{\gamma_go}.  Must be one of \code{"<"}, \code{"<="},
-\code{">"}, or \code{">="}.  Default is \code{"<"}.}
-
-\item{crit_nogo}{A character string specifying the comparison
-operator applied to \eqn{\Pr(\mathrm{NoGo})} when searching
-for \eqn{\gamma_nogo}.  Must be one of \code{"<"}, \code{"<="},
-\code{">"}, or \code{">="}.  Default is \code{"<"}.}
-
-\item{sel_go}{A character string specifying whether to select the
-\code{"smallest"} or \code{"largest"} value in
-\code{gamma_go_grid} satisfying the \code{crit_go} criterion.
-Default is \code{"smallest"}.}
-
-\item{sel_nogo}{A character string specifying whether to select the
-\code{"smallest"} or \code{"largest"} value in
-\code{gamma_nogo_grid} satisfying the \code{crit_nogo} criterion.
-Default is \code{"largest"}.}
+\item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the upper
+bound on the worst-case marginal NoGo probability under the
+NoGo-calibration scenario.  The optimal
+\eqn{\gamma_{\mathrm{nogo}}} is the smallest grid value satisfying
+the constraint.}
 
 \item{n_t}{A positive integer giving the number of patients in the
 treatment group in the PoC trial.}
@@ -157,20 +155,20 @@ otherwise set to \code{NULL}.}
 Endpoint 2.  Required when \code{prob = 'posterior'};
 otherwise set to \code{NULL}.}
 
-\item{theta_NULL1}{A numeric scalar giving the null hypothesis
-threshold for Endpoint 1.  Required when
-\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
+\item{theta_NULL1}{A numeric scalar giving the null hypothesis threshold
+for Endpoint 1.  Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{theta_NULL2}{A numeric scalar giving the null hypothesis
-threshold for Endpoint 2.  Required when
-\code{prob = 'predictive'}; otherwise set to \code{NULL}.}
+\item{theta_NULL2}{A numeric scalar giving the null hypothesis threshold
+for Endpoint 2.  Required when \code{prob = 'predictive'};
+otherwise set to \code{NULL}.}
 
-\item{m_t}{A positive integer giving the future sample size for
-the treatment group.  Required when \code{prob = 'predictive'};
+\item{m_t}{A positive integer giving the future sample size for the
+treatment group.  Required when \code{prob = 'predictive'};
 set to \code{NULL} otherwise.}
 
-\item{m_c}{A positive integer giving the future sample size for
-the control group.  Required when \code{prob = 'predictive'};
+\item{m_c}{A positive integer giving the future sample size for the
+control group.  Required when \code{prob = 'predictive'};
 set to \code{NULL} otherwise.}
 
 \item{kappa0_t}{Positive numeric scalar.  NIW prior hyperparameter
@@ -182,12 +180,12 @@ set to \code{NULL} otherwise.}
 \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
 
 \item{mu0_t}{Length-2 numeric vector.  NIW prior mean \eqn{\mu_{01}}
-for the treatment group.  Required when \code{prior = 'N-Inv-Wishart'};
-otherwise \code{NULL}.}
+for the treatment group.  Required when
+\code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
 
 \item{Lambda0_t}{A 2x2 positive-definite numeric matrix.  NIW prior
-scale matrix \eqn{\Lambda_{01}} for the treatment group.  Required when
-\code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
+scale matrix \eqn{\Lambda_{01}} for the treatment group.  Required
+when \code{prior = 'N-Inv-Wishart'}; otherwise \code{NULL}.}
 
 \item{kappa0_c}{Positive numeric scalar; see \code{kappa0_t}.
 For the control group.}
@@ -195,8 +193,8 @@ For the control group.}
 \item{nu0_c}{Positive numeric scalar; see \code{nu0_t}.
 For the control group.}
 
-\item{mu0_c}{Length-2 numeric vector; see \code{mu0_t}.  For the control group.
-May be required for the vague prior uncontrolled design;
+\item{mu0_c}{Length-2 numeric vector; see \code{mu0_t}.  For the control
+group.  May be required for the vague prior uncontrolled design;
 see \code{\link{pbayesdecisionprob2cont}}.}
 
 \item{Lambda0_c}{A 2x2 matrix; see \code{Lambda0_t}.
@@ -206,33 +204,32 @@ For the control group.}
 the control group when \code{design = 'uncontrolled'} and
 \code{prior = 'vague'}.  Otherwise \code{NULL}.}
 
-\item{ne_t}{A positive integer giving the external treatment sample
-size.  Required when \code{design = 'external'} and external
+\item{ne_t}{A positive integer giving the external treatment sample size.
+Required when \code{design = 'external'} and external treatment
+data are used; otherwise \code{NULL}.}
+
+\item{ne_c}{A positive integer giving the external control sample size.
+Required when \code{design = 'external'} and external control
+data are used; otherwise \code{NULL}.}
+
+\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for external treatment data.  Required when external
 treatment data are used; otherwise \code{NULL}.}
 
-\item{ne_c}{A positive integer giving the external control sample
-size.  Required when \code{design = 'external'} and external
-control data are used; otherwise \code{NULL}.}
-
-\item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power
-prior weight for external treatment data.  Required when
-external treatment data are used; otherwise \code{NULL}.}
-
-\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power
-prior weight for external control data.  Required when
-external control data are used; otherwise \code{NULL}.}
+\item{alpha0e_c}{A numeric scalar in \code{(0, 1]} giving the power prior
+weight for external control data.  Required when external control
+data are used; otherwise \code{NULL}.}
 
 \item{bar_ye_t}{A length-2 numeric vector.  External treatment sample
 mean.  Required when external treatment data are used;
 otherwise \code{NULL}.}
 
-\item{bar_ye_c}{A length-2 numeric vector.  External control sample
-mean.  Required when external control data are used;
-otherwise \code{NULL}.}
+\item{bar_ye_c}{A length-2 numeric vector.  External control sample mean.
+Required when external control data are used; otherwise \code{NULL}.}
 
-\item{se_t}{A 2x2 numeric matrix.  External treatment
-sum-of-squares matrix.  Required when external treatment data
-are used; otherwise \code{NULL}.}
+\item{se_t}{A 2x2 numeric matrix.  External treatment sum-of-squares
+matrix.  Required when external treatment data are used;
+otherwise \code{NULL}.}
 
 \item{se_c}{A 2x2 numeric matrix.  External control sum-of-squares
 matrix.  Required when external control data are used;
@@ -241,9 +238,10 @@ otherwise \code{NULL}.}
 \item{nMC}{A positive integer giving the number of Monte Carlo draws
 passed to \code{\link{pbayespostpred2cont}}.  Required when
 \code{CalcMethod = 'MC'}.  May be set to \code{NULL} when
-\code{CalcMethod = 'MM'} and \eqn{\nu_k > 4}; if \code{CalcMethod = 'MM'}
-but \eqn{\nu_k \le 4} causes a fallback to MC, \code{nMC} must be
-a positive integer.  Default is \code{NULL}.}
+\code{CalcMethod = 'MM'} and \eqn{\nu_k > 4}; if
+\code{CalcMethod = 'MM'} but \eqn{\nu_k \le 4} causes a fallback
+to MC, \code{nMC} must be a positive integer.
+Default is \code{NULL}.}
 
 \item{CalcMethod}{A character string specifying the computation method
 passed to \code{\link{pbayespostpred2cont}}.  Must be
@@ -257,98 +255,111 @@ in \code{(0, 1)} to search over.  Defaults to
 values in \code{(0, 1)} to search over.  Defaults to
 \code{seq(0.01, 0.99, by = 0.01)}.}
 
-\item{seed}{An integer value for reproducible random number
-generation.  Default is \code{NULL} (no seed set).}
+\item{seed}{A numeric scalar for reproducible random number generation.
+The Go-calibration simulation uses \code{seed} and the
+NoGo-calibration simulation uses \code{seed + 1} to ensure
+independence between the two scenarios.}
 }
 \value{
-A list of class \code{getgamma2cont} with the following
-elements:
+A list of class \code{getgamma2cont} with the following elements:
 \describe{
-\item{gamma_go}{Optimal Go threshold selected from
-\code{gamma_go_grid} according to \code{crit_go} and
-\code{sel_go}.  \code{NA} if no value satisfies the
-criterion.}
-\item{gamma_nogo}{Optimal NoGo threshold selected from
-\code{gamma_nogo_grid} according to \code{crit_nogo} and
-\code{sel_nogo}.  \code{NA} if no value satisfies the
-criterion.}
-\item{PrGo_at_gamma_go}{Pr(Go) evaluated at
-\code{(gamma_go, gamma_nogo)}.  \code{NA} if either threshold
-is \code{NA}.}
-\item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at
-\code{(gamma_go, gamma_nogo)}.  \code{NA} if either threshold
-is \code{NA}.}
-\item{gamma_go_grid}{The candidate Go threshold grid used.}
-\item{gamma_nogo_grid}{The candidate NoGo threshold grid used.}
-\item{PrGo_grid}{Numeric matrix of dimensions
+\item{gamma_go}{Optimal Go threshold: the smallest value in
+\code{gamma_go_grid} for which the worst-case
+\eqn{\Pr(\mathrm{Go}) < \code{target\_go}} under the
+Go-calibration scenario.  \code{NA} if no such value exists.}
+\item{gamma_nogo}{Optimal NoGo threshold: the smallest value in
+\code{gamma_nogo_grid} for which the worst-case
+\eqn{\Pr(\mathrm{NoGo}) < \code{target\_nogo}} under the
+NoGo-calibration scenario.  \code{NA} if no such value exists.}
+\item{PrGo_opt}{Worst-case \eqn{\Pr(\mathrm{Go})} at
+\code{gamma_go} under the Go-calibration scenario.
+\code{NA} if \code{gamma_go} is \code{NA}.}
+\item{PrNoGo_opt}{Worst-case \eqn{\Pr(\mathrm{NoGo})} at
+\code{gamma_nogo} under the NoGo-calibration scenario.
+\code{NA} if \code{gamma_nogo} is \code{NA}.}
+\item{grid_results}{A list with elements \code{gamma_go_grid},
+\code{gamma_nogo_grid}, \code{PrGo_grid} (matrix of dimensions
 \code{length(gamma_go_grid)} x \code{length(gamma_nogo_grid)}
-giving Pr(Go) at each grid point.}
-\item{PrNoGo_grid}{Numeric matrix of the same dimensions giving
-Pr(NoGo) at each grid point.}
+under the Go-calibration scenario), and \code{PrNoGo_grid}
+(matrix of the same dimensions under the NoGo-calibration
+scenario).}
 }
 }
 \description{
-Computes the optimal Go threshold \eqn{\gamma_go} and NoGo threshold
-\eqn{\gamma_nogo} for two continuous endpoints by searching over a
-two-dimensional grid of candidate value pairs.  The search follows a
-two-stage simulate-then-sweep strategy: \code{nsim} bivariate datasets
-are generated from the specified scenario parameters, region probabilities
-\eqn{\hat{g}_{Go,i}} and \eqn{\hat{g}_{NoGo,i}} are computed once for
-each replicate via \code{\link{pbayespostpred2cont}}, and operating
-characteristics under each \eqn{(\gamma_go, \gamma_nogo)} pair are obtained
-by a fast proportion-based evaluation without additional simulation.
+Computes the optimal Go threshold \eqn{\gamma_{\mathrm{go}}} and NoGo
+threshold \eqn{\gamma_{\mathrm{nogo}}} for two continuous endpoints by
+searching over a two-dimensional grid of candidate value pairs.  The two
+thresholds are calibrated independently under separate scenarios:
+\itemize{
+\item \eqn{\gamma_{\mathrm{go}}} is the \strong{smallest} value in
+\code{gamma_go_grid} such that the worst-case marginal Go
+probability over all \eqn{\gamma_{\mathrm{nogo}}} in
+\code{gamma_nogo_grid} is strictly less than \code{target_go}
+under the Go-calibration scenario (\code{mu_t_go},
+\code{Sigma_t_go}, \code{mu_c_go}, \code{Sigma_c_go});
+typically the Null scenario.
+\item \eqn{\gamma_{\mathrm{nogo}}} is the \strong{smallest} value in
+\code{gamma_nogo_grid} such that the worst-case marginal NoGo
+probability over all \eqn{\gamma_{\mathrm{go}}} in
+\code{gamma_go_grid} is strictly less than \code{target_nogo}
+under the NoGo-calibration scenario (\code{mu_t_nogo},
+\code{Sigma_t_nogo}, \code{mu_c_nogo}, \code{Sigma_c_nogo});
+typically the Alternative scenario.
+}
 }
 \details{
 The function uses a two-stage simulate-then-sweep strategy:
 
-\strong{Stage 1 (simulation and precomputation)}: \code{nsim}
-bivariate datasets are generated by drawing from
-\eqn{N_2(\mu_1, \Sigma_1)} (and \eqn{N_2(\mu_2, \Sigma_2)} for
-controlled/external designs).  Sufficient statistics
-\eqn{(\bar{y}_{1,i}, S_{1,i})} are computed for each replicate, and
-\code{\link{pbayespostpred2cont}} is called once in vectorised mode
-to return an \eqn{nsim \times 9} matrix of region probabilities.
-The probabilities are summed over \code{GoRegions} and
-\code{NoGoRegions} to obtain \eqn{\hat{g}_{Go,i}} and
-\eqn{\hat{g}_{NoGo,i}} for each replicate, independent of the
-decision thresholds \eqn{(\gamma_go, \gamma_nogo)}.
+\strong{Stage 1 (simulation and precomputation)}: \code{nsim} bivariate
+datasets are generated independently for each calibration scenario.
+For the Go-calibration scenario, datasets are drawn from
+\eqn{N_2(\mu_{t,\mathrm{go}}, \Sigma_{t,\mathrm{go}})} (and
+\eqn{N_2(\mu_{c,\mathrm{go}}, \Sigma_{c,\mathrm{go}})} for
+controlled/external designs); for the NoGo-calibration scenario,
+the corresponding \code{_nogo} parameters are used.
+\code{\link{pbayespostpred2cont}} is called once per scenario in
+vectorised mode to return an \eqn{nsim \times 9} matrix of region
+probabilities.  The probabilities are summed over \code{GoRegions}
+(for the Go scenario) and \code{NoGoRegions} (for the NoGo scenario)
+to obtain \eqn{\hat{g}_{Go,i}} and \eqn{\hat{g}_{NoGo,i}},
+independent of the decision thresholds.
 
 \strong{Stage 2 (gamma sweep)}: For each pair
-\eqn{(\gamma_go, \gamma_nogo)} in the two-dimensional grid, the
-operating characteristics are computed as:
-\deqn{\Pr(\mathrm{Go}) = \frac{1}{n_{sim}} \sum_{i=1}^{n_{sim}}
-  \mathbf{1}\!\left[\hat{g}_{Go,i} \ge \gamma_go,\;
-  \hat{g}_{NoGo,i} < \gamma_nogo\right]}
-\deqn{\Pr(\mathrm{NoGo}) = \frac{1}{n_{sim}} \sum_{i=1}^{n_{sim}}
-  \mathbf{1}\!\left[\hat{g}_{NoGo,i} \ge \gamma_nogo,\;
-  \hat{g}_{Go,i} < \gamma_go\right]}
-No additional Monte Carlo draws are required for this step.
+\eqn{(\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}})} in the
+two-dimensional grid, operating characteristics are computed separately
+under each calibration scenario:
+\deqn{\Pr(\mathrm{Go}) = \frac{1}{n_{\mathrm{sim}}} \sum_{i=1}^{n_{\mathrm{sim}}}
+  \mathbf{1}\!\left[\hat{g}_{Go,i} \ge \gamma_{\mathrm{go}},\;
+  \hat{g}_{NoGo,i} < \gamma_{\mathrm{nogo}}\right]}
+\deqn{\Pr(\mathrm{NoGo}) = \frac{1}{n_{\mathrm{sim}}} \sum_{i=1}^{n_{\mathrm{sim}}}
+  \mathbf{1}\!\left[\hat{g}_{NoGo,i} \ge \gamma_{\mathrm{nogo}},\;
+  \hat{g}_{Go,i} < \gamma_{\mathrm{go}}\right]}
 
 \strong{Stage 3 (optimal threshold selection)}: For each candidate
-\eqn{\gamma_go}, the maximum \eqn{\Pr(\mathrm{Go})} over all
-\eqn{\gamma_nogo} in \code{gamma_nogo_grid} is computed; the optimal
-\eqn{\gamma_go} is then chosen as the \code{sel_go} value satisfying
-the \code{crit_go} comparison against \code{target_go}.  Analogously,
-the optimal \eqn{\gamma_nogo} is the \code{sel_nogo} value for which
-the maximum \eqn{\Pr(\mathrm{NoGo})} over all \eqn{\gamma_go}
-satisfies \code{crit_nogo} against \code{target_nogo}.
+\eqn{\gamma_{\mathrm{go}}}, the worst-case \eqn{\Pr(\mathrm{Go})} over
+all \eqn{\gamma_{\mathrm{nogo}}} in \code{gamma_nogo_grid} is computed;
+the optimal \eqn{\gamma_{\mathrm{go}}} is the \emph{smallest} grid value
+for which this worst-case probability is less than \code{target_go}.
+Analogously, the optimal \eqn{\gamma_{\mathrm{nogo}}} is the
+\emph{smallest} grid value for which the worst-case
+\eqn{\Pr(\mathrm{NoGo})} is less than \code{target_nogo}.
 }
 \examples{
 # Example 1: Controlled design, posterior probability, vague prior
-# Scenario: mu_t - mu_c = c(5, 1) at MAV boundary (intermediate effect)
-# gamma_go: smallest gamma_go s.t. max_{gamma_nogo} Pr(Go)   < 0.05
-# gamma_nogo: largest  gamma_nogo s.t. max_{gamma_go} Pr(NoGo) < 0.20
+# gamma_go  : smallest gamma_go   s.t. max_{gamma_nogo} Pr(Go)   < 0.05 under Null
+# gamma_nogo: smallest gamma_nogo s.t. max_{gamma_go}   Pr(NoGo) < 0.20 under Alt
 \dontrun{
-Sigma <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Sigma_null <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Sigma_alt  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
   nsim = 1000L, prob = 'posterior', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
-  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
-  mu_c = c(-10.0, -1.0), Sigma_c = Sigma,
+  mu_t_go = c(-5.0, 0.0), Sigma_t_go = Sigma_null,
+  mu_c_go = c(-10.0, -1.0), Sigma_c_go = Sigma_null,
+  mu_t_nogo = c(5.0, 1.0), Sigma_t_nogo = Sigma_alt,
+  mu_c_nogo = c(-10.0, -1.0), Sigma_c_nogo = Sigma_alt,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 30L, n_c = 30L,
   theta_TV1 = 10.0, theta_MAV1 = 5.0,
   theta_TV2 = 2.0,  theta_MAV2 = 1.0,
@@ -368,16 +379,17 @@ getgamma2cont(
 
 # Example 2: Uncontrolled design, posterior probability, vague prior
 \dontrun{
-Sigma <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Sigma_null <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Sigma_alt  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
   nsim = 1000L, prob = 'posterior', design = 'uncontrolled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
-  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
-  mu_c = NULL, Sigma_c = NULL,
+  mu_t_go = c(-5.0, 0.0), Sigma_t_go = Sigma_null,
+  mu_c_go = NULL, Sigma_c_go = NULL,
+  mu_t_nogo = c(5.0, 1.0), Sigma_t_nogo = Sigma_alt,
+  mu_c_nogo = NULL, Sigma_c_nogo = NULL,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 30L, n_c = NULL,
   theta_TV1 = 10.0, theta_MAV1 = 5.0,
   theta_TV2 = 2.0,  theta_MAV2 = 1.0,
@@ -404,11 +416,11 @@ getgamma2cont(
   nsim = 1000L, prob = 'posterior', design = 'external',
   prior = 'N-Inv-Wishart',
   GoRegions = 1L, NoGoRegions = 9L,
-  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
-  mu_c = c(-10.0, -1.0), Sigma_c = Sigma,
+  mu_t_go = c(-5.0, 0.0), Sigma_t_go = Sigma,
+  mu_c_go = c(-10.0, -1.0), Sigma_c_go = Sigma,
+  mu_t_nogo = c(5.0, 1.0), Sigma_t_nogo = Sigma,
+  mu_c_nogo = c(-10.0, -1.0), Sigma_c_nogo = Sigma,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 30L, n_c = 30L,
   theta_TV1 = 10.0, theta_MAV1 = 5.0,
   theta_TV2 = 2.0,  theta_MAV2 = 1.0,
@@ -427,19 +439,18 @@ getgamma2cont(
 }
 
 # Example 4: Controlled design, predictive probability, vague prior
-# Note: prob = 'predictive' returns 4 regions; GoRegions = 1L (both
-# endpoints exceed NULL), NoGoRegions = 4L (both endpoints below NULL)
 \dontrun{
-Sigma <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Sigma_null <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Sigma_alt  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
   nsim = 1000L, prob = 'predictive', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 4L,
-  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
-  mu_c = c(-10.0, -1.0), Sigma_c = Sigma,
+  mu_t_go = c(-5.0, 0.0), Sigma_t_go = Sigma_null,
+  mu_c_go = c(-10.0, -1.0), Sigma_c_go = Sigma_null,
+  mu_t_nogo = c(5.0, 1.0), Sigma_t_nogo = Sigma_alt,
+  mu_c_nogo = c(-10.0, -1.0), Sigma_c_nogo = Sigma_alt,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 30L, n_c = 30L,
   theta_TV1 = NULL, theta_MAV1 = NULL,
   theta_TV2 = NULL, theta_MAV2 = NULL,
@@ -459,16 +470,17 @@ getgamma2cont(
 
 # Example 5: Uncontrolled design, predictive probability, vague prior
 \dontrun{
-Sigma <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Sigma_null <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
+Sigma_alt  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
   nsim = 1000L, prob = 'predictive', design = 'uncontrolled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 4L,
-  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
-  mu_c = NULL, Sigma_c = NULL,
+  mu_t_go = c(-5.0, 0.0), Sigma_t_go = Sigma_null,
+  mu_c_go = NULL, Sigma_c_go = NULL,
+  mu_t_nogo = c(5.0, 1.0), Sigma_t_nogo = Sigma_alt,
+  mu_c_nogo = NULL, Sigma_c_nogo = NULL,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 30L, n_c = NULL,
   theta_TV1 = NULL, theta_MAV1 = NULL,
   theta_TV2 = NULL, theta_MAV2 = NULL,
@@ -495,11 +507,11 @@ getgamma2cont(
   nsim = 1000L, prob = 'predictive', design = 'external',
   prior = 'N-Inv-Wishart',
   GoRegions = 1L, NoGoRegions = 4L,
-  mu_t = c(-5.0, 0.0), Sigma_t = Sigma,
-  mu_c = c(-10.0, -1.0), Sigma_c = Sigma,
+  mu_t_go = c(-5.0, 0.0), Sigma_t_go = Sigma,
+  mu_c_go = c(-10.0, -1.0), Sigma_c_go = Sigma,
+  mu_t_nogo = c(5.0, 1.0), Sigma_t_nogo = Sigma,
+  mu_c_nogo = c(-10.0, -1.0), Sigma_c_nogo = Sigma,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 30L, n_c = 30L,
   theta_TV1 = NULL, theta_MAV1 = NULL,
   theta_TV2 = NULL, theta_MAV2 = NULL,

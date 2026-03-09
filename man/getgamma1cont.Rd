@@ -14,16 +14,16 @@ getgamma1cont(
   theta_MAV = NULL,
   theta_NULL = NULL,
   nMC = NULL,
-  mu_t,
-  mu_c = NULL,
-  sigma_t,
-  sigma_c = NULL,
+  mu_t_go,
+  mu_c_go = NULL,
+  sigma_t_go,
+  sigma_c_go = NULL,
+  mu_t_nogo,
+  mu_c_nogo = NULL,
+  sigma_t_nogo,
+  sigma_c_nogo = NULL,
   target_go,
   target_nogo,
-  crit_go = "<",
-  crit_nogo = "<",
-  sel_go = "smallest",
-  sel_nogo = "largest",
   n_t,
   n_c = NULL,
   m_t = NULL,
@@ -83,49 +83,43 @@ for the predictive probability.  Required when
 passed to \code{\link{pbayespostpred1cont}}.  Required when
 \code{CalcMethod = 'MC'}; set to \code{NULL} otherwise.}
 
-\item{mu_t}{A numeric scalar giving the true mean for the treatment group
-for the scenario used to search for both \eqn{\gamma_go} and
-\eqn{\gamma_nogo}.}
+\item{mu_t_go}{A numeric scalar giving the true mean for the treatment group
+under the Go-calibration scenario (typically Null).}
 
-\item{mu_c}{A numeric scalar giving the true mean for the control group.
+\item{mu_c_go}{A numeric scalar giving the true mean for the control group
+under the Go-calibration scenario.  Set to \code{NULL} for
+\code{design = 'uncontrolled'}.}
+
+\item{sigma_t_go}{A positive numeric scalar giving the true standard
+deviation for the treatment group under the Go-calibration scenario.}
+
+\item{sigma_c_go}{A positive numeric scalar giving the true standard
+deviation for the control group under the Go-calibration scenario.
 Set to \code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{sigma_t}{A positive numeric scalar giving the true standard deviation
-for the treatment group.}
+\item{mu_t_nogo}{A numeric scalar giving the true mean for the treatment
+group under the NoGo-calibration scenario (typically Alternative).}
 
-\item{sigma_c}{A positive numeric scalar giving the true standard deviation
-for the control group.  Set to \code{NULL}
-for \code{design = 'uncontrolled'}.}
+\item{mu_c_nogo}{A numeric scalar giving the true mean for the control
+group under the NoGo-calibration scenario.  Set to \code{NULL} for
+\code{design = 'uncontrolled'}.}
 
-\item{target_go}{A numeric scalar in \code{(0, 1)} giving the target value
-for \eqn{\Pr(\mathrm{Go})} used to determine the optimal
-\eqn{\gamma_go}.  The comparison operator applied is specified by
-\code{crit_go}.}
+\item{sigma_t_nogo}{A positive numeric scalar giving the true standard
+deviation for the treatment group under the NoGo-calibration scenario.}
 
-\item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the target
-value for \eqn{\Pr(\mathrm{NoGo})} used to determine the optimal
-\eqn{\gamma_nogo}.  The comparison operator applied is specified by
-\code{crit_nogo}.}
+\item{sigma_c_nogo}{A positive numeric scalar giving the true standard
+deviation for the control group under the NoGo-calibration scenario.
+Set to \code{NULL} for \code{design = 'uncontrolled'}.}
 
-\item{crit_go}{A character string specifying the comparison operator
-applied to \eqn{\Pr(\mathrm{Go})} when searching for
-\eqn{\gamma_go}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
-or \code{">="}. Default is \code{"<"}.}
+\item{target_go}{A numeric scalar in \code{(0, 1)} giving the upper bound
+on the marginal Go probability under the Go-calibration scenario.
+The optimal \eqn{\gamma_{\mathrm{go}}} is the smallest grid value
+satisfying \eqn{\Pr(\mathrm{Go}) < \code{target\_go}}.}
 
-\item{crit_nogo}{A character string specifying the comparison operator
-applied to \eqn{\Pr(\mathrm{NoGo})} when searching for
-\eqn{\gamma_nogo}.  Must be one of \code{"<"}, \code{"<="}, \code{">"},
-or \code{">="}. Default is \code{"<"}.}
-
-\item{sel_go}{A character string specifying whether to select the
-\code{"smallest"} or \code{"largest"} value in \code{gamma_grid}
-among those satisfying the \code{crit_go} criterion.
-Default is \code{"smallest"}.}
-
-\item{sel_nogo}{A character string specifying whether to select the
-\code{"smallest"} or \code{"largest"} value in \code{gamma_grid}
-among those satisfying the \code{crit_nogo} criterion.
-Default is \code{"largest"}.}
+\item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the upper bound
+on the marginal NoGo probability under the NoGo-calibration scenario.
+The optimal \eqn{\gamma_{\mathrm{nogo}}} is the smallest grid value
+satisfying \eqn{\Pr(\mathrm{NoGo}) < \code{target\_nogo}}.}
 
 \item{n_t}{A positive integer giving the number of patients in the
 treatment group in the PoC trial.}
@@ -148,47 +142,49 @@ parameter for the treatment group under the N-Inv-Chi-squared prior.
 Required when \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
 
 \item{kappa0_c}{A positive numeric scalar giving the prior precision
-parameter for the control group.  Required when \code{prior = 'N-Inv-Chisq'}
-and \code{design != 'uncontrolled'}; set to \code{NULL} otherwise.}
-
-\item{nu0_t}{A positive numeric scalar giving the prior degrees of freedom
-for the treatment group under the N-Inv-Chi-squared prior.  Required when
-\code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
-
-\item{nu0_c}{A positive numeric scalar giving the prior degrees of freedom
-for the control group.  Required when \code{prior = 'N-Inv-Chisq'} and
-\code{design != 'uncontrolled'}; set to \code{NULL} otherwise.}
-
-\item{mu0_t}{A numeric scalar giving the prior mean for the treatment group under the
-N-Inv-Chi-squared prior.  Required when \code{prior = 'N-Inv-Chisq'};
+parameter for the control group.  Required when
+\code{prior = 'N-Inv-Chisq'} and \code{design != 'uncontrolled'};
 set to \code{NULL} otherwise.}
 
-\item{mu0_c}{A numeric scalar giving the prior mean for the control group (or the
-fixed hypothetical control mean for uncontrolled design).  Required
+\item{nu0_t}{A positive numeric scalar giving the prior degrees of freedom
+for the treatment group under the N-Inv-Chi-squared prior.  Required
 when \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
 
-\item{sigma0_t}{A positive numeric scalar giving the prior scale parameter
-for the treatment group under the N-Inv-Chi-squared prior.  Required when
+\item{nu0_c}{A positive numeric scalar giving the prior degrees of freedom
+for the control group.  Required when \code{prior = 'N-Inv-Chisq'}
+and \code{design != 'uncontrolled'}; set to \code{NULL} otherwise.}
+
+\item{mu0_t}{A numeric scalar giving the prior mean for the treatment group
+under the N-Inv-Chi-squared prior.  Required when
 \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
 
+\item{mu0_c}{A numeric scalar giving the prior mean for the control group
+(or the fixed hypothetical control mean for uncontrolled design).
+Required when \code{prior = 'N-Inv-Chisq'}; set to \code{NULL}
+otherwise.}
+
+\item{sigma0_t}{A positive numeric scalar giving the prior scale parameter
+for the treatment group under the N-Inv-Chi-squared prior.  Required
+when \code{prior = 'N-Inv-Chisq'}; set to \code{NULL} otherwise.}
+
 \item{sigma0_c}{A positive numeric scalar giving the prior scale parameter
-for the control group.  Required when \code{prior = 'N-Inv-Chisq'} and
-\code{design != 'uncontrolled'}; set to \code{NULL} otherwise.}
+for the control group.  Required when \code{prior = 'N-Inv-Chisq'}
+and \code{design != 'uncontrolled'}; set to \code{NULL} otherwise.}
 
 \item{r}{A positive numeric scalar giving the variance ratio
-\eqn{\sigma_2^2 / \sigma_1^2} used for uncontrolled design.
+\eqn{\sigma_c^2 / \sigma_t^2} used for uncontrolled design.
 Required when \code{design = 'uncontrolled'}; set to \code{NULL}
 otherwise.}
 
-\item{ne_t}{A positive integer giving the number of patients in the treatment group
-of the external data set.  Required when \code{design = 'external'}
-and external treatment data are available; otherwise set to
-\code{NULL}.}
+\item{ne_t}{A positive integer giving the number of patients in the
+treatment group of the external data set.  Required when
+\code{design = 'external'} and external treatment data are
+available; otherwise set to \code{NULL}.}
 
-\item{ne_c}{A positive integer giving the number of patients in the control group
-of the external data set.  Required when \code{design = 'external'}
-and external control data are available; otherwise set to
-\code{NULL}.}
+\item{ne_c}{A positive integer giving the number of patients in the
+control group of the external data set.  Required when
+\code{design = 'external'} and external control data are available;
+otherwise set to \code{NULL}.}
 
 \item{alpha0e_t}{A numeric scalar in \code{(0, 1]} giving the power prior
 weight for external treatment group data.  Required when
@@ -209,86 +205,103 @@ control group data.  Required when \code{ne_c} is non-NULL; set to
 \code{NULL} otherwise.}
 
 \item{se_t}{A positive numeric scalar giving the sample standard deviation
-of the external treatment group data.  Required when \code{ne_t} is non-NULL;
-set to \code{NULL} otherwise.}
+of the external treatment group data.  Required when \code{ne_t} is
+non-NULL; set to \code{NULL} otherwise.}
 
 \item{se_c}{A positive numeric scalar giving the sample standard deviation
-of the external control group data.  Required when \code{ne_c} is non-NULL;
-set to \code{NULL} otherwise.}
+of the external control group data.  Required when \code{ne_c} is
+non-NULL; set to \code{NULL} otherwise.}
 
 \item{gamma_grid}{A numeric vector of candidate threshold values in
 \code{(0, 1)} to search over.  Defaults to
 \code{seq(0.01, 0.99, by = 0.01)}.}
 
-\item{seed}{A numeric scalar for reproducible random number generation.}
+\item{seed}{A numeric scalar for reproducible random number generation.
+The Go-calibration simulation uses \code{seed} and the
+NoGo-calibration simulation uses \code{seed + 1} to ensure
+independence between the two scenarios.}
 }
 \value{
 A list of class \code{getgamma1cont} with the following elements:
 \describe{
-\item{gamma_go}{Optimal Go threshold selected from \code{gamma_grid}
-according to \code{crit_go} and \code{sel_go}.
-\code{NA} if no value satisfies the criterion.}
-\item{gamma_nogo}{Optimal NoGo threshold selected from \code{gamma_grid}
-according to \code{crit_nogo} and \code{sel_nogo}.
-\code{NA} if no value satisfies the criterion.}
-\item{PrGo_at_gamma_go}{Pr(Go) evaluated at the optimal \eqn{\gamma_go}.
-\code{NA} if \code{gamma_go} is \code{NA}.}
-\item{PrNoGo_at_gamma_nogo}{Pr(NoGo) evaluated at the optimal \eqn{\gamma_nogo}.
-\code{NA} if \code{gamma_nogo} is \code{NA}.}
-\item{gamma_grid}{The candidate grid used for the search.}
-\item{PrGo_grid}{Numeric vector of Pr(Go) values over \code{gamma_grid}.}
-\item{PrNoGo_grid}{Numeric vector of Pr(NoGo) values over
-\code{gamma_grid}.}
+\item{gamma_go}{Optimal Go threshold: the smallest value in
+\code{gamma_grid} for which \eqn{\Pr(\mathrm{Go}) < \code{target\_go}}
+under the Go-calibration scenario.
+\code{NA} if no such value exists.}
+\item{gamma_nogo}{Optimal NoGo threshold: the smallest value in
+\code{gamma_grid} for which \eqn{\Pr(\mathrm{NoGo}) < \code{target\_nogo}}
+under the NoGo-calibration scenario.
+\code{NA} if no such value exists.}
+\item{PrGo_opt}{Marginal \eqn{\Pr(g_{\mathrm{Go}} \ge \gamma_{\mathrm{go}})}
+at the optimal \eqn{\gamma_{\mathrm{go}}} under the Go-calibration
+scenario.  \code{NA} if \code{gamma_go} is \code{NA}.}
+\item{PrNoGo_opt}{Marginal \eqn{\Pr(g_{\mathrm{NoGo}} \ge \gamma_{\mathrm{nogo}})}
+at the optimal \eqn{\gamma_{\mathrm{nogo}}} under the NoGo-calibration
+scenario.  \code{NA} if \code{gamma_nogo} is \code{NA}.}
+\item{grid_results}{A data frame with columns \code{gamma_grid},
+\code{PrGo_grid} (marginal Go probability under the Go-calibration
+scenario), and \code{PrNoGo_grid} (marginal NoGo probability under
+the NoGo-calibration scenario).}
 }
 }
 \description{
-Computes the optimal Go threshold \eqn{\gamma_go} and NoGo threshold
-\eqn{\gamma_nogo} for a single continuous endpoint by searching over a fine
-grid of candidate values.  The search follows a two-stage approach:
-posterior or predictive probabilities are precomputed once for every
-Monte Carlo simulated dataset, and the operating characteristics under
-each candidate \eqn{\gamma} are obtained by a fast indicator sweep without
-additional probability evaluations.
+Computes the optimal Go threshold \eqn{\gamma_{\mathrm{go}}} and NoGo
+threshold \eqn{\gamma_{\mathrm{nogo}}} for a single continuous endpoint by
+searching over a grid of candidate values.  The two thresholds are
+calibrated independently under separate scenarios:
+\itemize{
+\item \eqn{\gamma_{\mathrm{go}}} is the \strong{smallest} value in
+\code{gamma_grid} such that the marginal Go probability
+\eqn{\Pr(g_{\mathrm{Go}} \ge \gamma_{\mathrm{go}})} is strictly
+less than \code{target_go} under the Go-calibration scenario
+(\code{mu_t_go}, \code{mu_c_go}, \code{sigma_t_go},
+\code{sigma_c_go}); typically the Null scenario.
+\item \eqn{\gamma_{\mathrm{nogo}}} is the \strong{smallest} value in
+\code{gamma_grid} such that the marginal NoGo probability
+\eqn{\Pr(g_{\mathrm{NoGo}} \ge \gamma_{\mathrm{nogo}})} is
+strictly less than \code{target_nogo} under the NoGo-calibration
+scenario (\code{mu_t_nogo}, \code{mu_c_nogo}, \code{sigma_t_nogo},
+\code{sigma_c_nogo}); typically the Alternative scenario.
+}
+Here \eqn{g_{\mathrm{Go}} = P(\theta > \theta_{\mathrm{TV}} \mid \bar{y}_t, s_t, \bar{y}_c, s_c)}
+and \eqn{g_{\mathrm{NoGo}} = P(\theta \le \theta_{\mathrm{MAV}} \mid \bar{y}_t, s_t, \bar{y}_c, s_c)}
+for \code{prob = 'posterior'}, consistent with the decision rule in
+\code{\link{pbayesdecisionprob1cont}}.
 }
 \details{
 The function uses a two-stage simulate-then-sweep strategy:
 \enumerate{
-\item \strong{Simulation}: \code{nsim} datasets are generated from the
-normal model with the specified true parameters.  Standardised
-residuals are generated once and shifted by \code{mu_t} (and
-\code{mu_c} for non-uncontrolled designs).  For each simulated
-dataset, \code{\link{pbayespostpred1cont}} is called twice to
-obtain the Go probability \eqn{g_{\mathrm{Go},i}} (at
-\code{theta_TV} or \code{theta_NULL}, \code{lower.tail = FALSE})
-and the NoGo probability \eqn{g_{\mathrm{NoGo},i}} (at
-\code{theta_MAV} or \code{theta_NULL}, \code{lower.tail = TRUE}).
-Both calls are fully vectorised over the \code{nsim} replicates.
-This step is independent of \eqn{\gamma}.
-\item \strong{Gamma sweep}: For each candidate \eqn{\gamma} in
-\code{gamma_grid}, Pr(Go) and Pr(NoGo) are estimated as the
+\item \strong{Simulation}: \code{nsim} datasets are generated
+independently for each calibration scenario.  For the
+Go-calibration scenario, standardised residuals are shifted by
+\code{mu_t_go} and \code{mu_c_go}; for the NoGo-calibration
+scenario, by \code{mu_t_nogo} and \code{mu_c_nogo}.
+\code{\link{pbayespostpred1cont}} is called once per scenario to
+obtain \eqn{g_{\mathrm{Go}}} (\code{lower.tail = FALSE} at
+\code{theta_TV}) and \eqn{g_{\mathrm{NoGo}}} (\code{lower.tail
+        = TRUE} at \code{theta_MAV}).
+\item \strong{Gamma sweep}: Marginal probabilities are estimated as the
 proportion of simulated datasets satisfying the respective
-decision criterion.  No further probability evaluations are
-required at this stage.
+indicator: \eqn{g_{\mathrm{Go}} \ge \gamma} for
+\code{PrGo_grid}, and \eqn{g_{\mathrm{NoGo}} \ge \gamma} for
+\code{PrNoGo_grid}.  Both are monotone non-increasing in
+\eqn{\gamma}.
 }
-The optimal \eqn{\gamma_go} is the \code{sel_go} (\code{"smallest"} or
-\code{"largest"}) value in \code{gamma_grid} for which
-\eqn{\Pr(\mathrm{Go})} satisfies the \code{crit_go} comparison against
-\code{target_go}.  Analogously, the optimal \eqn{\gamma_nogo} is the
-\code{sel_nogo} value satisfying \code{crit_nogo} against
-\code{target_nogo}.
+The optimal \eqn{\gamma_{\mathrm{go}}} and \eqn{\gamma_{\mathrm{nogo}}}
+are each the \emph{smallest} grid value crossing below the respective
+target probability.
 }
 \examples{
 # Example 1: Controlled design, vague prior, posterior probability
-# gamma_go: smallest gamma such that Pr(Go) < 0.05
-# gamma_nogo: largest  gamma such that Pr(NoGo) < 0.20
+# gamma_go  : smallest gamma s.t. Pr(Go)   < 0.05 under Null (mu_t = mu_c = 1.0)
+# gamma_nogo: smallest gamma s.t. Pr(NoGo) < 0.20 under Alt  (mu_t = 2.5, mu_c = 1.0)
 getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'controlled',
   prior = 'vague', CalcMethod = 'MM',
   theta_TV = 1.5, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
-  mu_t = 1.0, mu_c = 1.0, sigma_t = 2.0, sigma_c = 2.0,
+  mu_t_go = 1.0, mu_c_go = 1.0, sigma_t_go = 2.0, sigma_c_go = 2.0,
+  mu_t_nogo = 2.5, mu_c_nogo = 1.0, sigma_t_nogo = 2.0, sigma_c_nogo = 2.0,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 15L, n_c = 15L, m_t = NULL, m_c = NULL,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
@@ -302,10 +315,9 @@ getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'uncontrolled',
   prior = 'N-Inv-Chisq', CalcMethod = 'NI',
   theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
-  mu_t = 1.5, mu_c = NULL, sigma_t = 1.5, sigma_c = NULL,
+  mu_t_go = 1.5, mu_c_go = NULL, sigma_t_go = 1.5, sigma_c_go = NULL,
+  mu_t_nogo = 3.0, mu_c_nogo = NULL, sigma_t_nogo = 1.5, sigma_c_nogo = NULL,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 20L, n_c = NULL, m_t = NULL, m_c = NULL,
   kappa0_t = 2, kappa0_c = NULL, nu0_t = 5, nu0_c = NULL,
   mu0_t = 3.0, mu0_c = 1.5, sigma0_t = 1.5, sigma0_c = NULL,
@@ -319,10 +331,9 @@ getgamma1cont(
   nsim = 1000L, prob = 'posterior', design = 'external',
   prior = 'vague', CalcMethod = 'MM',
   theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
-  mu_t = 1.0, mu_c = 1.0, sigma_t = 1.5, sigma_c = 1.5,
+  mu_t_go = 1.0, mu_c_go = 1.0, sigma_t_go = 1.5, sigma_c_go = 1.5,
+  mu_t_nogo = 2.5, mu_c_nogo = 1.0, sigma_t_nogo = 1.5, sigma_c_nogo = 1.5,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 15L, n_c = 15L, m_t = NULL, m_c = NULL,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
@@ -336,10 +347,9 @@ getgamma1cont(
   nsim = 1000L, prob = 'predictive', design = 'controlled',
   prior = 'vague', CalcMethod = 'MM',
   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.0, nMC = NULL,
-  mu_t = 1.0, mu_c = 1.0, sigma_t = 2.0, sigma_c = 2.0,
+  mu_t_go = 1.0, mu_c_go = 1.0, sigma_t_go = 2.0, sigma_c_go = 2.0,
+  mu_t_nogo = 2.5, mu_c_nogo = 1.0, sigma_t_nogo = 2.0, sigma_c_nogo = 2.0,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 15L, n_c = 15L, m_t = 50L, m_c = 50L,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
@@ -353,10 +363,9 @@ getgamma1cont(
   nsim = 1000L, prob = 'predictive', design = 'uncontrolled',
   prior = 'vague', CalcMethod = 'MM',
   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.0, nMC = NULL,
-  mu_t = 1.0, mu_c = NULL, sigma_t = 2.0, sigma_c = NULL,
+  mu_t_go = 1.0, mu_c_go = NULL, sigma_t_go = 2.0, sigma_c_go = NULL,
+  mu_t_nogo = 2.5, mu_c_nogo = NULL, sigma_t_nogo = 2.0, sigma_c_nogo = NULL,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 15L, n_c = NULL, m_t = 50L, m_c = 50L,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = 0.0, sigma0_t = NULL, sigma0_c = NULL,
@@ -370,10 +379,9 @@ getgamma1cont(
   nsim = 1000L, prob = 'predictive', design = 'external',
   prior = 'vague', CalcMethod = 'MM',
   theta_TV = NULL, theta_MAV = NULL, theta_NULL = 1.0, nMC = NULL,
-  mu_t = 1.0, mu_c = 1.0, sigma_t = 1.5, sigma_c = 1.5,
+  mu_t_go = 1.0, mu_c_go = 1.0, sigma_t_go = 1.5, sigma_c_go = 1.5,
+  mu_t_nogo = 2.5, mu_c_nogo = 1.0, sigma_t_nogo = 1.5, sigma_c_nogo = 1.5,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 15L, n_c = 15L, m_t = 50L, m_c = 50L,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
