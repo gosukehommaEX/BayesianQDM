@@ -17,6 +17,23 @@ and continuous outcomes.
 * `pbayesdecisionprob2cont()` - Go/NoGo/Gray decision probabilities for two
   continuous endpoints
 
+### S3 Methods for Decision Probability Classes
+
+* `print.pbayesdecisionprob1bin()` - Print method for `pbayesdecisionprob1bin` objects
+* `print.pbayesdecisionprob1cont()` - Print method for `pbayesdecisionprob1cont` objects
+* `print.pbayesdecisionprob2bin()` - Print method for `pbayesdecisionprob2bin` objects
+* `print.pbayesdecisionprob2cont()` - Print method for `pbayesdecisionprob2cont` objects
+* `plot.pbayesdecisionprob1bin()` - Plot method for `pbayesdecisionprob1bin` objects;
+  displays Go/NoGo/Gray decision probabilities as a line plot across treatment scenarios
+* `plot.pbayesdecisionprob1cont()` - Plot method for `pbayesdecisionprob1cont` objects;
+  displays Go/NoGo/Gray decision probabilities as a line plot across treatment scenarios
+* `plot.pbayesdecisionprob2bin()` - Plot method for `pbayesdecisionprob2bin` objects;
+  displays Go/NoGo/Gray decision probabilities as a tile or scatter plot over a
+  two-dimensional treatment scenario grid
+* `plot.pbayesdecisionprob2cont()` - Plot method for `pbayesdecisionprob2cont` objects;
+  displays Go/NoGo/Gray decision probabilities as a tile or scatter plot over a
+  two-dimensional treatment scenario grid
+
 ### Posterior and Predictive Probability Functions
 
 * `pbayespostpred1bin()` - Posterior or predictive probability for a single binary

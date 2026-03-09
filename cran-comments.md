@@ -21,12 +21,14 @@ posterior probabilities and posterior predictive probabilities under conjugate B
 models, with support for controlled, uncontrolled, and external designs.
 The package also provides grid-search functions to find optimal Go and NoGo thresholds
 that satisfy user-specified operating characteristic criteria for all supported
-endpoint types and study designs.
+endpoint types and study designs. S3 print() and plot() methods are provided for all
+four decision probability classes, enabling formatted display and visualisation of
+operating characteristics across treatment scenarios.
 
 ## Dependencies
 
-* Imports: mvtnorm, stats
-* Suggests: testthat (>= 3.0.0), knitr, rmarkdown, dplyr, ggplot2, tidyr, purrr
+* Imports: ggplot2 (>= 3.4.0), gridExtra, mvtnorm, stats
+* Suggests: testthat (>= 3.0.0), knitr, rmarkdown, dplyr, tidyr, purrr
 * All dependencies are well-established CRAN packages
 
 ## Notes

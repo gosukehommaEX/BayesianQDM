@@ -25,6 +25,14 @@ reference:
   - print.pbayesdecisionprob2bin
   - print.pbayesdecisionprob2cont
 
+- title: Plot Methods
+  desc: S3 plot methods for decision probability objects
+  contents:
+  - plot.pbayesdecisionprob1bin
+  - plot.pbayesdecisionprob1cont
+  - plot.pbayesdecisionprob2bin
+  - plot.pbayesdecisionprob2cont
+
 - title: Posterior and Predictive Probability Functions
   desc: Posterior and posterior predictive probability calculation
   contents:
