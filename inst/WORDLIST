@@ -23,13 +23,14 @@ Precomputation
 Precompute
 QDM
 RCT
-Standardised
 aug
 bigl
 bigr
 binom
 boldsymbol
 cdot
+colour
+coloured
 conjugacy
 deduplicated
 deduplicates
@@ -45,6 +46,7 @@ gGo
 gNoGo
 ge
 generalisation
+getgamma
 ij
 infty
 investigational
@@ -82,6 +84,7 @@ responder
 responders
 sd
 standardised
+texttt
 th
 visualisation
 visualised
