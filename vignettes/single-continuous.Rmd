@@ -508,9 +508,9 @@ $g_{\mathrm{NoGo}} \ge \gamma_{\mathrm{nogo}}$)
 indicates an inconsistent threshold configuration and triggers an error by
 default (`error_if_Miss = TRUE`).
 
-### 5.2 Controlled Design --- Multiple Scenarios
+### 5.2 Example: Controlled Design, Posterior Probability
 
-```{r oc-controlled}
+```{r oc-controlled, fig.width = 8, fig.height = 6}
 oc_ctrl <- pbayesdecisionprob1cont(
   nsim       = 500L,
   prob       = 'posterior',
@@ -524,7 +524,7 @@ oc_ctrl <- pbayesdecisionprob1cont(
   m_t = NULL, m_c = NULL,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
-  mu_t    = c(1.0, 1.5, 2.0, 2.5, 3.0, 3.5),
+  mu_t    = seq(1.0, 4.0, by = 0.5),
   mu_c    = 1.0,
   sigma_t = 2.0,
   sigma_c = 2.0,
@@ -535,126 +535,15 @@ oc_ctrl <- pbayesdecisionprob1cont(
   seed = 42L
 )
 print(oc_ctrl)
+plot(oc_ctrl, base_size = 20)
 ```
 
-### 5.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment Effect
-
-```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect (mu_t - mu_c). Controlled design, vague prior, MM method. True mu_c = 1.0, sigma_t = sigma_c = 2.0, n_t = n_c = 15, gamma_go = 0.80, gamma_nogo = 0.20."}
-# Compute OC over a finer grid of true treatment means
-mu_t_seq <- seq(1.0, 4.5, by = 0.5)
-
-oc_grid <- pbayesdecisionprob1cont(
-  nsim       = 500L,
-  prob       = 'posterior',
-  design     = 'controlled',
-  prior      = 'vague',
-  CalcMethod = 'MM',
-  theta_TV   = 1.5,  theta_MAV = 0.5,  theta_NULL = NULL,
-  nMC        = NULL,
-  gamma_go   = 0.80, gamma_nogo = 0.20,
-  n_t = 15,   n_c = 15,
-  m_t = NULL, m_c = NULL,
-  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
-  mu_t    = mu_t_seq,
-  mu_c    = 1.0,
-  sigma_t = 2.0,
-  sigma_c = 2.0,
-  r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE,
-  seed = 42L
-)
-
-delta   <- oc_grid$mu_t - 1.0  # true treatment effect (mu_t - mu_c)
-
-# --- Plot ---
-old_par <- par(mar = c(4.5, 4.5, 3, 1))
-
-plot(delta, oc_grid$Go,
-     type = "b", pch = 16, lwd = 2,
-     col  = "#2166AC",
-     ylim = c(0, 1), xlab = expression(mu[t] - mu[c]),
-     ylab = "Probability",
-     main = "Operating Characteristics: Controlled Design (Posterior Prob.)",
-     las  = 1)
-lines(delta, oc_grid$NoGo,
-      type = "b", pch = 17, lwd = 2, col = "#D6604D")
-lines(delta, oc_grid$Gray,
-      type = "b", pch = 15, lwd = 2, col = "#878787")
-
-abline(h  = c(0.20, 0.80), lty = 2, col = "gray50")
-abline(v  = c(0.5, 1.5),   lty = 3, col = "gray70")
-
-legend("right",
-       legend = c("Pr(Go)", "Pr(NoGo)", "Pr(Gray)"),
-       col    = c("#2166AC", "#D6604D", "#878787"),
-       pch    = c(16, 17, 15), lwd = 2, bty = "n")
-
-text(0.5,  0.05, expression(theta[MAV]), col = "gray40", cex = 0.8)
-text(1.5,  0.05, expression(theta[TV]),  col = "gray40", cex = 0.8)
-
-par(old_par)
-```
-
-### 5.4 Uncontrolled Design --- Operating Characteristics
-
-```{r oc-uncontrolled}
-oc_unctrl <- pbayesdecisionprob1cont(
-  nsim       = 500L,
-  prob       = 'posterior',
-  design     = 'uncontrolled',
-  prior      = 'vague',
-  CalcMethod = 'MM',
-  theta_TV   = 1.5,  theta_MAV = 0.5,  theta_NULL = NULL,
-  nMC        = NULL,
-  gamma_go   = 0.80, gamma_nogo = 0.20,
-  n_t = 15,   n_c = NULL,
-  m_t = NULL, m_c = NULL,
-  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-  mu0_t = NULL, mu0_c = 1.0, sigma0_t = NULL, sigma0_c = NULL,
-  mu_t    = c(1.5, 2.0, 2.5, 3.0, 3.5),
-  mu_c    = NULL,
-  sigma_t = 2.0,
-  sigma_c = NULL,
-  r       = 1.0,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE,
-  seed = 1L
-)
-print(oc_unctrl)
-```
-
-### 5.5 External Control Design --- Operating Characteristics
-
-```{r oc-external}
-oc_ext <- pbayesdecisionprob1cont(
-  nsim       = 500L,
-  prob       = 'posterior',
-  design     = 'external',
-  prior      = 'vague',
-  CalcMethod = 'MM',
-  theta_TV   = 1.5,  theta_MAV = 0.5,  theta_NULL = NULL,
-  nMC        = NULL,
-  gamma_go   = 0.80, gamma_nogo = 0.20,
-  n_t = 15,   n_c = 15,
-  m_t = NULL, m_c = NULL,
-  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
-  mu_t    = c(1.5, 2.0, 2.5, 3.0, 3.5),
-  mu_c    = 1.0,
-  sigma_t = 2.0,
-  sigma_c = 2.0,
-  r = NULL,
-  ne_t = NULL, ne_c = 20L, alpha0e_t = NULL, alpha0e_c = 0.5,
-  bar_ye_t = NULL, se_t = NULL, bar_ye_c = 0.9, se_c = 1.8,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE,
-  seed = 2L
-)
-print(oc_ext)
-```
+The same function supports `design = 'uncontrolled'` (with arguments
+`mu0_c` and `r`), `design = 'external'` (with power prior arguments
+`ne_c`, `alpha0e_c`, `bar_ye_c`, `se_c`), and `prob = 'predictive'`
+(with future sample size arguments `m_t`, `m_c` and `theta_NULL`).
+The function signature and output format are identical across all
+combinations.
 
 ---
 
@@ -664,16 +553,20 @@ print(oc_ext)
 
 The `getgamma1cont()` function finds the optimal pair
 $(\gamma_{\mathrm{go}}^*, \gamma_{\mathrm{nogo}}^*)$ by grid search over
-$\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\} \subset (0, 1)$, where:
+$\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\} \subset (0, 1)$.
+The two thresholds are calibrated independently under separate scenarios:
 
 - $\gamma_{\mathrm{go}}^*$: selected so that
   $\Pr(\mathrm{Go} \mid \gamma_{\mathrm{go}}^*)$ satisfies
-  a criterion against a target value (e.g., $\Pr(\mathrm{Go}) < 0.05$
-  under the null scenario $\mu_t = \mu_c$).
+  a criterion against a target value (e.g., $\Pr(\mathrm{Go}) < 0.05$)
+  under the Go-calibration scenario (`mu_t_go`, `mu_c_go`,
+  `sigma_t_go`, `sigma_c_go`; typically the null scenario
+  $\mu_t = \mu_c$).
 - $\gamma_{\mathrm{nogo}}^*$: selected so that
   $\Pr(\mathrm{NoGo} \mid \gamma_{\mathrm{nogo}}^*)$
-  satisfies a criterion (e.g., $\Pr(\mathrm{NoGo}) < 0.20$ under the null
-  scenario).
+  satisfies a criterion (e.g., $\Pr(\mathrm{NoGo}) < 0.20$) under the
+  NoGo-calibration scenario (`mu_t_nogo`, `mu_c_nogo`,
+  `sigma_t_nogo`, `sigma_c_nogo`; typically the alternative scenario).
 
 The search uses a two-stage strategy:
 
@@ -689,7 +582,7 @@ without further probability evaluations.
 
 ### 6.2 Example: Controlled Design, Posterior Probability
 
-```{r getgamma-ctrl}
+```{r getgamma-ctrl, fig.width = 8, fig.height = 6}
 res_gamma <- getgamma1cont(
   nsim       = 1000L,
   prob       = 'posterior',
@@ -698,11 +591,11 @@ res_gamma <- getgamma1cont(
   CalcMethod = 'MM',
   theta_TV   = 1.5, theta_MAV = 0.5, theta_NULL = NULL,
   nMC        = NULL,
-  mu_t = 1.0, mu_c = 1.0,   # null scenario: no treatment effect
-  sigma_t = 2.0, sigma_c = 2.0,
-  target_go   = 0.05, target_nogo   = 0.20,
-  crit_go     = '<',  crit_nogo     = '<',
-  sel_go      = 'smallest', sel_nogo = 'largest',
+  mu_t_go    = 1.0, mu_c_go    = 1.0,   # null scenario: no treatment effect
+  sigma_t_go = 2.0, sigma_c_go = 2.0,
+  mu_t_nogo    = 2.5, mu_c_nogo    = 1.0,
+  sigma_t_nogo = 2.0, sigma_c_nogo = 2.0,
+  target_go = 0.05, target_nogo = 0.20,
   n_t = 15L, n_c = 15L, m_t = NULL, m_c = NULL,
   kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
   mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
@@ -712,114 +605,15 @@ res_gamma <- getgamma1cont(
   gamma_grid = seq(0.01, 0.99, by = 0.01),
   seed = 42L
 )
-print(res_gamma)
+plot(res_gamma, base_size = 20)
 ```
 
-### 6.3 Figure: Pr(Go) and Pr(NoGo) Over the Gamma Grid
-
-```{r gamma-plot, fig.cap = "Pr(Go) and Pr(NoGo) as a function of the candidate threshold gamma. The optimal gamma_go (vertical blue dashed line) is the smallest gamma satisfying Pr(Go) < 0.05 under the null scenario. The optimal gamma_nogo (vertical red dashed line) is the largest gamma satisfying Pr(NoGo) < 0.20 under the null scenario."}
-grid_df <- data.frame(
-  gamma   = res_gamma$gamma_grid,
-  PrGo    = res_gamma$PrGo_grid,
-  PrNoGo  = res_gamma$PrNoGo_grid
-)
-
-old_par2 <- par(mar = c(4.5, 4.5, 3, 1))
-
-# Initialize the plot before calling low-level plotting functions (lines, abline, text)
-plot(grid_df$gamma, grid_df$PrGo,
-     type = "l", lwd = 2, col = "#2166AC",
-     ylim = c(0, 1),
-     xlab = expression(gamma),
-     ylab = "Probability",
-     main = "Optimal Threshold Search: Pr(Go) and Pr(NoGo) vs. Gamma",
-     las  = 1)
-
-lines(grid_df$gamma, grid_df$PrNoGo,
-      lwd = 2, col = "#D6604D")
-
-abline(h = 0.05, lty = 2, col = "#2166AC", lwd = 1.2)
-abline(h = 0.20, lty = 2, col = "#D6604D", lwd = 1.2)
-
-if (!is.na(res_gamma$gamma_go)) {
-  abline(v = res_gamma$gamma_go, lty = 2, col = "#2166AC", lwd = 2)
-  text(res_gamma$gamma_go + 0.02, 0.85,
-       paste0("gamma_go* = ", res_gamma$gamma_go),
-       col = "#2166AC", cex = 0.85, adj = 0)
-}
-
-if (!is.na(res_gamma$gamma_nogo)) {
-  abline(v = res_gamma$gamma_nogo, lty = 2, col = "#D6604D", lwd = 2)
-  text(res_gamma$gamma_nogo - 0.02, 0.70,
-       paste0("gamma_nogo* = ", res_gamma$gamma_nogo),
-       col = "#D6604D", cex = 0.85, adj = 1)
-}
-
-legend("topright",
-       legend = c("Pr(Go | gamma)", "Pr(NoGo | gamma)",
-                  "Target Go = 0.05", "Target NoGo = 0.20"),
-       col    = c("#2166AC", "#D6604D", "#2166AC", "#D6604D"),
-       lty    = c(1, 1, 2, 2), lwd = c(2, 2, 1.2, 1.2),
-       bty    = "n", cex = 0.85)
-
-par(old_par2)
-```
-
-### 6.4 Example: Uncontrolled Design, Posterior Probability
-
-```{r getgamma-unctrl}
-res_gamma_unctrl <- getgamma1cont(
-  nsim       = 1000L,
-  prob       = 'posterior',
-  design     = 'uncontrolled',
-  prior      = 'vague',
-  CalcMethod = 'MM',
-  theta_TV   = 1.5, theta_MAV = 0.5, theta_NULL = NULL,
-  nMC        = NULL,
-  mu_t = 1.0, mu_c = NULL,
-  sigma_t = 2.0, sigma_c = NULL,
-  target_go   = 0.05, target_nogo   = 0.20,
-  crit_go     = '<',  crit_nogo     = '<',
-  sel_go      = 'smallest', sel_nogo = 'largest',
-  n_t = 15L, n_c = NULL, m_t = NULL, m_c = NULL,
-  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-  mu0_t = NULL, mu0_c = 1.0, sigma0_t = NULL, sigma0_c = NULL,
-  r = 1.0,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  gamma_grid = seq(0.01, 0.99, by = 0.01),
-  seed = 1L
-)
-print(res_gamma_unctrl)
-```
-
-### 6.5 Example: Controlled Design, Predictive Probability
-
-```{r getgamma-pred}
-res_gamma_pred <- getgamma1cont(
-  nsim       = 1000L,
-  prob       = 'predictive',
-  design     = 'controlled',
-  prior      = 'vague',
-  CalcMethod = 'MM',
-  theta_TV   = NULL, theta_MAV = NULL, theta_NULL = 1.0,
-  nMC        = NULL,
-  mu_t = 1.0, mu_c = 1.0,
-  sigma_t = 2.0, sigma_c = 2.0,
-  target_go   = 0.05, target_nogo   = 0.20,
-  crit_go     = '<',  crit_nogo     = '<',
-  sel_go      = 'smallest', sel_nogo = 'largest',
-  n_t = 15L, n_c = 15L, m_t = 60L, m_c = 60L,
-  kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
-  mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
-  r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  gamma_grid = seq(0.01, 0.99, by = 0.01),
-  seed = 3L
-)
-print(res_gamma_pred)
-```
+The same function supports `design = 'uncontrolled'` (with `mu_t_go`,
+`mu_t_nogo`, `mu0_c`, and `r`; set `mu_c_go` and `mu_c_nogo` to
+`NULL`), `design = 'external'` (with power prior arguments), and
+`prob = 'predictive'` (with `theta_NULL`, `m_t`, and `m_c`). The
+calibration plot and the returned `gamma_go`/`gamma_nogo` values are
+available for all combinations.
 
 ---
 

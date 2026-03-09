@@ -641,41 +641,43 @@ pbayespostpred1cont(
 
 ### 8.3 Go/NoGo Decision: Operating Characteristics
 
-```{r qs-oc}
+```{r qs-oc, fig.width = 8, fig.height = 6}
 # Operating characteristics for single binary endpoint
-pbayesdecisionprob1bin(
+oc_res <- pbayesdecisionprob1bin(
   prob      = 'posterior',
   design    = 'controlled',
-  theta_TV  = 0.20,  theta_MAV = 0.05,  theta_NULL = NULL,
+  theta_TV  = 0.30,  theta_MAV = 0.10,  theta_NULL = NULL,
   gamma_go  = 0.80,  gamma_nogo = 0.20,
-  pi_t      = c(0.15, 0.30, 0.50),
-  pi_c      = rep(0.15, 3),
+  pi_t      = seq(0.15, 0.9, l = 10),
+  pi_c      = rep(0.15, 10),
   n_t = 10,  n_c = 10,
   a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
   z = NULL, m_t = NULL, m_c = NULL,
   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
   alpha0e_t = NULL, alpha0e_c = NULL
 )
+print(oc_res)
+plot(oc_res, base_size = 20)
 ```
 
 ### 8.4 Optimal Threshold Search
 
-```{r qs-gamma}
-# Find gamma_go (smallest gamma s.t. Pr(Go) < 0.05 under null)
-# and gamma_nogo (largest gamma s.t. Pr(NoGo) < 0.20 under null)
-getgamma1bin(
+```{r qs-gamma, fig.width = 8, fig.height = 6}
+# Find gamma_go  : smallest gamma s.t. Pr(Go)   < 0.05 under Null (pi_t = pi_c = 0.15)
+# Find gamma_nogo: smallest gamma s.t. Pr(NoGo) < 0.20 under Alt  (pi_t = 0.35, pi_c = 0.15)
+gg_res <- getgamma1bin(
   prob = 'posterior', design = 'controlled',
-  theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
-  pi_t = 0.15, pi_c = 0.15,
+  theta_TV = 0.30, theta_MAV = 0.10, theta_NULL = NULL,
+  pi_t_go = 0.15, pi_c_go = 0.15,
+  pi_t_nogo = 0.35, pi_c_nogo = 0.15,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go = 'smallest', sel_nogo = 'largest',
   n_t = 12L, n_c = 12L,
   a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
   z = NULL, m_t = NULL, m_c = NULL,
   ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
   alpha0e_t = NULL, alpha0e_c = NULL
 )
+plot(gg_res, base_size = 20)
 ```
 
 ---

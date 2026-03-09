@@ -540,17 +540,24 @@ $\hat{g}_{\mathrm{NoGo}} \ge \gamma_2$ simultaneously) indicates an
 inconsistent threshold configuration and triggers an error by default
 (`error_if_Miss = TRUE`).
 
-### 5.2 Controlled Design -- Multiple Scenarios
+### 5.2 Example: Controlled Design, Posterior Probability
 
-Treatment effect scenarios are defined by varying $\boldsymbol{\mu}_t$
-(`mu_t`) while fixing $\boldsymbol{\mu}_c = (0, 0)^\top$ (`mu_c`):
+Treatment effect scenarios are defined over a two-dimensional grid of
+$(\mu_{t1}, \mu_{t2})$ while fixing
+$\boldsymbol{\mu}_c = (0, 0)^\top$.
+The full factorial combination of unique $\mu_{t1}$ and $\mu_{t2}$ values
+triggers the tile plot in `plot()`, with colour intensity encoding
+$\Pr(\mathrm{Go})$:
 
-```{r oc-controlled}
+```{r oc-controlled, fig.width = 8, fig.height = 6}
 Sigma <- matrix(c(4.0, 0.8, 0.8, 1.0), 2, 2)
-L0oc  <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
+
+mu_t1_seq <- seq(0.0, 3.5, by = 0.5)
+mu_t2_seq <- seq(0.0, 2.1, by = 0.3)
+n_scen    <- length(mu_t1_seq) * length(mu_t2_seq)
 
 oc_ctrl <- pbayesdecisionprob2cont(
-  nsim = 300L, prob = 'posterior', design = 'controlled',
+  nsim = 100L, prob = 'posterior', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
   gamma_go = 0.80, gamma_nogo = 0.20,
@@ -558,9 +565,10 @@ oc_ctrl <- pbayesdecisionprob2cont(
   theta_TV2  = 1.0, theta_MAV2 = 0.3,
   theta_NULL1 = NULL, theta_NULL2 = NULL,
   n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
-  mu_t = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
+  mu_t    = cbind(rep(mu_t1_seq, times = length(mu_t2_seq)),
+                  rep(mu_t2_seq, each  = length(mu_t1_seq))),
   Sigma_t = Sigma,
-  mu_c = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
+  mu_c    = matrix(0, nrow = n_scen, ncol = 2),
   Sigma_c = Sigma,
   kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
   kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
@@ -571,123 +579,16 @@ oc_ctrl <- pbayesdecisionprob2cont(
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 42L
 )
 print(oc_ctrl)
+plot(oc_ctrl, base_size = 20)
 ```
 
-### 5.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment Effect
-
-Operating characteristics are plotted as a function of the treatment
-effect on Endpoint 1 ($\mu_{t,1} - \mu_{c,1}$). Both endpoints increase
-together ($\mu_{t,2} = 0.6 \times \mu_{t,1}$) to show the transition
-from NoGo through Gray to Go clearly.
-
-```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect on Endpoint 1. Both endpoints increase proportionally (mu_t2 = 0.6 * mu_t1). Controlled design, vague prior, MC method. n_t = n_c = 20, gamma_go = 0.80, gamma_nogo = 0.20."}
-delta1_seq <- seq(0.0, 3.5, by = 0.25)
-
-oc_grid <- pbayesdecisionprob2cont(
-  nsim = 300L, prob = 'posterior', design = 'controlled',
-  prior = 'vague',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.80, gamma_nogo = 0.20,
-  theta_TV1  = 1.5, theta_MAV1 = 0.5,
-  theta_TV2  = 1.0, theta_MAV2 = 0.3,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
-  mu_t    = cbind(delta1_seq, 0.6 * delta1_seq),
-  Sigma_t = Sigma,
-  mu_c    = matrix(0, nrow = length(delta1_seq), ncol = 2),
-  Sigma_c = Sigma,
-  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
-  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
-  r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = 500L, CalcMethod = 'MC',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 42L
-)
-
-old_par <- par(mar = c(4.5, 4.5, 3, 1))
-
-plot(delta1_seq, oc_grid$Go,
-     type = "b", pch = 16, lwd = 2, col = "#2166AC",
-     ylim = c(0, 1),
-     xlab = expression(mu[paste("t,1")] - mu[paste("c,1")]),
-     ylab = "Probability",
-     main = "Operating Characteristics: Two Continuous Endpoints",
-     las  = 1)
-lines(delta1_seq, oc_grid$NoGo,
-      type = "b", pch = 17, lwd = 2, col = "#D6604D")
-lines(delta1_seq, oc_grid$Gray,
-      type = "b", pch = 15, lwd = 2, col = "#878787")
-
-abline(h = c(0.20, 0.80), lty = 2, col = "gray50")
-abline(v = c(0.5, 1.5),   lty = 3, col = "gray70")
-
-text(0.5 + 0.05, 0.04, expression(theta[MAV1]), col = "gray40", cex = 0.8, adj = 0)
-text(1.5 + 0.05, 0.04, expression(theta[TV1]),  col = "gray40", cex = 0.8, adj = 0)
-
-legend("right",
-       legend = c("Pr(Go)", "Pr(NoGo)", "Pr(Gray)"),
-       col    = c("#2166AC", "#D6604D", "#878787"),
-       pch    = c(16, 17, 15), lwd = 2, bty = "n")
-
-par(old_par)
-```
-
-### 5.4 Uncontrolled Design -- Operating Characteristics
-
-```{r oc-uncontrolled}
-oc_unctrl <- pbayesdecisionprob2cont(
-  nsim = 300L, prob = 'posterior', design = 'uncontrolled',
-  prior = 'N-Inv-Wishart',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.80, gamma_nogo = 0.20,
-  theta_TV1  = 1.5, theta_MAV1 = 0.5,
-  theta_TV2  = 1.0, theta_MAV2 = 0.3,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  n_t = 20L, n_c = NULL, m_t = NULL, m_c = NULL,
-  mu_t    = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
-  Sigma_t = Sigma,
-  mu_c    = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-  Sigma_c = Sigma,
-  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0oc,
-  kappa0_c = NULL, nu0_c = NULL, mu0_c = c(0.0, 0.0), Lambda0_c = NULL,
-  r = 1.0,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = 500L, CalcMethod = 'MC',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 1L
-)
-print(oc_unctrl)
-```
-
-### 5.5 External Control Design -- Operating Characteristics
-
-```{r oc-external}
-Se_c_oc <- matrix(c(7.0, 1.2, 1.2, 1.8), 2, 2)
-
-oc_ext <- pbayesdecisionprob2cont(
-  nsim = 300L, prob = 'posterior', design = 'external',
-  prior = 'N-Inv-Wishart',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.80, gamma_nogo = 0.20,
-  theta_TV1  = 1.5, theta_MAV1 = 0.5,
-  theta_TV2  = 1.0, theta_MAV2 = 0.3,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  n_t = 20L, n_c = 20L, m_t = NULL, m_c = NULL,
-  mu_t    = rbind(c(0.5, 0.3), c(1.5, 1.0), c(2.5, 1.5), c(3.5, 2.0)),
-  Sigma_t = Sigma,
-  mu_c    = rbind(c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 0.0)),
-  Sigma_c = Sigma,
-  kappa0_t = 2.0, nu0_t = 5.0, mu0_t = c(2.0, 1.0), Lambda0_t = L0oc,
-  kappa0_c = 2.0, nu0_c = 5.0, mu0_c = c(0.0, 0.0), Lambda0_c = L0oc,
-  r = NULL,
-  ne_t = NULL, ne_c = 15L, alpha0e_t = NULL, alpha0e_c = 0.5,
-  bar_ye_t = NULL, bar_ye_c = c(0.2, 0.1), se_t = NULL, se_c = Se_c_oc,
-  nMC = 500L, CalcMethod = 'MC',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE, seed = 2L
-)
-print(oc_ext)
-```
+The same function supports `design = 'uncontrolled'` (with hypothetical
+control mean `mu0_c` and scale factor `r`) and `design = 'external'`
+(with power prior arguments `ne_c`, `bar_ye_c`, `se_c`, `alpha0e_c`).
+The argument `prob = 'predictive'` switches to predictive probability
+(with future sample sizes `m_t`, `m_c` and null thresholds
+`theta_NULL1`, `theta_NULL2`). The function signature and output format
+are identical across all combinations.
 
 ---
 
@@ -698,51 +599,67 @@ print(oc_ext)
 Because there are two decision thresholds $(\gamma_1, \gamma_2)$, the
 optimal search is performed over a two-dimensional grid
 $\Gamma_1 \times \Gamma_2$ (arguments `gamma_go_grid` and `gamma_nogo_grid`).
+The two thresholds are calibrated independently under separate scenarios:
+
+- $\gamma_1^*$: calibrated under the Go-calibration scenario
+  (`mu_t_go`, `Sigma_t_go`, `mu_c_go`, `Sigma_c_go`; typically the
+  null scenario $\boldsymbol{\mu}_t = \boldsymbol{\mu}_c$), so that
+  $\Pr(\mathrm{Go}) < \texttt{target\_go}$.
+- $\gamma_2^*$: calibrated under the NoGo-calibration scenario
+  (`mu_t_nogo`, `Sigma_t_nogo`, `mu_c_nogo`, `Sigma_c_nogo`; typically
+  the alternative scenario), so that
+  $\Pr(\mathrm{NoGo}) < \texttt{target\_nogo}$.
 
 `getgamma2cont()` uses a three-stage strategy:
 
 Stage 1 (Simulate and precompute): $n_\mathrm{sim}$ bivariate datasets
-are generated from the scenario $(\boldsymbol{\mu}_t, \boldsymbol{\mu}_c,
-\Sigma_t, \Sigma_c)$.  For each replicate $i$,
-`pbayespostpred2cont()` is called once in vectorised mode to return the
-full region probability vector.  The Go and NoGo probabilities per
-replicate are:
+are generated separately from each calibration scenario.  For each
+replicate $i$, `pbayespostpred2cont()` is called once in vectorised
+mode to return the full region probability vector.  The marginal Go and
+NoGo probabilities per replicate are:
 
 $$\hat{g}_{\mathrm{Go},i} = \sum_{\ell \in \text{GoRegions}} \hat{p}_{i\ell}, \qquad
   \hat{g}_{\mathrm{NoGo},i} = \sum_{\ell \in \text{NoGoRegions}} \hat{p}_{i\ell}.$$
 
-Stage 2 (Gamma sweep): For every pair
-$(\gamma_1, \gamma_2) \in \Gamma_1 \times \Gamma_2$:
+Stage 2 (Gamma sweep): For each candidate $\gamma_1 \in \Gamma_1$
+(under the Go-calibration scenario) and each $\gamma_2 \in \Gamma_2$
+(under the NoGo-calibration scenario):
 
-$$\Pr(\mathrm{Go} \mid \gamma_1, \gamma_2) =
+$$\Pr(\mathrm{Go} \mid \gamma_1) =
   \frac{1}{n_\mathrm{sim}} \sum_{i=1}^{n_\mathrm{sim}}
-  \mathbf{1}\!\left[\hat{g}_{\mathrm{Go},i} \ge \gamma_1 \text{ and }
-  \hat{g}_{\mathrm{NoGo},i} < \gamma_2\right],$$
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{Go},i} \ge \gamma_1\right],$$
 
-$$\Pr(\mathrm{NoGo} \mid \gamma_1, \gamma_2) =
+$$\Pr(\mathrm{NoGo} \mid \gamma_2) =
   \frac{1}{n_\mathrm{sim}} \sum_{i=1}^{n_\mathrm{sim}}
-  \mathbf{1}\!\left[\hat{g}_{\mathrm{NoGo},i} \ge \gamma_2 \text{ and }
-  \hat{g}_{\mathrm{Go},i} < \gamma_1\right].$$
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{NoGo},i} \ge \gamma_2\right].$$
 
-The results are stored as $|\Gamma_1| \times |\Gamma_2|$ matrices
-`PrGo_grid` and `PrNoGo_grid` -- ideal for contour visualisation.
+The results are stored as vectors `PrGo_grid` and `PrNoGo_grid` indexed
+by `gamma_go_grid` and `gamma_nogo_grid`, respectively.
 
-Stage 3 (Optimal selection): For each candidate $\gamma_1$, the
-worst-case (maximum) $\Pr(\mathrm{Go})$ over all $\gamma_2$ is compared
-against `target_go` using `crit_go`; analogously for $\gamma_2$.
+Stage 3 (Optimal selection): $\gamma_1^*$ is the smallest grid value
+satisfying $\Pr(\mathrm{Go} \mid \gamma_1) < \texttt{target\_go}$;
+$\gamma_2^*$ is the smallest grid value satisfying
+$\Pr(\mathrm{NoGo} \mid \gamma_2) < \texttt{target\_nogo}$.
 
 ### 6.2 Example: Controlled Design, Posterior Probability
 
-```{r getgamma-ctrl}
+Go-calibration scenario: $\boldsymbol{\mu}_t = (0.5, 0.3)^\top$,
+$\boldsymbol{\mu}_c = (0, 0)^\top$ (effect at MAV boundary -- above which
+Go is not yet warranted, so $\Pr(\mathrm{Go}) < \texttt{target\_go}$ is
+required). NoGo-calibration scenario: $\boldsymbol{\mu}_t = (1.0, 0.6)^\top$,
+$\boldsymbol{\mu}_c = (0, 0)^\top$ (effect between MAV and TV -- above
+which NoGo should be unlikely).
+
+```{r getgamma-ctrl, fig.width = 8, fig.height = 6}
 res_gamma <- getgamma2cont(
   nsim = 500L, prob = 'posterior', design = 'controlled',
   prior = 'vague',
   GoRegions = 1L, NoGoRegions = 9L,
-  mu_t = c(0.5, 0.3), Sigma_t = Sigma,   # null: effect at MAV boundary
-  mu_c = c(0.0, 0.0), Sigma_c = Sigma,
+  mu_t_go    = c(0.5, 0.3), Sigma_t_go    = Sigma,
+  mu_c_go    = c(0.0, 0.0), Sigma_c_go    = Sigma,
+  mu_t_nogo  = c(1.0, 0.6), Sigma_t_nogo  = Sigma,
+  mu_c_nogo  = c(0.0, 0.0), Sigma_c_nogo  = Sigma,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go  = 'smallest', sel_nogo = 'largest',
   n_t = 20L, n_c = 20L,
   theta_TV1  = 1.5, theta_MAV1 = 0.5,
   theta_TV2  = 1.0, theta_MAV2 = 0.3,
@@ -754,147 +671,19 @@ res_gamma <- getgamma2cont(
   ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
   bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
   nMC = 500L, CalcMethod = 'MC',
-  gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+  gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
   gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
   seed = 42L
 )
-cat(sprintf("Optimal gamma1* = %.2f  (Pr(Go) = %.4f)\n",
-            res_gamma$gamma_go, res_gamma$PrGo_at_gamma_go))
-cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
-            res_gamma$gamma_nogo, res_gamma$PrNoGo_at_gamma_nogo))
+plot(res_gamma, base_size = 20)
 ```
 
-### 6.3 Figure: Contour Plot of Pr(Go) over $(\gamma_1, \gamma_2)$ Grid
-
-```{r gamma-contour-go, fig.cap = "Contour plot of Pr(Go) as a function of the candidate threshold pair (gamma1, gamma2) under the null scenario (mu_t = (0.5, 0.3), mu_c = (0, 0)). The dashed lines mark the optimal gamma1* (blue) and gamma2* (red). The 0.05 contour is highlighted in bold."}
-g1   <- res_gamma$gamma_go_grid
-g2   <- res_gamma$gamma_nogo_grid
-Z_go <- res_gamma$PrGo_grid   # rows = gamma1, cols = gamma2
-
-# Cap upper limit at 95th percentile to avoid sparse high-value bands
-go_upper  <- ceiling(quantile(Z_go, 0.95, na.rm = TRUE) * 20) / 20
-go_upper  <- max(go_upper, 0.10)
-go_breaks <- seq(0, go_upper, length.out = 11)
-go_cols   <- hcl.colors(10, palette = "Blues", rev = TRUE)
-
-layout(matrix(1:2, nrow = 1), widths = c(8, 2))
-par(mar = c(4.5, 4.5, 3.5, 1))
-
-image(x = g1, y = g2, z = pmin(Z_go, go_upper),
-      breaks = go_breaks, col = go_cols,
-      xlab = expression(gamma[1]),
-      ylab = expression(gamma[2]),
-      main = expression("Pr(Go) over (" * gamma[1] * ", " * gamma[2] * ") grid -- Null scenario"),
-      las  = 1)
-contour(x = g1, y = g2, z = Z_go,
-        levels = 0.05, add = TRUE,
-        lwd = 2.5, col = "#2166AC", labcex = 0.9)
-if (!is.na(res_gamma$gamma_go))
-  abline(v = res_gamma$gamma_go, lty = 2, lwd = 2, col = "#2166AC")
-if (!is.na(res_gamma$gamma_nogo))
-  abline(h = res_gamma$gamma_nogo, lty = 2, lwd = 2, col = "#D6604D")
-legend("topright",
-       legend = c(
-         paste0("gamma1* = ", res_gamma$gamma_go),
-         paste0("gamma2* = ", res_gamma$gamma_nogo),
-         "Pr(Go) = 0.05 contour"),
-       col = c("#2166AC", "#D6604D", "#2166AC"),
-       lty = c(2, 2, 1), lwd = c(2, 2, 2.5),
-       bty = "n", cex = 0.85)
-
-# Color bar
-par(mar = c(4.5, 0.5, 3.5, 3))
-plot(NULL, xlim = c(0, 1), ylim = c(0, go_upper), type = "n",
-     axes = FALSE, xlab = "", ylab = "")
-rect(0, go_breaks[-11], 1, go_breaks[-1],
-     col = go_cols,
-     border = NA)
-axis(4, at = seq(0, go_upper, length.out = 6), las = 1, cex.axis = 0.8)
-
-layout(1)
-par(mar = c(5, 4, 4, 2) + 0.1)
-```
-
-### 6.4 Figure: Contour Plot of Pr(NoGo) over $(\gamma_1, \gamma_2)$ Grid
-
-```{r gamma-contour-nogo, fig.cap = "Contour plot of Pr(NoGo) as a function of (gamma1, gamma2) under the null scenario. The 0.20 contour is highlighted in bold."}
-Z_nogo <- res_gamma$PrNoGo_grid
-
-nogo_upper  <- ceiling(quantile(Z_nogo, 0.95, na.rm = TRUE) * 20) / 20
-nogo_upper  <- max(nogo_upper, 0.30)
-nogo_breaks <- seq(0, nogo_upper, length.out = 11)
-nogo_cols   <- hcl.colors(10, palette = "Reds", rev = TRUE)
-
-layout(matrix(1:2, nrow = 1), widths = c(8, 2))
-par(mar = c(4.5, 4.5, 3.5, 1))
-
-image(x = g1, y = g2, z = pmin(Z_nogo, nogo_upper),
-      breaks = nogo_breaks, col = nogo_cols,
-      xlab = expression(gamma[1]),
-      ylab = expression(gamma[2]),
-      main = expression("Pr(NoGo) over (" * gamma[1] * ", " * gamma[2] * ") grid -- Null scenario"),
-      las  = 1)
-contour(x = g1, y = g2, z = Z_nogo,
-        levels = 0.20, add = TRUE,
-        lwd = 2.5, col = "#D6604D", labcex = 0.9)
-if (!is.na(res_gamma$gamma_go))
-  abline(v = res_gamma$gamma_go, lty = 2, lwd = 2, col = "#2166AC")
-if (!is.na(res_gamma$gamma_nogo))
-  abline(h = res_gamma$gamma_nogo, lty = 2, lwd = 2, col = "#D6604D")
-legend("topright",
-       legend = c(
-         paste0("gamma1* = ", res_gamma$gamma_go),
-         paste0("gamma2* = ", res_gamma$gamma_nogo),
-         "Pr(NoGo) = 0.20 contour"),
-       col = c("#2166AC", "#D6604D", "#D6604D"),
-       lty = c(2, 2, 1), lwd = c(2, 2, 2.5),
-       bty = "n", cex = 0.85)
-
-# Color bar
-par(mar = c(4.5, 0.5, 3.5, 3))
-plot(NULL, xlim = c(0, 1), ylim = c(0, nogo_upper), type = "n",
-     axes = FALSE, xlab = "", ylab = "")
-rect(0, nogo_breaks[-11], 1, nogo_breaks[-1],
-     col = nogo_cols,
-     border = NA)
-axis(4, at = seq(0, nogo_upper, length.out = 6), las = 1, cex.axis = 0.8)
-
-layout(1)
-par(mar = c(5, 4, 4, 2) + 0.1)
-```
-
-### 6.5 Example: Controlled Design, Predictive Probability
-
-```{r getgamma-pred}
-res_gamma_pred <- getgamma2cont(
-  nsim = 500L, prob = 'predictive', design = 'controlled',
-  prior = 'vague',
-  GoRegions = 1L, NoGoRegions = 4L,
-  mu_t = c(0.5, 0.3), Sigma_t = Sigma,
-  mu_c = c(0.0, 0.0), Sigma_c = Sigma,
-  target_go = 0.05, target_nogo = 0.20,
-  crit_go = '<', crit_nogo = '<',
-  sel_go  = 'smallest', sel_nogo = 'largest',
-  n_t = 20L, n_c = 20L,
-  theta_TV1 = NULL, theta_MAV1 = NULL,
-  theta_TV2 = NULL, theta_MAV2 = NULL,
-  theta_NULL1 = 0.5, theta_NULL2 = 0.3,
-  m_t = 60L, m_c = 60L,
-  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
-  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
-  r = NULL,
-  ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
-  bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
-  nMC = 500L, CalcMethod = 'MC',
-  gamma_go_grid = seq(0.05, 0.95, by = 0.05),
-  gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
-  seed = 3L
-)
-cat(sprintf("Optimal gamma1* = %.2f  (Pr(Go) = %.4f)\n",
-            res_gamma_pred$gamma_go, res_gamma_pred$PrGo_at_gamma_go))
-cat(sprintf("Optimal gamma2* = %.2f  (Pr(NoGo) = %.4f)\n",
-            res_gamma_pred$gamma_nogo, res_gamma_pred$PrNoGo_at_gamma_nogo))
-```
+The same function supports `design = 'uncontrolled'` (with `mu0_c` and
+`r`) and `design = 'external'` (with power prior arguments `ne_c`,
+`bar_ye_c`, `se_c`, `alpha0e_c`). Setting `prob = 'predictive'`
+switches to predictive probability calibration (with `theta_NULL1`,
+`theta_NULL2`, `m_t`, `m_c`). The function signature is identical
+across all combinations.
 
 ---
 
@@ -918,9 +707,10 @@ This vignette covered two continuous endpoint analysis in BayesianQDM:
 5. Operating characteristics: Monte Carlo estimation with vectorised
    region probability computation.
 6. Optimal threshold search: three-stage strategy in `getgamma2cont()`
-   producing $|\Gamma_1| \times |\Gamma_2|$ matrices `PrGo_grid` and
-   `PrNoGo_grid` -- visualised as contour plots with target level curves
-   ($\Pr(\mathrm{Go}) < 0.05$ under null, $\Pr(\mathrm{NoGo}) \ge 0.20$
-   under null).
+   calibrating $\gamma_1^*$ and $\gamma_2^*$ independently under separate
+   Go- and NoGo-calibration scenarios, with calibration curves visualised
+   via `plot()` and optimal thresholds marked at the target probability levels
+   ($\Pr(\mathrm{Go}) < 0.05$ under null, $\Pr(\mathrm{NoGo}) < 0.20$
+   under alternative).
 
 See `vignette("two-binary")` for the analogous two binary endpoint analysis.

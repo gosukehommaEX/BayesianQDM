@@ -65,6 +65,23 @@ devtools::install_github("gosukehommaEX/BayesianQDM")
 | `getgamma2bin()` | Find optimal Go/NoGo thresholds for two binary endpoints |
 | `getgamma2cont()` | Find optimal Go/NoGo thresholds for two continuous endpoints |
 
+### S3 Methods
+
+| Function | Description |
+|---|---|
+| `print.pbayesdecisionprob1bin()` | Print method for `pbayesdecisionprob1bin` objects |
+| `print.pbayesdecisionprob1cont()` | Print method for `pbayesdecisionprob1cont` objects |
+| `print.pbayesdecisionprob2bin()` | Print method for `pbayesdecisionprob2bin` objects |
+| `print.pbayesdecisionprob2cont()` | Print method for `pbayesdecisionprob2cont` objects |
+| `plot.pbayesdecisionprob1bin()` | Plot method for `pbayesdecisionprob1bin` objects |
+| `plot.pbayesdecisionprob1cont()` | Plot method for `pbayesdecisionprob1cont` objects |
+| `plot.pbayesdecisionprob2bin()` | Plot method for `pbayesdecisionprob2bin` objects |
+| `plot.pbayesdecisionprob2cont()` | Plot method for `pbayesdecisionprob2cont` objects |
+| `plot.getgamma1bin()` | Plot method for `getgamma1bin` objects |
+| `plot.getgamma1cont()` | Plot method for `getgamma1cont` objects |
+| `plot.getgamma2bin()` | Plot method for `getgamma2bin` objects |
+| `plot.getgamma2cont()` | Plot method for `getgamma2cont` objects |
+
 ### Distribution and Utility Functions
 
 | Function | Description |

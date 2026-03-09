@@ -34,6 +34,21 @@ and continuous outcomes.
   displays Go/NoGo/Gray decision probabilities as a tile or scatter plot over a
   two-dimensional treatment scenario grid
 
+### S3 Methods for Optimal Threshold Search Classes
+
+* `plot.getgamma1bin()` - Plot method for `getgamma1bin` objects; displays
+  calibration curves of marginal Go and NoGo probabilities against the threshold
+  grid for a single binary endpoint
+* `plot.getgamma1cont()` - Plot method for `getgamma1cont` objects; displays
+  calibration curves of marginal Go and NoGo probabilities against the threshold
+  grid for a single continuous endpoint
+* `plot.getgamma2bin()` - Plot method for `getgamma2bin` objects; displays
+  calibration curves of marginal Go and NoGo probabilities against the threshold
+  grid for two binary endpoints
+* `plot.getgamma2cont()` - Plot method for `getgamma2cont` objects; displays
+  calibration curves of marginal Go and NoGo probabilities against the threshold
+  grid for two continuous endpoints
+
 ### Posterior and Predictive Probability Functions
 
 * `pbayespostpred1bin()` - Posterior or predictive probability for a single binary

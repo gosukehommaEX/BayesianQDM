@@ -26,12 +26,16 @@ reference:
   - print.pbayesdecisionprob2cont
 
 - title: Plot Methods
-  desc: S3 plot methods for decision probability objects
+  desc: S3 plot methods for decision probability and threshold search objects
   contents:
   - plot.pbayesdecisionprob1bin
   - plot.pbayesdecisionprob1cont
   - plot.pbayesdecisionprob2bin
   - plot.pbayesdecisionprob2cont
+  - plot.getgamma1bin
+  - plot.getgamma1cont
+  - plot.getgamma2bin
+  - plot.getgamma2cont
 
 - title: Posterior and Predictive Probability Functions
   desc: Posterior and posterior predictive probability calculation

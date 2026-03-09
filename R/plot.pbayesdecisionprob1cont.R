@@ -95,20 +95,13 @@ plot.pbayesdecisionprob1cont <- function(x,
   x_breaks <- x_breaks[x_breaks >= x_min & x_breaks <= x_max]
 
   # --- Compute threshold positions on the x-axis ---
+  # theta_TV, theta_MAV, and theta_NULL are already on the difference scale
+  # (mu_t - mu_c), so they map directly to the x-axis without adjustment.
   if (prob == "posterior") {
-    if (design %in% c("controlled", "external")) {
-      vline_TV  <- theta_TV  - mu_c_mean
-      vline_MAV <- theta_MAV - mu_c_mean
-    } else {
-      vline_TV  <- theta_TV
-      vline_MAV <- theta_MAV
-    }
+    vline_TV  <- theta_TV
+    vline_MAV <- theta_MAV
   } else {
-    if (design %in% c("controlled", "external")) {
-      vline_NULL <- theta_NULL - mu_c_mean
-    } else {
-      vline_NULL <- theta_NULL
-    }
+    vline_NULL <- theta_NULL
   }
 
   # --- Annotation y position: slightly below the top of the plot ---

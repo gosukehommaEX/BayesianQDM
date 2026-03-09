@@ -26,7 +26,7 @@ with two co-primary binary endpoints:
 - Endpoint 1: ACR20 response (1 = responder, 0 = non-responder)
 - Endpoint 2: DAS28 remission (1 = achieved, 0 = not achieved)
 
-The trial enrolls $n_t = n_c = 10$ patients per group in a 1:1 randomised
+The trial enrolls $n_t = n_c = 7$ patients per group in a 1:1 randomised
 controlled design.
 
 Clinically meaningful thresholds (posterior probability):
@@ -46,13 +46,13 @@ four response patterns $(Y_{i,1}, Y_{i,2}) \in \{(0,0),(0,1),(1,0),(1,1)\}$:
 
 | Pattern | Treatment ($x_{t,lm}$) | Control ($x_{c,lm}$) |
 |---------|:---:|:---:|
-| (0, 0)  | 2   | 4   |
-| (0, 1)  | 1   | 2   |
-| (1, 0)  | 3   | 2   |
-| (1, 1)  | 4   | 2   |
+| (0, 0)  | 1   | 2   |
+| (0, 1)  | 1   | 1   |
+| (1, 0)  | 2   | 2   |
+| (1, 1)  | 3   | 2   |
 
-Marginal responder counts: treatment $y_{t,1} = 7$, $y_{t,2} = 5$;
-control $y_{c,1} = 4$, $y_{c,2} = 4$.
+Marginal responder counts: treatment $y_{t,1} = 5$, $y_{t,2} = 4$;
+control $y_{c,1} = 4$, $y_{c,2} = 3$.
 
 ---
 
@@ -297,8 +297,8 @@ p_post_ctrl <- pbayespostpred2bin(
   theta_TV1 = 0.20, theta_MAV1 = 0.10,
   theta_TV2 = 0.20, theta_MAV2 = 0.10,
   theta_NULL1 = NULL, theta_NULL2 = NULL,
-  x_t_00 = 2L, x_t_01 = 1L, x_t_10 = 3L, x_t_11 = 4L,
-  x_c_00 = 4L, x_c_01 = 2L, x_c_10 = 2L, x_c_11 = 2L,
+  x_t_00 = 1L, x_t_01 = 1L, x_t_10 = 2L, x_t_11 = 3L,
+  x_c_00 = 2L, x_c_01 = 1L, x_c_10 = 2L, x_c_11 = 2L,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
   m_t = NULL, m_c = NULL,
@@ -328,8 +328,8 @@ p_pred_ctrl <- pbayespostpred2bin(
   theta_TV1 = NULL, theta_MAV1 = NULL,
   theta_TV2 = NULL, theta_MAV2 = NULL,
   theta_NULL1 = 0.15, theta_NULL2 = 0.15,
-  x_t_00 = 2L, x_t_01 = 1L, x_t_10 = 3L, x_t_11 = 4L,
-  x_c_00 = 4L, x_c_01 = 2L, x_c_10 = 2L, x_c_11 = 2L,
+  x_t_00 = 1L, x_t_01 = 1L, x_t_10 = 2L, x_t_11 = 3L,
+  x_c_00 = 2L, x_c_01 = 1L, x_c_10 = 2L, x_c_11 = 2L,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
   m_t = 15L, m_c = 15L,
@@ -369,7 +369,7 @@ p_unctrl <- pbayespostpred2bin(
   theta_TV1 = 0.20, theta_MAV1 = 0.10,
   theta_TV2 = 0.20, theta_MAV2 = 0.10,
   theta_NULL1 = NULL, theta_NULL2 = NULL,
-  x_t_00 = 2L, x_t_01 = 1L, x_t_10 = 3L, x_t_11 = 4L,
+  x_t_00 = 1L, x_t_01 = 1L, x_t_10 = 2L, x_t_11 = 3L,
   x_c_00 = NULL, x_c_01 = NULL, x_c_10 = NULL, x_c_11 = NULL,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
@@ -411,8 +411,8 @@ p_ext <- pbayespostpred2bin(
   theta_TV1 = 0.20, theta_MAV1 = 0.10,
   theta_TV2 = 0.20, theta_MAV2 = 0.10,
   theta_NULL1 = NULL, theta_NULL2 = NULL,
-  x_t_00 = 2L, x_t_01 = 1L, x_t_10 = 3L, x_t_11 = 4L,
-  x_c_00 = 4L, x_c_01 = 2L, x_c_10 = 2L, x_c_11 = 2L,
+  x_t_00 = 1L, x_t_01 = 1L, x_t_10 = 2L, x_t_11 = 3L,
+  x_c_00 = 2L, x_c_01 = 1L, x_c_10 = 2L, x_c_11 = 2L,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
   m_t = NULL, m_c = NULL,
@@ -436,8 +436,8 @@ p_ae <- sapply(ae_seq, function(ae) {
     theta_TV1 = 0.20, theta_MAV1 = 0.10,
     theta_TV2 = 0.20, theta_MAV2 = 0.10,
     theta_NULL1 = NULL, theta_NULL2 = NULL,
-    x_t_00 = 2L, x_t_01 = 1L, x_t_10 = 3L, x_t_11 = 4L,
-    x_c_00 = 4L, x_c_01 = 2L, x_c_10 = 2L, x_c_11 = 2L,
+    x_t_00 = 1L, x_t_01 = 1L, x_t_10 = 2L, x_t_11 = 3L,
+    x_c_00 = 2L, x_c_01 = 1L, x_c_10 = 2L, x_c_11 = 2L,
     a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
     a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
     m_t = NULL, m_c = NULL,
@@ -506,52 +506,23 @@ into $K \ll n_\mathrm{sim}$ unique pairs, and evaluates
 > `nMC` (100--500) and `n_t = n_c = 10` for demonstration; switch to
 > `CalcMethod = 'MC'` with moderate `nsim` for larger sample sizes.
 
-### 4.2 Controlled Design --- Multiple Scenarios
+### 4.2 Example: Controlled Design, Posterior Probability
 
-```{r oc-controlled}
+```{r oc-controlled, fig.width = 8, fig.height = 6}
+pi_t_seq <- seq(0.20, 0.90, by = 0.10)
+n_scen   <- length(pi_t_seq)
+
 oc_ctrl <- pbayesdecisionprob2bin(
   prob = 'posterior', design = 'controlled',
   GoRegions = 1L, NoGoRegions = 9L,
   gamma_go = 0.80, gamma_nogo = 0.80,
-  pi_t1 = c(0.15, 0.30, 0.50),
-  pi_t2 = c(0.15, 0.30, 0.50),
-  rho_t = c(0.0,  0.0,  0.0),
-  pi_c1 = rep(0.15, 3),
-  pi_c2 = rep(0.15, 3),
-  rho_c = rep(0.0,  3),
-  n_t = 10L, n_c = 10L,
-  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
-  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
-  m_t = NULL, m_c = NULL,
-  theta_TV1  = 0.20, theta_MAV1 = 0.10,
-  theta_TV2  = 0.20, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  nMC = 500L, CalcMethod = 'Exact',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
-)
-print(oc_ctrl)
-```
-
-### 4.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment Effect
-
-```{r oc-plot, fig.cap = "Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect on Endpoint 1 (pi_t1 - pi_c1) with equal effects on both endpoints and independence (rho = 0). Controlled design, Jeffreys prior, Exact method. n_t = n_c = 10, gamma_go = gamma_nogo = 0.80."}
-pi_t_seq <- seq(0.15, 0.65, by = 0.05)
-n_scen   <- length(pi_t_seq)
-
-oc_grid <- pbayesdecisionprob2bin(
-  prob = 'posterior', design = 'controlled',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.80, gamma_nogo = 0.80,
-  pi_t1 = pi_t_seq, pi_t2 = pi_t_seq,
-  rho_t = rep(0.0, n_scen),
-  pi_c1 = rep(0.15, n_scen),
-  pi_c2 = rep(0.15, n_scen),
-  rho_c = rep(0.0,  n_scen),
-  n_t = 10L, n_c = 10L,
+  pi_t1 = rep(pi_t_seq, each = n_scen),
+  pi_t2 = rep(pi_t_seq, times = n_scen),
+  rho_t = rep(0.0, n_scen * n_scen),
+  pi_c1 = rep(0.20, n_scen * n_scen),
+  pi_c2 = rep(0.20, n_scen * n_scen),
+  rho_c = rep(0.0,  n_scen * n_scen),
+  n_t = 7L, n_c = 7L,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
   m_t = NULL, m_c = NULL,
@@ -565,132 +536,18 @@ oc_grid <- pbayesdecisionprob2bin(
   nMC = 200L, CalcMethod = 'Exact',
   error_if_Miss = TRUE, Gray_inc_Miss = FALSE
 )
-
-delta1 <- oc_grid$pi_t1 - 0.15
-
-old_par <- par(mar = c(4.5, 4.5, 3, 1))
-
-plot(delta1, oc_grid$Go,
-     type = "b", pch = 16, lwd = 2, col = "#2166AC",
-     ylim = c(0, 1),
-     xlab = expression(pi[t1] - pi[c1]),
-     ylab = "Probability",
-     main = "Operating Characteristics: Two Binary Endpoints",
-     las  = 1)
-lines(delta1, oc_grid$NoGo,
-      type = "b", pch = 17, lwd = 2, col = "#D6604D")
-lines(delta1, oc_grid$Gray,
-      type = "b", pch = 15, lwd = 2, col = "#878787")
-
-abline(h = c(0.20, 0.80), lty = 2, col = "gray50")
-abline(v = c(0.10, 0.20), lty = 3, col = "gray70")
-
-text(0.10 + 0.005, 0.04,
-     expression(theta[MAV1]), col = "gray40", cex = 0.8, adj = 0)
-text(0.20 + 0.005, 0.04,
-     expression(theta[TV1]),  col = "gray40", cex = 0.8, adj = 0)
-
-legend("right",
-       legend = c("Pr(Go)", "Pr(NoGo)", "Pr(Gray)"),
-       col    = c("#2166AC", "#D6604D", "#878787"),
-       pch    = c(16, 17, 15), lwd = 2, bty = "n")
-
-par(old_par)
+print(oc_ctrl)
+plot(oc_ctrl, base_size = 20)
 ```
 
-### 4.4 Effect of Within-Group Correlation
-
-The within-group correlation $\rho_t$ affects the operating characteristics
-because it changes the joint cell probabilities and hence the multinomial
-weight distribution.
-
-```{r oc-correlation}
-rho_seq <- c(-0.3, 0.0, 0.3)
-
-oc_rho <- pbayesdecisionprob2bin(
-  prob = 'posterior', design = 'controlled',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.80, gamma_nogo = 0.80,
-  pi_t1 = rep(0.40, 3), pi_t2 = rep(0.40, 3),
-  rho_t = rho_seq,
-  pi_c1 = rep(0.15, 3), pi_c2 = rep(0.15, 3),
-  rho_c = rep(0.0,  3),
-  n_t = 10L, n_c = 10L,
-  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
-  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
-  m_t = NULL, m_c = NULL,
-  theta_TV1  = 0.20, theta_MAV1 = 0.10,
-  theta_TV2  = 0.20, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  nMC = 500L, CalcMethod = 'Exact',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
-)
-print(oc_rho)
-```
-
-### 4.5 Uncontrolled Design --- Operating Characteristics
-
-```{r oc-uncontrolled}
-oc_unctrl <- pbayesdecisionprob2bin(
-  prob = 'posterior', design = 'uncontrolled',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.80, gamma_nogo = 0.80,
-  pi_t1 = c(0.15, 0.30, 0.50),
-  pi_t2 = c(0.15, 0.30, 0.50),
-  rho_t = c(0.0,  0.0,  0.0),
-  pi_c1 = rep(0.15, 3),
-  pi_c2 = rep(0.15, 3),
-  rho_c = rep(0.0,  3),
-  n_t = 10L, n_c = 10L,
-  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
-  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
-  m_t = NULL, m_c = NULL,
-  theta_TV1  = 0.20, theta_MAV1 = 0.10,
-  theta_TV2  = 0.20, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  z00 = 3L, z01 = 2L, z10 = 2L, z11 = 1L,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  nMC = 500L, CalcMethod = 'Exact',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
-)
-print(oc_unctrl)
-```
-
-### 4.6 External Control Design --- Operating Characteristics
-
-```{r oc-external}
-oc_ext <- pbayesdecisionprob2bin(
-  prob = 'posterior', design = 'external',
-  GoRegions = 1L, NoGoRegions = 9L,
-  gamma_go = 0.80, gamma_nogo = 0.80,
-  pi_t1 = c(0.15, 0.30, 0.50),
-  pi_t2 = c(0.15, 0.30, 0.50),
-  rho_t = c(0.0,  0.0,  0.0),
-  pi_c1 = rep(0.15, 3),
-  pi_c2 = rep(0.15, 3),
-  rho_c = rep(0.0,  3),
-  n_t = 10L, n_c = 10L,
-  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
-  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
-  m_t = NULL, m_c = NULL,
-  theta_TV1  = 0.20, theta_MAV1 = 0.10,
-  theta_TV2  = 0.20, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = 3L,   xe_c_01 = 2L,   xe_c_10 = 3L,   xe_c_11 = 2L,
-  alpha0e_t = NULL, alpha0e_c = 0.5,
-  nMC = 500L, CalcMethod = 'Exact',
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
-)
-print(oc_ext)
-```
+The same function supports `design = 'uncontrolled'` (with hypothetical
+count vector arguments `z00`, `z01`, `z10`, `z11`),
+`design = 'external'` (with power prior arguments `xe_c_00`, ...,
+`xe_c_11` and `alpha0e_c`), and `prob = 'predictive'` (with future
+sample size arguments `m_t`, `m_c` and `theta_NULL1`, `theta_NULL2`).
+The within-group correlation `rho_t` can also be varied to study its
+effect on the operating characteristics. The function signature and
+output format are identical across all combinations.
 
 ---
 
@@ -703,6 +560,16 @@ by the same two-stage precompute-then-sweep strategy as
 `pbayesdecisionprob2bin()`, but sweeps over the two-dimensional grid
 $\Gamma_{\mathrm{go}} \times \Gamma_{\mathrm{nogo}}$
 (`gamma_go_grid` $\times$ `gamma_nogo_grid`).
+The two thresholds are calibrated independently under separate scenarios:
+
+- $\gamma_{\mathrm{go}}^*$: calibrated under the Go-calibration scenario
+  (`pi_t1_go`, `pi_t2_go`, `rho_t_go`, `pi_c1_go`, `pi_c2_go`,
+  `rho_c_go`; typically the null scenario $\pi_t = \pi_c$), so that
+  $\Pr(\mathrm{Go}) < \texttt{target_go}$.
+- $\gamma_{\mathrm{nogo}}^*$: calibrated under the NoGo-calibration scenario
+  (`pi_t1_nogo`, `pi_t2_nogo`, `rho_t_nogo`, `pi_c1_nogo`,
+  `pi_c2_nogo`, `rho_c_nogo`; typically the alternative scenario), so
+  that $\Pr(\mathrm{NoGo}) < \texttt{target_nogo}$.
 
 Stage 1 (precomputation): `pbayespostpred2bin()` is called for every
 unique multinomial outcome combination $(\mathbf{x}_{t,i}, \mathbf{x}_{c,j})$
@@ -732,19 +599,19 @@ against `target_go`; analogously for $\gamma_{\mathrm{nogo}}$.
 
 ### 5.2 Example: Controlled Design, Posterior Probability
 
-Null scenario: $\pi_{t1} = \pi_{c1} = 0.15$, $\pi_{t2} = \pi_{c2} = 0.15$,
+Null scenario: $\pi_{t1} = \pi_{c1} = 0.20$, $\pi_{t2} = \pi_{c2} = 0.20$,
 $\rho_t = \rho_c = 0$ (no treatment effect, independence).
 
-```{r getgamma-ctrl}
+```{r getgamma-ctrl, fig.width = 8, fig.height = 6}
 res_gamma <- getgamma2bin(
   prob = 'posterior', design = 'controlled',
   GoRegions = 1L, NoGoRegions = 9L,
-  pi_t1 = 0.15, pi_t2 = 0.15, rho_t = 0.0,
-  pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
+  pi_t1_go = 0.20, pi_t2_go = 0.20, rho_t_go = 0.0,
+  pi_c1_go = 0.20, pi_c2_go = 0.20, rho_c_go = 0.0,
+  pi_t1_nogo = 0.40, pi_t2_nogo = 0.40, rho_t_nogo = 0.0,
+  pi_c1_nogo = 0.20, pi_c2_nogo = 0.20, rho_c_nogo = 0.0,
   target_go = 0.05, target_nogo = 0.20,
-  crit_go   = '<',  crit_nogo   = '<',
-  sel_go    = 'smallest', sel_nogo = 'largest',
-  n_t = 10L, n_c = 10L,
+  n_t = 7L, n_c = 7L,
   a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
   a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
   theta_TV1  = 0.20, theta_MAV1 = 0.10,
@@ -759,181 +626,15 @@ res_gamma <- getgamma2bin(
   gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
   gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
 )
-cat(sprintf("Optimal gamma_go*   = %.2f  (Pr(Go) = %.4f)\n",
-            res_gamma$gamma_go, res_gamma$PrGo_at_gamma_go))
-cat(sprintf("Optimal gamma_nogo* = %.2f  (Pr(NoGo) = %.4f)\n",
-            res_gamma$gamma_nogo, res_gamma$PrNoGo_at_gamma_nogo))
+plot(res_gamma, base_size = 20)
 ```
 
-### 5.3 Figure: Contour Plot of Pr(Go) over $(\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}})$ Grid
-
-```{r gamma-contour-go, fig.cap = "Contour plot of Pr(Go) as a function of the candidate threshold pair (gamma_go, gamma_nogo) under the null scenario (pi_t = pi_c = (0.15, 0.15), rho = 0). The 0.05 target contour is highlighted in bold (blue). Dashed lines mark the optimal gamma_go* (blue) and gamma_nogo* (red)."}
-g_go   <- res_gamma$gamma_go_grid
-g_nogo <- res_gamma$gamma_nogo_grid
-Z_go   <- res_gamma$PrGo_grid   # rows = gamma_go, cols = gamma_nogo
-
-go_upper  <- ceiling(quantile(Z_go, 0.95, na.rm = TRUE) * 20) / 20
-go_upper  <- max(go_upper, 0.10)
-go_breaks <- seq(0, go_upper, length.out = 11)
-go_cols   <- hcl.colors(10, palette = "Blues", rev = TRUE)
-
-layout(matrix(1:2, nrow = 1), widths = c(8, 2))
-par(mar = c(4.5, 4.5, 3.5, 1))
-
-image(x = g_go, y = g_nogo, z = pmin(Z_go, go_upper),
-      breaks = go_breaks, col = go_cols,
-      xlab = expression(gamma[go]),
-      ylab = expression(gamma[nogo]),
-      main = expression("Pr(Go) over (" * gamma[go] * ", " * gamma[nogo] * ") grid"),
-      las  = 1,
-      useRaster = TRUE)
-contour(x = g_go, y = g_nogo, z = Z_go,
-        levels = 0.05, add = TRUE,
-        lwd = 2.5, col = "#2166AC", labcex = 0.9)
-if (!is.na(res_gamma$gamma_go))
-  abline(v = res_gamma$gamma_go,   lty = 2, lwd = 2, col = "#2166AC")
-if (!is.na(res_gamma$gamma_nogo))
-  abline(h = res_gamma$gamma_nogo, lty = 2, lwd = 2, col = "#D6604D")
-legend("topright",
-       legend = c(
-         paste0("gamma_go* = ",   res_gamma$gamma_go),
-         paste0("gamma_nogo* = ", res_gamma$gamma_nogo),
-         "Pr(Go) = 0.05 contour"),
-       col = c("#2166AC", "#D6604D", "#2166AC"),
-       lty = c(2, 2, 1), lwd = c(2, 2, 2.5),
-       bty = "n", cex = 0.85)
-
-# Color bar
-par(mar = c(4.5, 0.5, 3.5, 3))
-plot(NULL, xlim = c(0, 1), ylim = c(0, go_upper), type = "n",
-     axes = FALSE, xlab = "", ylab = "")
-rect(0, go_breaks[-11], 1, go_breaks[-1],
-     col = go_cols,
-     border = NA)
-axis(4, at = seq(0, go_upper, length.out = 6), las = 1, cex.axis = 0.8)
-
-layout(1)
-par(mar = c(5, 4, 4, 2) + 0.1)
-```
-
-### 5.4 Figure: Contour Plot of Pr(NoGo) over $(\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}})$ Grid
-
-```{r gamma-contour-nogo, fig.cap = "Contour plot of Pr(NoGo) as a function of (gamma_go, gamma_nogo) under the null scenario. The 0.20 target contour is highlighted in bold (red). Dashed lines mark the optimal thresholds."}
-Z_nogo <- res_gamma$PrNoGo_grid
-
-nogo_upper  <- ceiling(quantile(Z_nogo, 0.95, na.rm = TRUE) * 20) / 20
-nogo_upper  <- max(nogo_upper, 0.30)
-nogo_breaks <- seq(0, nogo_upper, length.out = 11)
-nogo_cols   <- hcl.colors(10, palette = "Reds", rev = TRUE)
-
-layout(matrix(1:2, nrow = 1), widths = c(8, 2))
-par(mar = c(4.5, 4.5, 3.5, 1))
-
-image(x = g_go, y = g_nogo, z = pmin(Z_nogo, nogo_upper),
-      breaks = nogo_breaks, col = nogo_cols,
-      xlab = expression(gamma[go]),
-      ylab = expression(gamma[nogo]),
-      main = expression("Pr(NoGo) over (" * gamma[go] * ", " * gamma[nogo] * ") grid -- Null scenario"),
-      las  = 1)
-contour(x = g_go, y = g_nogo, z = Z_nogo,
-        levels = 0.20, add = TRUE,
-        lwd = 2.5, col = "#D6604D", labcex = 0.9)
-if (!is.na(res_gamma$gamma_go))
-  abline(v = res_gamma$gamma_go,   lty = 2, lwd = 2, col = "#2166AC")
-if (!is.na(res_gamma$gamma_nogo))
-  abline(h = res_gamma$gamma_nogo, lty = 2, lwd = 2, col = "#D6604D")
-legend("topright",
-       legend = c(
-         paste0("gamma_go* = ",   res_gamma$gamma_go),
-         paste0("gamma_nogo* = ", res_gamma$gamma_nogo),
-         "Pr(NoGo) = 0.20 contour"),
-       col = c("#2166AC", "#D6604D", "#D6604D"),
-       lty = c(2, 2, 1), lwd = c(2, 2, 2.5),
-       bty = "n", cex = 0.85)
-
-# Color bar
-par(mar = c(4.5, 0.5, 3.5, 3))
-plot(NULL, xlim = c(0, 1), ylim = c(0, nogo_upper), type = "n",
-     axes = FALSE, xlab = "", ylab = "")
-rect(0, nogo_breaks[-11], 1, nogo_breaks[-1],
-     col = nogo_cols,
-     border = NA)
-axis(4, at = seq(0, nogo_upper, length.out = 6), las = 1, cex.axis = 0.8)
-
-layout(1)
-par(mar = c(5, 4, 4, 2) + 0.1)
-```
-
-### 5.5 Example: Uncontrolled Design, Posterior Probability
-
-```{r getgamma-unctrl}
-res_gamma_unctrl <- getgamma2bin(
-  prob = 'posterior', design = 'uncontrolled',
-  GoRegions = 1L, NoGoRegions = 9L,
-  pi_t1 = 0.15, pi_t2 = 0.15, rho_t = 0.0,
-  pi_c1 = NULL, pi_c2 = NULL, rho_c = NULL,
-  target_go = 0.05, target_nogo = 0.20,
-  crit_go   = '<',  crit_nogo   = '<',
-  sel_go    = 'smallest', sel_nogo = 'largest',
-  n_t = 10L, n_c = 10L,
-  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
-  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
-  theta_TV1  = 0.20, theta_MAV1 = 0.10,
-  theta_TV2  = 0.20, theta_MAV2 = 0.10,
-  theta_NULL1 = NULL, theta_NULL2 = NULL,
-  m_t = NULL, m_c = NULL,
-  z00 = 3L, z01 = 2L, z10 = 2L, z11 = 1L,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  nMC = 200L,
-  gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
-  gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
-)
-cat(sprintf("Optimal gamma_go*   = %.2f  (Pr(Go) = %.4f)\n",
-            res_gamma_unctrl$gamma_go, res_gamma_unctrl$PrGo_at_gamma_go))
-cat(sprintf("Optimal gamma_nogo* = %.2f  (Pr(NoGo) = %.4f)\n",
-            res_gamma_unctrl$gamma_nogo, res_gamma_unctrl$PrNoGo_at_gamma_nogo))
-```
-
-### 5.6 Example: Controlled Design, Predictive Probability
-
-> **Note.** When `prob = 'predictive'`, `getgamma2bin()` must evaluate
-> `pbayespostpred2bin()` for every outcome combination $(\mathbf{x}_{t,i}, \mathbf{x}_{c,j})$
-> using `nMC` Dirichlet draws and $m_j$ future observations each. This
-> substantially increases computation time relative to the posterior case.
-> The `CalcMethod = 'MC'` option with moderate `nsim` and small `nMC` is
-> recommended for vignette-level demonstration.
-
-```{r getgamma-pred}
-res_gamma_pred <- getgamma2bin(
-  prob = 'predictive', design = 'controlled',
-  GoRegions = 1L, NoGoRegions = 4L,
-  pi_t1 = 0.15, pi_t2 = 0.15, rho_t = 0.0,
-  pi_c1 = 0.15, pi_c2 = 0.15, rho_c = 0.0,
-  target_go = 0.05, target_nogo = 0.20,
-  crit_go   = '<',  crit_nogo   = '<',
-  sel_go    = 'smallest', sel_nogo = 'largest',
-  n_t = 10L, n_c = 10L,
-  a_t_00 = 0.25, a_t_01 = 0.25, a_t_10 = 0.25, a_t_11 = 0.25,
-  a_c_00 = 0.25, a_c_01 = 0.25, a_c_10 = 0.25, a_c_11 = 0.25,
-  theta_TV1  = NULL, theta_MAV1 = NULL,
-  theta_TV2  = NULL, theta_MAV2 = NULL,
-  theta_NULL1 = 0.15, theta_NULL2 = 0.15,
-  m_t = 15L, m_c = 15L,
-  z00 = NULL, z01 = NULL, z10 = NULL, z11 = NULL,
-  xe_t_00 = NULL, xe_t_01 = NULL, xe_t_10 = NULL, xe_t_11 = NULL,
-  xe_c_00 = NULL, xe_c_01 = NULL, xe_c_10 = NULL, xe_c_11 = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  nMC = 100L,
-  gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
-  gamma_nogo_grid = seq(0.05, 0.95, by = 0.05)
-)
-cat(sprintf("Optimal gamma_go*   = %.2f  (Pr(Go) = %.4f)\n",
-            res_gamma_pred$gamma_go, res_gamma_pred$PrGo_at_gamma_go))
-cat(sprintf("Optimal gamma_nogo* = %.2f  (Pr(NoGo) = %.4f)\n",
-            res_gamma_pred$gamma_nogo, res_gamma_pred$PrNoGo_at_gamma_nogo))
-```
+The same function supports `design = 'uncontrolled'` (with `pi_t1_go`,
+`pi_t2_go`, `rho_t_go`, `pi_t1_nogo`, `pi_t2_nogo`, `rho_t_nogo`; set
+`pi_c*_go` and `pi_c*_nogo` to `NULL`), `design = 'external'` (with power
+prior arguments), and `prob = 'predictive'` (with `theta_NULL1`,
+`theta_NULL2`, `m_t`, and `m_c`). The calibration plot and the returned
+`gamma_go`/`gamma_nogo` values are available for all combinations.
 
 ---
 
