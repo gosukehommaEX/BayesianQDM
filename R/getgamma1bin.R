@@ -115,6 +115,8 @@
 #'   \item{PrNoGo_opt}{Marginal \eqn{\Pr(g_{\mathrm{NoGo}} \ge \gamma_{\mathrm{nogo}})}
 #'         at the optimal \eqn{\gamma_{\mathrm{nogo}}} under the NoGo-calibration
 #'         scenario.  \code{NA} if \code{gamma_nogo} is \code{NA}.}
+#'   \item{target_go}{The value of \code{target_go} supplied by the user.}
+#'   \item{target_nogo}{The value of \code{target_nogo} supplied by the user.}
 #'   \item{grid_results}{A data frame with columns \code{gamma_grid},
 #'         \code{PrGo_grid} (marginal Go probability under the Go-calibration
 #'         scenario), and \code{PrNoGo_grid} (marginal NoGo probability under
@@ -507,6 +509,8 @@ getgamma1bin <- function(prob = 'posterior', design = 'controlled',
     gamma_nogo   = gamma_nogo,
     PrGo_opt     = PrGo_opt,
     PrNoGo_opt   = PrNoGo_opt,
+    target_go    = target_go,
+    target_nogo  = target_nogo,
     grid_results = data.frame(
       gamma_grid  = gamma_grid,
       PrGo_grid   = PrGo_grid,

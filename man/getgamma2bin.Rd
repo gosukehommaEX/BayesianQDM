@@ -253,25 +253,25 @@ values in \code{(0, 1)} to search over.  Defaults to
 A list of class \code{getgamma2bin} with the following elements:
 \describe{
 \item{gamma_go}{Optimal Go threshold: the smallest value in
-\code{gamma_go_grid} for which the worst-case
+\code{gamma_go_grid} for which the marginal
 \eqn{\Pr(\mathrm{Go}) < \code{target\_go}} under the
 Go-calibration scenario.  \code{NA} if no such value exists.}
 \item{gamma_nogo}{Optimal NoGo threshold: the smallest value in
-\code{gamma_nogo_grid} for which the worst-case
+\code{gamma_nogo_grid} for which the marginal
 \eqn{\Pr(\mathrm{NoGo}) < \code{target\_nogo}} under the
 NoGo-calibration scenario.  \code{NA} if no such value exists.}
-\item{PrGo_opt}{Worst-case \eqn{\Pr(\mathrm{Go})} at
+\item{PrGo_opt}{Marginal \eqn{\Pr(\mathrm{Go})} at
 \code{gamma_go} under the Go-calibration scenario.
 \code{NA} if \code{gamma_go} is \code{NA}.}
-\item{PrNoGo_opt}{Worst-case \eqn{\Pr(\mathrm{NoGo})} at
+\item{PrNoGo_opt}{Marginal \eqn{\Pr(\mathrm{NoGo})} at
 \code{gamma_nogo} under the NoGo-calibration scenario.
 \code{NA} if \code{gamma_nogo} is \code{NA}.}
-\item{grid_results}{A list with elements \code{gamma_go_grid},
-\code{gamma_nogo_grid}, \code{PrGo_grid} (matrix of dimensions
-\code{length(gamma_go_grid)} x \code{length(gamma_nogo_grid)}
-under the Go-calibration scenario), and \code{PrNoGo_grid}
-(matrix of the same dimensions under the NoGo-calibration
-scenario).}
+\item{target_go}{The value of \code{target_go} supplied by the user.}
+\item{target_nogo}{The value of \code{target_nogo} supplied by the user.}
+\item{grid_results}{A data frame with columns \code{gamma_grid},
+\code{PrGo_grid} (marginal Go probability under the Go-calibration
+scenario), and \code{PrNoGo_grid} (marginal NoGo probability under
+the NoGo-calibration scenario).}
 }
 }
 \description{

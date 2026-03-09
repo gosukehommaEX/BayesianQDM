@@ -161,25 +161,25 @@
 #' @return A list of class \code{getgamma2bin} with the following elements:
 #' \describe{
 #'   \item{gamma_go}{Optimal Go threshold: the smallest value in
-#'         \code{gamma_go_grid} for which the worst-case
+#'         \code{gamma_go_grid} for which the marginal
 #'         \eqn{\Pr(\mathrm{Go}) < \code{target\_go}} under the
 #'         Go-calibration scenario.  \code{NA} if no such value exists.}
 #'   \item{gamma_nogo}{Optimal NoGo threshold: the smallest value in
-#'         \code{gamma_nogo_grid} for which the worst-case
+#'         \code{gamma_nogo_grid} for which the marginal
 #'         \eqn{\Pr(\mathrm{NoGo}) < \code{target\_nogo}} under the
 #'         NoGo-calibration scenario.  \code{NA} if no such value exists.}
-#'   \item{PrGo_opt}{Worst-case \eqn{\Pr(\mathrm{Go})} at
+#'   \item{PrGo_opt}{Marginal \eqn{\Pr(\mathrm{Go})} at
 #'         \code{gamma_go} under the Go-calibration scenario.
 #'         \code{NA} if \code{gamma_go} is \code{NA}.}
-#'   \item{PrNoGo_opt}{Worst-case \eqn{\Pr(\mathrm{NoGo})} at
+#'   \item{PrNoGo_opt}{Marginal \eqn{\Pr(\mathrm{NoGo})} at
 #'         \code{gamma_nogo} under the NoGo-calibration scenario.
 #'         \code{NA} if \code{gamma_nogo} is \code{NA}.}
-#'   \item{grid_results}{A list with elements \code{gamma_go_grid},
-#'         \code{gamma_nogo_grid}, \code{PrGo_grid} (matrix of dimensions
-#'         \code{length(gamma_go_grid)} x \code{length(gamma_nogo_grid)}
-#'         under the Go-calibration scenario), and \code{PrNoGo_grid}
-#'         (matrix of the same dimensions under the NoGo-calibration
-#'         scenario).}
+#'   \item{target_go}{The value of \code{target_go} supplied by the user.}
+#'   \item{target_nogo}{The value of \code{target_nogo} supplied by the user.}
+#'   \item{grid_results}{A data frame with columns \code{gamma_grid},
+#'         \code{PrGo_grid} (marginal Go probability under the Go-calibration
+#'         scenario), and \code{PrNoGo_grid} (marginal NoGo probability under
+#'         the NoGo-calibration scenario).}
 #' }
 #'
 #' @details
@@ -561,8 +561,11 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
   }
   gamma_go_grid   <- sort(unique(gamma_go_grid))
   gamma_nogo_grid <- sort(unique(gamma_nogo_grid))
-  ng_go           <- length(gamma_go_grid)
-  ng_nogo         <- length(gamma_nogo_grid)
+  if (!identical(gamma_go_grid, gamma_nogo_grid)) {
+    stop("'gamma_go_grid' and 'gamma_nogo_grid' must be identical vectors")
+  }
+  gamma_grid <- gamma_go_grid
+  ng         <- length(gamma_grid)
 
   # ---------------------------------------------------------------------------
   # Stage 1: Enumerate all count combinations, compute PrGo_hat and
@@ -673,64 +676,54 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
   }
 
   # ---------------------------------------------------------------------------
-  # Stage 2: Sweep (gamma_go_grid x gamma_nogo_grid)
+  # Stage 2: Marginal sweep over gamma_go_grid and gamma_nogo_grid
   #
-  # For each (g1, g2), compute under respective calibration scenarios:
-  #   Pr(Go)   = sum w_go[i,j]   * I(PrGo_hat[i,j] >= g1 AND PrNoGo_hat[i,j] <  g2)
-  #   Pr(NoGo) = sum w_nogo[i,j] * I(PrNoGo_hat[i,j] >= g2 AND PrGo_hat[i,j] <  g1)
+  # Go and NoGo probabilities are computed marginally (independently):
+  #   Pr(Go)   = sum w_go[i,j]   * I(PrGo_hat[i,j]   >= g1)
+  #   Pr(NoGo) = sum w_nogo[i,j] * I(PrNoGo_hat[i,j] >= g2)
   # ---------------------------------------------------------------------------
-  PrGo_grid   <- matrix(NA_real_, nrow = ng_go, ncol = ng_nogo)
-  PrNoGo_grid <- matrix(NA_real_, nrow = ng_go, ncol = ng_nogo)
+  PrGo_grid   <- numeric(ng)
+  PrNoGo_grid <- numeric(ng)
 
-  for (k1 in seq_len(ng_go)) {
-    g1 <- gamma_go_grid[k1]
-    for (k2 in seq_len(ng_nogo)) {
-      g2 <- gamma_nogo_grid[k2]
+  for (k in seq_len(ng)) {
+    g <- gamma_grid[k]
+    go_mask <- (PrGo_hat >= g)
+    go_mask[is.na(go_mask)] <- FALSE
+    PrGo_grid[k] <- sum(w_mat_go[go_mask])
+  }
 
-      go_mask   <- (PrGo_hat   >= g1) & (PrNoGo_hat <  g2)
-      nogo_mask <- (PrNoGo_hat >= g2) & (PrGo_hat   <  g1)
-      go_mask[is.na(go_mask)]     <- FALSE
-      nogo_mask[is.na(nogo_mask)] <- FALSE
-
-      PrGo_grid[k1, k2]   <- sum(w_mat_go[go_mask])
-      PrNoGo_grid[k1, k2] <- sum(w_mat_nogo[nogo_mask])
-    }
+  for (k in seq_len(ng)) {
+    g <- gamma_grid[k]
+    nogo_mask <- (PrNoGo_hat >= g)
+    nogo_mask[is.na(nogo_mask)] <- FALSE
+    PrNoGo_grid[k] <- sum(w_mat_nogo[nogo_mask])
   }
 
   # ---------------------------------------------------------------------------
   # Stage 3: Select optimal (gamma_go, gamma_nogo)
   #
-  # gamma_go  : smallest gamma_go   s.t. max_{gamma_nogo} Pr(Go)   < target_go
-  # gamma_nogo: smallest gamma_nogo s.t. max_{gamma_go}   Pr(NoGo) < target_nogo
-  # Both worst-case curves are non-increasing in their respective gamma.
+  # gamma_go  : smallest value in gamma_go_grid   s.t. Pr(Go)   < target_go
+  # gamma_nogo: smallest value in gamma_nogo_grid s.t. Pr(NoGo) < target_nogo
+  # Both curves are non-increasing in their respective gamma.
   # ---------------------------------------------------------------------------
-
-  # Worst-case Pr(Go) over gamma_nogo_grid for each gamma_go candidate
-  max_PrGo_per_g1   <- apply(PrGo_grid,   1L, max, na.rm = TRUE)
-  # Worst-case Pr(NoGo) over gamma_go_grid for each gamma_nogo candidate
-  max_PrNoGo_per_g2 <- apply(PrNoGo_grid, 2L, max, na.rm = TRUE)
-
-  go_mask_opt   <- max_PrGo_per_g1   < target_go
-  nogo_mask_opt <- max_PrNoGo_per_g2 < target_nogo
-
-  idx_go <- which(go_mask_opt)
+  idx_go <- which(PrGo_grid < target_go)
   if (length(idx_go) == 0L) {
     gamma_go <- NA_real_
     PrGo_opt <- NA_real_
   } else {
     opt1     <- min(idx_go)
-    gamma_go <- gamma_go_grid[opt1]
-    PrGo_opt <- max_PrGo_per_g1[opt1]
+    gamma_go <- gamma_grid[opt1]
+    PrGo_opt <- PrGo_grid[opt1]
   }
 
-  idx_nogo <- which(nogo_mask_opt)
+  idx_nogo <- which(PrNoGo_grid < target_nogo)
   if (length(idx_nogo) == 0L) {
     gamma_nogo <- NA_real_
     PrNoGo_opt <- NA_real_
   } else {
     opt2       <- min(idx_nogo)
-    gamma_nogo <- gamma_nogo_grid[opt2]
-    PrNoGo_opt <- max_PrNoGo_per_g2[opt2]
+    gamma_nogo <- gamma_grid[opt2]
+    PrNoGo_opt <- PrNoGo_grid[opt2]
   }
 
   # ---------------------------------------------------------------------------
@@ -741,11 +734,12 @@ getgamma2bin <- function(prob = 'posterior', design = 'controlled',
     gamma_nogo   = gamma_nogo,
     PrGo_opt     = PrGo_opt,
     PrNoGo_opt   = PrNoGo_opt,
-    grid_results = list(
-      gamma_go_grid   = gamma_go_grid,
-      gamma_nogo_grid = gamma_nogo_grid,
-      PrGo_grid       = PrGo_grid,
-      PrNoGo_grid     = PrNoGo_grid
+    target_go    = target_go,
+    target_nogo  = target_nogo,
+    grid_results = data.frame(
+      gamma_grid   = gamma_grid,
+      PrGo_grid    = PrGo_grid,
+      PrNoGo_grid  = PrNoGo_grid
     )
   )
 

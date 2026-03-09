@@ -238,6 +238,8 @@ scenario.  \code{NA} if \code{gamma_go} is \code{NA}.}
 \item{PrNoGo_opt}{Marginal \eqn{\Pr(g_{\mathrm{NoGo}} \ge \gamma_{\mathrm{nogo}})}
 at the optimal \eqn{\gamma_{\mathrm{nogo}}} under the NoGo-calibration
 scenario.  \code{NA} if \code{gamma_nogo} is \code{NA}.}
+\item{target_go}{The value of \code{target_go} supplied by the user.}
+\item{target_nogo}{The value of \code{target_nogo} supplied by the user.}
 \item{grid_results}{A data frame with columns \code{gamma_grid},
 \code{PrGo_grid} (marginal Go probability under the Go-calibration
 scenario), and \code{PrNoGo_grid} (marginal NoGo probability under

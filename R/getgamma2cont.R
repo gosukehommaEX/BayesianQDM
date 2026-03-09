@@ -2,23 +2,19 @@
 #'
 #' Computes the optimal Go threshold \eqn{\gamma_{\mathrm{go}}} and NoGo
 #' threshold \eqn{\gamma_{\mathrm{nogo}}} for two continuous endpoints by
-#' searching over a two-dimensional grid of candidate value pairs.  The two
-#' thresholds are calibrated independently under separate scenarios:
+#' searching independently over candidate threshold grids.  The two
+#' thresholds are calibrated marginally under separate scenarios:
 #' \itemize{
 #'   \item \eqn{\gamma_{\mathrm{go}}} is the \strong{smallest} value in
-#'         \code{gamma_go_grid} such that the worst-case marginal Go
-#'         probability over all \eqn{\gamma_{\mathrm{nogo}}} in
-#'         \code{gamma_nogo_grid} is strictly less than \code{target_go}
-#'         under the Go-calibration scenario (\code{mu_t_go},
-#'         \code{Sigma_t_go}, \code{mu_c_go}, \code{Sigma_c_go});
-#'         typically the Null scenario.
+#'         \code{gamma_go_grid} such that the marginal Go probability is
+#'         strictly less than \code{target_go} under the Go-calibration
+#'         scenario (\code{mu_t_go}, \code{Sigma_t_go}, \code{mu_c_go},
+#'         \code{Sigma_c_go}); typically the Null scenario.
 #'   \item \eqn{\gamma_{\mathrm{nogo}}} is the \strong{smallest} value in
-#'         \code{gamma_nogo_grid} such that the worst-case marginal NoGo
-#'         probability over all \eqn{\gamma_{\mathrm{go}}} in
-#'         \code{gamma_go_grid} is strictly less than \code{target_nogo}
-#'         under the NoGo-calibration scenario (\code{mu_t_nogo},
-#'         \code{Sigma_t_nogo}, \code{mu_c_nogo}, \code{Sigma_c_nogo});
-#'         typically the Alternative scenario.
+#'         \code{gamma_nogo_grid} such that the marginal NoGo probability is
+#'         strictly less than \code{target_nogo} under the NoGo-calibration
+#'         scenario (\code{mu_t_nogo}, \code{Sigma_t_nogo}, \code{mu_c_nogo},
+#'         \code{Sigma_c_nogo}); typically the Alternative scenario.
 #' }
 #'
 #' @param nsim A positive integer giving the number of Monte Carlo
@@ -73,14 +69,13 @@
 #'        \code{design = 'controlled'} or \code{'external'};
 #'        set to \code{NULL} for \code{design = 'uncontrolled'}.
 #' @param target_go A numeric scalar in \code{(0, 1)} giving the upper bound
-#'        on the worst-case marginal Go probability under the Go-calibration
-#'        scenario.  The optimal \eqn{\gamma_{\mathrm{go}}} is the smallest
-#'        grid value satisfying the constraint.
+#'        on the marginal Go probability under the Go-calibration scenario.
+#'        The optimal \eqn{\gamma_{\mathrm{go}}} is the smallest grid value
+#'        satisfying the constraint.
 #' @param target_nogo A numeric scalar in \code{(0, 1)} giving the upper
-#'        bound on the worst-case marginal NoGo probability under the
-#'        NoGo-calibration scenario.  The optimal
-#'        \eqn{\gamma_{\mathrm{nogo}}} is the smallest grid value satisfying
-#'        the constraint.
+#'        bound on the marginal NoGo probability under the NoGo-calibration
+#'        scenario.  The optimal \eqn{\gamma_{\mathrm{nogo}}} is the smallest
+#'        grid value satisfying the constraint.
 #' @param n_t A positive integer giving the number of patients in the
 #'        treatment group in the PoC trial.
 #' @param n_c A positive integer giving the number of patients in the
@@ -181,25 +176,25 @@
 #' @return A list of class \code{getgamma2cont} with the following elements:
 #' \describe{
 #'   \item{gamma_go}{Optimal Go threshold: the smallest value in
-#'         \code{gamma_go_grid} for which the worst-case
+#'         \code{gamma_go_grid} for which the marginal
 #'         \eqn{\Pr(\mathrm{Go}) < \code{target\_go}} under the
 #'         Go-calibration scenario.  \code{NA} if no such value exists.}
 #'   \item{gamma_nogo}{Optimal NoGo threshold: the smallest value in
-#'         \code{gamma_nogo_grid} for which the worst-case
+#'         \code{gamma_nogo_grid} for which the marginal
 #'         \eqn{\Pr(\mathrm{NoGo}) < \code{target\_nogo}} under the
 #'         NoGo-calibration scenario.  \code{NA} if no such value exists.}
-#'   \item{PrGo_opt}{Worst-case \eqn{\Pr(\mathrm{Go})} at
+#'   \item{PrGo_opt}{Marginal \eqn{\Pr(\mathrm{Go})} at
 #'         \code{gamma_go} under the Go-calibration scenario.
 #'         \code{NA} if \code{gamma_go} is \code{NA}.}
-#'   \item{PrNoGo_opt}{Worst-case \eqn{\Pr(\mathrm{NoGo})} at
+#'   \item{PrNoGo_opt}{Marginal \eqn{\Pr(\mathrm{NoGo})} at
 #'         \code{gamma_nogo} under the NoGo-calibration scenario.
 #'         \code{NA} if \code{gamma_nogo} is \code{NA}.}
-#'   \item{grid_results}{A list with elements \code{gamma_go_grid},
-#'         \code{gamma_nogo_grid}, \code{PrGo_grid} (matrix of dimensions
-#'         \code{length(gamma_go_grid)} x \code{length(gamma_nogo_grid)}
-#'         under the Go-calibration scenario), and \code{PrNoGo_grid}
-#'         (matrix of the same dimensions under the NoGo-calibration
-#'         scenario).}
+#'   \item{target_go}{The value of \code{target_go} supplied by the user.}
+#'   \item{target_nogo}{The value of \code{target_nogo} supplied by the user.}
+#'   \item{grid_results}{A data frame with columns \code{gamma_grid},
+#'         \code{PrGo_grid} (marginal Go probability under the Go-calibration
+#'         scenario), and \code{PrNoGo_grid} (marginal NoGo probability under
+#'         the NoGo-calibration scenario).}
 #' }
 #'
 #' @details
@@ -599,8 +594,11 @@ getgamma2cont <- function(nsim        = 10000L,
   }
   gamma_go_grid   <- sort(unique(gamma_go_grid))
   gamma_nogo_grid <- sort(unique(gamma_nogo_grid))
-  ng_go           <- length(gamma_go_grid)
-  ng_nogo         <- length(gamma_nogo_grid)
+  if (!identical(gamma_go_grid, gamma_nogo_grid)) {
+    stop("'gamma_go_grid' and 'gamma_nogo_grid' must be identical vectors")
+  }
+  gamma_grid <- gamma_go_grid
+  ng         <- length(gamma_grid)
 
   if (!is.numeric(seed) || length(seed) != 1L || is.na(seed)) {
     stop("'seed' must be a single numeric value")
@@ -696,70 +694,50 @@ getgamma2cont <- function(nsim        = 10000L,
   sim_nogo <- .simulate_g(mu_t_nogo, Sigma_t_nogo, mu_c_nogo, Sigma_c_nogo,
                           seed_val = seed + 1L)
 
-  PrGo_vec   <- sim_go$PrGo_vec
-  PrNoGo_vec <- sim_nogo$PrNoGo_vec
-
-  # ---------------------------------------------------------------------------
-  # Stage 2: Sweep (gamma_go_grid x gamma_nogo_grid)
-  #
-  # For each (g_go, g_nogo), compute under respective calibration scenarios:
-  #   Pr(Go)   = mean( I(PrGo_vec >= g_go   AND PrNoGo_vec_go   <  g_nogo) )
-  #   Pr(NoGo) = mean( I(PrNoGo_vec >= g_nogo AND PrGo_vec_nogo  <  g_go) )
-  # ---------------------------------------------------------------------------
   PrGo_vec_go     <- sim_go$PrGo_vec
-  PrNoGo_vec_go   <- sim_go$PrNoGo_vec
-  PrGo_vec_nogo   <- sim_nogo$PrGo_vec
   PrNoGo_vec_nogo <- sim_nogo$PrNoGo_vec
 
-  PrGo_grid   <- matrix(NA_real_, nrow = ng_go, ncol = ng_nogo)
-  PrNoGo_grid <- matrix(NA_real_, nrow = ng_go, ncol = ng_nogo)
+  # ---------------------------------------------------------------------------
+  # Stage 2: Marginal sweep over gamma_grid
+  #
+  # Go and NoGo probabilities are computed marginally (independently):
+  #   Pr(Go)   = mean( I(PrGo_vec_go   >= g) )
+  #   Pr(NoGo) = mean( I(PrNoGo_vec_nogo >= g) )
+  # ---------------------------------------------------------------------------
+  PrGo_grid   <- numeric(ng)
+  PrNoGo_grid <- numeric(ng)
 
-  for (k_go in seq_len(ng_go)) {
-    g_go <- gamma_go_grid[k_go]
-    for (k_nogo in seq_len(ng_nogo)) {
-      g_nogo <- gamma_nogo_grid[k_nogo]
-
-      # Pr(Go) evaluated under Go-calibration scenario
-      go_mask   <- (PrGo_vec_go   >= g_go) & (PrNoGo_vec_go   <  g_nogo)
-      # Pr(NoGo) evaluated under NoGo-calibration scenario
-      nogo_mask <- (PrNoGo_vec_nogo >= g_nogo) & (PrGo_vec_nogo <  g_go)
-
-      PrGo_grid[k_go, k_nogo]   <- mean(go_mask)
-      PrNoGo_grid[k_go, k_nogo] <- mean(nogo_mask)
-    }
+  for (k in seq_len(ng)) {
+    g <- gamma_grid[k]
+    PrGo_grid[k]   <- mean(PrGo_vec_go   >= g)
+    PrNoGo_grid[k] <- mean(PrNoGo_vec_nogo >= g)
   }
 
   # ---------------------------------------------------------------------------
   # Stage 3: Select optimal (gamma_go, gamma_nogo)
   #
-  # gamma_go  : smallest gamma_go   s.t. max_{gamma_nogo} Pr(Go)   < target_go
-  # gamma_nogo: smallest gamma_nogo s.t. max_{gamma_go}   Pr(NoGo) < target_nogo
-  # Both worst-case curves are non-increasing in their respective gamma.
+  # gamma_go  : smallest value in gamma_grid s.t. Pr(Go)   < target_go
+  # gamma_nogo: smallest value in gamma_grid s.t. Pr(NoGo) < target_nogo
+  # Both curves are non-increasing in gamma.
   # ---------------------------------------------------------------------------
-  max_PrGo_per_g1   <- apply(PrGo_grid,   1L, max, na.rm = TRUE)
-  max_PrNoGo_per_g2 <- apply(PrNoGo_grid, 2L, max, na.rm = TRUE)
-
-  go_mask_opt   <- max_PrGo_per_g1   < target_go
-  nogo_mask_opt <- max_PrNoGo_per_g2 < target_nogo
-
-  idx_go <- which(go_mask_opt)
+  idx_go <- which(PrGo_grid < target_go)
   if (length(idx_go) == 0L) {
     gamma_go <- NA_real_
     PrGo_opt <- NA_real_
   } else {
     opt1     <- min(idx_go)
-    gamma_go <- gamma_go_grid[opt1]
-    PrGo_opt <- max_PrGo_per_g1[opt1]
+    gamma_go <- gamma_grid[opt1]
+    PrGo_opt <- PrGo_grid[opt1]
   }
 
-  idx_nogo <- which(nogo_mask_opt)
+  idx_nogo <- which(PrNoGo_grid < target_nogo)
   if (length(idx_nogo) == 0L) {
     gamma_nogo <- NA_real_
     PrNoGo_opt <- NA_real_
   } else {
     opt2       <- min(idx_nogo)
-    gamma_nogo <- gamma_nogo_grid[opt2]
-    PrNoGo_opt <- max_PrNoGo_per_g2[opt2]
+    gamma_nogo <- gamma_grid[opt2]
+    PrNoGo_opt <- PrNoGo_grid[opt2]
   }
 
   # ---------------------------------------------------------------------------
@@ -770,11 +748,12 @@ getgamma2cont <- function(nsim        = 10000L,
     gamma_nogo   = gamma_nogo,
     PrGo_opt     = PrGo_opt,
     PrNoGo_opt   = PrNoGo_opt,
-    grid_results = list(
-      gamma_go_grid   = gamma_go_grid,
-      gamma_nogo_grid = gamma_nogo_grid,
-      PrGo_grid       = PrGo_grid,
-      PrNoGo_grid     = PrNoGo_grid
+    target_go    = target_go,
+    target_nogo  = target_nogo,
+    grid_results = data.frame(
+      gamma_grid  = gamma_grid,
+      PrGo_grid   = PrGo_grid,
+      PrNoGo_grid = PrNoGo_grid
     )
   )
 

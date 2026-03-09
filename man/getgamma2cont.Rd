@@ -122,15 +122,14 @@ NoGo-calibration scenario.  Required for
 set to \code{NULL} for \code{design = 'uncontrolled'}.}
 
 \item{target_go}{A numeric scalar in \code{(0, 1)} giving the upper bound
-on the worst-case marginal Go probability under the Go-calibration
-scenario.  The optimal \eqn{\gamma_{\mathrm{go}}} is the smallest
-grid value satisfying the constraint.}
+on the marginal Go probability under the Go-calibration scenario.
+The optimal \eqn{\gamma_{\mathrm{go}}} is the smallest grid value
+satisfying the constraint.}
 
 \item{target_nogo}{A numeric scalar in \code{(0, 1)} giving the upper
-bound on the worst-case marginal NoGo probability under the
-NoGo-calibration scenario.  The optimal
-\eqn{\gamma_{\mathrm{nogo}}} is the smallest grid value satisfying
-the constraint.}
+bound on the marginal NoGo probability under the NoGo-calibration
+scenario.  The optimal \eqn{\gamma_{\mathrm{nogo}}} is the smallest
+grid value satisfying the constraint.}
 
 \item{n_t}{A positive integer giving the number of patients in the
 treatment group in the PoC trial.}
@@ -264,47 +263,43 @@ independence between the two scenarios.}
 A list of class \code{getgamma2cont} with the following elements:
 \describe{
 \item{gamma_go}{Optimal Go threshold: the smallest value in
-\code{gamma_go_grid} for which the worst-case
+\code{gamma_go_grid} for which the marginal
 \eqn{\Pr(\mathrm{Go}) < \code{target\_go}} under the
 Go-calibration scenario.  \code{NA} if no such value exists.}
 \item{gamma_nogo}{Optimal NoGo threshold: the smallest value in
-\code{gamma_nogo_grid} for which the worst-case
+\code{gamma_nogo_grid} for which the marginal
 \eqn{\Pr(\mathrm{NoGo}) < \code{target\_nogo}} under the
 NoGo-calibration scenario.  \code{NA} if no such value exists.}
-\item{PrGo_opt}{Worst-case \eqn{\Pr(\mathrm{Go})} at
+\item{PrGo_opt}{Marginal \eqn{\Pr(\mathrm{Go})} at
 \code{gamma_go} under the Go-calibration scenario.
 \code{NA} if \code{gamma_go} is \code{NA}.}
-\item{PrNoGo_opt}{Worst-case \eqn{\Pr(\mathrm{NoGo})} at
+\item{PrNoGo_opt}{Marginal \eqn{\Pr(\mathrm{NoGo})} at
 \code{gamma_nogo} under the NoGo-calibration scenario.
 \code{NA} if \code{gamma_nogo} is \code{NA}.}
-\item{grid_results}{A list with elements \code{gamma_go_grid},
-\code{gamma_nogo_grid}, \code{PrGo_grid} (matrix of dimensions
-\code{length(gamma_go_grid)} x \code{length(gamma_nogo_grid)}
-under the Go-calibration scenario), and \code{PrNoGo_grid}
-(matrix of the same dimensions under the NoGo-calibration
-scenario).}
+\item{target_go}{The value of \code{target_go} supplied by the user.}
+\item{target_nogo}{The value of \code{target_nogo} supplied by the user.}
+\item{grid_results}{A data frame with columns \code{gamma_grid},
+\code{PrGo_grid} (marginal Go probability under the Go-calibration
+scenario), and \code{PrNoGo_grid} (marginal NoGo probability under
+the NoGo-calibration scenario).}
 }
 }
 \description{
 Computes the optimal Go threshold \eqn{\gamma_{\mathrm{go}}} and NoGo
 threshold \eqn{\gamma_{\mathrm{nogo}}} for two continuous endpoints by
-searching over a two-dimensional grid of candidate value pairs.  The two
-thresholds are calibrated independently under separate scenarios:
+searching independently over candidate threshold grids.  The two
+thresholds are calibrated marginally under separate scenarios:
 \itemize{
 \item \eqn{\gamma_{\mathrm{go}}} is the \strong{smallest} value in
-\code{gamma_go_grid} such that the worst-case marginal Go
-probability over all \eqn{\gamma_{\mathrm{nogo}}} in
-\code{gamma_nogo_grid} is strictly less than \code{target_go}
-under the Go-calibration scenario (\code{mu_t_go},
-\code{Sigma_t_go}, \code{mu_c_go}, \code{Sigma_c_go});
-typically the Null scenario.
+\code{gamma_go_grid} such that the marginal Go probability is
+strictly less than \code{target_go} under the Go-calibration
+scenario (\code{mu_t_go}, \code{Sigma_t_go}, \code{mu_c_go},
+\code{Sigma_c_go}); typically the Null scenario.
 \item \eqn{\gamma_{\mathrm{nogo}}} is the \strong{smallest} value in
-\code{gamma_nogo_grid} such that the worst-case marginal NoGo
-probability over all \eqn{\gamma_{\mathrm{go}}} in
-\code{gamma_go_grid} is strictly less than \code{target_nogo}
-under the NoGo-calibration scenario (\code{mu_t_nogo},
-\code{Sigma_t_nogo}, \code{mu_c_nogo}, \code{Sigma_c_nogo});
-typically the Alternative scenario.
+\code{gamma_nogo_grid} such that the marginal NoGo probability is
+strictly less than \code{target_nogo} under the NoGo-calibration
+scenario (\code{mu_t_nogo}, \code{Sigma_t_nogo}, \code{mu_c_nogo},
+\code{Sigma_c_nogo}); typically the Alternative scenario.
 }
 }
 \details{
