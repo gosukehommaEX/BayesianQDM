@@ -302,11 +302,11 @@ test_that("getgamma2cont posterior vague MM controlled returns correct class and
     nsim = 50L, prob = 'posterior', design = 'controlled',
     prior = 'vague',
     GoRegions = 1L, NoGoRegions = 9L,
-    mu_t = c(2.0, 1.0), Sigma_t = .Sigma_gc,
-    mu_c = c(0.0, 0.0), Sigma_c = .Sigma_gc,
+    mu_t_go = c(2.0, 1.0), Sigma_t_go = .Sigma_gc,
+    mu_c_go = c(0.0, 0.0), Sigma_c_go = .Sigma_gc,
+    mu_t_nogo = c(2.0, 1.0), Sigma_t_nogo = .Sigma_gc,
+    mu_c_nogo = c(0.0, 0.0), Sigma_c_nogo = .Sigma_gc,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = 10L,
     theta_TV1 = 1.5, theta_MAV1 = 0.5,
     theta_TV2 = 1.0, theta_MAV2 = 0.3,
@@ -318,14 +318,15 @@ test_that("getgamma2cont posterior vague MM controlled returns correct class and
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
     nMC = NULL, CalcMethod = 'MM',
-    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 1L
   )
   expect_s3_class(result, "getgamma2cont")
-  expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_at_gamma_go", "PrNoGo_at_gamma_nogo",
-                    "gamma_go_grid", "gamma_nogo_grid",
-                    "PrGo_grid", "PrNoGo_grid") %in% names(result)))
+  expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_opt", "PrNoGo_opt",
+                    "target_go", "target_nogo", "grid_results") %in% names(result)))
+  expect_true(all(c("gamma_grid", "PrGo_grid", "PrNoGo_grid") %in%
+                    names(result$grid_results)))
 })
 
 test_that("getgamma2cont posterior vague MM PrGo_grid and PrNoGo_grid in [0, 1]", {
@@ -333,11 +334,11 @@ test_that("getgamma2cont posterior vague MM PrGo_grid and PrNoGo_grid in [0, 1]"
     nsim = 50L, prob = 'posterior', design = 'controlled',
     prior = 'vague',
     GoRegions = 1L, NoGoRegions = 9L,
-    mu_t = c(2.0, 1.0), Sigma_t = .Sigma_gc,
-    mu_c = c(0.0, 0.0), Sigma_c = .Sigma_gc,
+    mu_t_go = c(2.0, 1.0), Sigma_t_go = .Sigma_gc,
+    mu_c_go = c(0.0, 0.0), Sigma_c_go = .Sigma_gc,
+    mu_t_nogo = c(2.0, 1.0), Sigma_t_nogo = .Sigma_gc,
+    mu_c_nogo = c(0.0, 0.0), Sigma_c_nogo = .Sigma_gc,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = 10L,
     theta_TV1 = 1.5, theta_MAV1 = 0.5,
     theta_TV2 = 1.0, theta_MAV2 = 0.3,
@@ -349,14 +350,13 @@ test_that("getgamma2cont posterior vague MM PrGo_grid and PrNoGo_grid in [0, 1]"
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
     nMC = NULL, CalcMethod = 'MM',
-    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 1L
   )
-  expect_true(all(result$PrGo_grid >= 0 & result$PrGo_grid <= 1))
-  expect_true(all(result$PrNoGo_grid >= 0 & result$PrNoGo_grid <= 1))
-  expect_equal(dim(result$PrGo_grid),
-               c(length(result$gamma_go_grid), length(result$gamma_nogo_grid)))
+  expect_true(all(result$grid_results$PrGo_grid   >= 0 & result$grid_results$PrGo_grid   <= 1))
+  expect_true(all(result$grid_results$PrNoGo_grid >= 0 & result$grid_results$PrNoGo_grid <= 1))
+  expect_equal(length(result$grid_results$PrGo_grid), length(result$grid_results$gamma_grid))
 })
 
 test_that("getgamma2cont posterior vague MM gamma values in (0, 1) or NA", {
@@ -364,11 +364,11 @@ test_that("getgamma2cont posterior vague MM gamma values in (0, 1) or NA", {
     nsim = 50L, prob = 'posterior', design = 'controlled',
     prior = 'vague',
     GoRegions = 1L, NoGoRegions = 9L,
-    mu_t = c(2.0, 1.0), Sigma_t = .Sigma_gc,
-    mu_c = c(0.0, 0.0), Sigma_c = .Sigma_gc,
+    mu_t_go = c(2.0, 1.0), Sigma_t_go = .Sigma_gc,
+    mu_c_go = c(0.0, 0.0), Sigma_c_go = .Sigma_gc,
+    mu_t_nogo = c(2.0, 1.0), Sigma_t_nogo = .Sigma_gc,
+    mu_c_nogo = c(0.0, 0.0), Sigma_c_nogo = .Sigma_gc,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = 10L,
     theta_TV1 = 1.5, theta_MAV1 = 0.5,
     theta_TV2 = 1.0, theta_MAV2 = 0.3,
@@ -380,11 +380,11 @@ test_that("getgamma2cont posterior vague MM gamma values in (0, 1) or NA", {
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
     nMC = NULL, CalcMethod = 'MM',
-    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 1L
   )
-  if (!is.na(result$gamma_go)) expect_true(result$gamma_go > 0 && result$gamma_go < 1)
+  if (!is.na(result$gamma_go))   expect_true(result$gamma_go   > 0 && result$gamma_go   < 1)
   if (!is.na(result$gamma_nogo)) expect_true(result$gamma_nogo > 0 && result$gamma_nogo < 1)
 })
 
@@ -393,11 +393,11 @@ test_that("getgamma2cont posterior uncontrolled vague MM returns correct class",
     nsim = 50L, prob = 'posterior', design = 'uncontrolled',
     prior = 'vague',
     GoRegions = 1L, NoGoRegions = 9L,
-    mu_t = c(2.0, 1.0), Sigma_t = .Sigma_gc,
-    mu_c = NULL, Sigma_c = NULL,
+    mu_t_go = c(2.0, 1.0), Sigma_t_go = .Sigma_gc,
+    mu_c_go = NULL, Sigma_c_go = NULL,
+    mu_t_nogo = c(2.0, 1.0), Sigma_t_nogo = .Sigma_gc,
+    mu_c_nogo = NULL, Sigma_c_nogo = NULL,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = NULL,
     theta_TV1 = 1.5, theta_MAV1 = 0.5,
     theta_TV2 = 1.0, theta_MAV2 = 0.3,
@@ -409,7 +409,7 @@ test_that("getgamma2cont posterior uncontrolled vague MM returns correct class",
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
     nMC = NULL, CalcMethod = 'MM',
-    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 2L
   )
@@ -421,11 +421,11 @@ test_that("getgamma2cont predictive vague MC returns correct class", {
     nsim = 30L, prob = 'predictive', design = 'controlled',
     prior = 'vague',
     GoRegions = 1L, NoGoRegions = 4L,
-    mu_t = c(2.0, 1.0), Sigma_t = .Sigma_gc,
-    mu_c = c(0.0, 0.0), Sigma_c = .Sigma_gc,
+    mu_t_go = c(2.0, 1.0), Sigma_t_go = .Sigma_gc,
+    mu_c_go = c(0.0, 0.0), Sigma_c_go = .Sigma_gc,
+    mu_t_nogo = c(2.0, 1.0), Sigma_t_nogo = .Sigma_gc,
+    mu_c_nogo = c(0.0, 0.0), Sigma_c_nogo = .Sigma_gc,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = 10L,
     theta_TV1 = NULL, theta_MAV1 = NULL,
     theta_TV2 = NULL, theta_MAV2 = NULL,
@@ -437,15 +437,15 @@ test_that("getgamma2cont predictive vague MC returns correct class", {
     ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, bar_ye_c = NULL, se_t = NULL, se_c = NULL,
     nMC = 50L, CalcMethod = 'MC',
-    gamma_go_grid = seq(0.05, 0.95, by = 0.05),
+    gamma_go_grid   = seq(0.05, 0.95, by = 0.05),
     gamma_nogo_grid = seq(0.05, 0.95, by = 0.05),
     seed = 3L
   )
   expect_s3_class(result, "getgamma2cont")
-  if (!is.na(result$PrGo_at_gamma_go))
-    expect_true(result$PrGo_at_gamma_go >= 0 && result$PrGo_at_gamma_go <= 1)
-  if (!is.na(result$PrNoGo_at_gamma_nogo))
-    expect_true(result$PrNoGo_at_gamma_nogo >= 0 && result$PrNoGo_at_gamma_nogo <= 1)
+  if (!is.na(result$PrGo_opt))
+    expect_true(result$PrGo_opt >= 0 && result$PrGo_opt <= 1)
+  if (!is.na(result$PrNoGo_opt))
+    expect_true(result$PrNoGo_opt >= 0 && result$PrNoGo_opt <= 1)
 })
 
 test_that("getgamma2cont input validation: invalid nsim", {
@@ -453,12 +453,15 @@ test_that("getgamma2cont input validation: invalid nsim", {
     nsim = 0L, prob = 'posterior', design = 'controlled',
     prior = 'vague',
     GoRegions = 1L, NoGoRegions = 9L,
-    mu_t = c(2.0, 1.0), Sigma_t = .Sigma_gc,
-    mu_c = c(0.0, 0.0), Sigma_c = .Sigma_gc,
+    mu_t_go = c(2.0, 1.0), Sigma_t_go = .Sigma_gc,
+    mu_c_go = c(0.0, 0.0), Sigma_c_go = .Sigma_gc,
+    mu_t_nogo = c(2.0, 1.0), Sigma_t_nogo = .Sigma_gc,
+    mu_c_nogo = c(0.0, 0.0), Sigma_c_nogo = .Sigma_gc,
     target_go = 0.05, target_nogo = 0.20,
     n_t = 10L, n_c = 10L,
     theta_TV1 = 1.5, theta_MAV1 = 0.5,
-    theta_TV2 = 1.0, theta_MAV2 = 0.3
+    theta_TV2 = 1.0, theta_MAV2 = 0.3,
+    seed = 1L
   ))
 })
 
@@ -467,8 +470,10 @@ test_that("getgamma2cont input validation: overlapping GoRegions and NoGoRegions
     nsim = 50L, prob = 'posterior', design = 'controlled',
     prior = 'vague',
     GoRegions = c(1L, 2L), NoGoRegions = c(2L, 9L),
-    mu_t = c(2.0, 1.0), Sigma_t = .Sigma_gc,
-    mu_c = c(0.0, 0.0), Sigma_c = .Sigma_gc,
+    mu_t_go = c(2.0, 1.0), Sigma_t_go = .Sigma_gc,
+    mu_c_go = c(0.0, 0.0), Sigma_c_go = .Sigma_gc,
+    mu_t_nogo = c(2.0, 1.0), Sigma_t_nogo = .Sigma_gc,
+    mu_c_nogo = c(0.0, 0.0), Sigma_c_nogo = .Sigma_gc,
     target_go = 0.05, target_nogo = 0.20,
     n_t = 10L, n_c = 10L,
     theta_TV1 = 1.5, theta_MAV1 = 0.5,

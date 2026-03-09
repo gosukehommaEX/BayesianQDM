@@ -477,47 +477,46 @@ test_that("getgamma1bin posterior controlled returns correct class and structure
   result <- getgamma1bin(
     prob = 'posterior', design = 'controlled',
     theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
-    pi_t = 0.15, pi_c = 0.15,
+    pi_t_go = 0.15, pi_c_go = 0.15,
+    pi_t_nogo = 0.15, pi_c_nogo = 0.15,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
     ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_s3_class(result, "getgamma1bin")
-  expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_at_gamma_go", "PrNoGo_at_gamma_nogo",
-                    "gamma_grid", "PrGo_grid", "PrNoGo_grid") %in% names(result)))
+  expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_opt", "PrNoGo_opt",
+                    "target_go", "target_nogo", "grid_results") %in% names(result)))
+  expect_true(all(c("gamma_grid", "PrGo_grid", "PrNoGo_grid") %in%
+                    names(result$grid_results)))
 })
 
 test_that("getgamma1bin posterior controlled gamma values in (0, 1) or NA", {
   result <- getgamma1bin(
     prob = 'posterior', design = 'controlled',
     theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
-    pi_t = 0.15, pi_c = 0.15,
+    pi_t_go = 0.15, pi_c_go = 0.15,
+    pi_t_nogo = 0.15, pi_c_nogo = 0.15,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
     ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
-  if (!is.na(result$gamma_go)) expect_true(result$gamma_go > 0 && result$gamma_go < 1)
+  if (!is.na(result$gamma_go))   expect_true(result$gamma_go   > 0 && result$gamma_go   < 1)
   if (!is.na(result$gamma_nogo)) expect_true(result$gamma_nogo > 0 && result$gamma_nogo < 1)
-  expect_equal(length(result$PrGo_grid), length(result$gamma_grid))
-  expect_equal(length(result$PrNoGo_grid), length(result$gamma_grid))
+  expect_equal(length(result$grid_results$PrGo_grid),   length(result$grid_results$gamma_grid))
+  expect_equal(length(result$grid_results$PrNoGo_grid), length(result$grid_results$gamma_grid))
 })
 
 test_that("getgamma1bin posterior uncontrolled returns correct class", {
   result <- getgamma1bin(
     prob = 'posterior', design = 'uncontrolled',
     theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
-    pi_t = 0.15, pi_c = NULL,
+    pi_t_go = 0.15, pi_c_go = NULL,
+    pi_t_nogo = 0.15, pi_c_nogo = NULL,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = 3L, m_t = NULL, m_c = NULL,
@@ -530,30 +529,28 @@ test_that("getgamma1bin predictive controlled returns correct class", {
   result <- getgamma1bin(
     prob = 'predictive', design = 'controlled',
     theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0.10,
-    pi_t = 0.15, pi_c = 0.15,
+    pi_t_go = 0.15, pi_c_go = 0.15,
+    pi_t_nogo = 0.15, pi_c_nogo = 0.15,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = 30L, m_c = 30L,
     ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
   expect_s3_class(result, "getgamma1bin")
-  if (!is.na(result$PrGo_at_gamma_go))
-    expect_true(result$PrGo_at_gamma_go >= 0 && result$PrGo_at_gamma_go <= 1)
-  if (!is.na(result$PrNoGo_at_gamma_nogo))
-    expect_true(result$PrNoGo_at_gamma_nogo >= 0 && result$PrNoGo_at_gamma_nogo <= 1)
+  if (!is.na(result$PrGo_opt))
+    expect_true(result$PrGo_opt >= 0 && result$PrGo_opt <= 1)
+  if (!is.na(result$PrNoGo_opt))
+    expect_true(result$PrNoGo_opt >= 0 && result$PrNoGo_opt <= 1)
 })
 
 test_that("getgamma1bin external design returns correct class", {
   result <- getgamma1bin(
     prob = 'posterior', design = 'external',
     theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
-    pi_t = 0.15, pi_c = 0.15,
+    pi_t_go = 0.15, pi_c_go = 0.15,
+    pi_t_nogo = 0.15, pi_c_nogo = 0.15,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
@@ -566,24 +563,24 @@ test_that("getgamma1bin PrGo_grid and PrNoGo_grid values in [0, 1]", {
   result <- getgamma1bin(
     prob = 'posterior', design = 'controlled',
     theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
-    pi_t = 0.15, pi_c = 0.15,
+    pi_t_go = 0.15, pi_c_go = 0.15,
+    pi_t_nogo = 0.15, pi_c_nogo = 0.15,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5,
     z = NULL, m_t = NULL, m_c = NULL,
     ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL
   )
-  expect_true(all(result$PrGo_grid >= 0 & result$PrGo_grid <= 1))
-  expect_true(all(result$PrNoGo_grid >= 0 & result$PrNoGo_grid <= 1))
+  expect_true(all(result$grid_results$PrGo_grid   >= 0 & result$grid_results$PrGo_grid   <= 1))
+  expect_true(all(result$grid_results$PrNoGo_grid >= 0 & result$grid_results$PrNoGo_grid <= 1))
 })
 
 test_that("getgamma1bin input validation: invalid prob", {
   expect_error(getgamma1bin(
     prob = 'bayes', design = 'controlled',
     theta_TV = 0.20, theta_MAV = 0.05, theta_NULL = NULL,
-    pi_t = 0.15, pi_c = 0.15,
+    pi_t_go = 0.15, pi_c_go = 0.15,
+    pi_t_nogo = 0.15, pi_c_nogo = 0.15,
     target_go = 0.05, target_nogo = 0.20,
     n_t = 12L, n_c = 12L,
     a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5
@@ -599,10 +596,9 @@ test_that("getgamma1cont posterior vague MM controlled returns correct class and
     nsim = 50L, prob = 'posterior', design = 'controlled',
     prior = 'vague', CalcMethod = 'MM',
     theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
-    mu_t = 1.0, mu_c = 0.0, sigma_t = 1.5, sigma_c = 1.5,
+    mu_t_go = 1.0, mu_c_go = 0.0, sigma_t_go = 1.5, sigma_c_go = 1.5,
+    mu_t_nogo = 1.0, mu_c_nogo = 0.0, sigma_t_nogo = 1.5, sigma_c_nogo = 1.5,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = 10L, m_t = NULL, m_c = NULL,
     kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
     mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
@@ -610,8 +606,10 @@ test_that("getgamma1cont posterior vague MM controlled returns correct class and
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL, seed = 1L
   )
   expect_s3_class(result, "getgamma1cont")
-  expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_at_gamma_go", "PrNoGo_at_gamma_nogo",
-                    "gamma_grid", "PrGo_grid", "PrNoGo_grid") %in% names(result)))
+  expect_true(all(c("gamma_go", "gamma_nogo", "PrGo_opt", "PrNoGo_opt",
+                    "target_go", "target_nogo", "grid_results") %in% names(result)))
+  expect_true(all(c("gamma_grid", "PrGo_grid", "PrNoGo_grid") %in%
+                    names(result$grid_results)))
 })
 
 test_that("getgamma1cont posterior vague MM grid values in [0, 1]", {
@@ -619,19 +617,18 @@ test_that("getgamma1cont posterior vague MM grid values in [0, 1]", {
     nsim = 50L, prob = 'posterior', design = 'controlled',
     prior = 'vague', CalcMethod = 'MM',
     theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
-    mu_t = 1.0, mu_c = 0.0, sigma_t = 1.5, sigma_c = 1.5,
+    mu_t_go = 1.0, mu_c_go = 0.0, sigma_t_go = 1.5, sigma_c_go = 1.5,
+    mu_t_nogo = 1.0, mu_c_nogo = 0.0, sigma_t_nogo = 1.5, sigma_c_nogo = 1.5,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = 10L, m_t = NULL, m_c = NULL,
     kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
     mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
     r = NULL, ne_t = NULL, ne_c = NULL, alpha0e_t = NULL, alpha0e_c = NULL,
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL, seed = 1L
   )
-  expect_true(all(result$PrGo_grid >= 0 & result$PrGo_grid <= 1))
-  expect_true(all(result$PrNoGo_grid >= 0 & result$PrNoGo_grid <= 1))
-  expect_equal(length(result$PrGo_grid), length(result$gamma_grid))
+  expect_true(all(result$grid_results$PrGo_grid   >= 0 & result$grid_results$PrGo_grid   <= 1))
+  expect_true(all(result$grid_results$PrNoGo_grid >= 0 & result$grid_results$PrNoGo_grid <= 1))
+  expect_equal(length(result$grid_results$PrGo_grid), length(result$grid_results$gamma_grid))
 })
 
 test_that("getgamma1cont posterior uncontrolled vague MM returns correct class", {
@@ -639,10 +636,9 @@ test_that("getgamma1cont posterior uncontrolled vague MM returns correct class",
     nsim = 50L, prob = 'posterior', design = 'uncontrolled',
     prior = 'vague', CalcMethod = 'MM',
     theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
-    mu_t = 1.0, mu_c = NULL, sigma_t = 1.5, sigma_c = NULL,
+    mu_t_go = 1.0, mu_c_go = NULL, sigma_t_go = 1.5, sigma_c_go = NULL,
+    mu_t_nogo = 1.0, mu_c_nogo = NULL, sigma_t_nogo = 1.5, sigma_c_nogo = NULL,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = NULL, m_t = NULL, m_c = NULL,
     kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
     mu0_t = NULL, mu0_c = 0.0, sigma0_t = NULL, sigma0_c = NULL,
@@ -657,10 +653,9 @@ test_that("getgamma1cont predictive vague MM returns correct class", {
     nsim = 50L, prob = 'predictive', design = 'controlled',
     prior = 'vague', CalcMethod = 'MM',
     theta_TV = NULL, theta_MAV = NULL, theta_NULL = 0.0, nMC = NULL,
-    mu_t = 1.0, mu_c = 0.0, sigma_t = 1.5, sigma_c = 1.5,
+    mu_t_go = 1.0, mu_c_go = 0.0, sigma_t_go = 1.5, sigma_c_go = 1.5,
+    mu_t_nogo = 1.0, mu_c_nogo = 0.0, sigma_t_nogo = 1.5, sigma_c_nogo = 1.5,
     target_go = 0.05, target_nogo = 0.20,
-    crit_go = '<', crit_nogo = '<',
-    sel_go = 'smallest', sel_nogo = 'largest',
     n_t = 10L, n_c = 10L, m_t = 30L, m_c = 30L,
     kappa0_t = NULL, kappa0_c = NULL, nu0_t = NULL, nu0_c = NULL,
     mu0_t = NULL, mu0_c = NULL, sigma0_t = NULL, sigma0_c = NULL,
@@ -668,10 +663,10 @@ test_that("getgamma1cont predictive vague MM returns correct class", {
     bar_ye_t = NULL, se_t = NULL, bar_ye_c = NULL, se_c = NULL, seed = 3L
   )
   expect_s3_class(result, "getgamma1cont")
-  if (!is.na(result$PrGo_at_gamma_go))
-    expect_true(result$PrGo_at_gamma_go >= 0 && result$PrGo_at_gamma_go <= 1)
-  if (!is.na(result$PrNoGo_at_gamma_nogo))
-    expect_true(result$PrNoGo_at_gamma_nogo >= 0 && result$PrNoGo_at_gamma_nogo <= 1)
+  if (!is.na(result$PrGo_opt))
+    expect_true(result$PrGo_opt >= 0 && result$PrGo_opt <= 1)
+  if (!is.na(result$PrNoGo_opt))
+    expect_true(result$PrNoGo_opt >= 0 && result$PrNoGo_opt <= 1)
 })
 
 test_that("getgamma1cont input validation: invalid nsim", {
@@ -679,7 +674,8 @@ test_that("getgamma1cont input validation: invalid nsim", {
     nsim = -1L, prob = 'posterior', design = 'controlled',
     prior = 'vague', CalcMethod = 'MM',
     theta_TV = 1.0, theta_MAV = 0.0, theta_NULL = NULL, nMC = NULL,
-    mu_t = 1.0, mu_c = 0.0, sigma_t = 1.5, sigma_c = 1.5,
+    mu_t_go = 1.0, mu_c_go = 0.0, sigma_t_go = 1.5, sigma_c_go = 1.5,
+    mu_t_nogo = 1.0, mu_c_nogo = 0.0, sigma_t_nogo = 1.5, sigma_c_nogo = 1.5,
     target_go = 0.05, target_nogo = 0.20,
     n_t = 10L, n_c = 10L, seed = 1L
   ))
