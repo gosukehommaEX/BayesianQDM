@@ -637,24 +637,17 @@ pbayespostpred2cont <- function(prob,
          nu_star = nu_star)
   }
 
-  # MM: rectangular region probability via inclusion-exclusion
+  # MM: rectangular region probability via direct lower/upper bounds
   .rect_prob <- function(lo1, hi1, lo2, hi2, mm) {
-    nu_r <- round(mm$nu_star)
     sig  <- mm$Sigma_star
     mu_d <- mm$mu_diff
-    corners <- rbind(
-      c(lo1 - mu_d[1L], lo2 - mu_d[2L]),
-      c(hi1 - mu_d[1L], lo2 - mu_d[2L]),
-      c(lo1 - mu_d[1L], hi2 - mu_d[2L]),
-      c(hi1 - mu_d[1L], hi2 - mu_d[2L])
-    )
-    signs <- c(1, -1, -1, 1)
-    val   <- 0
-    for (k in seq_len(4L)) {
-      val <- val + signs[k] *
-        as.numeric(mvtnorm::pmvt(lower = c(-Inf, -Inf), upper = corners[k, ],
-                                 delta = c(0, 0), sigma = sig, df = nu_r))
-    }
+    # Single pmvt call with explicit lower and upper bounds (4x faster than
+    # manual inclusion-exclusion with four separate pmvt calls)
+    val <- as.numeric(mvtnorm::pmvt(
+      lower = c(lo1 - mu_d[1L], lo2 - mu_d[2L]),
+      upper = c(hi1 - mu_d[1L], hi2 - mu_d[2L]),
+      delta = c(0, 0), sigma = sig, df = as.integer(round(mm$nu_star))
+    ))
     pmax(val, 0)
   }
 
