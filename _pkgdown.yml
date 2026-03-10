@@ -1,6 +1,7 @@
 url: https://gosukehommaEX.github.io/BayesianQDM/
 template:
   bootstrap: 5
+  math-rendering: mathjax
 
 home:
   title: BayesianQDM

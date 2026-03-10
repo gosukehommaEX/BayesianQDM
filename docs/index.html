@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" sizes="any" href="favicon.ico">
 <link rel="manifest" href="site.webmanifest">
-<script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -85,7 +91,7 @@
 <li>
 <strong>Single and Two Endpoints</strong>: Supports single binary, single continuous, two binary, and two continuous endpoint analyses</li>
 <li>
-<strong>Multiple Study Designs</strong>: Controlled, uncontrolled (hypothetical control), and external control designs</li>
+<strong>Multiple Study Designs</strong>: Controlled, uncontrolled (hypothetical control), and external designs</li>
 <li>
 <strong>Flexible Prior Specification</strong>: Vague (Jeffreys) priors and conjugate priors (Beta, Normal-Inverse-Chi-squared, Normal-Inverse-Wishart, Dirichlet)</li>
 <li>
@@ -215,6 +221,70 @@
 </table>
 </div>
 <div class="section level3">
+<h3 id="s3-methods">S3 Methods<a class="anchor" aria-label="anchor" href="#s3-methods"></a>
+</h3>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code><a href="reference/print.pbayesdecisionprob1bin.html">print.pbayesdecisionprob1bin()</a></code></td>
+<td>Print method for <code>pbayesdecisionprob1bin</code> objects</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/print.pbayesdecisionprob1cont.html">print.pbayesdecisionprob1cont()</a></code></td>
+<td>Print method for <code>pbayesdecisionprob1cont</code> objects</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/print.pbayesdecisionprob2bin.html">print.pbayesdecisionprob2bin()</a></code></td>
+<td>Print method for <code>pbayesdecisionprob2bin</code> objects</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/print.pbayesdecisionprob2cont.html">print.pbayesdecisionprob2cont()</a></code></td>
+<td>Print method for <code>pbayesdecisionprob2cont</code> objects</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/plot.pbayesdecisionprob1bin.html">plot.pbayesdecisionprob1bin()</a></code></td>
+<td>Plot method for <code>pbayesdecisionprob1bin</code> objects</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/plot.pbayesdecisionprob1cont.html">plot.pbayesdecisionprob1cont()</a></code></td>
+<td>Plot method for <code>pbayesdecisionprob1cont</code> objects</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/plot.pbayesdecisionprob2bin.html">plot.pbayesdecisionprob2bin()</a></code></td>
+<td>Plot method for <code>pbayesdecisionprob2bin</code> objects</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/plot.pbayesdecisionprob2cont.html">plot.pbayesdecisionprob2cont()</a></code></td>
+<td>Plot method for <code>pbayesdecisionprob2cont</code> objects</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/plot.getgamma1bin.html">plot.getgamma1bin()</a></code></td>
+<td>Plot method for <code>getgamma1bin</code> objects</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/plot.getgamma1cont.html">plot.getgamma1cont()</a></code></td>
+<td>Plot method for <code>getgamma1cont</code> objects</td>
+</tr>
+<tr class="odd">
+<td><code><a href="reference/plot.getgamma2bin.html">plot.getgamma2bin()</a></code></td>
+<td>Plot method for <code>getgamma2bin</code> objects</td>
+</tr>
+<tr class="even">
+<td><code><a href="reference/plot.getgamma2cont.html">plot.getgamma2cont()</a></code></td>
+<td>Plot method for <code>getgamma2cont</code> objects</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level3">
 <h3 id="distribution-and-utility-functions">Distribution and Utility Functions<a class="anchor" aria-label="anchor" href="#distribution-and-utility-functions"></a>
 </h3>
 <table class="table">
@@ -277,9 +347,9 @@
 <p>Single-arm studies using a hypothetical control distribution specified through prior parameters or a variance scaling factor.</p>
 </div>
 <div class="section level3">
-<h3 id="external-control-design">External Control Design<a class="anchor" aria-label="anchor" href="#external-control-design"></a>
+<h3 id="external-design">External Design<a class="anchor" aria-label="anchor" href="#external-design"></a>
 </h3>
-<p>Incorporates historical or external control (and/or treatment) data through power priors using exact conjugate representations, enabling efficient Bayesian computation without MCMC sampling.</p>
+<p>Incorporates historical or external control and/or treatment data through power priors using exact conjugate representations, enabling efficient Bayesian computation without MCMC sampling.</p>
 </div>
 </div>
 <div class="section level2">
@@ -294,12 +364,12 @@
 <li>
 <strong>MM</strong> (Moment-Matching): Closed-form approximation by matching the first two even moments of the difference distribution to a single t-distribution; fully vectorised and recommended for large-scale simulation studies</li>
 </ul>
-<p>For two continuous endpoints, MC and MM methods are available for computing joint rectangular region probabilities under a bivariate t-distribution approximation (Theorem 3, Homma and Yamaguchi, 2025).</p>
+<p>For two continuous endpoints, MC and MM methods are available for computing joint rectangular region probabilities under a bivariate t-distribution approximation.</p>
 </div>
 <div class="section level2">
 <h2 id="optimal-threshold-search">Optimal Threshold Search<a class="anchor" aria-label="anchor" href="#optimal-threshold-search"></a>
 </h2>
-<p>The <code>getgamma</code> family of functions finds optimal Go threshold <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\gamma_1</annotation></semantics></math> and NoGo threshold <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\gamma_2</annotation></semantics></math> by grid search, given user-specified target operating characteristics (e.g., Pr(Go) and Pr(NoGo) under specified true parameter scenarios). The search follows a two-stage precompute-then-sweep strategy for computational efficiency.</p>
+<p>The <code>getgamma</code> family of functions finds optimal Go threshold <span class="math inline">\(\gamma_go\)</span> and NoGo threshold <span class="math inline">\(\gamma_nogo\)</span> by grid search, given user-specified target operating characteristics (e.g., Pr(Go) and Pr(NoGo) under specified true parameter scenarios). The search follows a two-stage precompute-then-sweep strategy for computational efficiency.</p>
 </div>
 <div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
@@ -388,9 +458,9 @@ R package version 0.1.0.</code></pre>
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="http://cran.r-project.org/package=BayesianQDM" class="external-link"><img src="http://www.r-pkg.org/badges/version/BayesianQDM" alt="CRAN_Status_Badge"></a></li>
+<li><a href="https://cran.r-project.org/package=BayesianQDM" class="external-link"><img src="https://www.r-pkg.org/badges/version/BayesianQDM" alt="CRAN_Status_Badge"></a></li>
 <li><a href="https://github.com/gosukehommaEX/BayesianQDM/actions" class="external-link"><img src="https://github.com/gosukehommaEX/BayesianQDM/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://codecov.io/gh/gosukehommaEX/BayesianQDM?branch=main" class="external-link"><img src="https://codecov.io/gh/gosukehommaEX/BayesianQDM/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://app.codecov.io/gh/gosukehommaEX/BayesianQDM?branch=main" class="external-link"><img src="https://codecov.io/gh/gosukehommaEX/BayesianQDM/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#stable" class="external-link"><img src="https://img.shields.io/badge/lifecycle-stable-brightgreen.svg" alt="Lifecycle: stable"></a></li>
 </ul>
 </div>

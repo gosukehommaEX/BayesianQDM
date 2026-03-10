@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -80,34 +86,22 @@
 </h2>
 <p>We use a hypothetical Phase IIa proof-of-concept (PoC) trial in
 moderate-to-severe rheumatoid arthritis (RA). The investigational drug
-is compared with placebo in a 1:1 randomised controlled trial with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>1</mn></msub><mo>=</mo><msub><mi>n</mi><mn>2</mn></msub><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">n_1 = n_2 = 12</annotation></semantics></math>
-patients per arm.</p>
-<p><strong>Endpoint</strong>: ACR20 response rate (proportion of
-patients achieving
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>20</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\ge 20\%</annotation></semantics></math>
-improvement in ACR criteria).</p>
-<p><strong>Clinically meaningful thresholds</strong> (posterior
-probability):</p>
+is compared with placebo in a 1:1 randomised controlled trial with <span class="math inline">\(n_t = n_c = 12\)</span> patients per group.</p>
+<p>Endpoint: ACR20 response rate (proportion of patients achieving <span class="math inline">\(\ge 20\%\)</span> improvement in ACR
+criteria).</p>
+<p>Clinically meaningful thresholds (posterior probability):</p>
 <ul>
 <li>Target Value (TV) = 0.20 (treatment–control difference)</li>
 <li>Minimum Acceptable Value (MAV) = 0.05</li>
 </ul>
-<p><strong>Null hypothesis threshold</strong> (predictive probability):
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">U</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><mo>=</mo><mn>0.10</mn></mrow><annotation encoding="application/x-tex">\theta_{\mathrm{NULL}} = 0.10</annotation></semantics></math>.</p>
-<p><strong>Decision thresholds</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mn>1</mn></msub><mo>=</mo><mn>0.80</mn></mrow><annotation encoding="application/x-tex">\gamma_1 = 0.80</annotation></semantics></math>
-(Go),
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mn>2</mn></msub><mo>=</mo><mn>0.20</mn></mrow><annotation encoding="application/x-tex">\gamma_2 = 0.20</annotation></semantics></math>
-(NoGo).</p>
-<p><strong>Observed data</strong> (used in Sections 2–4):
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">y_1 = 8</annotation></semantics></math>
-responders out of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>1</mn></msub><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">n_1 = 12</annotation></semantics></math>
-(treatment);
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mn>2</mn></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">y_2 = 3</annotation></semantics></math>
-responders out of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>2</mn></msub><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">n_2 = 12</annotation></semantics></math>
+<p>Null hypothesis threshold (predictive probability): <span class="math inline">\(\theta_{\mathrm{NULL}} = 0.10\)</span>.</p>
+<p>Decision thresholds: <span class="math inline">\(\gamma_{\mathrm{go}}
+= 0.80\)</span> (Go), <span class="math inline">\(\gamma_{\mathrm{nogo}}
+= 0.20\)</span> (NoGo).</p>
+<p>Observed data (used in Sections 2–4): <span class="math inline">\(y_t
+= 8\)</span> responders out of <span class="math inline">\(n_t =
+12\)</span> (treatment); <span class="math inline">\(y_c = 3\)</span>
+responders out of <span class="math inline">\(n_c = 12\)</span>
 (control).</p>
 <hr>
 </div>
@@ -117,73 +111,62 @@ responders out of
 <div class="section level3">
 <h3 id="prior-distribution">1.1 Prior Distribution<a class="anchor" aria-label="anchor" href="#prior-distribution"></a>
 </h3>
-<p>Let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\pi_j</annotation></semantics></math>
-denote the true response rate in group
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">j = 1</annotation></semantics></math>:
-treatment,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">j = 2</annotation></semantics></math>:
-control). We model the number of responders as</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>j</mi></msub><mo>∣</mo><msub><mi>π</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mi>j</mi></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>π</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">y_j \mid \pi_j \;\sim\; \mathrm{Binomial}(n_j,\, \pi_j),</annotation></semantics></math></p>
+<p>Let <span class="math inline">\(\pi_j\)</span> denote the true
+response rate in group <span class="math inline">\(j\)</span> (<span class="math inline">\(j = t\)</span>: treatment, <span class="math inline">\(j = c\)</span>: control). We model the number of
+responders as</p>
+<p><span class="math display">\[y_j \mid \pi_j \;\sim\;
+\mathrm{Binomial}(n_j,\, \pi_j),\]</span></p>
 <p>and place independent Beta priors on each rate:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>j</mi></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>b</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\pi_j \;\sim\; \mathrm{Beta}(a_j,\, b_j),</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>j</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a_j &gt; 0</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mi>j</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">b_j &gt; 0</annotation></semantics></math>
-are the shape parameters.</p>
-<p>The <strong>Jeffreys prior</strong> corresponds to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>j</mi></msub><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">a_j = b_j = 0.5</annotation></semantics></math>,
-giving a weakly informative, symmetric prior on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, 1)</annotation></semantics></math>.
-The <strong>uniform prior</strong> corresponds to
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>j</mi></msub><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a_j = b_j = 1</annotation></semantics></math>.</p>
+<p><span class="math display">\[\pi_j \;\sim\; \mathrm{Beta}(a_j,\,
+b_j),\]</span></p>
+<p>where <span class="math inline">\(a_j &gt; 0\)</span> and <span class="math inline">\(b_j &gt; 0\)</span> are the shape parameters.</p>
+<p>The Jeffreys prior corresponds to <span class="math inline">\(a_j =
+b_j = 0.5\)</span>, giving a weakly informative, symmetric prior on
+<span class="math inline">\((0, 1)\)</span>. The uniform prior
+corresponds to <span class="math inline">\(a_j = b_j = 1\)</span>.</p>
 </div>
 <div class="section level3">
 <h3 id="posterior-distribution">1.2 Posterior Distribution<a class="anchor" aria-label="anchor" href="#posterior-distribution"></a>
 </h3>
 <p>By conjugacy of the Beta-Binomial model, the posterior after
-observing
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>j</mi></msub><annotation encoding="application/x-tex">y_j</annotation></semantics></math>
-responders among
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>j</mi></msub><annotation encoding="application/x-tex">n_j</annotation></semantics></math>
-patients is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>j</mi></msub><mo>∣</mo><msub><mi>y</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\pi_j \mid y_j \;\sim\; \mathrm{Beta}(a_j^*,\, b_j^*),</annotation></semantics></math></p>
+observing <span class="math inline">\(y_j\)</span> responders among
+<span class="math inline">\(n_j\)</span> patients is</p>
+<p><span class="math display">\[\pi_j \mid y_j \;\sim\;
+\mathrm{Beta}(a_j^*,\, b_j^*),\]</span></p>
 <p>where the posterior shape parameters are</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>a</mi><mi>j</mi></msub><mo>+</mo><msub><mi>y</mi><mi>j</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">a_j^* = a_j + y_j, \qquad b_j^* = b_j + n_j - y_j.</annotation></semantics></math></p>
+<p><span class="math display">\[a_j^* = a_j + y_j, \qquad b_j^* = b_j +
+n_j - y_j.\]</span></p>
 <p>The posterior mean and variance are</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>π</mi><mi>j</mi></msub><mo>∣</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mfrac><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mrow><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup></mrow></mfrac><mo>,</mo><mspace width="2.0em"></mspace><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mi>j</mi></msub><mo>∣</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mspace width="0.167em"></mspace><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup></mrow><mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">E[\pi_j \mid y_j] = \frac{a_j^*}{a_j^* + b_j^*}, \qquad
+<p><span class="math display">\[E[\pi_j \mid y_j] = \frac{a_j^*}{a_j^* +
+b_j^*}, \qquad
   \mathrm{Var}(\pi_j \mid y_j) =
-  \frac{a_j^*\, b_j^*}{(a_j^* + b_j^*)^2\,(a_j^* + b_j^* + 1)}.</annotation></semantics></math></p>
+  \frac{a_j^*\, b_j^*}{(a_j^* + b_j^*)^2\,(a_j^* + b_j^* +
+1)}.\]</span></p>
 </div>
 <div class="section level3">
 <h3 id="posterior-of-the-treatment-effect">1.3 Posterior of the Treatment Effect<a class="anchor" aria-label="anchor" href="#posterior-of-the-treatment-effect"></a>
 </h3>
-<p>The treatment effect is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\theta = \pi_1 - \pi_2</annotation></semantics></math>.
-Since the two groups are independent,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>∣</mo><mi>𝐲</mi></mrow><annotation encoding="application/x-tex">\theta \mid \mathbf{y}</annotation></semantics></math>
-follows the distribution of the difference of two independent Beta
-random variables:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mn>1</mn></msub><mo>∣</mo><msub><mi>y</mi><mn>1</mn></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mn>1</mn><mo>*</mo></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>b</mi><mn>1</mn><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>π</mi><mn>2</mn></msub><mo>∣</mo><msub><mi>y</mi><mn>2</mn></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mn>2</mn><mo>*</mo></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>b</mi><mn>2</mn><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\pi_1 \mid y_1 \;\sim\; \mathrm{Beta}(a_1^*,\, b_1^*), \qquad
-  \pi_2 \mid y_2 \;\sim\; \mathrm{Beta}(a_2^*,\, b_2^*).</annotation></semantics></math></p>
-<p>There is no closed-form CDF for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\theta = \pi_1 - \pi_2</annotation></semantics></math>,
-so the posterior probability</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(\theta &gt; \theta_0 \mid \mathbf{y}) = P(\pi_1 - \pi_2 &gt; \theta_0
-  \mid \mathbf{y})</annotation></semantics></math></p>
+<p>The treatment effect is <span class="math inline">\(\theta = \pi_t -
+\pi_c\)</span>. Since the two groups are independent, <span class="math inline">\(\theta \mid y_t, y_c\)</span> follows the
+distribution of the difference of two independent Beta random
+variables:</p>
+<p><span class="math display">\[\pi_t \mid y_t \;\sim\;
+\mathrm{Beta}(a_t^*,\, b_t^*), \qquad
+  \pi_c \mid y_c \;\sim\; \mathrm{Beta}(a_c^*,\, b_c^*).\]</span></p>
+<p>There is no closed-form CDF for <span class="math inline">\(\theta =
+\pi_t - \pi_c\)</span>, so the posterior probability</p>
+<p><span class="math display">\[P(\theta &gt; \theta_0 \mid y_t, y_c) =
+P(\pi_t - \pi_c &gt; \theta_0
+  \mid y_t, y_c)\]</span></p>
 <p>is evaluated by the convolution integral implemented in
 <code><a href="../reference/pbetadiff.html">pbetadiff()</a></code>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mo>∫</mo><mn>0</mn><mn>1</mn></msubsup><msub><mi>F</mi><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mn>2</mn><mo>*</mo></msubsup><mo>,</mo><msubsup><mi>b</mi><mn>2</mn><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>−</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msub><mi>f</mi><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mn>1</mn><mo>*</mo></msubsup><mo>,</mo><msubsup><mi>b</mi><mn>1</mn><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mi>d</mi><mi>x</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">P(\pi_1 - \pi_2 &gt; \theta_0) =
+<p><span class="math display">\[P(\pi_t - \pi_c &gt; \theta_0) =
   \int_0^1
-  F_{\mathrm{Beta}(a_2^*, b_2^*)}\!\left(x - \theta_0\right)\,
-  f_{\mathrm{Beta}(a_1^*, b_1^*)}\!(x)\; dx,</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>α</mi><mo>,</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">F_{\mathrm{Beta}(\alpha,\beta)}</annotation></semantics></math>
-is the Beta CDF and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>α</mi><mo>,</mo><mi>β</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">f_{\mathrm{Beta}(\alpha,\beta)}</annotation></semantics></math>
-is the Beta PDF. This one-dimensional integral is evaluated by adaptive
+  F_{\mathrm{Beta}(a_c^*, b_c^*)}\!\left(x - \theta_0\right)\,
+  f_{\mathrm{Beta}(a_t^*, b_t^*)}\!(x)\; dx,\]</span></p>
+<p>where <span class="math inline">\(F_{\mathrm{Beta}(\alpha,\beta)}\)</span> is the
+Beta CDF and <span class="math inline">\(f_{\mathrm{Beta}(\alpha,\beta)}\)</span> is the
+Beta PDF. This one-dimensional integral is evaluated by adaptive
 Gauss-Kronrod quadrature via <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">stats::integrate()</a></code>.</p>
 <hr>
 </div>
@@ -194,39 +177,32 @@ Gauss-Kronrod quadrature via <code><a href="https://rdrr.io/r/stats/integrate.ht
 <div class="section level3">
 <h3 id="beta-binomial-predictive-distribution">2.1 Beta-Binomial Predictive Distribution<a class="anchor" aria-label="anchor" href="#beta-binomial-predictive-distribution"></a>
 </h3>
-<p>Let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mi>j</mi></msub><mo>∣</mo><msub><mi>π</mi><mi>j</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>j</mi></msub><mo>,</mo><msub><mi>π</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tilde{y}_j \mid \pi_j \sim \mathrm{Binomial}(m_j, \pi_j)</annotation></semantics></math>
-be future trial counts with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mi>j</mi></msub><annotation encoding="application/x-tex">m_j</annotation></semantics></math>
-future patients. Integrating out
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\pi_j</annotation></semantics></math>
-over its Beta posterior gives the Beta-Binomial predictive
-distribution:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mi>j</mi></msub><mo>=</mo><mi>k</mi><mo>∣</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>m</mi><mi>j</mi></msub><mi>k</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mfrac><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><mi>k</mi><mo>,</mo><mspace width="0.278em"></mspace><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><msub><mi>m</mi><mi>j</mi></msub><mo>−</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>,</mo><mspace width="0.278em"></mspace><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>m</mi><mi>j</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">P(\tilde{y}_j = k \mid y_j) =
+<p>Let <span class="math inline">\(\tilde{y}_j \mid \pi_j \sim
+\mathrm{Binomial}(m_j, \pi_j)\)</span> be future trial counts with <span class="math inline">\(m_j\)</span> future patients. Integrating out
+<span class="math inline">\(\pi_j\)</span> over its Beta posterior gives
+the Beta-Binomial predictive distribution:</p>
+<p><span class="math display">\[P(\tilde{y}_j = k \mid y_j) =
   \binom{m_j}{k}
   \frac{B(a_j^* + k,\; b_j^* + m_j - k)}{B(a_j^*,\; b_j^*)},
-  \quad k = 0, 1, \ldots, m_j,</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo>,</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">B(\cdot, \cdot)</annotation></semantics></math>
-is the Beta function.</p>
+  \quad k = 0, 1, \ldots, m_j,\]</span></p>
+<p>where <span class="math inline">\(B(\cdot, \cdot)\)</span> is the
+Beta function.</p>
 </div>
 <div class="section level3">
 <h3 id="posterior-predictive-probability-of-future-success">2.2 Posterior Predictive Probability of Future Success<a class="anchor" aria-label="anchor" href="#posterior-predictive-probability-of-future-success"></a>
 </h3>
 <p>The posterior predictive probability that the future treatment
-difference exceeds
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">U</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{NULL}}</annotation></semantics></math>
-is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>1</mn></msub><msub><mi>m</mi><mn>1</mn></msub></mfrac><mo>−</mo><mfrac><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>2</mn></msub><msub><mi>m</mi><mn>2</mn></msub></mfrac><mo>&gt;</mo><msub><mi>θ</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">U</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><mspace width="0.278em"></mspace><mo minsize="1.8" maxsize="1.8" stretchy="false" form="prefix">|</mo><mspace width="0.278em"></mspace><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><msub><mi>k</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn></mrow><msub><mi>m</mi><mn>1</mn></msub></munderover><munderover><mo>∑</mo><mrow><msub><mi>k</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn></mrow><msub><mi>m</mi><mn>2</mn></msub></munderover><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><mfrac><msub><mi>k</mi><mn>1</mn></msub><msub><mi>m</mi><mn>1</mn></msub></mfrac><mo>−</mo><mfrac><msub><mi>k</mi><mn>2</mn></msub><msub><mi>m</mi><mn>2</mn></msub></mfrac><mo>&gt;</mo><msub><mi>θ</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">U</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mspace width="0.167em"></mspace><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>1</mn></msub><mo>=</mo><msub><mi>k</mi><mn>1</mn></msub><mo>∣</mo><msub><mi>y</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>2</mn></msub><mo>=</mo><msub><mi>k</mi><mn>2</mn></msub><mo>∣</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">P\!\left(\frac{\tilde{y}_1}{m_1} - \frac{\tilde{y}_2}{m_2}
-  &gt; \theta_{\mathrm{NULL}} \;\Big|\; \mathbf{y}\right)
-  = \sum_{k_1=0}^{m_1} \sum_{k_2=0}^{m_2}
-  \mathbf{1}\!\left[\frac{k_1}{m_1} - \frac{k_2}{m_2} &gt;
+difference exceeds <span class="math inline">\(\theta_{\mathrm{NULL}}\)</span> is</p>
+<p><span class="math display">\[P\!\left(\frac{\tilde{y}_t}{m_t} -
+\frac{\tilde{y}_c}{m_c}
+  &gt; \theta_{\mathrm{NULL}} \;\Big|\; y_t, y_c\right)
+  = \sum_{k_t=0}^{m_t} \sum_{k_c=0}^{m_c}
+  \mathbf{1}\!\left[\frac{k_t}{m_t} - \frac{k_c}{m_c} &gt;
   \theta_{\mathrm{NULL}}\right]\,
-  P(\tilde{y}_1 = k_1 \mid y_1)\,
-  P(\tilde{y}_2 = k_2 \mid y_2).</annotation></semantics></math></p>
-<p>This double sum over all
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mn>1</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mn>2</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(m_1 + 1)(m_2 + 1)</annotation></semantics></math>
-outcome combinations is evaluated exactly by
+  P(\tilde{y}_t = k_t \mid y_t)\,
+  P(\tilde{y}_c = k_c \mid y_c).\]</span></p>
+<p>This double sum over all <span class="math inline">\((m_t + 1)(m_c +
+1)\)</span> outcome combinations is evaluated exactly by
 <code><a href="../reference/pbetabinomdiff.html">pbetabinomdiff()</a></code>.</p>
 <hr>
 </div>
@@ -237,33 +213,34 @@ outcome combinations is evaluated exactly by
 <div class="section level3">
 <h3 id="controlled-design">3.1 Controlled Design<a class="anchor" aria-label="anchor" href="#controlled-design"></a>
 </h3>
-<p>Standard parallel-group RCT with observed data from both arms. The
-posterior shape parameters for group
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
-are</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>a</mi><mi>j</mi></msub><mo>+</mo><msub><mi>y</mi><mi>j</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">a_j^* = a_j + y_j, \qquad b_j^* = b_j + n_j - y_j,</annotation></semantics></math></p>
-<p>and the posterior probability is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(\pi_1 - \pi_2 &gt; \theta_0 \mid \mathbf{y})</annotation></semantics></math>
-computed via <code><a href="../reference/pbetadiff.html">pbetadiff()</a></code>.</p>
-<p><strong>Posterior probability at TV and MAV</strong>:</p>
+<p>Standard parallel-group RCT with observed data from both groups. The
+posterior shape parameters for group <span class="math inline">\(j\)</span> are</p>
+<p><span class="math display">\[a_j^* = a_j + y_j, \qquad b_j^* = b_j +
+n_j - y_j,\]</span></p>
+<p>and the posterior probability is <span class="math inline">\(P(\pi_t
+- \pi_c &gt; \theta_0 \mid y_t, y_c)\)</span> computed via
+<code><a href="../reference/pbetadiff.html">pbetadiff()</a></code>.</p>
+<p>Posterior probability at TV and MAV:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># P(pi1 - pi2 &gt; TV  | data)</span></span>
+<code class="sourceCode R"><span><span class="co"># P(pi_t - pi_c &gt; TV  | data)</span></span>
 <span><span class="va">p_tv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, theta0 <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, y1 <span class="op">=</span> <span class="fl">8</span>, y2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">12</span>, n_c <span class="op">=</span> <span class="fl">12</span>, y_t <span class="op">=</span> <span class="fl">8</span>, y_c <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># P(pi1 - pi2 &gt; MAV | data)</span></span>
+<span><span class="co"># P(pi_t - pi_c &gt; MAV | data)</span></span>
 <span><span class="va">p_mav</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, theta0 <span class="op">=</span> <span class="fl">0.05</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, y1 <span class="op">=</span> <span class="fl">8</span>, y2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">12</span>, n_c <span class="op">=</span> <span class="fl">12</span>, y_t <span class="op">=</span> <span class="fl">8</span>, y_c <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -278,94 +255,87 @@ computed via <code><a href="../reference/pbetadiff.html">pbetadiff()</a></code>.
 <span>                   <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p_tv</span> <span class="op">&lt;</span> <span class="fl">0.80</span> <span class="op">&amp;</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p_mav</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">0.20</span>, <span class="st">"NoGo"</span>,</span>
 <span>                          <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p_tv</span> <span class="op">&gt;=</span> <span class="fl">0.80</span> <span class="op">&amp;</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p_mav</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">0.20</span>, <span class="st">"Miss"</span>, <span class="st">"Gray"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Decision: Go</span></span></code></pre></div>
-<p><strong>Posterior predictive probability</strong> (future Phase III:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mn>1</mn></msub><mo>=</mo><msub><mi>m</mi><mn>2</mn></msub><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">m_1 = m_2 = 40</annotation></semantics></math>):</p>
+<p>Posterior predictive probability (future Phase III: <span class="math inline">\(m_t = m_c = 40\)</span>):</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'predictive'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, theta0 <span class="op">=</span> <span class="fl">0.10</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, y1 <span class="op">=</span> <span class="fl">8</span>, y2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="fl">40</span>, m2 <span class="op">=</span> <span class="fl">40</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">12</span>, n_c <span class="op">=</span> <span class="fl">12</span>, y_t <span class="op">=</span> <span class="fl">8</span>, y_c <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m_t <span class="op">=</span> <span class="fl">40</span>, m_c <span class="op">=</span> <span class="fl">40</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Predictive probability (m1 = m2 = 40) = %.4f\n"</span>, <span class="va">p_pred</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Predictive probability (m1 = m2 = 40) = 0.9053</span></span></code></pre></div>
-<p><strong>Vectorised computation over all possible
-outcomes</strong>:</p>
-<p>The function accepts vectors for <code>y1</code> and <code>y2</code>,
-enabling efficient computation of the posterior probability for every
-possible outcome pair
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">}</mo><mo>×</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">(y_1, y_2) \in \{0,\ldots,n_1\} \times \{0,\ldots,n_2\}</annotation></semantics></math>.</p>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"Predictive probability (m_t = m_c = 40) = %.4f\n"</span>, <span class="va">p_pred</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Predictive probability (m_t = m_c = 40) = 0.9053</span></span></code></pre></div>
+<p>Vectorised computation over all possible outcomes:</p>
+<p>The function accepts vectors for <code>y_t</code> and
+<code>y_c</code>, enabling efficient computation of the posterior
+probability for every possible outcome pair <span class="math inline">\((y_t, y_c) \in \{0,\ldots,n_t\} \times
+\{0,\ldots,n_c\}\)</span>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>y1 <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">12</span>, y2 <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span>y_t <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">12</span>, y_c <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span></span>
 <span><span class="va">p_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, theta0 <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, y1 <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">y1</span>, y2 <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">y2</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">12</span>, n_c <span class="op">=</span> <span class="fl">12</span>, y_t <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">y_t</span>, y_c <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">y_c</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Show results for a selection of outcome pairs</span></span>
-<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y1 <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">y1</span>, y2 <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">y2</span>, P_gt_TV <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">p_all</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y_t <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">y_t</span>, y_c <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">y_c</span>, P_gt_TV <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">p_all</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sel</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">sel</span><span class="op">$</span><span class="va">P_gt_TV</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    y1 y2 P_gt_TV</span></span>
-<span><span class="co">#&gt; 12 11  0  1.0000</span></span>
-<span><span class="co">#&gt; 13 12  0  1.0000</span></span>
-<span><span class="co">#&gt; 26 12  1  1.0000</span></span>
-<span><span class="co">#&gt; 11 10  0  0.9998</span></span>
-<span><span class="co">#&gt; 39 12  2  0.9998</span></span>
-<span><span class="co">#&gt; 25 11  1  0.9997</span></span>
-<span><span class="co">#&gt; 10  9  0  0.9992</span></span>
-<span><span class="co">#&gt; 52 12  3  0.9992</span></span>
-<span><span class="co">#&gt; 24 10  1  0.9982</span></span>
-<span><span class="co">#&gt; 38 11  2  0.9982</span></span></code></pre></div>
+<span><span class="co">#&gt;    y_t y_c P_gt_TV</span></span>
+<span><span class="co">#&gt; 12  11   0  1.0000</span></span>
+<span><span class="co">#&gt; 13  12   0  1.0000</span></span>
+<span><span class="co">#&gt; 26  12   1  1.0000</span></span>
+<span><span class="co">#&gt; 11  10   0  0.9998</span></span>
+<span><span class="co">#&gt; 39  12   2  0.9998</span></span>
+<span><span class="co">#&gt; 25  11   1  0.9997</span></span>
+<span><span class="co">#&gt; 10   9   0  0.9992</span></span>
+<span><span class="co">#&gt; 52  12   3  0.9992</span></span>
+<span><span class="co">#&gt; 24  10   1  0.9982</span></span>
+<span><span class="co">#&gt; 38  11   2  0.9982</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="uncontrolled-design-single-arm">3.2 Uncontrolled Design (Single-Arm)<a class="anchor" aria-label="anchor" href="#uncontrolled-design-single-arm"></a>
 </h3>
-<p>When no concurrent control arm is enrolled, a <strong>hypothetical
-control responder count</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
-is specified from historical knowledge. The control posterior is
-then</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mn>2</mn></msub><mo>∣</mo><mi>z</mi><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mn>2</mn></msub><mo>+</mo><mi>z</mi><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>b</mi><mn>2</mn></msub><mo>+</mo><msub><mi>n</mi><mn>2</mn></msub><mo>−</mo><mi>z</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\pi_2 \mid z \;\sim\; \mathrm{Beta}(a_2 + z,\; b_2 + n_2 - z),</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mn>2</mn></msub><annotation encoding="application/x-tex">n_2</annotation></semantics></math>
-is the hypothetical control sample size and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
-is the assumed number of hypothetical responders
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>≤</mo><mi>z</mi><mo>≤</mo><msub><mi>n</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">0 \le z \le n_2</annotation></semantics></math>).
-Only the treatment arm data
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">y_1</annotation></semantics></math>
-are observed;
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">y_2</annotation></semantics></math>
-is set to <code>NULL</code>.</p>
+<p>When no concurrent control group is enrolled, a hypothetical control
+responder count <span class="math inline">\(z\)</span> is specified from
+historical knowledge. The control posterior is then</p>
+<p><span class="math display">\[\pi_c \mid z \;\sim\; \mathrm{Beta}(a_c
++ z,\; b_c + n_c - z),\]</span></p>
+<p>where <span class="math inline">\(n_c\)</span> is the hypothetical
+control sample size and <span class="math inline">\(z\)</span> is the
+assumed number of hypothetical responders (<span class="math inline">\(0
+\le z \le n_c\)</span>). Only the treatment group data <span class="math inline">\(y_t\)</span> are observed; <span class="math inline">\(y_c\)</span> is set to <code>NULL</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Hypothetical control: z = 2 responders out of n2 = 12</span></span>
+<code class="sourceCode R"><span><span class="co"># Hypothetical control: z = 2 responders out of n_c = 12</span></span>
 <span><span class="va">p_unctrl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'uncontrolled'</span>, theta0 <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, y1 <span class="op">=</span> <span class="fl">8</span>, y2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">12</span>, n_c <span class="op">=</span> <span class="fl">12</span>, y_t <span class="op">=</span> <span class="fl">8</span>, y_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"P(theta &gt; TV | data, uncontrolled, z=2) = %.4f\n"</span>, <span class="va">p_unctrl</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; P(theta &gt; TV | data, uncontrolled, z=2) = 0.9338</span></span></code></pre></div>
-<p><strong>Effect of the hypothetical control count</strong>: varying
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
-shows the sensitivity to the assumed control rate.</p>
+<p>Effect of the hypothetical control count: varying <span class="math inline">\(z\)</span> shows the sensitivity to the assumed
+control rate.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">z_seq</span> <span class="op">&lt;-</span> <span class="fl">0</span><span class="op">:</span><span class="fl">12</span></span>
 <span><span class="va">p_z</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">z_seq</span>, <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'uncontrolled'</span>, theta0 <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>    n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, y1 <span class="op">=</span> <span class="fl">8</span>, y2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>    m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="va">z</span>,</span>
-<span>    ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    n_t <span class="op">=</span> <span class="fl">12</span>, n_c <span class="op">=</span> <span class="fl">12</span>, y_t <span class="op">=</span> <span class="fl">8</span>, y_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>    m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="va">z</span>,</span>
+<span>    ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
@@ -386,79 +356,70 @@ shows the sensitivity to the assumed control rate.</p>
 <span><span class="co">#&gt; 13 12  0.0002</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="external-control-design-power-prior">3.3 External Control Design (Power Prior)<a class="anchor" aria-label="anchor" href="#external-control-design-power-prior"></a>
+<h3 id="external-design-power-prior">3.3 External Design (Power Prior)<a class="anchor" aria-label="anchor" href="#external-design-power-prior"></a>
 </h3>
-<p>Historical or external data are incorporated via a <strong>power
-prior</strong> with borrowing weight
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\alpha_{ej} \in (0, 1]</annotation></semantics></math>.
-The augmented prior shape parameters are</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>α</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>a</mi><mi>j</mi></msub><mo>+</mo><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>y</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>,</mo><mspace width="2.0em"></mspace><msubsup><mi>β</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub><mo>+</mo><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mi>y</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\alpha_j^* = a_j + \alpha_{ej}\, y_{ej}, \qquad
-  \beta_j^* = b_j + \alpha_{ej}\,(n_{ej} - y_{ej}),</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">n_{ej}</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">y_{ej}</annotation></semantics></math>
-are the external sample size and responder count for group
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.
-These serve as the prior for the current PoC data, yielding a
-closed-form posterior:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>j</mi></msub><mo>∣</mo><msub><mi>y</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>α</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><msub><mi>y</mi><mi>j</mi></msub><mo>,</mo><mspace width="0.278em"></mspace><msubsup><mi>β</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\pi_j \mid y_j \;\sim\;
-  \mathrm{Beta}\!\left(\alpha_j^* + y_j,\; \beta_j^* + n_j - y_j\right).</annotation></semantics></math></p>
-<p>Setting
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\alpha_{ej} = 1</annotation></semantics></math>
+<p>Historical or external data are incorporated via a power prior with
+borrowing weight <span class="math inline">\(\alpha_{0ej} \in (0,
+1]\)</span>. The augmented prior shape parameters are</p>
+<p><span class="math display">\[a_j^* = a_j + \alpha_{0ej}\, y_{ej},
+\qquad
+  b_j^* = b_j + \alpha_{0ej}\,(n_{ej} - y_{ej}),\]</span></p>
+<p>where <span class="math inline">\(n_{ej}\)</span> and <span class="math inline">\(y_{ej}\)</span> are the external sample size and
+responder count for group <span class="math inline">\(j\)</span>
+(corresponding to <code>ne_t</code>/<code>ne_c</code>,
+<code>ye_t</code>/<code>ye_c</code>, and
+<code>alpha0e_t</code>/<code>alpha0e_c</code>). These serve as the prior
+for the current PoC data, yielding a closed-form posterior:</p>
+<p><span class="math display">\[\pi_j \mid y_j \;\sim\;
+  \mathrm{Beta}\!\left(a_j^* + y_j,\; b_j^* + n_j -
+y_j\right).\]</span></p>
+<p>Setting <span class="math inline">\(\alpha_{0ej} = 1\)</span>
 corresponds to full borrowing (the external data are treated as if they
-came from the current trial);
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha_{ej} \to 0</annotation></semantics></math>
-recovers the result from the current data alone with the original
-prior.</p>
-<p>Here, external data for both arms:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mrow><mi>e</mi><mn>1</mn></mrow></msub><mo>=</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">n_{e1} = 15</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>e</mi><mn>1</mn></mrow></msub><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">y_{e1} = 5</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mrow><mi>e</mi><mn>2</mn></mrow></msub><mo>=</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">n_{e2} = 15</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>e</mi><mn>2</mn></mrow></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">y_{e2} = 4</annotation></semantics></math>,
-borrowing weights
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>e</mi><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>α</mi><mrow><mi>e</mi><mn>2</mn></mrow></msub><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">\alpha_{e1} = \alpha_{e2} = 0.5</annotation></semantics></math>:</p>
+came from the current trial); <span class="math inline">\(\alpha_{0ej}
+\to 0\)</span> recovers the result from the current data alone with the
+original prior.</p>
+<p>Here, external data for both groups (external design): <span class="math inline">\(n_{et} = 15\)</span>, <span class="math inline">\(y_{et} = 5\)</span>, <span class="math inline">\(n_{ec} = 15\)</span>, <span class="math inline">\(y_{ec} = 4\)</span>, borrowing weights <span class="math inline">\(\alpha_{0et} = \alpha_{0ec} = 0.5\)</span>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'external'</span>, theta0 <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, y1 <span class="op">=</span> <span class="fl">8</span>, y2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="fl">15L</span>, ne2 <span class="op">=</span> <span class="fl">15L</span>, ye1 <span class="op">=</span> <span class="fl">5L</span>, ye2 <span class="op">=</span> <span class="fl">4L</span>, ae1 <span class="op">=</span> <span class="fl">0.5</span>, ae2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">12</span>, n_c <span class="op">=</span> <span class="fl">12</span>, y_t <span class="op">=</span> <span class="fl">8</span>, y_c <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="fl">15L</span>, ne_c <span class="op">=</span> <span class="fl">15L</span>, ye_t <span class="op">=</span> <span class="fl">5L</span>, ye_c <span class="op">=</span> <span class="fl">4L</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="fl">0.5</span>, alpha0e_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"P(theta &gt; TV | data, external, ae=0.5) = %.4f\n"</span>, <span class="va">p_ext</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; P(theta &gt; TV | data, external, ae=0.5) = 0.6874</span></span></code></pre></div>
-<p><strong>Effect of the borrowing weight</strong>: varying
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mrow><mi>e</mi><mn>2</mn></mrow></msub><annotation encoding="application/x-tex">\alpha_{e2}</annotation></semantics></math>
-(control arm only) with fixed
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>e</mi><mn>1</mn></mrow></msub><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">\alpha_{e1} = 0.5</annotation></semantics></math>:</p>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"P(theta &gt; TV | data, external, alpha0e=0.5) = %.4f\n"</span>, <span class="va">p_ext</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; P(theta &gt; TV | data, external, alpha0e=0.5) = 0.6874</span></span></code></pre></div>
+<p>Effect of the borrowing weight: varying <span class="math inline">\(\alpha_{0ec}\)</span> (control group only) with
+fixed <span class="math inline">\(\alpha_{0et} = 0.5\)</span>:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># ae must be in (0, 1]; avoid ae = 0</span></span>
+<code class="sourceCode R"><span><span class="co"># alpha0e must be in (0, 1]; avoid alpha0e = 0</span></span>
 <span><span class="va">ae_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1.0</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">p_ae</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">ae_seq</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ae</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>    prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'external'</span>, theta0 <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>    n1 <span class="op">=</span> <span class="fl">12</span>, n2 <span class="op">=</span> <span class="fl">12</span>, y1 <span class="op">=</span> <span class="fl">8</span>, y2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>    a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>    m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    ne1 <span class="op">=</span> <span class="fl">15L</span>, ne2 <span class="op">=</span> <span class="fl">15L</span>, ye1 <span class="op">=</span> <span class="fl">5L</span>, ye2 <span class="op">=</span> <span class="fl">4L</span>, ae1 <span class="op">=</span> <span class="fl">0.5</span>, ae2 <span class="op">=</span> <span class="va">ae</span>,</span>
+<span>    n_t <span class="op">=</span> <span class="fl">12</span>, n_c <span class="op">=</span> <span class="fl">12</span>, y_t <span class="op">=</span> <span class="fl">8</span>, y_c <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>    a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>    m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    ne_t <span class="op">=</span> <span class="fl">15L</span>, ne_c <span class="op">=</span> <span class="fl">15L</span>, ye_t <span class="op">=</span> <span class="fl">5L</span>, ye_c <span class="op">=</span> <span class="fl">4L</span>,</span>
+<span>    alpha0e_t <span class="op">=</span> <span class="fl">0.5</span>, alpha0e_c <span class="op">=</span> <span class="va">ae</span>,</span>
 <span>    lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>ae2 <span class="op">=</span> <span class="va">ae_seq</span>, P_gt_TV <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">p_ae</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     ae2 P_gt_TV</span></span>
-<span><span class="co">#&gt; 1  0.01  0.6735</span></span>
-<span><span class="co">#&gt; 2  0.10  0.6766</span></span>
-<span><span class="co">#&gt; 3  0.20  0.6797</span></span>
-<span><span class="co">#&gt; 4  0.30  0.6825</span></span>
-<span><span class="co">#&gt; 5  0.40  0.6851</span></span>
-<span><span class="co">#&gt; 6  0.50  0.6874</span></span>
-<span><span class="co">#&gt; 7  0.60  0.6896</span></span>
-<span><span class="co">#&gt; 8  0.70  0.6916</span></span>
-<span><span class="co">#&gt; 9  0.80  0.6934</span></span>
-<span><span class="co">#&gt; 10 0.90  0.6951</span></span>
-<span><span class="co">#&gt; 11 1.00  0.6967</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>alpha0e_c <span class="op">=</span> <span class="va">ae_seq</span>, P_gt_TV <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">p_ae</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    alpha0e_c P_gt_TV</span></span>
+<span><span class="co">#&gt; 1       0.01  0.6735</span></span>
+<span><span class="co">#&gt; 2       0.10  0.6766</span></span>
+<span><span class="co">#&gt; 3       0.20  0.6797</span></span>
+<span><span class="co">#&gt; 4       0.30  0.6825</span></span>
+<span><span class="co">#&gt; 5       0.40  0.6851</span></span>
+<span><span class="co">#&gt; 6       0.50  0.6874</span></span>
+<span><span class="co">#&gt; 7       0.60  0.6896</span></span>
+<span><span class="co">#&gt; 8       0.70  0.6916</span></span>
+<span><span class="co">#&gt; 9       0.80  0.6934</span></span>
+<span><span class="co">#&gt; 10      0.90  0.6951</span></span>
+<span><span class="co">#&gt; 11      1.00  0.6967</span></span></code></pre></div>
 <hr>
 </div>
 </div>
@@ -468,264 +429,96 @@ borrowing weights
 <div class="section level3">
 <h3 id="definition">4.1 Definition<a class="anchor" aria-label="anchor" href="#definition"></a>
 </h3>
-<p>For given true response rates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mn>1</mn></msub><mo>,</mo><msub><mi>π</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\pi_1, \pi_2)</annotation></semantics></math>,
-the operating characteristics are computed by <strong>exact
-enumeration</strong> over all
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>1</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>2</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(n_1 + 1)(n_2 + 1)</annotation></semantics></math>
-possible outcome pairs
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">}</mo><mo>×</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">(y_1, y_2) \in \{0,\ldots,n_1\} \times \{0,\ldots,n_2\}</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn></mrow><msub><mi>n</mi><mn>1</mn></msub></munderover><munderover><mo>∑</mo><mrow><msub><mi>y</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn></mrow><msub><mi>n</mi><mn>2</mn></msub></munderover><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≥</mo><msub><mi>γ</mi><mn>1</mn></msub><mspace width="0.278em"></mspace><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and </mtext><mspace width="0.333em"></mspace></mrow><mspace width="0.278em"></mspace><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><msub><mi>γ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>n</mi><mn>1</mn></msub><msub><mi>y</mi><mn>1</mn></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mi>π</mi><mn>1</mn><msub><mi>y</mi><mn>1</mn></msub></msubsup><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><msub><mi>n</mi><mn>1</mn></msub><mo>−</mo><msub><mi>y</mi><mn>1</mn></msub></mrow></msup><mspace width="0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>n</mi><mn>2</mn></msub><msub><mi>y</mi><mn>2</mn></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mi>π</mi><mn>2</mn><msub><mi>y</mi><mn>2</mn></msub></msubsup><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><msub><mi>n</mi><mn>2</mn></msub><mo>−</mo><msub><mi>y</mi><mn>2</mn></msub></mrow></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go}) =
-  \sum_{y_1=0}^{n_1} \sum_{y_2=0}^{n_2}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma_1
-    \;\text{ and }\; g_{\mathrm{NoGo}}(y_1, y_2) &lt; \gamma_2\right]\,
-  \binom{n_1}{y_1} \pi_1^{y_1}(1-\pi_1)^{n_1-y_1}\,
-  \binom{n_2}{y_2} \pi_2^{y_2}(1-\pi_2)^{n_2-y_2},</annotation></semantics></math></p>
+<p>For given true response rates <span class="math inline">\((\pi_t,
+\pi_c)\)</span>, the operating characteristics are computed by exact
+enumeration over all <span class="math inline">\((n_t + 1)(n_c +
+1)\)</span> possible outcome pairs <span class="math inline">\((y_t,
+y_c) \in \{0,\ldots,n_t\} \times \{0,\ldots,n_c\}\)</span>:</p>
+<p><span class="math display">\[\Pr(\mathrm{Go}) =
+  \sum_{y_t=0}^{n_t} \sum_{y_c=0}^{n_c}
+  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_t, y_c) \ge \gamma_{\mathrm{go}}
+    \;\text{ and }\; g_{\mathrm{NoGo}}(y_t, y_c) &lt;
+\gamma_{\mathrm{nogo}}\right]\,
+  \binom{n_t}{y_t} \pi_t^{y_t}(1-\pi_t)^{n_t-y_t}\,
+  \binom{n_c}{y_c} \pi_c^{y_c}(1-\pi_c)^{n_c-y_c},\]</span></p>
 <p>where</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo>&gt;</mo><msub><mi>θ</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow></msub><mo>∣</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">g_{\mathrm{Go}}(y_1, y_2) = P(\pi_1 - \pi_2 &gt; \theta_{\mathrm{TV}} \mid y_1, y_2),</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo>≤</mo><msub><mi>θ</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow></msub><mo>∣</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">g_{\mathrm{NoGo}}(y_1, y_2) = P(\pi_1 - \pi_2 \le \theta_{\mathrm{MAV}} \mid y_1, y_2),</annotation></semantics></math></p>
+<p><span class="math display">\[g_{\mathrm{Go}}(y_t, y_c) = P(\pi_t -
+\pi_c &gt; \theta_{\mathrm{TV}} \mid y_t, y_c),\]</span> <span class="math display">\[g_{\mathrm{NoGo}}(y_t, y_c) = P(\pi_t - \pi_c \le
+\theta_{\mathrm{MAV}} \mid y_t, y_c),\]</span></p>
 <p>and the decision outcomes are classified as:</p>
 <ul>
-<li>
-<strong>Go</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">g_{\mathrm{Go}} \ge \gamma_1</annotation></semantics></math>
-AND
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>&lt;</mo><msub><mi>γ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">g_{\mathrm{NoGo}} &lt; \gamma_2</annotation></semantics></math>
+<li>Go: <span class="math inline">\(g_{\mathrm{Go}} \ge
+\gamma_{\mathrm{go}}\)</span> AND <span class="math inline">\(g_{\mathrm{NoGo}} &lt;
+\gamma_{\mathrm{nogo}}\)</span>
 </li>
-<li>
-<strong>NoGo</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>&lt;</mo><msub><mi>γ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">g_{\mathrm{Go}} &lt; \gamma_1</annotation></semantics></math>
-AND
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">g_{\mathrm{NoGo}} \ge \gamma_2</annotation></semantics></math>
+<li>NoGo: <span class="math inline">\(g_{\mathrm{Go}} &lt;
+\gamma_{\mathrm{go}}\)</span> AND <span class="math inline">\(g_{\mathrm{NoGo}} \ge
+\gamma_{\mathrm{nogo}}\)</span>
 </li>
-<li>
-<strong>Miss</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">g_{\mathrm{Go}} \ge \gamma_1</annotation></semantics></math>
-AND
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">g_{\mathrm{NoGo}} \ge \gamma_2</annotation></semantics></math>
+<li>Miss: <span class="math inline">\(g_{\mathrm{Go}} \ge
+\gamma_{\mathrm{go}}\)</span> AND <span class="math inline">\(g_{\mathrm{NoGo}} \ge
+\gamma_{\mathrm{nogo}}\)</span>
 </li>
-<li>
-<strong>Gray</strong>: neither Go nor NoGo criterion met</li>
+<li>Gray: neither Go nor NoGo criterion met</li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="controlled-design-multiple-scenarios">4.2 Controlled Design — Multiple Scenarios<a class="anchor" aria-label="anchor" href="#controlled-design-multiple-scenarios"></a>
+<h3 id="example-controlled-design-posterior-probability">4.2 Example: Controlled Design, Posterior Probability<a class="anchor" aria-label="anchor" href="#example-controlled-design-posterior-probability"></a>
 </h3>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">oc_ctrl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin</a></span><span class="op">(</span></span>
 <span>  prob      <span class="op">=</span> <span class="st">'posterior'</span>,</span>
 <span>  design    <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="fl">0.20</span>,  theta.MAV <span class="op">=</span> <span class="fl">0.05</span>,  theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma1    <span class="op">=</span> <span class="fl">0.80</span>,  gamma2    <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  pi1       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.20</span>, <span class="fl">0.30</span>, <span class="fl">0.40</span>, <span class="fl">0.55</span>, <span class="fl">0.70</span><span class="op">)</span>,</span>
-<span>  pi2       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">6</span><span class="op">)</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>,  n2 <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  theta_TV  <span class="op">=</span> <span class="fl">0.30</span>,  theta_MAV <span class="op">=</span> <span class="fl">0.15</span>,  theta_NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  gamma_go  <span class="op">=</span> <span class="fl">0.80</span>,  gamma_nogo <span class="op">=</span> <span class="fl">0.20</span>,</span>
+<span>  pi_t      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.80</span>, by <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>  pi_c      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.80</span>, by <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">12</span>,  n_c <span class="op">=</span> <span class="fl">12</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  error_if_Miss <span class="op">=</span> <span class="cn">TRUE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">oc_ctrl</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   Probability type : posterior</span></span>
-<span><span class="co">#&gt;   Design           : controlled</span></span>
-<span><span class="co">#&gt;   Threshold(s)     : TV = 0.2, MAV = 0.05</span></span>
-<span><span class="co">#&gt;   Go  threshold    : gamma1 = 0.8</span></span>
-<span><span class="co">#&gt;   NoGo threshold   : gamma2 = 0.2</span></span>
-<span><span class="co">#&gt;   Sample size      : n1 = 12, n2 = 12</span></span>
-<span><span class="co">#&gt;   Prior (Beta)     : a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5</span></span>
-<span><span class="co">#&gt;   Miss handling    : error_if_Miss = TRUE, Gray_inc_Miss = FALSE</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   pi1 pi2     Go   Gray   NoGo</span></span>
-<span><span class="co">#&gt;  0.10 0.1 0.0014 0.1056 0.8930</span></span>
-<span><span class="co">#&gt;  0.20 0.1 0.0287 0.2718 0.6994</span></span>
-<span><span class="co">#&gt;  0.30 0.1 0.1322 0.3919 0.4760</span></span>
-<span><span class="co">#&gt;  0.40 0.1 0.3264 0.4037 0.2700</span></span>
-<span><span class="co">#&gt;  0.55 0.1 0.6795 0.2457 0.0748</span></span>
-<span><span class="co">#&gt;  0.70 0.1 0.9180 0.0721 0.0100</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="figure-gonogogray-probabilities-vs--true-treatment-effect">4.3 Figure: Go/NoGo/Gray Probabilities vs. True Treatment
-Effect<a class="anchor" aria-label="anchor" href="#figure-gonogogray-probabilities-vs--true-treatment-effect"></a>
-</h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pi1_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.75</span>, by <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">oc_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin</a></span><span class="op">(</span></span>
-<span>  prob      <span class="op">=</span> <span class="st">'posterior'</span>,</span>
-<span>  design    <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="fl">0.20</span>,  theta.MAV <span class="op">=</span> <span class="fl">0.05</span>,  theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma1    <span class="op">=</span> <span class="fl">0.80</span>,  gamma2    <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  pi1       <span class="op">=</span> <span class="va">pi1_seq</span>,</span>
-<span>  pi2       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">pi1_seq</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>,  n2 <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  error_if_Miss <span class="op">=</span> <span class="cn">TRUE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">delta</span> <span class="op">&lt;-</span> <span class="va">oc_grid</span><span class="op">$</span><span class="va">pi1</span> <span class="op">-</span> <span class="fl">0.10</span>   <span class="co"># true treatment effect</span></span>
-<span></span>
-<span><span class="va">old_par</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">delta</span>, <span class="va">oc_grid</span><span class="op">$</span><span class="va">Go</span>,</span>
-<span>     type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">16</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#2166AC"</span>,</span>
-<span>     ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">pi</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">pi</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"Probability"</span>,</span>
-<span>     main <span class="op">=</span> <span class="st">"Operating Characteristics: Controlled Design (Posterior Prob.)"</span>,</span>
-<span>     las  <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">delta</span>, <span class="va">oc_grid</span><span class="op">$</span><span class="va">NoGo</span>,</span>
-<span>      type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">17</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#D6604D"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">delta</span>, <span class="va">oc_grid</span><span class="op">$</span><span class="va">Gray</span>,</span>
-<span>      type <span class="op">=</span> <span class="st">"b"</span>, pch <span class="op">=</span> <span class="fl">15</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#878787"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20</span>, <span class="fl">0.80</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"gray50"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.20</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">3</span>, col <span class="op">=</span> <span class="st">"gray70"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">0.05</span> <span class="op">+</span> <span class="fl">0.01</span>, <span class="fl">0.04</span>, <span class="st">"MAV"</span>, col <span class="op">=</span> <span class="st">"gray40"</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, adj <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="fl">0.20</span> <span class="op">+</span> <span class="fl">0.01</span>, <span class="fl">0.04</span>, <span class="st">"TV"</span>,  col <span class="op">=</span> <span class="st">"gray40"</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, adj <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"right"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Pr(Go)"</span>, <span class="st">"Pr(NoGo)"</span>, <span class="st">"Pr(Gray)"</span><span class="op">)</span>,</span>
-<span>       col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2166AC"</span>, <span class="st">"#D6604D"</span>, <span class="st">"#878787"</span><span class="op">)</span>,</span>
-<span>       pch    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">17</span>, <span class="fl">15</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2</span>, bty <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/single-bin-oc-plot-1.png" alt="Operating characteristics (Go/NoGo/Gray) as a function of the true treatment effect (pi1 - pi2). Controlled design, Jeffreys prior, exact enumeration. True pi2 = 0.10, n1 = n2 = 12, gamma1 = 0.80, gamma2 = 0.20." width="672"><p class="caption">
-Operating characteristics (Go/NoGo/Gray) as a function of the true
-treatment effect (pi1 - pi2). Controlled design, Jeffreys prior, exact
-enumeration. True pi2 = 0.10, n1 = n2 = 12, gamma1 = 0.80, gamma2 =
-0.20.
-</p>
-</div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">old_par</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="uncontrolled-design-operating-characteristics">4.4 Uncontrolled Design — Operating Characteristics<a class="anchor" aria-label="anchor" href="#uncontrolled-design-operating-characteristics"></a>
-</h3>
-<p>For the uncontrolled design, <code><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin()</a></code>
-fixes the hypothetical control count at
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
-and enumerates only
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">y_1 \in \{0,\ldots,n_1\}</annotation></semantics></math>,
-weighting by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>1</mn></msub><mo>,</mo><msub><mi>π</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Binomial}(n_1, \pi_1)</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">oc_unctrl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin</a></span><span class="op">(</span></span>
-<span>  prob      <span class="op">=</span> <span class="st">'posterior'</span>,</span>
-<span>  design    <span class="op">=</span> <span class="st">'uncontrolled'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="fl">0.20</span>,  theta.MAV <span class="op">=</span> <span class="fl">0.05</span>,  theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma1    <span class="op">=</span> <span class="fl">0.80</span>,  gamma2    <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  pi1       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20</span>, <span class="fl">0.30</span>, <span class="fl">0.40</span>, <span class="fl">0.55</span>, <span class="fl">0.70</span><span class="op">)</span>,</span>
-<span>  pi2       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">5</span><span class="op">)</span>,   <span class="co"># not used, but required</span></span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>,  n2 <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  error_if_Miss <span class="op">=</span> <span class="cn">TRUE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">oc_unctrl</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   Probability type : posterior</span></span>
-<span><span class="co">#&gt;   Design           : uncontrolled</span></span>
-<span><span class="co">#&gt;   Threshold(s)     : TV = 0.2, MAV = 0.05</span></span>
-<span><span class="co">#&gt;   Go  threshold    : gamma1 = 0.8</span></span>
-<span><span class="co">#&gt;   NoGo threshold   : gamma2 = 0.2</span></span>
-<span><span class="co">#&gt;   Sample size      : n1 = 12, n2 = 12</span></span>
-<span><span class="co">#&gt;   Prior (Beta)     : a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5</span></span>
-<span><span class="co">#&gt;   Uncontrolled     : z = 2</span></span>
-<span><span class="co">#&gt;   Miss handling    : error_if_Miss = TRUE, Gray_inc_Miss = FALSE</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   pi1     Go   Gray   NoGo</span></span>
-<span><span class="co">#&gt;  0.20 0.0039 0.0687 0.9274</span></span>
-<span><span class="co">#&gt;  0.30 0.0386 0.2377 0.7237</span></span>
-<span><span class="co">#&gt;  0.40 0.1582 0.4036 0.4382</span></span>
-<span><span class="co">#&gt;  0.55 0.5269 0.3613 0.1117</span></span>
-<span><span class="co">#&gt;  0.70 0.8822 0.1084 0.0095</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="external-control-design-operating-characteristics">4.5 External Control Design — Operating Characteristics<a class="anchor" aria-label="anchor" href="#external-control-design-operating-characteristics"></a>
-</h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">oc_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin</a></span><span class="op">(</span></span>
-<span>  prob      <span class="op">=</span> <span class="st">'posterior'</span>,</span>
-<span>  design    <span class="op">=</span> <span class="st">'external'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="fl">0.20</span>,  theta.MAV <span class="op">=</span> <span class="fl">0.05</span>,  theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma1    <span class="op">=</span> <span class="fl">0.80</span>,  gamma2    <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  pi1       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20</span>, <span class="fl">0.30</span>, <span class="fl">0.40</span>, <span class="fl">0.55</span>, <span class="fl">0.70</span><span class="op">)</span>,</span>
-<span>  pi2       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>,  n2 <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="fl">15L</span>, ne2 <span class="op">=</span> <span class="fl">15L</span>, ye1 <span class="op">=</span> <span class="fl">5L</span>, ye2 <span class="op">=</span> <span class="fl">4L</span>, ae1 <span class="op">=</span> <span class="fl">0.5</span>, ae2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  error_if_Miss <span class="op">=</span> <span class="cn">TRUE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">oc_ext</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   Probability type : posterior</span></span>
-<span><span class="co">#&gt;   Design           : external</span></span>
-<span><span class="co">#&gt;   Threshold(s)     : TV = 0.2, MAV = 0.05</span></span>
-<span><span class="co">#&gt;   Go  threshold    : gamma1 = 0.8</span></span>
-<span><span class="co">#&gt;   NoGo threshold   : gamma2 = 0.2</span></span>
-<span><span class="co">#&gt;   Sample size      : n1 = 12, n2 = 12</span></span>
-<span><span class="co">#&gt;   Prior (Beta)     : a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5</span></span>
-<span><span class="co">#&gt;   External data    : ne1 = 15, ne2 = 15, ye1 = 5, ye2 = 4, ae1 = 0.5, ae2 = 0.5</span></span>
-<span><span class="co">#&gt;   Miss handling    : error_if_Miss = TRUE, Gray_inc_Miss = FALSE</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   pi1 pi2     Go   Gray   NoGo</span></span>
-<span><span class="co">#&gt;  0.20 0.1 0.0070 0.2122 0.7809</span></span>
-<span><span class="co">#&gt;  0.30 0.1 0.0482 0.4210 0.5308</span></span>
-<span><span class="co">#&gt;  0.40 0.1 0.1579 0.5367 0.3054</span></span>
-<span><span class="co">#&gt;  0.55 0.1 0.4419 0.4578 0.1003</span></span>
-<span><span class="co">#&gt;  0.70 0.1 0.7405 0.2384 0.0211</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="predictive-probability-operating-characteristics">4.6 Predictive Probability — Operating Characteristics<a class="anchor" aria-label="anchor" href="#predictive-probability-operating-characteristics"></a>
-</h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">oc_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin</a></span><span class="op">(</span></span>
-<span>  prob      <span class="op">=</span> <span class="st">'predictive'</span>,</span>
-<span>  design    <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="cn">NULL</span>, theta.MAV <span class="op">=</span> <span class="cn">NULL</span>, theta.NULL <span class="op">=</span> <span class="fl">0.10</span>,</span>
-<span>  gamma1    <span class="op">=</span> <span class="fl">0.80</span>, gamma2    <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  pi1       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.20</span>, <span class="fl">0.30</span>, <span class="fl">0.40</span>, <span class="fl">0.55</span>, <span class="fl">0.70</span><span class="op">)</span>,</span>
-<span>  pi2       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">6</span><span class="op">)</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12</span>,  n2 <span class="op">=</span> <span class="fl">12</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="fl">40L</span>, m2 <span class="op">=</span> <span class="fl">40L</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  error_if_Miss <span class="op">=</span> <span class="cn">TRUE</span>, Gray_inc_Miss <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">oc_pred</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   Probability type : predictive</span></span>
-<span><span class="co">#&gt;   Design           : controlled</span></span>
-<span><span class="co">#&gt;   Threshold(s)     : NULL = 0.1</span></span>
-<span><span class="co">#&gt;   Go  threshold    : gamma1 = 0.8</span></span>
-<span><span class="co">#&gt;   NoGo threshold   : gamma2 = 0.2</span></span>
-<span><span class="co">#&gt;   Sample size      : n1 = 12, n2 = 12</span></span>
-<span><span class="co">#&gt;   Prior (Beta-bin) : a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5</span></span>
-<span><span class="co">#&gt;   Future trial     : m1 = 40, m2 = 40</span></span>
-<span><span class="co">#&gt;   Miss handling    : error_if_Miss = TRUE, Gray_inc_Miss = FALSE</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   pi1 pi2     Go   Gray   NoGo</span></span>
-<span><span class="co">#&gt;  0.10 0.1 0.0090 0.0000 0.9910</span></span>
-<span><span class="co">#&gt;  0.20 0.1 0.0902 0.0000 0.9098</span></span>
-<span><span class="co">#&gt;  0.30 0.1 0.2780 0.0000 0.7220</span></span>
-<span><span class="co">#&gt;  0.40 0.1 0.5222 0.0000 0.4778</span></span>
-<span><span class="co">#&gt;  0.55 0.1 0.8289 0.0000 0.1711</span></span>
-<span><span class="co">#&gt;  0.70 0.1 0.9688 0.0000 0.0312</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------</span></span></code></pre></div>
+<span><span class="co">#&gt; Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint) </span></span>
+<span><span class="co">#&gt; ---------------------------------------------------------------- </span></span>
+<span><span class="co">#&gt;   Probability type : posterior </span></span>
+<span><span class="co">#&gt;   Design           : controlled </span></span>
+<span><span class="co">#&gt;   Threshold(s)     : TV = 0.3, MAV = 0.15 </span></span>
+<span><span class="co">#&gt;   Go  threshold    : gamma_go = 0.8 </span></span>
+<span><span class="co">#&gt;   NoGo threshold   : gamma_nogo = 0.2 </span></span>
+<span><span class="co">#&gt;   Sample size      : n_t = 12, n_c = 12 </span></span>
+<span><span class="co">#&gt;   Prior (Beta)     : a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5 </span></span>
+<span><span class="co">#&gt;   Miss handling    : error_if_Miss = TRUE, Gray_inc_Miss = FALSE </span></span>
+<span><span class="co">#&gt; ---------------------------------------------------------------- </span></span>
+<span><span class="co">#&gt;  pi_t pi_c     Go   Gray   NoGo</span></span>
+<span><span class="co">#&gt;  0.10  0.1 0.0002 0.0088 0.9910</span></span>
+<span><span class="co">#&gt;  0.15  0.1 0.0016 0.0346 0.9638</span></span>
+<span><span class="co">#&gt;  0.20  0.1 0.0071 0.0831 0.9098</span></span>
+<span><span class="co">#&gt;  0.25  0.1 0.0214 0.1509 0.8276</span></span>
+<span><span class="co">#&gt;  0.30  0.1 0.0502 0.2279 0.7220</span></span>
+<span><span class="co">#&gt;  0.35  0.1 0.0983 0.2998 0.6018</span></span>
+<span><span class="co">#&gt;  0.40  0.1 0.1687 0.3535 0.4778</span></span>
+<span><span class="co">#&gt;  0.45  0.1 0.2607 0.3793 0.3600</span></span>
+<span><span class="co">#&gt;  0.50  0.1 0.3701 0.3737 0.2562</span></span>
+<span><span class="co">#&gt;  0.55  0.1 0.4897 0.3393 0.1711</span></span>
+<span><span class="co">#&gt;  0.60  0.1 0.6101 0.2836 0.1062</span></span>
+<span><span class="co">#&gt;  0.65  0.1 0.7222 0.2172 0.0606</span></span>
+<span><span class="co">#&gt;  0.70  0.1 0.8179 0.1508 0.0312</span></span>
+<span><span class="co">#&gt;  0.75  0.1 0.8926 0.0933 0.0141</span></span>
+<span><span class="co">#&gt;  0.80  0.1 0.9447 0.0499 0.0054</span></span>
+<span><span class="co">#&gt; ----------------------------------------------------------------</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">oc_ctrl</span>, base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/single-bin-oc-controlled-1.png" width="768"></p>
+<p>The same function supports <code>design = 'uncontrolled'</code> (with
+argument <code>z</code>), <code>design = 'external'</code> (with power
+prior arguments <code>ne_t</code>, <code>ne_c</code>, <code>ye_t</code>,
+<code>ye_c</code>, <code>alpha0e_t</code>, <code>alpha0e_c</code>), and
+<code>prob = 'predictive'</code> (with future sample size arguments
+<code>m_t</code>, <code>m_c</code> and <code>theta_NULL</code>). The
+function signature and output format are identical across all
+combinations.</p>
 <hr>
 </div>
 </div>
@@ -735,455 +528,63 @@ weighting by
 <div class="section level3">
 <h3 id="objective-and-algorithm">5.1 Objective and Algorithm<a class="anchor" aria-label="anchor" href="#objective-and-algorithm"></a>
 </h3>
-<p>The <code><a href="../reference/getgamma1bin.html">getgamma1bin()</a></code> function finds the optimal pair
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>γ</mi><mn>1</mn><mo>*</mo></msubsup><mo>,</mo><msubsup><mi>γ</mi><mn>2</mn><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\gamma_1^*, \gamma_2^*)</annotation></semantics></math>
-by grid search over
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Γ</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msup><mi>γ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><mi>…</mi><mo>,</mo><msup><mi>γ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">}</mo><mo>⊂</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\} \subset (0, 1)</annotation></semantics></math>
-at a <strong>null scenario</strong>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>π</mi><mn>1</mn><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">l</mi></mrow></msubsup><mo>,</mo><msubsup><mi>π</mi><mn>2</mn><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">l</mi></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\pi_1^{\mathrm{null}}, \pi_2^{\mathrm{null}})</annotation></semantics></math>.</p>
-<p>A <strong>two-stage precompute-then-sweep</strong> strategy is
-used:</p>
-<p><strong>Stage 1 (Precompute)</strong>: all posterior/predictive
-probabilities
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g_{\mathrm{Go}}(y_1, y_2)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g_{\mathrm{NoGo}}(y_1, y_2)</annotation></semantics></math>
-are computed once over all
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>1</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>2</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(n_1 + 1)(n_2 + 1)</annotation></semantics></math>
-outcome pairs — independently of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>.</p>
-<p><strong>Stage 2 (Sweep)</strong>: for each candidate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>∈</mo><mi>Γ</mi></mrow><annotation encoding="application/x-tex">\gamma \in \Gamma</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><mi>γ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go} \mid \gamma)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><mi>γ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{NoGo} \mid \gamma)</annotation></semantics></math>
-are obtained as weighted sums of indicator functions:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><mi>γ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub></mrow></munder><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≥</mo><mi>γ</mi><mo stretchy="true" form="postfix">]</mo></mrow><mspace width="0.167em"></mspace><mi>w</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go} \mid \gamma) = \sum_{y_1, y_2}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma\right]\,
-  w(y_1, y_2),</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><mi>γ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub></mrow></munder><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≥</mo><mi>γ</mi><mo stretchy="true" form="postfix">]</mo></mrow><mspace width="0.167em"></mspace><mi>w</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{NoGo} \mid \gamma) = \sum_{y_1, y_2}
-  \mathbf{1}\!\left[g_{\mathrm{NoGo}}(y_1, y_2) \ge \gamma\right]\,
-  w(y_1, y_2),</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>;</mo><msub><mi>n</mi><mn>1</mn></msub><mo>,</mo><msub><mi>π</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>2</mn></msub><mo>;</mo><msub><mi>n</mi><mn>2</mn></msub><mo>,</mo><msub><mi>π</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">w(y_1, y_2) = \mathrm{Binom}(y_1; n_1, \pi_1)\,\mathrm{Binom}(y_2; n_2, \pi_2)</annotation></semantics></math>
-are the binomial weights under the null scenario. No further calls to
+<p>The <code><a href="../reference/getgamma1bin.html">getgamma1bin()</a></code> function finds the optimal pair <span class="math inline">\((\gamma_{\mathrm{go}}^*,
+\gamma_{\mathrm{nogo}}^*)\)</span> by grid search over <span class="math inline">\(\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\}
+\subset (0, 1)\)</span> at a null scenario <span class="math inline">\((\pi_t^{\mathrm{null}},
+\pi_c^{\mathrm{null}})\)</span>.</p>
+<p>A two-stage precompute-then-sweep strategy is used:</p>
+<p>Stage 1 (Precompute): all posterior/predictive probabilities <span class="math inline">\(g_{\mathrm{Go}}(y_t, y_c)\)</span> and <span class="math inline">\(g_{\mathrm{NoGo}}(y_t, y_c)\)</span> are computed
+once over all <span class="math inline">\((n_t + 1)(n_c + 1)\)</span>
+outcome pairs — independently of <span class="math inline">\(\gamma\)</span>.</p>
+<p>Stage 2 (Sweep): for each candidate <span class="math inline">\(\gamma \in \Gamma\)</span>, <span class="math inline">\(\Pr(\mathrm{Go} \mid \gamma)\)</span> and <span class="math inline">\(\Pr(\mathrm{NoGo} \mid \gamma)\)</span> are
+obtained as weighted sums of indicator functions:</p>
+<p><span class="math display">\[\Pr(\mathrm{Go} \mid \gamma) =
+\sum_{y_t, y_c}
+  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_t, y_c) \ge \gamma\right]\,
+  w(y_t, y_c),\]</span></p>
+<p><span class="math display">\[\Pr(\mathrm{NoGo} \mid \gamma) =
+\sum_{y_t, y_c}
+  \mathbf{1}\!\left[g_{\mathrm{NoGo}}(y_t, y_c) \ge \gamma\right]\,
+  w(y_t, y_c),\]</span></p>
+<p>where <span class="math inline">\(w(y_t, y_c) = \mathrm{Binom}(y_t;
+n_t, \pi_t)\,\mathrm{Binom}(y_c; n_c, \pi_c)\)</span> are the binomial
+weights under the null scenario. No further calls to
 <code><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin()</a></code> are required at this stage.</p>
 <p>The sweep is vectorised using <code><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer()</a></code>, making the full
 grid search computationally negligible once Stage 1 is complete.</p>
-<p>The optimal
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>γ</mi><mn>1</mn><mo>*</mo></msubsup><annotation encoding="application/x-tex">\gamma_1^*</annotation></semantics></math>
-is the <strong>smallest</strong> (or largest, depending on
-<code>sel_go</code>) value in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Γ</mi><annotation encoding="application/x-tex">\Gamma</annotation></semantics></math>
-such that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><msubsup><mi>γ</mi><mn>1</mn><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go} \mid \gamma_1^*)</annotation></semantics></math>
-satisfies the criterion against a target (e.g.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go}) &lt; 0.05</annotation></semantics></math>).
-Analogously for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>γ</mi><mn>2</mn><mo>*</mo></msubsup><annotation encoding="application/x-tex">\gamma_2^*</annotation></semantics></math>.</p>
+<p>The optimal <span class="math inline">\(\gamma_{\mathrm{go}}^*\)</span> is the smallest
+value in <span class="math inline">\(\Gamma\)</span> such that <span class="math inline">\(\Pr(\mathrm{Go} \mid
+\gamma_{\mathrm{go}}^*)\)</span> satisfies the criterion against a
+target (e.g., <span class="math inline">\(\Pr(\mathrm{Go}) &lt;
+0.05\)</span>). Analogously for <span class="math inline">\(\gamma_{\mathrm{nogo}}^*\)</span>.</p>
 </div>
 <div class="section level3">
-<h3 id="example-controlled-design-posterior-probability">5.2 Example: Controlled Design, Posterior Probability<a class="anchor" aria-label="anchor" href="#example-controlled-design-posterior-probability"></a>
+<h3 id="example-controlled-design-posterior-probability-1">5.2 Example: Controlled Design, Posterior Probability<a class="anchor" aria-label="anchor" href="#example-controlled-design-posterior-probability-1"></a>
 </h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getgamma1bin.html">getgamma1bin</a></span><span class="op">(</span></span>
 <span>  prob      <span class="op">=</span> <span class="st">'posterior'</span>,</span>
 <span>  design    <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="fl">0.20</span>, theta.MAV <span class="op">=</span> <span class="fl">0.05</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pi1 <span class="op">=</span> <span class="fl">0.10</span>, pi2 <span class="op">=</span> <span class="fl">0.10</span>,          <span class="co"># null scenario: no treatment effect</span></span>
+<span>  theta_TV  <span class="op">=</span> <span class="fl">0.30</span>, theta_MAV <span class="op">=</span> <span class="fl">0.15</span>, theta_NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pi_t_go   <span class="op">=</span> <span class="fl">0.10</span>, pi_c_go   <span class="op">=</span> <span class="fl">0.10</span>,</span>
+<span>  pi_t_nogo <span class="op">=</span> <span class="fl">0.30</span>, pi_c_nogo <span class="op">=</span> <span class="fl">0.10</span>,</span>
 <span>  target_go <span class="op">=</span> <span class="fl">0.05</span>, target_nogo <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  crit_go   <span class="op">=</span> <span class="st">'&lt;'</span>,  crit_nogo   <span class="op">=</span> <span class="st">'&lt;'</span>,</span>
-<span>  sel_go    <span class="op">=</span> <span class="st">'smallest'</span>, sel_nogo <span class="op">=</span> <span class="st">'largest'</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12L</span>, n2 <span class="op">=</span> <span class="fl">12L</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">12L</span>, n_c <span class="op">=</span> <span class="fl">12L</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gamma_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res_gamma</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.37</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.42</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_at_gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.04724795</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_at_gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.1443391</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma_grid</span></span>
-<span><span class="co">#&gt;  [1] 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15</span></span>
-<span><span class="co">#&gt; [16] 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.30</span></span>
-<span><span class="co">#&gt; [31] 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.40 0.41 0.42 0.43 0.44 0.45</span></span>
-<span><span class="co">#&gt; [46] 0.46 0.47 0.48 0.49 0.50 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.60</span></span>
-<span><span class="co">#&gt; [61] 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.70 0.71 0.72 0.73 0.74 0.75</span></span>
-<span><span class="co">#&gt; [76] 0.76 0.77 0.78 0.79 0.80 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.90</span></span>
-<span><span class="co">#&gt; [91] 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 7.545438e-01 6.698727e-01 5.828900e-01 5.828794e-01 5.632650e-01</span></span>
-<span><span class="co">#&gt;  [6] 4.196419e-01 4.195612e-01 4.195593e-01 3.666005e-01 3.666005e-01</span></span>
-<span><span class="co">#&gt; [11] 2.602452e-01 2.529806e-01 2.529806e-01 2.525266e-01 2.525120e-01</span></span>
-<span><span class="co">#&gt; [16] 2.525120e-01 2.525120e-01 1.658522e-01 1.658522e-01 1.658522e-01</span></span>
-<span><span class="co">#&gt; [21] 1.658522e-01 1.462378e-01 1.462378e-01 1.462378e-01 1.444217e-01</span></span>
-<span><span class="co">#&gt; [26] 1.443409e-01 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [31] 1.443391e-01 7.934418e-02 7.934418e-02 7.934418e-02 7.934418e-02</span></span>
-<span><span class="co">#&gt; [36] 7.934418e-02 4.724795e-02 4.724795e-02 4.724795e-02 4.234436e-02</span></span>
-<span><span class="co">#&gt; [41] 4.201102e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [46] 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [51] 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [56] 4.201084e-02 1.793867e-02 8.999994e-03 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [61] 8.999994e-03 8.999994e-03 8.999994e-03 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [66] 8.999994e-03 8.999994e-03 8.999994e-03 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [71] 8.999994e-03 8.999994e-03 8.999925e-03 8.882934e-03 8.882934e-03</span></span>
-<span><span class="co">#&gt; [76] 7.456434e-03 7.456434e-03 1.438390e-03 1.438390e-03 1.438390e-03</span></span>
-<span><span class="co">#&gt; [81] 1.438390e-03 1.438390e-03 1.438390e-03 1.438390e-03 1.438390e-03</span></span>
-<span><span class="co">#&gt; [86] 1.427347e-03 1.427347e-03 1.242431e-03 1.242431e-03 1.242431e-03</span></span>
-<span><span class="co">#&gt; [91] 1.725562e-04 1.725562e-04 1.725562e-04 1.717950e-04 1.541839e-04</span></span>
-<span><span class="co">#&gt; [96] 1.541839e-04 1.549648e-05 1.423612e-05 1.027795e-06</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 0.001241670 0.001242431 0.007445392 0.007456434 0.007456434 0.008882934</span></span>
-<span><span class="co">#&gt;  [7] 0.033068116 0.033072103 0.033072172 0.033072172 0.033072172 0.041096231</span></span>
-<span><span class="co">#&gt; [13] 0.041096231 0.041096231 0.041967981 0.042009834 0.042010843 0.107005723</span></span>
-<span><span class="co">#&gt; [19] 0.107005723 0.107005723 0.107005723 0.107005723 0.107005723 0.139101959</span></span>
-<span><span class="co">#&gt; [25] 0.139101959 0.139101959 0.144005551 0.144328421 0.144339064 0.144339064</span></span>
-<span><span class="co">#&gt; [31] 0.144339064 0.144339064 0.144339064 0.144339064 0.144339064 0.144339064</span></span>
-<span><span class="co">#&gt; [37] 0.144339064 0.144339064 0.144339064 0.144339064 0.144339064 0.144339064</span></span>
-<span><span class="co">#&gt; [43] 0.337354160 0.358865390 0.358867273 0.358867273 0.358867273 0.358867273</span></span>
-<span><span class="co">#&gt; [49] 0.358867273 0.358867273 0.358867273 0.358867273 0.358867273 0.358867273</span></span>
-<span><span class="co">#&gt; [55] 0.358867273 0.358867273 0.358867273 0.358867273 0.358867273 0.358867273</span></span>
-<span><span class="co">#&gt; [61] 0.359335903 0.366600483 0.366600483 0.419559274 0.419559274 0.419559274</span></span>
-<span><span class="co">#&gt; [67] 0.419559274 0.419559274 0.561366284 0.561366284 0.561366284 0.561366284</span></span>
-<span><span class="co">#&gt; [73] 0.561366284 0.561366284 0.561368167 0.561448884 0.563265030 0.563265030</span></span>
-<span><span class="co">#&gt; [79] 0.563265030 0.582879397 0.582879397 0.582879397 0.582879397 0.749305679</span></span>
-<span><span class="co">#&gt; [85] 0.749305679 0.749305856 0.749316321 0.749639191 0.749639191 0.754542783</span></span>
-<span><span class="co">#&gt; [91] 0.754542783 0.754542783 0.786639020 0.893037140 0.893908889 0.893908889</span></span>
-<span><span class="co">#&gt; [97] 0.901932949 0.967044889 0.992543566</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "getgamma1bin"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="figure-prgo-and-prnogo-over-the-gamma-grid">5.3 Figure: Pr(Go) and Pr(NoGo) Over the Gamma Grid<a class="anchor" aria-label="anchor" href="#figure-prgo-and-prnogo-over-the-gamma-grid"></a>
-</h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">grid_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  gamma  <span class="op">=</span> <span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma_grid</span>,</span>
-<span>  PrGo   <span class="op">=</span> <span class="va">res_gamma</span><span class="op">$</span><span class="va">PrGo_grid</span>,</span>
-<span>  PrNoGo <span class="op">=</span> <span class="va">res_gamma</span><span class="op">$</span><span class="va">PrNoGo_grid</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">old_par2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4.5</span>, <span class="fl">4.5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">grid_df</span><span class="op">$</span><span class="va">gamma</span>, <span class="va">grid_df</span><span class="op">$</span><span class="va">PrGo</span>,</span>
-<span>     type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#2166AC"</span>,</span>
-<span>     ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"Probability"</span>,</span>
-<span>     main <span class="op">=</span> <span class="st">"Optimal Threshold Search: Pr(Go) and Pr(NoGo) vs. Gamma"</span>,</span>
-<span>     las  <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">grid_df</span><span class="op">$</span><span class="va">gamma</span>, <span class="va">grid_df</span><span class="op">$</span><span class="va">PrNoGo</span>,</span>
-<span>      lwd <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#D6604D"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0.05</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#2166AC"</span>, lwd <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0.20</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#D6604D"</span>, lwd <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma1</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma1</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#2166AC"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma1</span> <span class="op">+</span> <span class="fl">0.02</span>, <span class="fl">0.88</span>,</span>
-<span>       <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"gamma1* = "</span>, <span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma1</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="st">"#2166AC"</span>, cex <span class="op">=</span> <span class="fl">0.85</span>, adj <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma2</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma2</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"#D6604D"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span><span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma2</span> <span class="op">-</span> <span class="fl">0.02</span>, <span class="fl">0.73</span>,</span>
-<span>       <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"gamma2* = "</span>, <span class="va">res_gamma</span><span class="op">$</span><span class="va">gamma2</span><span class="op">)</span>,</span>
-<span>       col <span class="op">=</span> <span class="st">"#D6604D"</span>, cex <span class="op">=</span> <span class="fl">0.85</span>, adj <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>,</span>
-<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Pr(Go | gamma)"</span>, <span class="st">"Pr(NoGo | gamma)"</span>,</span>
-<span>                  <span class="st">"Target Go = 0.05"</span>, <span class="st">"Target NoGo = 0.20"</span><span class="op">)</span>,</span>
-<span>       col    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#2166AC"</span>, <span class="st">"#D6604D"</span>, <span class="st">"#2166AC"</span>, <span class="st">"#D6604D"</span><span class="op">)</span>,</span>
-<span>       lty    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>       lwd    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1.2</span>, <span class="fl">1.2</span><span class="op">)</span>,</span>
-<span>       bty    <span class="op">=</span> <span class="st">"n"</span>, cex <span class="op">=</span> <span class="fl">0.85</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/single-bin-gamma-plot-1.png" alt="Pr(Go) and Pr(NoGo) as a function of the candidate threshold gamma under the null scenario (pi1 = pi2 = 0.10). The optimal gamma1 (blue dashed line) is the smallest gamma satisfying Pr(Go) &lt; 0.05. The optimal gamma2 (red dashed line) is the largest gamma satisfying Pr(NoGo) &lt; 0.20." width="672"><p class="caption">
-Pr(Go) and Pr(NoGo) as a function of the candidate threshold gamma under
-the null scenario (pi1 = pi2 = 0.10). The optimal gamma1 (blue dashed
-line) is the smallest gamma satisfying Pr(Go) &lt; 0.05. The optimal
-gamma2 (red dashed line) is the largest gamma satisfying Pr(NoGo) &lt;
-0.20.
-</p>
-</div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">old_par2</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="example-uncontrolled-design-posterior-probability">5.4 Example: Uncontrolled Design, Posterior Probability<a class="anchor" aria-label="anchor" href="#example-uncontrolled-design-posterior-probability"></a>
-</h3>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res_gamma_unctrl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getgamma1bin.html">getgamma1bin</a></span><span class="op">(</span></span>
-<span>  prob      <span class="op">=</span> <span class="st">'posterior'</span>,</span>
-<span>  design    <span class="op">=</span> <span class="st">'uncontrolled'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="fl">0.20</span>, theta.MAV <span class="op">=</span> <span class="fl">0.05</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pi1 <span class="op">=</span> <span class="fl">0.10</span>, pi2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  target_go <span class="op">=</span> <span class="fl">0.05</span>, target_nogo <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  crit_go   <span class="op">=</span> <span class="st">'&lt;'</span>,  crit_nogo   <span class="op">=</span> <span class="st">'&lt;'</span>,</span>
-<span>  sel_go    <span class="op">=</span> <span class="st">'smallest'</span>, sel_nogo <span class="op">=</span> <span class="st">'largest'</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12L</span>, n2 <span class="op">=</span> <span class="fl">12L</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="fl">2L</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res_gamma_unctrl</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.22</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.63</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_at_gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.02563747</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_at_gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.11087</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma_grid</span></span>
-<span><span class="co">#&gt;  [1] 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15</span></span>
-<span><span class="co">#&gt; [16] 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.30</span></span>
-<span><span class="co">#&gt; [31] 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.40 0.41 0.42 0.43 0.44 0.45</span></span>
-<span><span class="co">#&gt; [46] 0.46 0.47 0.48 0.49 0.50 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.60</span></span>
-<span><span class="co">#&gt; [61] 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.70 0.71 0.72 0.73 0.74 0.75</span></span>
-<span><span class="co">#&gt; [76] 0.76 0.77 0.78 0.79 0.80 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.90</span></span>
-<span><span class="co">#&gt; [91] 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 7.175705e-01 7.175705e-01 3.409977e-01 3.409977e-01 3.409977e-01</span></span>
-<span><span class="co">#&gt;  [6] 3.409977e-01 3.409977e-01 3.409977e-01 1.108700e-01 1.108700e-01</span></span>
-<span><span class="co">#&gt; [11] 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01</span></span>
-<span><span class="co">#&gt; [16] 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01</span></span>
-<span><span class="co">#&gt; [21] 1.108700e-01 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02</span></span>
-<span><span class="co">#&gt; [26] 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02</span></span>
-<span><span class="co">#&gt; [31] 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02</span></span>
-<span><span class="co">#&gt; [36] 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02 4.329343e-03</span></span>
-<span><span class="co">#&gt; [41] 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03</span></span>
-<span><span class="co">#&gt; [46] 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03</span></span>
-<span><span class="co">#&gt; [51] 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03</span></span>
-<span><span class="co">#&gt; [56] 4.329343e-03 4.329343e-03 5.412318e-04 5.412318e-04 5.412318e-04</span></span>
-<span><span class="co">#&gt; [61] 5.412318e-04 5.412318e-04 5.412318e-04 5.412318e-04 5.412318e-04</span></span>
-<span><span class="co">#&gt; [66] 5.412318e-04 5.412318e-04 5.412318e-04 5.412318e-04 5.412318e-04</span></span>
-<span><span class="co">#&gt; [71] 5.412318e-04 5.412318e-04 5.412318e-04 5.018034e-05 5.018034e-05</span></span>
-<span><span class="co">#&gt; [76] 5.018034e-05 5.018034e-05 5.018034e-05 5.018034e-05 5.018034e-05</span></span>
-<span><span class="co">#&gt; [81] 5.018034e-05 5.018034e-05 5.018034e-05 5.018034e-05 5.018034e-05</span></span>
-<span><span class="co">#&gt; [86] 3.413530e-06 3.413530e-06 3.413530e-06 3.413530e-06 3.413530e-06</span></span>
-<span><span class="co">#&gt; [91] 3.413530e-06 3.413530e-06 3.413530e-06 1.658350e-07 1.658350e-07</span></span>
-<span><span class="co">#&gt; [96] 1.658350e-07 1.658350e-07 5.455000e-09 5.455000e-09</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 1.658350e-07 3.413530e-06 3.413530e-06 5.018034e-05 5.018034e-05</span></span>
-<span><span class="co">#&gt;  [6] 5.018034e-05 5.412318e-04 5.412318e-04 5.412318e-04 5.412318e-04</span></span>
-<span><span class="co">#&gt; [11] 5.412318e-04 5.412318e-04 5.412318e-04 5.412318e-04 4.329343e-03</span></span>
-<span><span class="co">#&gt; [16] 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03</span></span>
-<span><span class="co">#&gt; [21] 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03 4.329343e-03</span></span>
-<span><span class="co">#&gt; [26] 4.329343e-03 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02</span></span>
-<span><span class="co">#&gt; [31] 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02</span></span>
-<span><span class="co">#&gt; [36] 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02 2.563747e-02</span></span>
-<span><span class="co">#&gt; [41] 2.563747e-02 2.563747e-02 2.563747e-02 1.108700e-01 1.108700e-01</span></span>
-<span><span class="co">#&gt; [46] 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01</span></span>
-<span><span class="co">#&gt; [51] 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01</span></span>
-<span><span class="co">#&gt; [56] 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01 1.108700e-01</span></span>
-<span><span class="co">#&gt; [61] 1.108700e-01 1.108700e-01 1.108700e-01 3.409977e-01 3.409977e-01</span></span>
-<span><span class="co">#&gt; [66] 3.409977e-01 3.409977e-01 3.409977e-01 3.409977e-01 3.409977e-01</span></span>
-<span><span class="co">#&gt; [71] 3.409977e-01 3.409977e-01 3.409977e-01 3.409977e-01 3.409977e-01</span></span>
-<span><span class="co">#&gt; [76] 3.409977e-01 3.409977e-01 3.409977e-01 3.409977e-01 3.409977e-01</span></span>
-<span><span class="co">#&gt; [81] 3.409977e-01 3.409977e-01 3.409977e-01 7.175705e-01 7.175705e-01</span></span>
-<span><span class="co">#&gt; [86] 7.175705e-01 7.175705e-01 7.175705e-01 7.175705e-01 7.175705e-01</span></span>
-<span><span class="co">#&gt; [91] 7.175705e-01 7.175705e-01 7.175705e-01 7.175705e-01 7.175705e-01</span></span>
-<span><span class="co">#&gt; [96] 7.175705e-01 7.175705e-01 1.000000e+00 1.000000e+00</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "getgamma1bin"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="example-external-control-design-posterior-probability">5.5 Example: External Control Design, Posterior Probability<a class="anchor" aria-label="anchor" href="#example-external-control-design-posterior-probability"></a>
-</h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res_gamma_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getgamma1bin.html">getgamma1bin</a></span><span class="op">(</span></span>
-<span>  prob      <span class="op">=</span> <span class="st">'posterior'</span>,</span>
-<span>  design    <span class="op">=</span> <span class="st">'external'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="fl">0.20</span>, theta.MAV <span class="op">=</span> <span class="fl">0.05</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pi1 <span class="op">=</span> <span class="fl">0.10</span>, pi2 <span class="op">=</span> <span class="fl">0.10</span>,</span>
-<span>  target_go <span class="op">=</span> <span class="fl">0.05</span>, target_nogo <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  crit_go   <span class="op">=</span> <span class="st">'&lt;'</span>,  crit_nogo   <span class="op">=</span> <span class="st">'&lt;'</span>,</span>
-<span>  sel_go    <span class="op">=</span> <span class="st">'smallest'</span>, sel_nogo <span class="op">=</span> <span class="st">'largest'</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12L</span>, n2 <span class="op">=</span> <span class="fl">12L</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="fl">15L</span>, ne2 <span class="op">=</span> <span class="fl">15L</span>, ye1 <span class="op">=</span> <span class="fl">5L</span>, ye2 <span class="op">=</span> <span class="fl">4L</span>, ae1 <span class="op">=</span> <span class="fl">0.5</span>, ae2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  gamma_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res_gamma_ext</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.27</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.41</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_at_gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.04724795</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_at_gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.1443391</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma_grid</span></span>
-<span><span class="co">#&gt;  [1] 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15</span></span>
-<span><span class="co">#&gt; [16] 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.30</span></span>
-<span><span class="co">#&gt; [31] 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.40 0.41 0.42 0.43 0.44 0.45</span></span>
-<span><span class="co">#&gt; [46] 0.46 0.47 0.48 0.49 0.50 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.60</span></span>
-<span><span class="co">#&gt; [61] 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.70 0.71 0.72 0.73 0.74 0.75</span></span>
-<span><span class="co">#&gt; [76] 0.76 0.77 0.78 0.79 0.80 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.90</span></span>
-<span><span class="co">#&gt; [91] 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 9.589038e-01 8.608980e-01 7.493163e-01 6.626458e-01 5.632650e-01</span></span>
-<span><span class="co">#&gt;  [6] 5.614489e-01 4.195593e-01 4.195593e-01 3.666005e-01 3.593359e-01</span></span>
-<span><span class="co">#&gt; [11] 3.593359e-01 3.588675e-01 2.525120e-01 2.525120e-01 1.658522e-01</span></span>
-<span><span class="co">#&gt; [16] 1.658522e-01 1.462378e-01 1.462378e-01 1.444217e-01 1.443409e-01</span></span>
-<span><span class="co">#&gt; [21] 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01 7.934418e-02</span></span>
-<span><span class="co">#&gt; [26] 7.934418e-02 4.724795e-02 4.724795e-02 4.234436e-02 4.202149e-02</span></span>
-<span><span class="co">#&gt; [31] 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [36] 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02 1.793867e-02</span></span>
-<span><span class="co">#&gt; [41] 1.793867e-02 9.914606e-03 9.000007e-03 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [46] 8.999994e-03 8.999994e-03 8.999994e-03 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [51] 8.999994e-03 8.999994e-03 8.999994e-03 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [56] 8.999994e-03 1.438390e-03 1.438390e-03 1.438390e-03 1.438390e-03</span></span>
-<span><span class="co">#&gt; [61] 1.438390e-03 1.438390e-03 1.438390e-03 1.438390e-03 1.438390e-03</span></span>
-<span><span class="co">#&gt; [66] 1.438390e-03 1.438390e-03 1.438390e-03 1.438110e-03 1.242431e-03</span></span>
-<span><span class="co">#&gt; [71] 1.725562e-04 1.725562e-04 1.725562e-04 1.725562e-04 1.725562e-04</span></span>
-<span><span class="co">#&gt; [76] 1.725562e-04 1.725562e-04 1.725562e-04 1.725562e-04 1.717950e-04</span></span>
-<span><span class="co">#&gt; [81] 1.541839e-04 1.549648e-05 1.549648e-05 1.549648e-05 1.549648e-05</span></span>
-<span><span class="co">#&gt; [86] 1.549648e-05 1.549648e-05 1.545912e-05 1.423612e-05 1.027795e-06</span></span>
-<span><span class="co">#&gt; [91] 1.027795e-06 1.027795e-06 1.027795e-06 9.661611e-07 4.891608e-08</span></span>
-<span><span class="co">#&gt; [96] 4.891608e-08 4.889114e-08 1.581930e-09 3.116139e-11</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 1.423612e-05 1.549648e-05 1.717950e-04 1.725562e-04 1.242431e-03</span></span>
-<span><span class="co">#&gt;  [6] 1.427347e-03 1.438386e-03 1.438390e-03 7.456434e-03 7.456434e-03</span></span>
-<span><span class="co">#&gt; [11] 8.882934e-03 8.995938e-03 8.999994e-03 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [16] 3.307217e-02 3.307217e-02 4.109623e-02 4.109623e-02 4.196798e-02</span></span>
-<span><span class="co">#&gt; [21] 4.201083e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [26] 4.201084e-02 1.070057e-01 1.070057e-01 1.391020e-01 1.440056e-01</span></span>
-<span><span class="co">#&gt; [31] 1.443284e-01 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [36] 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [41] 1.443391e-01 2.506943e-01 3.569685e-01 3.588673e-01 3.588673e-01</span></span>
-<span><span class="co">#&gt; [46] 3.588673e-01 3.588673e-01 3.588673e-01 3.588673e-01 3.588673e-01</span></span>
-<span><span class="co">#&gt; [51] 3.588673e-01 3.588673e-01 3.588673e-01 3.588673e-01 3.588673e-01</span></span>
-<span><span class="co">#&gt; [56] 3.588673e-01 3.593359e-01 3.666005e-01 4.195593e-01 5.613663e-01</span></span>
-<span><span class="co">#&gt; [61] 6.411327e-01 6.411327e-01 6.411327e-01 6.411327e-01 6.411327e-01</span></span>
-<span><span class="co">#&gt; [66] 6.411327e-01 6.411327e-01 6.411327e-01 6.411346e-01 6.412153e-01</span></span>
-<span><span class="co">#&gt; [71] 6.430315e-01 6.626458e-01 6.626458e-01 7.493057e-01 7.493057e-01</span></span>
-<span><span class="co">#&gt; [76] 8.556609e-01 8.556609e-01 8.556609e-01 8.556609e-01 8.556716e-01</span></span>
-<span><span class="co">#&gt; [81] 8.559944e-01 8.608980e-01 8.608980e-01 8.929943e-01 8.929943e-01</span></span>
-<span><span class="co">#&gt; [86] 9.579892e-01 9.579892e-01 9.579902e-01 9.580320e-01 9.589038e-01</span></span>
-<span><span class="co">#&gt; [91] 9.669278e-01 9.669278e-01 9.910001e-01 9.911171e-01 9.925436e-01</span></span>
-<span><span class="co">#&gt; [96] 9.985616e-01 9.985727e-01 9.987576e-01 9.998458e-01</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "getgamma1bin"</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="example-controlled-design-predictive-probability">5.6 Example: Controlled Design, Predictive Probability<a class="anchor" aria-label="anchor" href="#example-controlled-design-predictive-probability"></a>
-</h3>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">res_gamma_pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getgamma1bin.html">getgamma1bin</a></span><span class="op">(</span></span>
-<span>  prob      <span class="op">=</span> <span class="st">'predictive'</span>,</span>
-<span>  design    <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="cn">NULL</span>, theta.MAV <span class="op">=</span> <span class="cn">NULL</span>, theta.NULL <span class="op">=</span> <span class="fl">0.10</span>,</span>
-<span>  pi1 <span class="op">=</span> <span class="fl">0.10</span>, pi2 <span class="op">=</span> <span class="fl">0.10</span>,</span>
-<span>  target_go <span class="op">=</span> <span class="fl">0.05</span>, target_nogo <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  crit_go   <span class="op">=</span> <span class="st">'&lt;'</span>,  crit_nogo   <span class="op">=</span> <span class="st">'&lt;'</span>,</span>
-<span>  sel_go    <span class="op">=</span> <span class="st">'smallest'</span>, sel_nogo <span class="op">=</span> <span class="st">'largest'</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12L</span>, n2 <span class="op">=</span> <span class="fl">12L</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="fl">40L</span>, m2 <span class="op">=</span> <span class="fl">40L</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">res_gamma_pred</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.6</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.6</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_at_gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.04201084</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_at_gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.1658522</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma_grid</span></span>
-<span><span class="co">#&gt;  [1] 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15</span></span>
-<span><span class="co">#&gt; [16] 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.30</span></span>
-<span><span class="co">#&gt; [31] 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.40 0.41 0.42 0.43 0.44 0.45</span></span>
-<span><span class="co">#&gt; [46] 0.46 0.47 0.48 0.49 0.50 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.60</span></span>
-<span><span class="co">#&gt; [61] 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.70 0.71 0.72 0.73 0.74 0.75</span></span>
-<span><span class="co">#&gt; [76] 0.76 0.77 0.78 0.79 0.80 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.90</span></span>
-<span><span class="co">#&gt; [91] 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 9.684717e-01 9.019370e-01 8.939089e-01 7.875536e-01 7.866819e-01</span></span>
-<span><span class="co">#&gt;  [6] 7.545428e-01 7.545428e-01 6.747763e-01 6.698727e-01 6.695499e-01</span></span>
-<span><span class="co">#&gt; [11] 5.828796e-01 5.828794e-01 5.828794e-01 5.828794e-01 5.632650e-01</span></span>
-<span><span class="co">#&gt; [16] 5.632650e-01 5.632650e-01 5.614489e-01 4.195612e-01 4.195593e-01</span></span>
-<span><span class="co">#&gt; [21] 4.195593e-01 4.195593e-01 4.195593e-01 4.195593e-01 3.666005e-01</span></span>
-<span><span class="co">#&gt; [26] 3.666005e-01 3.666005e-01 3.593359e-01 3.593359e-01 3.588819e-01</span></span>
-<span><span class="co">#&gt; [31] 3.588673e-01 3.588673e-01 2.525120e-01 2.525120e-01 2.525120e-01</span></span>
-<span><span class="co">#&gt; [36] 2.525120e-01 2.525120e-01 2.525120e-01 2.525120e-01 1.658522e-01</span></span>
-<span><span class="co">#&gt; [41] 1.658522e-01 1.462378e-01 1.462378e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [46] 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [51] 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [56] 1.443391e-01 1.443391e-01 1.443391e-01 7.410708e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [61] 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [66] 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [71] 4.201084e-02 4.200983e-02 4.196798e-02 4.109623e-02 4.109623e-02</span></span>
-<span><span class="co">#&gt; [76] 3.307217e-02 3.307217e-02 3.307217e-02 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [81] 8.999994e-03 8.999994e-03 8.995938e-03 8.882934e-03 8.882934e-03</span></span>
-<span><span class="co">#&gt; [86] 8.882934e-03 7.456434e-03 7.456434e-03 7.456434e-03 1.438390e-03</span></span>
-<span><span class="co">#&gt; [91] 1.438110e-03 1.427347e-03 1.242431e-03 1.242431e-03 1.242431e-03</span></span>
-<span><span class="co">#&gt; [96] 1.717950e-04 1.541839e-04 1.541839e-04 1.423612e-05</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 1.423612e-05 1.541839e-04 1.541839e-04 1.717950e-04 1.242431e-03</span></span>
-<span><span class="co">#&gt;  [6] 1.242431e-03 1.242431e-03 1.427347e-03 1.438110e-03 1.438390e-03</span></span>
-<span><span class="co">#&gt; [11] 7.456434e-03 7.456434e-03 7.456434e-03 8.882934e-03 8.882934e-03</span></span>
-<span><span class="co">#&gt; [16] 8.882934e-03 8.995938e-03 8.999994e-03 8.999994e-03 8.999994e-03</span></span>
-<span><span class="co">#&gt; [21] 8.999994e-03 3.307217e-02 3.307217e-02 3.307217e-02 4.109623e-02</span></span>
-<span><span class="co">#&gt; [26] 4.109623e-02 4.196798e-02 4.200983e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [31] 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [36] 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02 4.201084e-02</span></span>
-<span><span class="co">#&gt; [41] 7.410708e-02 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [46] 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [51] 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01 1.443391e-01</span></span>
-<span><span class="co">#&gt; [56] 1.443391e-01 1.462378e-01 1.462378e-01 1.658522e-01 1.658522e-01</span></span>
-<span><span class="co">#&gt; [61] 2.525120e-01 2.525120e-01 2.525120e-01 2.525120e-01 2.525120e-01</span></span>
-<span><span class="co">#&gt; [66] 2.525120e-01 2.525120e-01 3.588673e-01 3.588673e-01 3.588819e-01</span></span>
-<span><span class="co">#&gt; [71] 3.593359e-01 3.593359e-01 3.666005e-01 3.666005e-01 3.666005e-01</span></span>
-<span><span class="co">#&gt; [76] 4.195593e-01 4.195593e-01 4.195593e-01 4.195593e-01 4.195593e-01</span></span>
-<span><span class="co">#&gt; [81] 4.195612e-01 5.614489e-01 5.632650e-01 5.632650e-01 5.632650e-01</span></span>
-<span><span class="co">#&gt; [86] 5.828794e-01 5.828794e-01 5.828794e-01 5.828796e-01 6.695499e-01</span></span>
-<span><span class="co">#&gt; [91] 6.698727e-01 6.747763e-01 7.545428e-01 7.545428e-01 7.866819e-01</span></span>
-<span><span class="co">#&gt; [96] 7.875536e-01 8.939089e-01 9.019370e-01 9.684717e-01</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "getgamma1bin"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_gamma</span>, base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/single-bin-getgamma-ctrl-1.png" width="768"></p>
+<p>The same function supports <code>design = 'uncontrolled'</code> (with
+<code>pi_t_go</code>, <code>pi_t_nogo</code>, and <code>z</code>),
+<code>design = 'external'</code> (with power prior arguments), and
+<code>prob = 'predictive'</code> (with <code>theta_NULL</code>,
+<code>m_t</code>, and <code>m_c</code>). The calibration plot and the
+returned <code>gamma_go</code>/<code>gamma_nogo</code> values are
+available for all combinations.</p>
 <hr>
 </div>
 </div>
@@ -1193,43 +594,29 @@ gamma2 (red dashed line) is the largest gamma satisfying Pr(NoGo) &lt;
 <p>This vignette covered single binary endpoint analysis in
 BayesianQDM:</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>Bayesian model</strong>: Beta-Binomial conjugate posterior
-with explicit update formulae for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>a</mi><mi>j</mi></msub><mo>+</mo><msub><mi>y</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">a_j^* = a_j + y_j</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">b_j^* = b_j + n_j - y_j</annotation></semantics></math>;
-Jeffreys prior
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>j</mi></msub><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">a_j = b_j = 0.5</annotation></semantics></math>)
-as the recommended weakly informative default.</li>
-<li>
-<strong>Posterior probability</strong>: evaluated via the
-convolution integral in <code><a href="../reference/pbetadiff.html">pbetadiff()</a></code> — no closed-form CDF
-exists for the Beta difference.</li>
-<li>
-<strong>Posterior predictive probability</strong>: evaluated by
-exact enumeration of the Beta-Binomial double sum in
-<code><a href="../reference/pbetabinomdiff.html">pbetabinomdiff()</a></code>.</li>
-<li>
-<strong>Three study designs</strong>: controlled (both arms
-observed), uncontrolled (hypothetical control count
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
-fixed from prior knowledge), external control (power prior with
-borrowing weight
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\alpha_{ej}</annotation></semantics></math>,
-augmenting the prior by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\alpha_{ej}</annotation></semantics></math>
-times the external sufficient statistics).</li>
-<li>
-<strong>Operating characteristics</strong>: computed by exact
-enumeration over all
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>1</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mn>2</mn></msub><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">(n_1+1)(n_2+1)</annotation></semantics></math>
-outcome pairs with binomial probability weights — no simulation required
-for the binary endpoint.</li>
-<li>
-<strong>Optimal threshold search</strong>: two-stage
-precompute-then-sweep strategy in <code><a href="../reference/getgamma1bin.html">getgamma1bin()</a></code> using
-<code><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer()</a></code> for a fully vectorised gamma sweep.</li>
+<li>Bayesian model: Beta-Binomial conjugate posterior with explicit
+update formulae for <span class="math inline">\(a_j^* = a_j +
+y_j\)</span> and <span class="math inline">\(b_j^* = b_j + n_j -
+y_j\)</span>; Jeffreys prior (<span class="math inline">\(a_j = b_j =
+0.5\)</span>) as the recommended weakly informative default.</li>
+<li>Posterior probability: evaluated via the convolution integral in
+<code><a href="../reference/pbetadiff.html">pbetadiff()</a></code> — no closed-form CDF exists for the Beta
+difference.</li>
+<li>Posterior predictive probability: evaluated by exact enumeration of
+the Beta-Binomial double sum in <code><a href="../reference/pbetabinomdiff.html">pbetabinomdiff()</a></code>.</li>
+<li>Three study designs: controlled (both groups observed), uncontrolled
+(hypothetical control count <span class="math inline">\(z\)</span> fixed
+from prior knowledge), external design (power prior with borrowing
+weight <span class="math inline">\(\alpha_{0ej}\)</span>, augmenting the
+prior by <span class="math inline">\(\alpha_{0ej}\)</span> times the
+external sufficient statistics).</li>
+<li>Operating characteristics: computed by exact enumeration over all
+<span class="math inline">\((n_t+1)(n_c+1)\)</span> outcome pairs with
+binomial probability weights — no simulation required for the binary
+endpoint.</li>
+<li>Optimal threshold search: two-stage precompute-then-sweep strategy
+in <code><a href="../reference/getgamma1bin.html">getgamma1bin()</a></code> using <code><a href="https://rdrr.io/r/base/outer.html" class="external-link">outer()</a></code> for a fully
+vectorised gamma sweep.</li>
 </ol>
 <p>See <code><a href="../articles/single-continuous.html">vignette("single-continuous")</a></code> for the analogous
 continuous endpoint analysis.</p>

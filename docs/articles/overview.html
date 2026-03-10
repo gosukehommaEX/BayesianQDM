@@ -11,7 +11,13 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
+  window.MathJax = {
+    chtml: {
+      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
+    }
+  };
+</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -106,101 +112,77 @@ criteria.</p>
 <div class="section level3">
 <h3 id="binary-endpoint-beta-binomial-conjugate-model">1.1 Binary Endpoint: Beta-Binomial Conjugate Model<a class="anchor" aria-label="anchor" href="#binary-endpoint-beta-binomial-conjugate-model"></a>
 </h3>
-<p>Let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>π</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\pi_j</annotation></semantics></math>
-denote the response rate in group
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">j = 1</annotation></semantics></math>:
-treatment,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">j = 2</annotation></semantics></math>:
-control). We place independent Beta priors on each rate:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>j</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>j</mi></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>b</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\pi_j \sim \mathrm{Beta}(a_j,\, b_j).</annotation></semantics></math></p>
-<p>Given
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>j</mi></msub><annotation encoding="application/x-tex">n_j</annotation></semantics></math>
-patients with
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>j</mi></msub><annotation encoding="application/x-tex">y_j</annotation></semantics></math>
-responders, the posterior is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>j</mi></msub><mo>∣</mo><msub><mi>y</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>j</mi></msub><mo>+</mo><msub><mi>y</mi><mi>j</mi></msub><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>b</mi><mi>j</mi></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\pi_j \mid y_j \;\sim\; \mathrm{Beta}\!\left(a_j + y_j,\; b_j + n_j - y_j\right).</annotation></semantics></math></p>
-<p>The treatment effect of interest is the difference
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\theta = \pi_1 - \pi_2</annotation></semantics></math>.
-Because the two groups are independent, the posterior of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>θ</mi><annotation encoding="application/x-tex">\theta</annotation></semantics></math>
-is the distribution of the difference of two independent Beta random
-variables, which has no closed-form CDF. The package evaluates</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(\theta &gt; \theta_0 \mid \mathbf{y}) = P(\pi_1 - \pi_2 &gt; \theta_0 \mid \mathbf{y})</annotation></semantics></math></p>
+<p>Let <span class="math inline">\(\pi_j\)</span> denote the response
+rate in group <span class="math inline">\(j\)</span> (<span class="math inline">\(j = t\)</span>: treatment, <span class="math inline">\(j = c\)</span>: control). We place independent
+Beta priors on each rate:</p>
+<p><span class="math display">\[\pi_j \sim \mathrm{Beta}(a_j,\, b_j),
+\quad j = t, c.\]</span></p>
+<p>Given <span class="math inline">\(n_j\)</span> patients with <span class="math inline">\(y_j\)</span> responders, the posterior is</p>
+<p><span class="math display">\[\pi_j \mid y_j \;\sim\;
+\mathrm{Beta}\!\left(a_j + y_j,\; b_j + n_j - y_j\right).\]</span></p>
+<p>The treatment effect of interest is the difference <span class="math inline">\(\theta = \pi_t - \pi_c\)</span>. Because the two
+groups are independent, the posterior of <span class="math inline">\(\theta\)</span> is the distribution of the
+difference of two independent Beta random variables, which has no
+closed-form CDF. The package evaluates</p>
+<p><span class="math display">\[P(\theta &gt; \theta_0 \mid y_t, y_c) =
+P(\pi_t - \pi_c &gt; \theta_0 \mid y_t, y_c)\]</span></p>
 <p>by numerical integration via <code><a href="../reference/pbetadiff.html">pbetadiff()</a></code>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mo>∫</mo><mrow><mo>max</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mn>1</mn></msubsup><msub><mi>f</mi><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mn>1</mn><mo>*</mo></msubsup><mo>,</mo><msubsup><mi>b</mi><mn>1</mn><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><mn>1</mn><mo>−</mo><msub><mi>F</mi><mrow><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mn>2</mn><mo>*</mo></msubsup><mo>,</mo><msubsup><mi>b</mi><mn>2</mn><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>u</mi><mo>−</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo><mspace width="0.167em"></mspace><mi>d</mi><mi>u</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">P(\pi_1 - \pi_2 &gt; \theta_0) = \int_{\max(0,\,\theta_0)}^{1}
-  f_{\mathrm{Beta}(a_1^*, b_1^*)}(u)\;
-  \bigl[1 - F_{\mathrm{Beta}(a_2^*, b_2^*)}(u - \theta_0)\bigr]\, du,</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>a</mi><mi>j</mi></msub><mo>+</mo><msub><mi>y</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">a_j^* = a_j + y_j</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><msub><mi>y</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">b_j^* = b_j + n_j - y_j</annotation></semantics></math>
-are the posterior shape parameters.</p>
+<p><span class="math display">\[P(\pi_t - \pi_c &gt; \theta_0) =
+\int_{\max(0,\,\theta_0)}^{1}
+  f_{\mathrm{Beta}(a_t^*, b_t^*)}(u)\;
+  \bigl[1 - F_{\mathrm{Beta}(a_c^*, b_c^*)}(u - \theta_0)\bigr]\,
+du,\]</span></p>
+<p>where <span class="math inline">\(a_j^* = a_j + y_j\)</span> and
+<span class="math inline">\(b_j^* = b_j + n_j - y_j\)</span> are the
+posterior shape parameters.</p>
 </div>
 <div class="section level3">
 <h3 id="continuous-endpoint-normal-inverse-chi-squared-conjugate-model">1.2 Continuous Endpoint: Normal-Inverse-Chi-Squared Conjugate
 Model<a class="anchor" aria-label="anchor" href="#continuous-endpoint-normal-inverse-chi-squared-conjugate-model"></a>
 </h3>
-<p>Let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\mu_j</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mi>j</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_j^2</annotation></semantics></math>
-denote the mean and variance of the outcome in group
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.
-Under the Normal-Inverse-Chi-squared
-(N-Inv-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>)
-conjugate prior</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>j</mi></msub><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>σ</mi><mi>j</mi><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">N</mi><mtext mathvariant="normal">-</mtext><mi mathvariant="normal">I</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">v</mi><mtext mathvariant="normal">-</mtext><msup><mi mathvariant="normal">χ</mi><mn mathvariant="normal">2</mn></msup></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>ν</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>σ</mi><mrow><mn>0</mn><mi>j</mi></mrow><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">(\mu_j,\, \sigma_j^2) \;\sim\; \mathrm{N\text{-}Inv\text{-}\chi^2}
-  (\mu_{0j},\, \kappa_{0j},\, \nu_{0j},\, \sigma_{0j}^2),</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{0j}</annotation></semantics></math>
-is the prior mean,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\kappa_{0j}</annotation></semantics></math>
-the prior precision (pseudo-sample size),
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ν</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\nu_{0j}</annotation></semantics></math>
-the prior degrees of freedom, and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mrow><mn>0</mn><mi>j</mi></mrow><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_{0j}^2</annotation></semantics></math>
-the prior scale.</p>
-<p>Given sample mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mi>j</mi></msub><annotation encoding="application/x-tex">\bar{y}_j</annotation></semantics></math>,
-sample standard deviation
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>j</mi></msub><annotation encoding="application/x-tex">s_j</annotation></semantics></math>,
-and sample size
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>j</mi></msub><annotation encoding="application/x-tex">n_j</annotation></semantics></math>,
+<p>Let <span class="math inline">\(\mu_j\)</span> and <span class="math inline">\(\sigma_j^2\)</span> denote the mean and variance
+of the outcome in group <span class="math inline">\(j\)</span> (<span class="math inline">\(j = t, c\)</span>). Under the
+Normal-Inverse-Chi-squared (N-Inv-<span class="math inline">\(\chi^2\)</span>) conjugate prior</p>
+<p><span class="math display">\[(\mu_j,\, \sigma_j^2) \;\sim\;
+\mathrm{N\text{-}Inv\text{-}\chi^2}
+  (\mu_{0j},\, \kappa_{0j},\, \nu_{0j},\, \sigma_{0j}^2),\]</span></p>
+<p>where <span class="math inline">\(\mu_{0j}\)</span> is the prior
+mean, <span class="math inline">\(\kappa_{0j}\)</span> the prior
+precision (pseudo-sample size), <span class="math inline">\(\nu_{0j}\)</span> the prior degrees of freedom,
+and <span class="math inline">\(\sigma_{0j}^2\)</span> the prior scale
+(corresponding to <code>mu0_t</code>/<code>mu0_c</code>,
+<code>kappa0_t</code>/<code>kappa0_c</code>,
+<code>nu0_t</code>/<code>nu0_c</code>,
+<code>sigma0_t</code>/<code>sigma0_c</code>).</p>
+<p>Given sample mean <span class="math inline">\(\bar{y}_j\)</span>
+(<code>bar_y_t</code>, <code>bar_y_c</code>), sample standard deviation
+<span class="math inline">\(s_j\)</span> (<code>s_t</code>,
+<code>s_c</code>), and sample size <span class="math inline">\(n_j\)</span> (<code>n_t</code>, <code>n_c</code>),
 the posterior parameters are updated as</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>κ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>ν</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>ν</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">\kappa_{nj} = \kappa_{0j} + n_j, \qquad
-  \nu_{nj} = \nu_{0j} + n_j,</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mrow><msub><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mspace width="0.167em"></mspace><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mi>j</mi></msub></mrow><msub><mi>κ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">\mu_{nj} = \frac{\kappa_{0j}\,\mu_{0j} + n_j\,\bar{y}_j}{\kappa_{nj}},</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mrow><mi>n</mi><mi>j</mi></mrow><mn>2</mn></msubsup><mo>=</mo><mfrac><mrow><msub><mi>ν</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msubsup><mi>σ</mi><mrow><mn>0</mn><mi>j</mi></mrow><mn>2</mn></msubsup><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msubsup><mi>s</mi><mi>j</mi><mn>2</mn></msubsup><mo>+</mo><mfrac displaystyle="true"><mrow><msub><mi>n</mi><mi>j</mi></msub><mspace width="0.167em"></mspace><msub><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub></mrow><msub><mi>κ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>−</mo><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow><msub><mi>ν</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">\sigma_{nj}^2 = \frac{\nu_{0j}\,\sigma_{0j}^2 + (n_j-1)\,s_j^2 +
-  \dfrac{n_j\,\kappa_{0j}}{\kappa_{nj}}(\mu_{0j} - \bar{y}_j)^2}{\nu_{nj}}.</annotation></semantics></math></p>
-<p>The marginal posterior of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\mu_j</annotation></semantics></math>
-is a non-standardised
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-distribution:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>j</mi></msub><mo>∣</mo><mi>𝐲</mi><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><msub><mi>t</mi><msub><mi>ν</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub></msub><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.278em"></mspace><mfrac><msubsup><mi>σ</mi><mrow><mi>n</mi><mi>j</mi></mrow><mn>2</mn></msubsup><msub><mi>κ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\mu_j \mid \mathbf{y} \;\sim\; t_{\nu_{nj}}\!\left(\mu_{nj},\;
-  \frac{\sigma_{nj}^2}{\kappa_{nj}}\right),</annotation></semantics></math></p>
-<p>i.e., location
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{nj}</annotation></semantics></math>,
-scale
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mi>/</mi><msqrt><msub><mi>κ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub></msqrt></mrow><annotation encoding="application/x-tex">\sigma_{nj}/\sqrt{\kappa_{nj}}</annotation></semantics></math>,
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ν</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\nu_{nj}</annotation></semantics></math>
-degrees of freedom.</p>
-<p><strong>Vague (Jeffreys) prior</strong> — the limiting case
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\kappa_{0j} \to 0</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ν</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\nu_{0j} \to 0</annotation></semantics></math>
-yields</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>j</mi></msub><mo>∣</mo><mi>𝐲</mi><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><msub><mi>t</mi><mrow><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn></mrow></msub><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mi>j</mi></msub><mo>,</mo><mspace width="0.278em"></mspace><mfrac><msub><mi>s</mi><mi>j</mi></msub><msqrt><msub><mi>n</mi><mi>j</mi></msub></msqrt></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\mu_j \mid \mathbf{y} \;\sim\; t_{n_j - 1}\!\left(\bar{y}_j,\;
-  \frac{s_j}{\sqrt{n_j}}\right).</annotation></semantics></math></p>
-<p>The posterior of the treatment effect
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>μ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\theta = \mu_1 - \mu_2</annotation></semantics></math>
-is the distribution of the difference of two independent
-non-standardised
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-variables.
-Three methods are provided to evaluate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(\theta &gt; \theta_0 \mid \mathbf{y})</annotation></semantics></math>;
-see Section 3 for details.</p>
+<p><span class="math display">\[\kappa_{nj} = \kappa_{0j} + n_j, \qquad
+  \nu_{nj} = \nu_{0j} + n_j,\]</span></p>
+<p><span class="math display">\[\mu_{nj} = \frac{\kappa_{0j}\,\mu_{0j} +
+n_j\,\bar{y}_j}{\kappa_{nj}},\]</span></p>
+<p><span class="math display">\[\sigma_{nj}^2 =
+\frac{\nu_{0j}\,\sigma_{0j}^2 + (n_j-1)\,s_j^2 +
+  \dfrac{n_j\,\kappa_{0j}}{\kappa_{nj}}(\mu_{0j} -
+\bar{y}_j)^2}{\nu_{nj}}.\]</span></p>
+<p>The marginal posterior of <span class="math inline">\(\mu_j\)</span>
+is a non-standardised <span class="math inline">\(t\)</span>-distribution:</p>
+<p><span class="math display">\[\mu_j \mid \bar{y}_j, s_j \;\sim\;
+t_{\nu_{nj}}\!\left(\mu_{nj},\;
+  \frac{\sigma_{nj}^2}{\kappa_{nj}}\right),\]</span></p>
+<p>i.e., location <span class="math inline">\(\mu_{nj}\)</span>, scale
+<span class="math inline">\(\sigma_{nj}/\sqrt{\kappa_{nj}}\)</span>, and
+<span class="math inline">\(\nu_{nj}\)</span> degrees of freedom.</p>
+<p>Vague (Jeffreys) prior — the limiting case <span class="math inline">\(\kappa_{0j} \to 0\)</span>, <span class="math inline">\(\nu_{0j} \to 0\)</span> yields</p>
+<p><span class="math display">\[\mu_j \mid \bar{y}_j, s_j \;\sim\;
+t_{n_j - 1}\!\left(\bar{y}_j,\;
+  \frac{s_j}{\sqrt{n_j}}\right).\]</span></p>
+<p>The posterior of the treatment effect <span class="math inline">\(\theta = \mu_t - \mu_c\)</span> is the
+distribution of the difference of two independent non-standardised <span class="math inline">\(t\)</span>-variables. Three methods are provided
+to evaluate <span class="math inline">\(P(\theta &gt; \theta_0 \mid
+\bar{y}_t, s_t, \bar{y}_c, s_c)\)</span>; see Section 3 for details.</p>
 <hr>
 </div>
 </div>
@@ -210,60 +192,50 @@ see Section 3 for details.</p>
 <div class="section level3">
 <h3 id="binary-endpoint">2.1 Binary Endpoint<a class="anchor" aria-label="anchor" href="#binary-endpoint"></a>
 </h3>
-<p>Let
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mi>j</mi></msub><mo>∣</mo><msub><mi>π</mi><mi>j</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>j</mi></msub><mo>,</mo><msub><mi>π</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tilde{y}_j \mid \pi_j \sim \mathrm{Binomial}(m_j, \pi_j)</annotation></semantics></math>
-denote future trial outcomes in group
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
-with future sample size
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mi>j</mi></msub><annotation encoding="application/x-tex">m_j</annotation></semantics></math>.
+<p>Let <span class="math inline">\(\tilde{y}_j \mid \pi_j \sim
+\mathrm{Binomial}(m_j, \pi_j)\)</span> denote future trial outcomes in
+group <span class="math inline">\(j\)</span> (<span class="math inline">\(j = t, c\)</span>) with future sample size <span class="math inline">\(m_j\)</span> (<code>m_t</code>, <code>m_c</code>).
 Integrating out the unknown response rates under their posteriors gives
 the posterior predictive (Beta-Binomial) distribution:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mi>j</mi></msub><mo>=</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>m</mi><mi>j</mi></msub><mi>k</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mfrac><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><mi>k</mi><mo>,</mo><mspace width="0.278em"></mspace><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><msub><mi>m</mi><mi>j</mi></msub><mo>−</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>a</mi><mi>j</mi><mo>*</mo></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>b</mi><mi>j</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>k</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>m</mi><mi>j</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">P(\tilde{y}_j = k) = \binom{m_j}{k}
+<p><span class="math display">\[P(\tilde{y}_j = k) = \binom{m_j}{k}
   \frac{B(a_j^* + k,\; b_j^* + m_j - k)}{B(a_j^*,\, b_j^*)},
-  \quad k = 0, 1, \ldots, m_j,</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo>,</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">B(\cdot,\cdot)</annotation></semantics></math>
-is the Beta function. The posterior predictive probability of a
-successful future trial is then</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̃</mo></mover><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><msub><mi>k</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn></mrow><msub><mi>m</mi><mn>1</mn></msub></munderover><munderover><mo>∑</mo><mrow><msub><mi>k</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn></mrow><msub><mi>m</mi><mn>2</mn></msub></munderover><mn>𝟏</mn><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>k</mi><mn>1</mn></msub><mi>/</mi><msub><mi>m</mi><mn>1</mn></msub><mo>−</mo><msub><mi>k</mi><mn>2</mn></msub><mi>/</mi><msub><mi>m</mi><mn>2</mn></msub><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><mspace width="0.278em"></mspace><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>1</mn></msub><mo>=</mo><msub><mi>k</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mn>2</mn></msub><mo>=</mo><msub><mi>k</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">P\!\left(\tilde{\theta} &gt; \theta_0 \mid \mathbf{y}\right) =
-  \sum_{k_1=0}^{m_1}\sum_{k_2=0}^{m_2}
-  \mathbf{1}[k_1/m_1 - k_2/m_2 &gt; \theta_0]\;
-  P(\tilde{y}_1 = k_1)\; P(\tilde{y}_2 = k_2),</annotation></semantics></math></p>
+  \quad k = 0, 1, \ldots, m_j,\]</span></p>
+<p>where <span class="math inline">\(B(\cdot,\cdot)\)</span> is the Beta
+function. The posterior predictive probability of a successful future
+trial is then</p>
+<p><span class="math display">\[P\!\left(\tilde{\theta} &gt; \theta_0
+\mid y_t, y_c\right) =
+  \sum_{k_t=0}^{m_t}\sum_{k_c=0}^{m_c}
+  \mathbf{1}[k_t/m_t - k_c/m_c &gt; \theta_0]\;
+  P(\tilde{y}_t = k_t)\; P(\tilde{y}_c = k_c),\]</span></p>
 <p>evaluated exactly by <code><a href="../reference/pbetabinomdiff.html">pbetabinomdiff()</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="continuous-endpoint">2.2 Continuous Endpoint<a class="anchor" aria-label="anchor" href="#continuous-endpoint"></a>
 </h3>
-<p>The predictive distribution of a single future observation
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>y</mi><mo accent="true">̃</mo></mover><mi>j</mi></msub><annotation encoding="application/x-tex">\tilde{y}_j</annotation></semantics></math>
-under the
-N-Inv-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
-posterior is a non-standardised
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-distribution.
-For the future sample mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mover><mi>y</mi><mo accent="true">̃</mo></mover><mo accent="true">‾</mo></mover><mi>j</mi></msub><annotation encoding="application/x-tex">\bar{\tilde{y}}_j</annotation></semantics></math>
-based on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mi>j</mi></msub><annotation encoding="application/x-tex">m_j</annotation></semantics></math>
-future patients, the scale is reduced by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><msub><mi>m</mi><mi>j</mi></msub></msqrt><annotation encoding="application/x-tex">\sqrt{m_j}</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mover><mi>y</mi><mo accent="true">̃</mo></mover><mo accent="true">‾</mo></mover><mi>j</mi></msub><mo>∣</mo><mi>𝐲</mi><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><msub><mi>t</mi><msub><mi>ν</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub></msub><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>σ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><msqrt><mfrac><mrow><mn>1</mn><mo>+</mo><msub><mi>κ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub></mrow><mrow><msub><mi>κ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>m</mi><mi>j</mi></msub></mrow></mfrac></msqrt><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\bar{\tilde{y}}_j \mid \mathbf{y} \;\sim\;
+<p>The predictive distribution of a single future observation <span class="math inline">\(\tilde{y}_j\)</span> under the N-Inv-<span class="math inline">\(\chi^2\)</span> posterior is a non-standardised
+<span class="math inline">\(t\)</span>-distribution. For the future
+sample mean <span class="math inline">\(\bar{\tilde{y}}_j\)</span> based
+on <span class="math inline">\(m_j\)</span> future patients, the scale
+is reduced by <span class="math inline">\(\sqrt{m_j}\)</span>:</p>
+<p><span class="math display">\[\bar{\tilde{y}}_j \mid \bar{y}_j, s_j
+\;\sim\;
   t_{\nu_{nj}}\!\left(\mu_{nj},\;
-  \sigma_{nj}\sqrt{\frac{1 + \kappa_{nj}}{\kappa_{nj}\, m_j}}\right).</annotation></semantics></math></p>
-<p>Under the vague prior
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>ν</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\kappa_{0j} = \nu_{0j} = 0</annotation></semantics></math>,
-so
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>κ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>n</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">\kappa_{nj} = n_j</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>s</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">\sigma_{nj} = s_j</annotation></semantics></math>)
+  \sigma_{nj}\sqrt{\frac{1 + \kappa_{nj}}{\kappa_{nj}\,
+m_j}}\right).\]</span></p>
+<p>Under the vague prior (<span class="math inline">\(\kappa_{0j} =
+\nu_{0j} = 0\)</span>, so <span class="math inline">\(\kappa_{nj} =
+n_j\)</span>, <span class="math inline">\(\sigma_{nj} = s_j\)</span>)
 this becomes</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mover><mi>y</mi><mo accent="true">̃</mo></mover><mo accent="true">‾</mo></mover><mi>j</mi></msub><mo>∣</mo><mi>𝐲</mi><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><msub><mi>t</mi><mrow><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn></mrow></msub><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mi>j</mi></msub><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>s</mi><mi>j</mi></msub><msqrt><mfrac><mrow><msub><mi>n</mi><mi>j</mi></msub><mo>+</mo><mn>1</mn></mrow><mrow><msub><mi>n</mi><mi>j</mi></msub><mspace width="0.167em"></mspace><msub><mi>m</mi><mi>j</mi></msub></mrow></mfrac></msqrt><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\bar{\tilde{y}}_j \mid \mathbf{y} \;\sim\;
+<p><span class="math display">\[\bar{\tilde{y}}_j \mid \bar{y}_j, s_j
+\;\sim\;
   t_{n_j - 1}\!\left(\bar{y}_j,\;
-  s_j\sqrt{\frac{n_j + 1}{n_j\, m_j}}\right).</annotation></semantics></math></p>
+  s_j\sqrt{\frac{n_j + 1}{n_j\, m_j}}\right).\]</span></p>
 <p>The posterior predictive probability of the future treatment effect
-exceeding
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\theta_0</annotation></semantics></math>
-is</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mover><mi>y</mi><mo accent="true">̃</mo></mover><mo accent="true">‾</mo></mover><mn>1</mn></msub><mo>−</mo><msub><mover><mover><mi>y</mi><mo accent="true">̃</mo></mover><mo accent="true">‾</mo></mover><mn>2</mn></msub><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">P\!\left(\bar{\tilde{y}}_1 - \bar{\tilde{y}}_2 &gt; \theta_0
-  \mid \mathbf{y}\right),</annotation></semantics></math></p>
+exceeding <span class="math inline">\(\theta_0\)</span> is</p>
+<p><span class="math display">\[P\!\left(\bar{\tilde{y}}_t -
+\bar{\tilde{y}}_c &gt; \theta_0
+  \mid \bar{y}_t, s_t, \bar{y}_c, s_c\right),\]</span></p>
 <p>computed by the same three methods as the posterior probability
 (Section 3), with the predictive scale replacing the posterior
 scale.</p>
@@ -274,29 +246,24 @@ scale.</p>
 <h2 id="computation-methods-for-continuous-endpoints">3. Computation Methods for Continuous Endpoints<a class="anchor" aria-label="anchor" href="#computation-methods-for-continuous-endpoints"></a>
 </h2>
 <p>The core computational challenge is evaluating the CDF of the
-difference
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><msub><mi>T</mi><mn>1</mn></msub><mo>−</mo><msub><mi>T</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">D = T_1 - T_2</annotation></semantics></math>
-of two independent non-standardised
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-variables</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>j</mi></msub><mo>∼</mo><msub><mi>t</mi><msub><mi>ν</mi><mi>j</mi></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>j</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><mi>j</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">T_j \sim t_{\nu_j}(\mu_j, \sigma_j), \qquad j = 1, 2,</annotation></semantics></math></p>
-<p>at a threshold
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\theta_0</annotation></semantics></math>.
-Three methods are available.</p>
+difference <span class="math inline">\(D = T_t - T_c\)</span> of two
+independent non-standardised <span class="math inline">\(t\)</span>-variables</p>
+<p><span class="math display">\[T_j \sim t_{\nu_j}(\mu_j, \sigma_j),
+\qquad j = t, c,\]</span></p>
+<p>at a threshold <span class="math inline">\(\theta_0\)</span>. Three
+methods are available.</p>
 <div class="section level3">
 <h3 id="numerical-integration-ni">3.1 Numerical Integration (NI)<a class="anchor" aria-label="anchor" href="#numerical-integration-ni"></a>
 </h3>
 <p>The CDF is expressed as a one-dimensional integral by integrating out
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mo>≤</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mo>∫</mo><mrow><mi>−</mi><mi>∞</mi></mrow><mi>∞</mi></msubsup><msub><mi>F</mi><mrow><msub><mi>t</mi><msub><mi>ν</mi><mn>2</mn></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mn>2</mn></msub><mo>,</mo><msub><mi>σ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><msub><mi>f</mi><mrow><msub><mi>t</mi><msub><mi>ν</mi><mn>1</mn></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>σ</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mi>d</mi><mi>t</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">P(D \le \theta_0) =
+<span class="math inline">\(T_t\)</span>:</p>
+<p><span class="math display">\[P(D \le \theta_0) =
   \int_{-\infty}^{\infty}
-  F_{t_{\nu_2}(\mu_2, \sigma_2)}\!\left(t - \theta_0\right)\;
-  f_{t_{\nu_1}(\mu_1, \sigma_1)}(t)\; dt,</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mrow><msub><mi>t</mi><mi>ν</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">F_{t_\nu(\mu,\sigma)}</annotation></semantics></math>
-denotes the CDF and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mrow><msub><mi>t</mi><mi>ν</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><annotation encoding="application/x-tex">f_{t_\nu(\mu,\sigma)}</annotation></semantics></math>
-the PDF of the non-standardised
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-distribution.
+  F_{t_{\nu_c}(\mu_c, \sigma_c)}\!\left(t - \theta_0\right)\;
+  f_{t_{\nu_t}(\mu_t, \sigma_t)}(t)\; dt,\]</span></p>
+<p>where <span class="math inline">\(F_{t_\nu(\mu,\sigma)}\)</span>
+denotes the CDF and <span class="math inline">\(f_{t_\nu(\mu,\sigma)}\)</span> the PDF of the
+non-standardised <span class="math inline">\(t\)</span>-distribution.
 This integral is evaluated by <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">stats::integrate()</a></code> (adaptive
 Gauss-Kronrod quadrature) in <code><a href="../reference/ptdiff_NI.html">ptdiff_NI()</a></code>. This method is
 exact but evaluates the integral once per call; it is therefore suitable
@@ -307,55 +274,56 @@ simulations.</p>
 <h3 id="monte-carlo-simulation-mc">3.2 Monte Carlo Simulation (MC)<a class="anchor" aria-label="anchor" href="#monte-carlo-simulation-mc"></a>
 </h3>
 <p>Independent samples are drawn from each marginal distribution:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>T</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>∼</mo><msub><mi>t</mi><msub><mi>ν</mi><mn>1</mn></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>σ</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>T</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>∼</mo><msub><mi>t</mi><msub><mi>ν</mi><mn>2</mn></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mn>2</mn></msub><mo>,</mo><msub><mi>σ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="1.0em"></mspace><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">C</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">T_1^{(i)} \sim t_{\nu_1}(\mu_1, \sigma_1), \quad
-  T_2^{(i)} \sim t_{\nu_2}(\mu_2, \sigma_2), \quad
-  i = 1, \ldots, n_{\mathrm{MC}},</annotation></semantics></math></p>
+<p><span class="math display">\[T_t^{(i)} \sim t_{\nu_t}(\mu_t,
+\sigma_t), \quad
+  T_c^{(i)} \sim t_{\nu_c}(\mu_c, \sigma_c), \quad
+  i = 1, \ldots, n_{\mathrm{MC}},\]</span></p>
 <p>and the probability is estimated as the empirical proportion:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">C</mi></mrow></msub></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>n</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">C</mi></mrow></msub></munderover><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>T</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msubsup><mi>T</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>&gt;</mo><msub><mi>θ</mi><mn>0</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\widehat{P}(D &gt; \theta_0) =
+<p><span class="math display">\[\widehat{P}(D &gt; \theta_0) =
   \frac{1}{n_{\mathrm{MC}}}
-  \sum_{i=1}^{n_{\mathrm{MC}}} \mathbf{1}\!\left[T_1^{(i)} - T_2^{(i)} &gt; \theta_0\right].</annotation></semantics></math></p>
+  \sum_{i=1}^{n_{\mathrm{MC}}} \mathbf{1}\!\left[T_t^{(i)} - T_c^{(i)}
+&gt; \theta_0\right].\]</span></p>
 <p>The package implements this in <code><a href="../reference/ptdiff_MC.html">ptdiff_MC()</a></code> using a
 vectorised approach: when called from
-<code><a href="../reference/pbayesdecisionprob1cont.html">pbayesdecisionprob1cont()</a></code> with a vector of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow></msub><annotation encoding="application/x-tex">n_{\mathrm{sim}}</annotation></semantics></math>
-scenarios, all draws are generated as a single
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">C</mi></mrow></msub><mo>×</mo><msub><mi>n</mi><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow></msub></mrow><annotation encoding="application/x-tex">n_{\mathrm{MC}} \times n_{\mathrm{sim}}</annotation></semantics></math>
-matrix to avoid repeated loop overhead.</p>
+<code><a href="../reference/pbayesdecisionprob1cont.html">pbayesdecisionprob1cont()</a></code> with a vector of <span class="math inline">\(n_{\mathrm{sim}}\)</span> scenarios, all draws are
+generated as a single <span class="math inline">\(n_{\mathrm{MC}} \times
+n_{\mathrm{sim}}\)</span> matrix to avoid repeated loop overhead.</p>
 </div>
 <div class="section level3">
 <h3 id="moment-matching-approximation-mm">3.3 Moment-Matching Approximation (MM)<a class="anchor" aria-label="anchor" href="#moment-matching-approximation-mm"></a>
 </h3>
-<p>The first two even moments (mean and variance) of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><msub><mi>T</mi><mn>1</mn></msub><mo>−</mo><msub><mi>T</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">D = T_1 - T_2</annotation></semantics></math>
-are matched to a single non-standardised
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-distribution.
-For a non-standardised
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-variable
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>∼</mo><msub><mi>t</mi><mi>ν</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">T \sim t_\nu(\mu, \sigma)</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>T</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mi>μ</mi><mspace width="1.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>ν</mi><mo>&gt;</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>T</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msup><mi>σ</mi><mn>2</mn></msup><mo>⋅</mo><mfrac><mi>ν</mi><mrow><mi>ν</mi><mo>−</mo><mn>2</mn></mrow></mfrac><mspace width="1.0em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>ν</mi><mo>&gt;</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">E[T] = \mu \quad (\nu &gt; 1), \qquad
-  \mathrm{Var}(T) = \sigma^2 \cdot \frac{\nu}{\nu - 2} \quad (\nu &gt; 2).</annotation></semantics></math></p>
-<p>The mean and variance of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
-are therefore</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><mi>D</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>μ</mi><mn>2</mn></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">E[D] = \mu_1 - \mu_2,</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msubsup><mi>σ</mi><mn>1</mn><mn>2</mn></msubsup><mspace width="0.167em"></mspace><mfrac><msub><mi>ν</mi><mn>1</mn></msub><mrow><msub><mi>ν</mi><mn>1</mn></msub><mo>−</mo><mn>2</mn></mrow></mfrac><mo>+</mo><msubsup><mi>σ</mi><mn>2</mn><mn>2</mn></msubsup><mspace width="0.167em"></mspace><mfrac><msub><mi>ν</mi><mn>2</mn></msub><mrow><msub><mi>ν</mi><mn>2</mn></msub><mo>−</mo><mn>2</mn></mrow></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">\mathrm{Var}(D) = \sigma_1^2\,\frac{\nu_1}{\nu_1 - 2} +
-  \sigma_2^2\,\frac{\nu_2}{\nu_2 - 2}.</annotation></semantics></math></p>
-<p>A single
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-distribution
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><msup><mi>ν</mi><mo>*</mo></msup></msub><mrow><mo stretchy="true" form="prefix">(</mo><msup><mi>μ</mi><mo>*</mo></msup><mo>,</mo><msup><mi>σ</mi><mo>*</mo></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">t_{\nu^*}(\mu^*, \sigma^*)</annotation></semantics></math>
-is fitted by equating its mean and variance to those of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>μ</mi><mo>*</mo></msup><mo>=</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>μ</mi><mn>2</mn></msub><mo>,</mo><mspace width="2.0em"></mspace><msup><mi>σ</mi><mrow><mi>*</mi><mn>2</mn></mrow></msup><mo>⋅</mo><mfrac><msup><mi>ν</mi><mo>*</mo></msup><mrow><msup><mi>ν</mi><mo>*</mo></msup><mo>−</mo><mn>2</mn></mrow></mfrac><mo>=</mo><mrow><mi mathvariant="normal">V</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\mu^* = \mu_1 - \mu_2, \qquad
-  \sigma^{*2} \cdot \frac{\nu^*}{\nu^* - 2} = \mathrm{Var}(D).</annotation></semantics></math></p>
-<p>The degrees of freedom
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>ν</mi><mo>*</mo></msup><annotation encoding="application/x-tex">\nu^*</annotation></semantics></math>
-and scale
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mo>*</mo></msup><annotation encoding="application/x-tex">\sigma^*</annotation></semantics></math>
-are determined from the fourth moment matching or by a closed-form
-relationship derived from the Welch-Satterthwaite approximation. This
-yields a fully closed-form, vectorised approximation implemented in
-<code><a href="../reference/ptdiff_MM.html">ptdiff_MM()</a></code>, making it the recommended method for
-large-scale simulation studies.</p>
+<p><span class="math inline">\(D = T_t - T_c\)</span> is approximated by
+a single non-standardised <span class="math inline">\(t\)</span>-distribution <span class="math inline">\(t_{\nu^*}(\mu^*, \sigma^*)\)</span> by matching
+the first and second even moments. For <span class="math inline">\(T_j
+\sim t_{\nu_j}(\mu_j, \sigma_j)\)</span> with <span class="math inline">\(\nu_j &gt; 4\)</span>:</p>
+<p><span class="math display">\[E[T_j] = \mu_j, \qquad
+  \mathrm{Var}(T_j) = \sigma_j^2\,\frac{\nu_j}{\nu_j - 2}, \qquad
+  E[(T_j - \mu_j)^4] =
+\frac{3\nu_j^2\,\sigma_j^4}{(\nu_j-2)(\nu_j-4)}.\]</span></p>
+<p>The mean of <span class="math inline">\(D\)</span> is matched
+directly:</p>
+<p><span class="math display">\[\mu^* = \mu_t - \mu_c.\]</span></p>
+<p>Since <span class="math inline">\(T_t\)</span> and <span class="math inline">\(T_c\)</span> are independent, the second and
+fourth central moments of <span class="math inline">\(D\)</span> are</p>
+<p><span class="math display">\[\mathrm{Var}(D) =
+\sigma_t^2\,\frac{\nu_t}{\nu_t - 2} +
+  \sigma_c^2\,\frac{\nu_c}{\nu_c - 2},\]</span></p>
+<p><span class="math display">\[E[(D - \mu^*)^4] =
+\frac{3\nu_t^2\,\sigma_t^4}{(\nu_t-2)(\nu_t-4)} +
+  \frac{3\nu_c^2\,\sigma_c^4}{(\nu_c-2)(\nu_c-4)} +
+  6\,\mathrm{Var}(T_t)\,\mathrm{Var}(T_c).\]</span></p>
+<p>Denoting <span class="math inline">\(Q^* =
+\{\mathrm{Var}(D)\}^2\)</span> and <span class="math inline">\(Q =
+E[(D-\mu^*)^4]/3\)</span>, the effective degrees of freedom are obtained
+by equating the normalised fourth moment of <span class="math inline">\(D\)</span> to that of <span class="math inline">\(t_{\nu^*}\)</span>:</p>
+<p><span class="math display">\[\nu^* = \frac{2Q^* - 4Q}{Q^* -
+Q}.\]</span></p>
+<p>The scale parameter follows from the second-moment equation:</p>
+<p><span class="math display">\[\sigma^* =
+\sqrt{\mathrm{Var}(D)\,\frac{\nu^* - 2}{\nu^*}}.\]</span></p>
+<p>This yields a fully closed-form, vectorised approximation implemented
+in <code><a href="../reference/ptdiff_MM.html">ptdiff_MM()</a></code>, making it the recommended method for
+large-scale simulation studies. The approximation requires <span class="math inline">\(\nu_t &gt; 4\)</span> and <span class="math inline">\(\nu_c &gt; 4\)</span>.</p>
 <hr>
 </div>
 </div>
@@ -366,86 +334,66 @@ large-scale simulation studies.</p>
 <h3 id="controlled-design">4.1 Controlled Design<a class="anchor" aria-label="anchor" href="#controlled-design"></a>
 </h3>
 <p>The standard parallel-group randomised controlled trial (RCT) with
-concurrent treatment
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">j = 1</annotation></semantics></math>)
-and control
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">j = 2</annotation></semantics></math>)
-arms. Both posterior distributions are updated from the observed PoC
-data, and the probability is evaluated for the treatment effect
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><msub><mi>π</mi><mn>1</mn></msub><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\theta = \pi_1 - \pi_2</annotation></semantics></math>
-(binary) or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><msub><mi>μ</mi><mn>1</mn></msub><mo>−</mo><msub><mi>μ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\theta = \mu_1 - \mu_2</annotation></semantics></math>
-(continuous).</p>
+concurrent treatment (<span class="math inline">\(j = t\)</span>) and
+control (<span class="math inline">\(j = c\)</span>) groups. Both
+posterior distributions are updated from the observed PoC data, and the
+probability is evaluated for the treatment effect <span class="math inline">\(\theta = \pi_t - \pi_c\)</span> (binary) or <span class="math inline">\(\theta = \mu_t - \mu_c\)</span> (continuous).</p>
 </div>
 <div class="section level3">
 <h3 id="uncontrolled-design-single-arm-with-hypothetical-control">4.2 Uncontrolled Design (Single-Arm with Hypothetical Control)<a class="anchor" aria-label="anchor" href="#uncontrolled-design-single-arm-with-hypothetical-control"></a>
 </h3>
-<p>When no concurrent control arm is available (single-arm PoC trial),
-the control distribution is specified from external knowledge rather
-than observed data.</p>
-<p><strong>Binary endpoint</strong>: a hypothetical responder count
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
-is specified for the control group of size
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mn>2</mn></msub><annotation encoding="application/x-tex">n_2</annotation></semantics></math>,
-yielding posterior shape parameters
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>a</mi><mn>2</mn><mo>*</mo></msubsup><mo>=</mo><msub><mi>a</mi><mn>2</mn></msub><mo>+</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">a_2^* = a_2 + z</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>b</mi><mn>2</mn><mo>*</mo></msubsup><mo>=</mo><msub><mi>b</mi><mn>2</mn></msub><mo>+</mo><msub><mi>n</mi><mn>2</mn></msub><mo>−</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">b_2^* = b_2 + n_2 - z</annotation></semantics></math>.</p>
-<p><strong>Continuous endpoint</strong>: the hypothetical control mean
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mn>02</mn></msub><annotation encoding="application/x-tex">\mu_{02}</annotation></semantics></math>
-is fixed from prior knowledge and the control variance is scaled
-relative to the treatment posterior variance via a scaling factor
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">r &gt; 0</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">l</mi></mrow></msub><mo>=</mo><msqrt><mi>r</mi></msqrt><mo>⋅</mo><msub><mi>σ</mi><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">t</mi></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">\sigma_{\mathrm{control}} = \sqrt{r} \cdot \sigma_{\mathrm{treatment}},</annotation></semantics></math></p>
-<p>so the scale of the control
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-distribution
-is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mi>r</mi></msqrt><annotation encoding="application/x-tex">\sqrt{r}</annotation></semantics></math>
-times that of the treatment.</p>
+<p>When no concurrent control group is available (single-group PoC
+trial), the control distribution is specified from external knowledge
+rather than observed data.</p>
+<p>Binary endpoint: a hypothetical responder count <span class="math inline">\(z\)</span> is specified for the control group of
+size <span class="math inline">\(n_c\)</span>, yielding posterior shape
+parameters <span class="math inline">\(a_c^* = a_c + z\)</span> and
+<span class="math inline">\(b_c^* = b_c + n_c - z\)</span>.</p>
+<p>Continuous endpoint: the hypothetical control mean <span class="math inline">\(\mu_{0c}\)</span> (<code>mu0_c</code>) is fixed
+from prior knowledge and the control variance is scaled relative to the
+treatment posterior variance via a scaling factor <span class="math inline">\(r &gt; 0\)</span>:</p>
+<p><span class="math display">\[\sigma_c = \sqrt{r} \cdot
+\sigma_t,\]</span></p>
+<p>so the scale of the control <span class="math inline">\(t\)</span>-distribution is <span class="math inline">\(\sqrt{r}\)</span> times that of the treatment.</p>
 </div>
 <div class="section level3">
-<h3 id="external-control-design-power-prior">4.3 External Control Design (Power Prior)<a class="anchor" aria-label="anchor" href="#external-control-design-power-prior"></a>
+<h3 id="external-design-power-prior">4.3 External Design (Power Prior)<a class="anchor" aria-label="anchor" href="#external-design-power-prior"></a>
 </h3>
-<p>Historical or external data are incorporated through a <strong>power
-prior</strong> with borrowing weight
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mi>e</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\alpha_e \in (0, 1]</annotation></semantics></math>.
-Under the Beta-Binomial model for group
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>,
-the power prior augments the initial prior by a fraction
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\alpha_{ej}</annotation></semantics></math>
-of the external data sufficient statistics:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>α</mi><mi>j</mi><mo>*</mo></msubsup><mo>,</mo><mspace width="0.278em"></mspace><msubsup><mi>β</mi><mi>j</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>a</mi><mi>j</mi></msub><mo>+</mo><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>y</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.278em"></mspace><mspace width="0.278em"></mspace><msub><mi>b</mi><mi>j</mi></msub><mo>+</mo><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mi>y</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">(\alpha_j^*,\; \beta_j^*) =
-  \left(a_j + \alpha_{ej}\, y_{ej},\;\;
-  b_j + \alpha_{ej}(n_{ej} - y_{ej})\right),</annotation></semantics></math></p>
-<p>where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">n_{ej}</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">y_{ej}</annotation></semantics></math>
-are the external sample size and responder count for group
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.
-These augmented parameters then serve as the prior for the current PoC
-data, yielding a closed-form posterior without MCMC.</p>
-<p>Under the
-N-Inv-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>χ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\chi^2</annotation></semantics></math>
-model, the power prior inflates the prior precision and degrees of
-freedom by the weighted external sample:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow><mo>*</mo></msubsup><mo>=</mo><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>ν</mi><mrow><mn>0</mn><mi>j</mi></mrow><mo>*</mo></msubsup><mo>=</mo><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>−</mo><mn>1</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">\kappa_{0j}^* = \alpha_{ej}\, n_{ej}, \quad
-  \nu_{0j}^* = \alpha_{ej}\, n_{ej} - 1,</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>μ</mi><mrow><mn>0</mn><mi>j</mi></mrow><mo>*</mo></msubsup><mo>=</mo><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>,</mo><mspace width="1.0em"></mspace><msubsup><mi>σ</mi><mrow><mn>0</mn><mi>j</mi></mrow><mrow><mi>*</mi><mn>2</mn></mrow></msubsup><mo>=</mo><msubsup><mi>s</mi><mrow><mi>e</mi><mi>j</mi></mrow><mn>2</mn></msubsup><mo>,</mo></mrow><annotation encoding="application/x-tex">\mu_{0j}^* = \bar{y}_{ej}, \quad
-  \sigma_{0j}^{*2} = s_{ej}^2,</annotation></semantics></math></p>
+<p>Historical or external data are incorporated through a power prior
+with borrowing weight <span class="math inline">\(\alpha_{0e} \in (0,
+1]\)</span>. Under the Beta-Binomial model for group <span class="math inline">\(j\)</span>, the power prior augments the initial
+prior by a fraction <span class="math inline">\(\alpha_{0ej}\)</span>
+(<code>alpha0e_t</code>, <code>alpha0e_c</code>) of the external data
+sufficient statistics:</p>
+<p><span class="math display">\[(\alpha_j^*,\; \beta_j^*) =
+  \left(a_j + \alpha_{0ej}\, y_{ej},\;\;
+  b_j + \alpha_{0ej}(n_{ej} - y_{ej})\right),\]</span></p>
+<p>where <span class="math inline">\(n_{ej}\)</span> (<code>ne_t</code>,
+<code>ne_c</code>) and <span class="math inline">\(y_{ej}\)</span>
+(<code>ye_t</code>, <code>ye_c</code>) are the external sample size and
+responder count for group <span class="math inline">\(j\)</span>. These
+augmented parameters then serve as the prior for the current PoC data,
+yielding a closed-form posterior without MCMC.</p>
+<p>Under the N-Inv-<span class="math inline">\(\chi^2\)</span> model,
+the power prior inflates the prior precision and degrees of freedom by
+the weighted external sample:</p>
+<p><span class="math display">\[\kappa_{0j}^* = \alpha_{0ej}\, n_{ej},
+\quad
+  \nu_{0j}^* = \alpha_{0ej}\, n_{ej} - 1,\]</span></p>
+<p><span class="math display">\[\mu_{0j}^* = \bar{y}_{ej}, \quad
+  \sigma_{0j}^{*2} = s_{ej}^2,\]</span></p>
 <p>leading to the posterior updates</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>=</mo><mfrac><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mspace width="0.167em"></mspace><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mi>j</mi></msub></mrow><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub></mrow></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">\mu_{nj} = \frac{\alpha_{ej} n_{ej}\, \bar{y}_{ej} + n_j\, \bar{y}_j}
-  {\alpha_{ej} n_{ej} + n_j},</annotation></semantics></math></p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mrow><mi>n</mi><mi>j</mi></mrow><mn>2</mn></msubsup><mo>=</mo><mfrac><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mi>s</mi><mrow><mi>e</mi><mi>j</mi></mrow><mn>2</mn></msubsup><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mi>s</mi><mi>j</mi><mn>2</mn></msubsup><mo>+</mo><mfrac displaystyle="true"><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mi>j</mi></msub><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>−</mo><msub><mover><mi>y</mi><mo accent="true">‾</mo></mover><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub></mrow></mfrac></mrow><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub></mrow></mfrac><mo>,</mo></mrow><annotation encoding="application/x-tex">\sigma_{nj}^2 = \frac{\alpha_{ej}(n_{ej}-1) s_{ej}^2 + (n_j-1) s_j^2 +
-  \dfrac{\alpha_{ej} n_{ej} n_j (\bar{y}_{ej} - \bar{y}_j)^2}
-        {\alpha_{ej} n_{ej} + n_j}}
-  {\alpha_{ej} n_{ej} + n_j},</annotation></semantics></math></p>
-<p>with degrees of freedom
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ν</mi><mrow><mi>n</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><msub><mi>n</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>+</mo><msub><mi>n</mi><mi>j</mi></msub><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\nu_{nj} = \alpha_{ej} n_{ej} + n_j - 1</annotation></semantics></math>.
-Setting
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\alpha_{ej} = 1</annotation></semantics></math>
-corresponds to full borrowing;
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha_{ej} \to 0</annotation></semantics></math>
+<p><span class="math display">\[\mu_{nj} = \frac{\alpha_{0ej} n_{ej}\,
+\bar{y}_{ej} + n_j\, \bar{y}_j}
+  {\alpha_{0ej} n_{ej} + n_j},\]</span></p>
+<p><span class="math display">\[\sigma_{nj}^2 =
+\frac{\alpha_{0ej}(n_{ej}-1) s_{ej}^2 + (n_j-1) s_j^2 +
+  \dfrac{\alpha_{0ej} n_{ej} n_j (\bar{y}_{ej} - \bar{y}_j)^2}
+        {\alpha_{0ej} n_{ej} + n_j}}
+  {\alpha_{0ej} n_{ej} + n_j},\]</span></p>
+<p>with degrees of freedom <span class="math inline">\(\nu_{nj} =
+\alpha_{0ej} n_{ej} + n_j - 1\)</span>. Setting <span class="math inline">\(\alpha_{0ej} = 1\)</span> corresponds to full
+borrowing; <span class="math inline">\(\alpha_{0ej} \to 0\)</span>
 recovers the vague-prior result from the current data alone.</p>
 <hr>
 </div>
@@ -457,119 +405,102 @@ recovers the vague-prior result from the current data alone.</p>
 <h3 id="single-endpoint">5.1 Single Endpoint<a class="anchor" aria-label="anchor" href="#single-endpoint"></a>
 </h3>
 <p>The Go/NoGo/Gray decision rule uses two pre-specified thresholds
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mn>1</mn></msub><mo>&gt;</mo><msub><mi>γ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\gamma_1 &gt; \gamma_2</annotation></semantics></math>
-applied to a pair of probabilities
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(g_{\mathrm{Go}},\, g_{\mathrm{NoGo}})</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Decision</mtext><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="bold">𝐆𝐨</mtext></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mn>1</mn></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> AND </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>&lt;</mo><msub><mi>γ</mi><mn>2</mn></msub></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="bold">𝐍𝐨𝐆𝐨</mtext></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>&lt;</mo><msub><mi>γ</mi><mn>1</mn></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> AND </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mn>2</mn></msub></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="bold">𝐌𝐢𝐬𝐬</mtext></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mn>1</mn></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> AND </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mn>2</mn></msub></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="bold">𝐆𝐫𝐚𝐲</mtext></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">otherwise (neither Go nor NoGo criterion met).</mtext></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\text{Decision} = \begin{cases}
-  \textbf{Go}   &amp; \text{if } g_{\mathrm{Go}}   \ge \gamma_1 \text{ AND }
-                              g_{\mathrm{NoGo}} &lt;  \gamma_2 \\
-  \textbf{NoGo} &amp; \text{if } g_{\mathrm{Go}}   &lt;  \gamma_1 \text{ AND }
-                              g_{\mathrm{NoGo}} \ge \gamma_2 \\
-  \textbf{Miss} &amp; \text{if } g_{\mathrm{Go}}   \ge \gamma_1 \text{ AND }
-                              g_{\mathrm{NoGo}} \ge \gamma_2 \\
-  \textbf{Gray} &amp; \text{otherwise (neither Go nor NoGo criterion met).}
-\end{cases}</annotation></semantics></math></p>
+<span class="math inline">\(\gamma_{\mathrm{go}} &gt;
+\gamma_{\mathrm{nogo}}\)</span> (<code>gamma_go</code>,
+<code>gamma_nogo</code>) applied to a pair of probabilities <span class="math inline">\((g_{\mathrm{go}},\,
+g_{\mathrm{nogo}})\)</span>:</p>
+<p><span class="math display">\[\text{Decision} = \begin{cases}
+  \text{Go}   &amp; \text{if } g_{\mathrm{go}}   \ge
+\gamma_{\mathrm{go}} \text{ AND }
+                              g_{\mathrm{nogo}}
+&lt;  \gamma_{\mathrm{nogo}} \\
+  \text{NoGo} &amp; \text{if }
+g_{\mathrm{go}}   &lt;  \gamma_{\mathrm{go}} \text{ AND }
+                              g_{\mathrm{nogo}} \ge
+\gamma_{\mathrm{nogo}} \\
+  \text{Miss} &amp; \text{if } g_{\mathrm{go}}   \ge
+\gamma_{\mathrm{go}} \text{ AND }
+                              g_{\mathrm{nogo}} \ge
+\gamma_{\mathrm{nogo}} \\
+  \text{Gray} &amp; \text{otherwise (neither Go nor NoGo criterion
+met).}
+\end{cases}\]</span></p>
 <p>A Miss occurs when both Go and NoGo criteria are simultaneously
 satisfied, which indicates an inconsistent threshold configuration. By
-default the functions stop with an error if Miss probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">&gt; 0</annotation></semantics></math>
+default the functions stop with an error if Miss probability <span class="math inline">\(&gt; 0\)</span>
 (<code>error_if_Miss = TRUE</code>).</p>
-<p>For <strong>posterior probability</strong>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{TV}}</annotation></semantics></math>
-(Target Value) and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{MAV}}</annotation></semantics></math>
-(Minimum Acceptable Value,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow></msub><mo>&gt;</mo><msub><mi>θ</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\theta_{\mathrm{TV}} &gt; \theta_{\mathrm{MAV}}</annotation></semantics></math>)
-define two separate probabilities:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo>&gt;</mo><msub><mi>θ</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>θ</mi><mo>≤</mo><msub><mi>θ</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">g_{\mathrm{Go}} = P(\theta &gt; \theta_{\mathrm{TV}} \mid \mathbf{y}), \qquad
-  g_{\mathrm{NoGo}} = P(\theta \le \theta_{\mathrm{MAV}} \mid \mathbf{y}).</annotation></semantics></math></p>
-<p>For <strong>posterior predictive probability</strong>, a single null
-threshold
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">U</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{NULL}}</annotation></semantics></math>
-is used and the same probability serves both roles:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>=</mo><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>=</mo><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̃</mo></mover><mo>&gt;</mo><msub><mi>θ</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">U</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow></msub><mo>∣</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">g_{\mathrm{Go}} = g_{\mathrm{NoGo}} =
-  P(\tilde{\theta} &gt; \theta_{\mathrm{NULL}} \mid \mathbf{y}),</annotation></semantics></math></p>
-<p>so the decision reduces to Go if
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>≥</mo><msub><mi>γ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">g \ge \gamma_1</annotation></semantics></math>,
-NoGo if
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>&lt;</mo><msub><mi>γ</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">g &lt; \gamma_2</annotation></semantics></math>,
-and Gray otherwise (Miss cannot occur in this case).</p>
+<p>For posterior probability, <span class="math inline">\(\theta_{\mathrm{TV}}\)</span>
+(<code>theta_TV</code>, Target Value) and <span class="math inline">\(\theta_{\mathrm{MAV}}\)</span>
+(<code>theta_MAV</code>, Minimum Acceptable Value, <span class="math inline">\(\theta_{\mathrm{TV}} &gt;
+\theta_{\mathrm{MAV}}\)</span>) define two separate probabilities:</p>
+<p><span class="math display">\[g_{\mathrm{go}} = P(\theta &gt;
+\theta_{\mathrm{TV}} \mid y_t, y_c), \qquad
+  g_{\mathrm{nogo}} = P(\theta \le \theta_{\mathrm{MAV}} \mid y_t,
+y_c).\]</span></p>
+<p>For posterior predictive probability, a single null threshold <span class="math inline">\(\theta_{\mathrm{NULL}}\)</span>
+(<code>theta_NULL</code>) is used and the same probability serves both
+roles:</p>
+<p><span class="math display">\[g_{\mathrm{go}} = g_{\mathrm{nogo}} =
+  P(\tilde{\theta} &gt; \theta_{\mathrm{NULL}} \mid y_t,
+y_c),\]</span></p>
+<p>so the decision reduces to Go if <span class="math inline">\(g \ge
+\gamma_{\mathrm{go}}\)</span>, NoGo if <span class="math inline">\(g
+&lt; \gamma_{\mathrm{nogo}}\)</span>, and Gray otherwise (Miss cannot
+occur in this case).</p>
 </div>
 <div class="section level3">
 <h3 id="operating-characteristics">5.2 Operating Characteristics<a class="anchor" aria-label="anchor" href="#operating-characteristics"></a>
 </h3>
 <p>For a given true parameter value (e.g., true treatment effect), the
-<strong>operating characteristics</strong> are the marginal
-probabilities of each decision outcome:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mi>𝐲</mi></munder><mn>𝟏</mn><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mi mathvariant="normal">d</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">n</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐲</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mspace width="0.278em"></mspace><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>𝐲</mi><mo>∣</mo><mtext mathvariant="normal">true parameter</mtext><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go}) = \sum_{\mathbf{y}} \mathbf{1}[\mathrm{decision}(\mathbf{y}) = \mathrm{Go}]\;
-  P(\mathbf{y} \mid \text{true parameter}),</annotation></semantics></math></p>
-<p>and analogously for
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{NoGo})</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">y</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Gray})</annotation></semantics></math>,
-where
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐲</mi><annotation encoding="application/x-tex">\mathbf{y}</annotation></semantics></math>
-denotes the observed data and the sum (or integral for continuous
-outcomes) is taken over all possible outcomes under the true
-parameter.</p>
+operating characteristics are the marginal probabilities of each
+decision outcome:</p>
+<p><span class="math display">\[\Pr(\mathrm{Go}) = \sum_{y_t, y_c}
+\mathbf{1}[\mathrm{decision}(y_t, y_c) = \mathrm{Go}]\;
+  P(y_t, y_c \mid \text{true parameter}),\]</span></p>
+<p>and analogously for <span class="math inline">\(\Pr(\mathrm{NoGo})\)</span> and <span class="math inline">\(\Pr(\mathrm{Gray})\)</span>, where <span class="math inline">\((y_t, y_c)\)</span> denotes the observed data and
+the sum (or integral for continuous outcomes) is taken over all possible
+outcomes under the true parameter.</p>
 <p>For binary endpoints, the exact marginal probabilities over all
-possible outcome pairs
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">}</mo><mo>×</mo><mo stretchy="false" form="prefix">{</mo><mn>0</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">(y_1, y_2) \in \{0,\ldots,n_1\} \times \{0,\ldots,n_2\}</annotation></semantics></math>
-are computed by <code><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin()</a></code> using binomial
-probability weights:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>=</mo><mn>0</mn></mrow><msub><mi>n</mi><mn>1</mn></msub></munderover><munderover><mo>∑</mo><mrow><msub><mi>y</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn></mrow><msub><mi>n</mi><mn>2</mn></msub></munderover><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>g</mi><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≥</mo><msub><mi>γ</mi><mn>1</mn></msub><mspace width="0.278em"></mspace><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and </mtext><mspace width="0.333em"></mspace></mrow><mspace width="0.278em"></mspace><msub><mi>g</mi><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><msub><mi>γ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">]</mo></mrow><mspace width="0.278em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>n</mi><mn>1</mn></msub><msub><mi>y</mi><mn>1</mn></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mi>π</mi><mn>1</mn><msub><mi>y</mi><mn>1</mn></msub></msubsup><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><msub><mi>n</mi><mn>1</mn></msub><mo>−</mo><msub><mi>y</mi><mn>1</mn></msub></mrow></msup><mspace width="0.278em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>n</mi><mn>2</mn></msub><msub><mi>y</mi><mn>2</mn></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mi>π</mi><mn>2</mn><msub><mi>y</mi><mn>2</mn></msub></msubsup><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><msub><mi>n</mi><mn>2</mn></msub><mo>−</mo><msub><mi>y</mi><mn>2</mn></msub></mrow></msup><mi>.</mi></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go}) = \sum_{y_1=0}^{n_1} \sum_{y_2=0}^{n_2}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_1, y_2) \ge \gamma_1
-    \;\text{ and }\; g_{\mathrm{NoGo}}(y_1, y_2) &lt; \gamma_2\right]\;
-  \binom{n_1}{y_1} \pi_1^{y_1}(1-\pi_1)^{n_1-y_1}\;
-  \binom{n_2}{y_2} \pi_2^{y_2}(1-\pi_2)^{n_2-y_2}.</annotation></semantics></math></p>
+possible outcome pairs <span class="math inline">\((y_t, y_c) \in
+\{0,\ldots,n_t\} \times \{0,\ldots,n_c\}\)</span> are computed by
+<code><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin()</a></code> using binomial probability
+weights:</p>
+<p><span class="math display">\[\Pr(\mathrm{Go}) = \sum_{y_t=0}^{n_t}
+\sum_{y_c=0}^{n_c}
+  \mathbf{1}\!\left[g_{\mathrm{go}}(y_t, y_c) \ge \gamma_{\mathrm{go}}
+    \;\text{ and }\; g_{\mathrm{nogo}}(y_t, y_c) &lt;
+\gamma_{\mathrm{nogo}}\right]\;
+  \binom{n_t}{y_t} \pi_t^{y_t}(1-\pi_t)^{n_t-y_t}\;
+  \binom{n_c}{y_c} \pi_c^{y_c}(1-\pi_c)^{n_c-y_c}.\]</span></p>
 <p>For continuous endpoints, the operating characteristics are estimated
-by Monte Carlo simulation over
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow></msub><annotation encoding="application/x-tex">n_{\mathrm{sim}}</annotation></semantics></math>
-replicates in <code><a href="../reference/pbayesdecisionprob1cont.html">pbayesdecisionprob1cont()</a></code>: for each replicate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
-a dataset
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mover><mi>y</mi><mo accent="true">‾</mo></mover><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>s</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mover><mi>y</mi><mo accent="true">‾</mo></mover><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>s</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\bar{y}_1^{(i)}, s_1^{(i)}, \bar{y}_2^{(i)}, s_2^{(i)})</annotation></semantics></math>
-is generated from the true parameter distribution, the probability
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">g^{(i)}</annotation></semantics></math>
-is computed, and the decision is recorded. Empirical proportions over
-all replicates yield the estimated operating characteristics.</p>
+by Monte Carlo simulation over <span class="math inline">\(n_{\mathrm{sim}}\)</span> replicates in
+<code><a href="../reference/pbayesdecisionprob1cont.html">pbayesdecisionprob1cont()</a></code>: for each replicate <span class="math inline">\(i\)</span>, a dataset <span class="math inline">\((\bar{y}_t^{(i)}, s_t^{(i)}, \bar{y}_c^{(i)},
+s_c^{(i)})\)</span> is generated from the true parameter distribution,
+the probability <span class="math inline">\(g^{(i)}\)</span> is
+computed, and the decision is recorded. Empirical proportions over all
+replicates yield the estimated operating characteristics.</p>
 </div>
 <div class="section level3">
 <h3 id="optimal-threshold-search">5.3 Optimal Threshold Search<a class="anchor" aria-label="anchor" href="#optimal-threshold-search"></a>
 </h3>
 <p>The <code>getgamma</code> family of functions finds the optimal pair
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>γ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>γ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\gamma_1, \gamma_2)</annotation></semantics></math>
-by grid search over a user-supplied candidate grid
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Γ</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msup><mi>γ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>,</mo><mi>…</mi><mo>,</mo><msup><mi>γ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>K</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo stretchy="false" form="postfix">}</mo><mo>⊂</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\} \subset (0, 1)</annotation></semantics></math>.
-A <strong>two-stage precompute-then-sweep</strong> strategy is used for
-efficiency:</p>
-<p><strong>Stage 1 (Precomputation):</strong> all posterior/predictive
-probabilities
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">g(y_1, y_2)</annotation></semantics></math>
-(binary) or
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">g^{(i)}</annotation></semantics></math>
-(continuous, over
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow></msub><annotation encoding="application/x-tex">n_{\mathrm{sim}}</annotation></semantics></math>
-replicates) are computed once, independently of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>.</p>
-<p><strong>Stage 2 (Gamma sweep):</strong> for each candidate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>γ</mi><mo>∈</mo><mi>Γ</mi></mrow><annotation encoding="application/x-tex">\gamma \in \Gamma</annotation></semantics></math>,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><mi>γ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go} \mid \gamma)</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><mi>γ</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{NoGo} \mid \gamma)</annotation></semantics></math>
-are obtained by fast indicator summations over the precomputed values
+<span class="math inline">\((\gamma_{\mathrm{go}},
+\gamma_{\mathrm{nogo}})\)</span> by grid search over a user-supplied
+candidate grid <span class="math inline">\(\Gamma = \{\gamma^{(1)},
+\ldots, \gamma^{(K)}\} \subset (0, 1)\)</span>. A two-stage
+precompute-then-sweep strategy is used for efficiency:</p>
+<p>Stage 1 (Precomputation): all posterior/predictive probabilities
+<span class="math inline">\(g(y_t, y_c)\)</span> (binary) or <span class="math inline">\(g^{(i)}\)</span> (continuous, over <span class="math inline">\(n_{\mathrm{sim}}\)</span> replicates) are computed
+once, independently of <span class="math inline">\(\gamma\)</span>.</p>
+<p>Stage 2 (Gamma sweep): for each candidate <span class="math inline">\(\gamma \in \Gamma\)</span>, <span class="math inline">\(\Pr(\mathrm{Go} \mid \gamma)\)</span> and <span class="math inline">\(\Pr(\mathrm{NoGo} \mid \gamma)\)</span> are
+obtained by fast indicator summations over the precomputed values
 without additional probability evaluations.</p>
-<p>The optimal
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\gamma_1</annotation></semantics></math>
-is then selected as the smallest (or largest) value in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Γ</mi><annotation encoding="application/x-tex">\Gamma</annotation></semantics></math>
-such that
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><msub><mi>γ</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go} \mid \gamma_1)</annotation></semantics></math>
-satisfies a user-specified criterion (e.g.,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go}) &lt; 0.05</annotation></semantics></math>
-under the null scenario), and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\gamma_2</annotation></semantics></math>
-is selected analogously for the NoGo criterion.</p>
+<p>The optimal <span class="math inline">\(\gamma_{\mathrm{go}}\)</span>
+is then selected as the smallest (or largest) value in <span class="math inline">\(\Gamma\)</span> such that <span class="math inline">\(\Pr(\mathrm{Go} \mid
+\gamma_{\mathrm{go}})\)</span> satisfies a user-specified criterion
+(e.g., <span class="math inline">\(\Pr(\mathrm{Go}) &lt; 0.05\)</span>
+under the null scenario), and <span class="math inline">\(\gamma_{\mathrm{nogo}}\)</span> is selected
+analogously for the NoGo criterion.</p>
 <hr>
 </div>
 </div>
@@ -580,30 +511,21 @@ is selected analogously for the NoGo criterion.</p>
 <h3 id="nine-region-grid-posterior-probability">6.1 Nine-Region Grid (Posterior Probability)<a class="anchor" aria-label="anchor" href="#nine-region-grid-posterior-probability"></a>
 </h3>
 <p>When two endpoints are evaluated jointly, the treatment effect vector
-is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝛉</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>θ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>θ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\boldsymbol{\theta} = (\theta_1, \theta_2)</annotation></semantics></math>.
-For each endpoint
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">k = 1, 2</annotation></semantics></math>,
-three zones are defined by
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{TV}k}</annotation></semantics></math>
-and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow><mi>k</mi></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{MAV}k}</annotation></semantics></math>:</p>
+is <span class="math inline">\(\boldsymbol{\theta} = (\theta_1,
+\theta_2)\)</span>. For each endpoint <span class="math inline">\(k = 1,
+2\)</span>, three zones are defined by <span class="math inline">\(\theta_{\mathrm{TV}k}\)</span> and <span class="math inline">\(\theta_{\mathrm{MAV}k}\)</span>:</p>
 <ul>
-<li>
-<strong>Go zone</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>k</mi></msub><mo>&gt;</mo><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\theta_k &gt; \theta_{\mathrm{TV}k}</annotation></semantics></math>
+<li>Go zone: <span class="math inline">\(\theta_k &gt;
+\theta_{\mathrm{TV}k}\)</span>
 </li>
-<li>
-<strong>Gray zone</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow><mi>k</mi></mrow></msub><mo>&lt;</mo><msub><mi>θ</mi><mi>k</mi></msub><mo>≤</mo><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\theta_{\mathrm{MAV}k} &lt; \theta_k \le \theta_{\mathrm{TV}k}</annotation></semantics></math>
+<li>Gray zone: <span class="math inline">\(\theta_{\mathrm{MAV}k} &lt;
+\theta_k \le \theta_{\mathrm{TV}k}\)</span>
 </li>
-<li>
-<strong>NoGo zone</strong>:
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>k</mi></msub><mo>≤</mo><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\theta_k \le \theta_{\mathrm{MAV}k}</annotation></semantics></math>
+<li>NoGo zone: <span class="math inline">\(\theta_k \le
+\theta_{\mathrm{MAV}k}\)</span>
 </li>
 </ul>
-<p>Their Cartesian product defines nine mutually exclusive regions
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>R</mi><mn>9</mn></msub></mrow><annotation encoding="application/x-tex">R_1, \ldots, R_9</annotation></semantics></math>:</p>
+<p>Their Cartesian product defines nine mutually exclusive regions <span class="math inline">\(R_1, \ldots, R_9\)</span>:</p>
 <table style="border-collapse:collapse; text-align:center; font-size:0.9em;" class="table">
 <caption>
 Nine-region grid for two-endpoint posterior probability
@@ -614,18 +536,18 @@ Nine-region grid for two-endpoint posterior probability
       linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
       min-width:80px; min-height:60px; padding:4px;">
 </th>
-<th colspan="3" style="border:1px solid #aaa; padding:6px;">
+<th colspan="3" style="border:1px solid #aaa; padding:6px; font-weight:normal;">
 Endpoint 1
 </th>
 </tr>
 <tr>
-<th style="border:1px solid #aaa; padding:6px;">
+<th style="border:1px solid #aaa; padding:6px; font-weight:normal;">
 θ<sub>1</sub> &gt; θ<sub>TV1</sub>
 </th>
-<th style="border:1px solid #aaa; padding:6px;">
+<th style="border:1px solid #aaa; padding:6px; font-weight:normal;">
 θ<sub>TV1</sub> ≥ θ<sub>1</sub> &gt; θ<sub>MAV1</sub>
 </th>
-<th style="border:1px solid #aaa; padding:6px;">
+<th style="border:1px solid #aaa; padding:6px; font-weight:normal;">
 θ<sub>MAV1</sub> ≥ θ<sub>1</sub>
 </th>
 </tr>
@@ -633,7 +555,7 @@ Endpoint 1
 <tbody>
 <tr>
 <td rowspan="3" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
-        transform:rotate(180deg); font-weight:bold;">
+        transform:rotate(180deg);">
 Endpoint 2
 </td>
 <td style="border:1px solid #aaa; padding:6px; text-align:left;">
@@ -679,15 +601,10 @@ R9
 </tr>
 </tbody>
 </table>
-<p>Region
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mn>1</mn></msub><annotation encoding="application/x-tex">R_1</annotation></semantics></math>
-(both endpoints exceed
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{TV}}</annotation></semantics></math>)
-is typically designated as <strong>Go</strong> and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mn>9</mn></msub><annotation encoding="application/x-tex">R_9</annotation></semantics></math>
-(both endpoints below
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{MAV}}</annotation></semantics></math>)
-as <strong>NoGo</strong>.</p>
+<p>Region <span class="math inline">\(R_1\)</span> (both endpoints
+exceed <span class="math inline">\(\theta_{\mathrm{TV}}\)</span>) is
+typically designated as Go and <span class="math inline">\(R_9\)</span>
+(both endpoints below <span class="math inline">\(\theta_{\mathrm{MAV}}\)</span>) as NoGo.</p>
 </div>
 <div class="section level3">
 <h3 id="four-region-grid-predictive-probability">6.2 Four-Region Grid (Predictive Probability)<a class="anchor" aria-label="anchor" href="#four-region-grid-predictive-probability"></a>
@@ -704,15 +621,15 @@ Four-region grid for two-endpoint predictive probability
       linear-gradient(to top right, white 49.5%, #aaa 49.5%, #aaa 50.5%, white 50.5%);
       min-width:80px; min-height:60px; padding:4px;">
 </th>
-<th colspan="2" style="border:1px solid #aaa; padding:6px;">
+<th colspan="2" style="border:1px solid #aaa; padding:6px; font-weight:normal;">
 Endpoint 1
 </th>
 </tr>
 <tr>
-<th style="border:1px solid #aaa; padding:6px;">
+<th style="border:1px solid #aaa; padding:6px; font-weight:normal;">
 θ<sub>1</sub> &gt; θ<sub>NULL1</sub>
 </th>
-<th style="border:1px solid #aaa; padding:6px;">
+<th style="border:1px solid #aaa; padding:6px; font-weight:normal;">
 θ<sub>1</sub> ≤ θ<sub>NULL1</sub>
 </th>
 </tr>
@@ -720,7 +637,7 @@ Endpoint 1
 <tbody>
 <tr>
 <td rowspan="2" style="border:1px solid #aaa; padding:6px; writing-mode:vertical-rl;
-        transform:rotate(180deg); font-weight:bold;">
+        transform:rotate(180deg);">
 Endpoint 2
 </td>
 <td style="border:1px solid #aaa; padding:6px; text-align:left;">
@@ -750,24 +667,18 @@ R4
 <div class="section level3">
 <h3 id="joint-posterior-for-two-binary-endpoints">6.3 Joint Posterior for Two Binary Endpoints<a class="anchor" aria-label="anchor" href="#joint-posterior-for-two-binary-endpoints"></a>
 </h3>
-<p>For two binary endpoints with response rates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>π</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>π</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\pi_1^{(1)}, \pi_2^{(1)})</annotation></semantics></math>
-(endpoint 1) and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>π</mi><mn>1</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>π</mi><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\pi_1^{(2)}, \pi_2^{(2)})</annotation></semantics></math>
-(endpoint 2), a Dirichlet-multinomial model is used. In a treatment arm
-of size
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mn>1</mn></msub><annotation encoding="application/x-tex">n_1</annotation></semantics></math>,
-define the four mutually exclusive categories (both respond, only
-endpoint 1 responds, only endpoint 2 responds, neither responds) with
-probabilities
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐩</mi><mn>1</mn></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mn>11</mn></msub><mo>,</mo><msub><mi>p</mi><mn>10</mn></msub><mo>,</mo><msub><mi>p</mi><mn>01</mn></msub><mo>,</mo><msub><mi>p</mi><mn>00</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{p}_1 = (p_{11}, p_{10}, p_{01}, p_{00})</annotation></semantics></math>.</p>
-<p>A Dirichlet prior
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐚</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathrm{Dir}(\mathbf{a}_1)</annotation></semantics></math>
-and the observed multinomial counts
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐱</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\mathbf{x}_1</annotation></semantics></math>
-yield the conjugate posterior</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐩</mi><mn>1</mn></msub><mo>∣</mo><msub><mi>𝐱</mi><mn>1</mn></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐚</mi><mn>1</mn></msub><mo>+</mo><msub><mi>𝐱</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\mathbf{p}_1 \mid \mathbf{x}_1 \;\sim\;
-  \mathrm{Dir}(\mathbf{a}_1 + \mathbf{x}_1).</annotation></semantics></math></p>
+<p>For two binary endpoints with response rates <span class="math inline">\((\pi_t^{(1)}, \pi_c^{(1)})\)</span> (endpoint 1)
+and <span class="math inline">\((\pi_t^{(2)}, \pi_c^{(2)})\)</span>
+(endpoint 2), a Dirichlet-multinomial model is used. In a treatment
+group of size <span class="math inline">\(n_t\)</span>, define the four
+mutually exclusive categories (both respond, only endpoint 1 responds,
+only endpoint 2 responds, neither responds) with probabilities <span class="math inline">\(\mathbf{p}_t = (p_{t,11}, p_{t,10}, p_{t,01},
+p_{t,00})\)</span>.</p>
+<p>A Dirichlet prior <span class="math inline">\(\mathrm{Dir}(\mathbf{a}_t)\)</span> and the
+observed multinomial counts <span class="math inline">\(\mathbf{x}_t\)</span> yield the conjugate
+posterior</p>
+<p><span class="math display">\[\mathbf{p}_t \mid \mathbf{x}_t \;\sim\;
+  \mathrm{Dir}(\mathbf{a}_t + \mathbf{x}_t).\]</span></p>
 <p>The joint probabilities for the nine regions are computed by Monte
 Carlo draws from the Dirichlet posteriors in
 <code><a href="../reference/pbayespostpred2bin.html">pbayespostpred2bin()</a></code>.</p>
@@ -776,20 +687,18 @@ Carlo draws from the Dirichlet posteriors in
 <h3 id="joint-posterior-for-two-continuous-endpoints">6.4 Joint Posterior for Two Continuous Endpoints<a class="anchor" aria-label="anchor" href="#joint-posterior-for-two-continuous-endpoints"></a>
 </h3>
 <p>For two continuous endpoints, a Normal-Inverse-Wishart (N-Inv-W)
-conjugate prior is placed on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝛍</mi><mi>j</mi></msub><mo>,</mo><msub><mi>𝚺</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j)</annotation></semantics></math>:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝛍</mi><mi>j</mi></msub><mo>,</mo><msub><mi>𝚺</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">N</mi><mtext mathvariant="normal">-</mtext><mi mathvariant="normal">I</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">v</mi><mtext mathvariant="normal">-</mtext><mi mathvariant="normal">W</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐦</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>κ</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>ν</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>𝐕</mi><mrow><mn>0</mn><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">(\boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j) \;\sim\;
-  \mathrm{N\text{-}Inv\text{-}W}(\mathbf{m}_{0j},\, \kappa_{0j},\,
-  \nu_{0j},\, \mathbf{V}_{0j}).</annotation></semantics></math></p>
-<p>Given
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>j</mi></msub><annotation encoding="application/x-tex">n_j</annotation></semantics></math>
-bivariate observations, the posterior parameters are updated analogously
-to the univariate case, yielding a
-matrix-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
-predictive distribution. The joint probability over rectangular regions
-is evaluated using the bivariate
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>-distribution
-via <code><a href="https://rdrr.io/pkg/mvtnorm/man/pmvt.html" class="external-link">mvtnorm::pmvt()</a></code> for the MC method, or a Moment-Matching
+conjugate prior is placed on <span class="math inline">\((\boldsymbol{\mu}_j,
+\boldsymbol{\Sigma}_j)\)</span>:</p>
+<p><span class="math display">\[(\boldsymbol{\mu}_j,
+\boldsymbol{\Sigma}_j) \;\sim\;
+  \mathrm{N\text{-}Inv\text{-}W}(\boldsymbol{\mu}_{0j},\, \kappa_{0j},\,
+  \nu_{0j},\, \mathbf{V}_{0j}), \quad j = t, c.\]</span></p>
+<p>Given <span class="math inline">\(n_j\)</span> bivariate
+observations, the posterior parameters are updated analogously to the
+univariate case, yielding a matrix-<span class="math inline">\(t\)</span> predictive distribution. The joint
+probability over rectangular regions is evaluated using the bivariate
+<span class="math inline">\(t\)</span>-distribution via
+<code><a href="https://rdrr.io/pkg/mvtnorm/man/pmvt.html" class="external-link">mvtnorm::pmvt()</a></code> for the MC method, or a Moment-Matching
 approximation for the MM method (Theorem 3 of Homma and Yamaguchi,
 2025).</p>
 <hr>
@@ -913,10 +822,11 @@ correlation</td>
 <span><span class="co"># Observed: 7/10 responders (treatment), 3/10 (control)</span></span>
 <span><span class="fu"><a href="../reference/pbayespostpred1bin.html">pbayespostpred1bin</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, theta0 <span class="op">=</span> <span class="fl">0.05</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">10</span>, n2 <span class="op">=</span> <span class="fl">10</span>, y1 <span class="op">=</span> <span class="fl">7</span>, y2 <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">10</span>, n_c <span class="op">=</span> <span class="fl">10</span>, y_t <span class="op">=</span> <span class="fl">7</span>, y_c <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>, z <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lower.tail <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.941619</span></span></code></pre></div>
@@ -930,15 +840,15 @@ correlation</td>
 <span><span class="fu"><a href="../reference/pbayespostpred1cont.html">pbayespostpred1cont</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>, prior <span class="op">=</span> <span class="st">'vague'</span>,</span>
 <span>  CalcMethod <span class="op">=</span> <span class="st">'MM'</span>, theta0 <span class="op">=</span> <span class="fl">1.0</span>, nMC <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">10</span>, n2 <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  bar.y1 <span class="op">=</span> <span class="fl">3.5</span>, s1 <span class="op">=</span> <span class="fl">2.0</span>,</span>
-<span>  bar.y2 <span class="op">=</span> <span class="fl">1.2</span>, s2 <span class="op">=</span> <span class="fl">2.0</span>,</span>
-<span>  m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  kappa01 <span class="op">=</span> <span class="cn">NULL</span>, kappa02 <span class="op">=</span> <span class="cn">NULL</span>, nu01 <span class="op">=</span> <span class="cn">NULL</span>, nu02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  mu01 <span class="op">=</span> <span class="cn">NULL</span>, mu02 <span class="op">=</span> <span class="cn">NULL</span>, sigma01 <span class="op">=</span> <span class="cn">NULL</span>, sigma02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">10</span>, n_c <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  bar_y_t <span class="op">=</span> <span class="fl">3.5</span>, s_t <span class="op">=</span> <span class="fl">2.0</span>,</span>
+<span>  bar_y_c <span class="op">=</span> <span class="fl">1.2</span>, s_c <span class="op">=</span> <span class="fl">2.0</span>,</span>
+<span>  m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  kappa0_t <span class="op">=</span> <span class="cn">NULL</span>, kappa0_c <span class="op">=</span> <span class="cn">NULL</span>, nu0_t <span class="op">=</span> <span class="cn">NULL</span>, nu0_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  mu0_t <span class="op">=</span> <span class="cn">NULL</span>, mu0_c <span class="op">=</span> <span class="cn">NULL</span>, sigma0_t <span class="op">=</span> <span class="cn">NULL</span>, sigma0_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  r <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, alpha01 <span class="op">=</span> <span class="cn">NULL</span>, alpha02 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  bar.ye1 <span class="op">=</span> <span class="cn">NULL</span>, se1 <span class="op">=</span> <span class="cn">NULL</span>, bar.ye2 <span class="op">=</span> <span class="cn">NULL</span>, se2 <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  bar_ye_t <span class="op">=</span> <span class="cn">NULL</span>, se_t <span class="op">=</span> <span class="cn">NULL</span>, bar_ye_c <span class="op">=</span> <span class="cn">NULL</span>, se_c <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.093935</span></span></code></pre></div>
 </div>
@@ -947,117 +857,66 @@ correlation</td>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Operating characteristics for single binary endpoint</span></span>
-<span><span class="fu"><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin</a></span><span class="op">(</span></span>
+<span><span class="va">oc_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayesdecisionprob1bin.html">pbayesdecisionprob1bin</a></span><span class="op">(</span></span>
 <span>  prob      <span class="op">=</span> <span class="st">'posterior'</span>,</span>
 <span>  design    <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  theta.TV  <span class="op">=</span> <span class="fl">0.20</span>,  theta.MAV <span class="op">=</span> <span class="fl">0.05</span>,  theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gamma1    <span class="op">=</span> <span class="fl">0.80</span>,  gamma2    <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  pi1       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.15</span>, <span class="fl">0.30</span>, <span class="fl">0.50</span><span class="op">)</span>,</span>
-<span>  pi2       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.15</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">10</span>,  n2 <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  theta_TV  <span class="op">=</span> <span class="fl">0.30</span>,  theta_MAV <span class="op">=</span> <span class="fl">0.10</span>,  theta_NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  gamma_go  <span class="op">=</span> <span class="fl">0.80</span>,  gamma_nogo <span class="op">=</span> <span class="fl">0.20</span>,</span>
+<span>  pi_t      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.15</span>, <span class="fl">0.9</span>, l <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  pi_c      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.15</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  n_t <span class="op">=</span> <span class="fl">10</span>,  n_c <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint)</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   Probability type : posterior</span></span>
-<span><span class="co">#&gt;   Design           : controlled</span></span>
-<span><span class="co">#&gt;   Threshold(s)     : TV = 0.2, MAV = 0.05</span></span>
-<span><span class="co">#&gt;   Go  threshold    : gamma1 = 0.8</span></span>
-<span><span class="co">#&gt;   NoGo threshold   : gamma2 = 0.2</span></span>
-<span><span class="co">#&gt;   Sample size      : n1 = 10, n2 = 10</span></span>
-<span><span class="co">#&gt;   Prior (Beta)     : a1 = 0.5, a2 = 0.5, b1 = 0.5, b2 = 0.5</span></span>
-<span><span class="co">#&gt;   Miss handling    : error_if_Miss = TRUE, Gray_inc_Miss = FALSE</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------ </span></span>
-<span><span class="co">#&gt;   pi1  pi2     Go   Gray   NoGo</span></span>
-<span><span class="co">#&gt;  0.15 0.15 0.0137 0.0963 0.8900</span></span>
-<span><span class="co">#&gt;  0.30 0.15 0.1357 0.2016 0.6627</span></span>
-<span><span class="co">#&gt;  0.50 0.15 0.5081 0.2026 0.2893</span></span>
-<span><span class="co">#&gt; ------------------------------------------------------------</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">oc_res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Go/NoGo/Gray Decision Probabilities (Single Binary Endpoint) </span></span>
+<span><span class="co">#&gt; ---------------------------------------------------------------- </span></span>
+<span><span class="co">#&gt;   Probability type : posterior </span></span>
+<span><span class="co">#&gt;   Design           : controlled </span></span>
+<span><span class="co">#&gt;   Threshold(s)     : TV = 0.3, MAV = 0.1 </span></span>
+<span><span class="co">#&gt;   Go  threshold    : gamma_go = 0.8 </span></span>
+<span><span class="co">#&gt;   NoGo threshold   : gamma_nogo = 0.2 </span></span>
+<span><span class="co">#&gt;   Sample size      : n_t = 10, n_c = 10 </span></span>
+<span><span class="co">#&gt;   Prior (Beta)     : a_t = 0.5, a_c = 0.5, b_t = 0.5, b_c = 0.5 </span></span>
+<span><span class="co">#&gt;   Miss handling    : error_if_Miss = TRUE, Gray_inc_Miss = FALSE </span></span>
+<span><span class="co">#&gt; ---------------------------------------------------------------- </span></span>
+<span><span class="co">#&gt;       pi_t pi_c     Go   Gray   NoGo</span></span>
+<span><span class="co">#&gt;  0.1500000 0.15 0.0025 0.0532 0.9443</span></span>
+<span><span class="co">#&gt;  0.2333333 0.15 0.0174 0.1494 0.8332</span></span>
+<span><span class="co">#&gt;  0.3166667 0.15 0.0609 0.2647 0.6744</span></span>
+<span><span class="co">#&gt;  0.4000000 0.15 0.1468 0.3569 0.4963</span></span>
+<span><span class="co">#&gt;  0.4833333 0.15 0.2777 0.3940 0.3283</span></span>
+<span><span class="co">#&gt;  0.5666667 0.15 0.4426 0.3658 0.1915</span></span>
+<span><span class="co">#&gt;  0.6500000 0.15 0.6186 0.2860 0.0955</span></span>
+<span><span class="co">#&gt;  0.7333333 0.15 0.7781 0.1835 0.0384</span></span>
+<span><span class="co">#&gt;  0.8166667 0.15 0.8984 0.0904 0.0112</span></span>
+<span><span class="co">#&gt;  0.9000000 0.15 0.9693 0.0289 0.0018</span></span>
+<span><span class="co">#&gt; ----------------------------------------------------------------</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">oc_res</span>, base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/overview-qs-oc-1.png" width="768"></p>
 </div>
 <div class="section level3">
 <h3 id="optimal-threshold-search-1">8.4 Optimal Threshold Search<a class="anchor" aria-label="anchor" href="#optimal-threshold-search-1"></a>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Find gamma1 (smallest gamma s.t. Pr(Go) &lt; 0.05 under null)</span></span>
-<span><span class="co"># and gamma2 (largest gamma s.t. Pr(NoGo) &lt; 0.20 under null)</span></span>
-<span><span class="fu"><a href="../reference/getgamma1bin.html">getgamma1bin</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="co"># Find gamma_go  : smallest gamma s.t. Pr(Go)   &lt; 0.05 under Null (pi_t = pi_c = 0.15)</span></span>
+<span><span class="co"># Find gamma_nogo: smallest gamma s.t. Pr(NoGo) &lt; 0.20 under Alt  (pi_t = 0.35, pi_c = 0.15)</span></span>
+<span><span class="va">gg_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getgamma1bin.html">getgamma1bin</a></span><span class="op">(</span></span>
 <span>  prob <span class="op">=</span> <span class="st">'posterior'</span>, design <span class="op">=</span> <span class="st">'controlled'</span>,</span>
-<span>  theta.TV <span class="op">=</span> <span class="fl">0.20</span>, theta.MAV <span class="op">=</span> <span class="fl">0.05</span>, theta.NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pi1 <span class="op">=</span> <span class="fl">0.15</span>, pi2 <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>  theta_TV <span class="op">=</span> <span class="fl">0.30</span>, theta_MAV <span class="op">=</span> <span class="fl">0.10</span>, theta_NULL <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pi_t_go <span class="op">=</span> <span class="fl">0.15</span>, pi_c_go <span class="op">=</span> <span class="fl">0.15</span>,</span>
+<span>  pi_t_nogo <span class="op">=</span> <span class="fl">0.35</span>, pi_c_nogo <span class="op">=</span> <span class="fl">0.15</span>,</span>
 <span>  target_go <span class="op">=</span> <span class="fl">0.05</span>, target_nogo <span class="op">=</span> <span class="fl">0.20</span>,</span>
-<span>  crit_go <span class="op">=</span> <span class="st">'&lt;'</span>, crit_nogo <span class="op">=</span> <span class="st">'&lt;'</span>,</span>
-<span>  sel_go <span class="op">=</span> <span class="st">'smallest'</span>, sel_nogo <span class="op">=</span> <span class="st">'largest'</span>,</span>
-<span>  n1 <span class="op">=</span> <span class="fl">12L</span>, n2 <span class="op">=</span> <span class="fl">12L</span>,</span>
-<span>  a1 <span class="op">=</span> <span class="fl">0.5</span>, a2 <span class="op">=</span> <span class="fl">0.5</span>, b1 <span class="op">=</span> <span class="fl">0.5</span>, b2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m1 <span class="op">=</span> <span class="cn">NULL</span>, m2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ne1 <span class="op">=</span> <span class="cn">NULL</span>, ne2 <span class="op">=</span> <span class="cn">NULL</span>, ye1 <span class="op">=</span> <span class="cn">NULL</span>, ye2 <span class="op">=</span> <span class="cn">NULL</span>, ae1 <span class="op">=</span> <span class="cn">NULL</span>, ae2 <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  n_t <span class="op">=</span> <span class="fl">12L</span>, n_c <span class="op">=</span> <span class="fl">12L</span>,</span>
+<span>  a_t <span class="op">=</span> <span class="fl">0.5</span>, b_t <span class="op">=</span> <span class="fl">0.5</span>, a_c <span class="op">=</span> <span class="fl">0.5</span>, b_c <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  z <span class="op">=</span> <span class="cn">NULL</span>, m_t <span class="op">=</span> <span class="cn">NULL</span>, m_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ne_t <span class="op">=</span> <span class="cn">NULL</span>, ne_c <span class="op">=</span> <span class="cn">NULL</span>, ye_t <span class="op">=</span> <span class="cn">NULL</span>, ye_c <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  alpha0e_t <span class="op">=</span> <span class="cn">NULL</span>, alpha0e_c <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; $gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.57</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.42</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_at_gamma1</span></span>
-<span><span class="co">#&gt; [1] 0.0487291</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_at_gamma2</span></span>
-<span><span class="co">#&gt; [1] 0.1901411</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gamma_grid</span></span>
-<span><span class="co">#&gt;  [1] 0.01 0.02 0.03 0.04 0.05 0.06 0.07 0.08 0.09 0.10 0.11 0.12 0.13 0.14 0.15</span></span>
-<span><span class="co">#&gt; [16] 0.16 0.17 0.18 0.19 0.20 0.21 0.22 0.23 0.24 0.25 0.26 0.27 0.28 0.29 0.30</span></span>
-<span><span class="co">#&gt; [31] 0.31 0.32 0.33 0.34 0.35 0.36 0.37 0.38 0.39 0.40 0.41 0.42 0.43 0.44 0.45</span></span>
-<span><span class="co">#&gt; [46] 0.46 0.47 0.48 0.49 0.50 0.51 0.52 0.53 0.54 0.55 0.56 0.57 0.58 0.59 0.60</span></span>
-<span><span class="co">#&gt; [61] 0.61 0.62 0.63 0.64 0.65 0.66 0.67 0.68 0.69 0.70 0.71 0.72 0.73 0.74 0.75</span></span>
-<span><span class="co">#&gt; [76] 0.76 0.77 0.78 0.79 0.80 0.81 0.82 0.83 0.84 0.85 0.86 0.87 0.88 0.89 0.90</span></span>
-<span><span class="co">#&gt; [91] 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98 0.99</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 7.906176e-01 7.503791e-01 6.589998e-01 6.587169e-01 6.084383e-01</span></span>
-<span><span class="co">#&gt;  [6] 5.059629e-01 5.046463e-01 5.045674e-01 4.190939e-01 4.190939e-01</span></span>
-<span><span class="co">#&gt; [11] 3.762482e-01 3.466726e-01 3.466726e-01 3.420098e-01 3.416219e-01</span></span>
-<span><span class="co">#&gt; [16] 3.416219e-01 3.416219e-01 2.535583e-01 2.535583e-01 2.535583e-01</span></span>
-<span><span class="co">#&gt; [21] 2.535583e-01 2.032798e-01 2.032798e-01 2.032798e-01 1.915366e-01</span></span>
-<span><span class="co">#&gt; [26] 1.902200e-01 1.901411e-01 1.901411e-01 1.901411e-01 1.901411e-01</span></span>
-<span><span class="co">#&gt; [31] 1.901411e-01 1.485555e-01 1.485555e-01 1.485555e-01 1.485555e-01</span></span>
-<span><span class="co">#&gt; [36] 1.485555e-01 9.675338e-02 9.675338e-02 9.675338e-02 7.678984e-02</span></span>
-<span><span class="co">#&gt; [41] 7.320278e-02 7.319121e-02 7.319121e-02 7.319121e-02 7.319121e-02</span></span>
-<span><span class="co">#&gt; [46] 7.319121e-02 7.319121e-02 7.319121e-02 7.319121e-02 7.319121e-02</span></span>
-<span><span class="co">#&gt; [51] 7.319121e-02 7.319121e-02 7.319121e-02 7.319121e-02 7.319121e-02</span></span>
-<span><span class="co">#&gt; [56] 7.319121e-02 4.872910e-02 2.179890e-02 2.179890e-02 2.179890e-02</span></span>
-<span><span class="co">#&gt; [61] 2.179890e-02 2.179890e-02 2.179890e-02 2.179890e-02 2.179890e-02</span></span>
-<span><span class="co">#&gt; [66] 2.179890e-02 2.179890e-02 2.179890e-02 2.179890e-02 2.179890e-02</span></span>
-<span><span class="co">#&gt; [71] 2.179890e-02 2.179890e-02 2.179438e-02 2.053051e-02 2.053051e-02</span></span>
-<span><span class="co">#&gt; [76] 1.472294e-02 1.472294e-02 5.010040e-03 5.010040e-03 5.010040e-03</span></span>
-<span><span class="co">#&gt; [81] 5.010040e-03 5.010040e-03 5.010040e-03 5.010040e-03 5.010040e-03</span></span>
-<span><span class="co">#&gt; [86] 4.822752e-03 4.822752e-03 3.627075e-03 3.627075e-03 3.627075e-03</span></span>
-<span><span class="co">#&gt; [91] 8.846099e-04 8.846099e-04 8.846099e-04 8.643370e-04 6.834781e-04</span></span>
-<span><span class="co">#&gt; [96] 6.834781e-04 1.188530e-04 9.733899e-05 1.193351e-05</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $PrNoGo_grid</span></span>
-<span><span class="co">#&gt;  [1] 0.003606802 0.003627075 0.014535648 0.014722936 0.014722936 0.020530508</span></span>
-<span><span class="co">#&gt;  [7] 0.046153128 0.046256487 0.046261009 0.046261009 0.046261009 0.066829495</span></span>
-<span><span class="co">#&gt; [13] 0.066829495 0.066829495 0.072466257 0.073148930 0.073191207 0.114776792</span></span>
-<span><span class="co">#&gt; [19] 0.114776792 0.114776792 0.114776792 0.114776792 0.114776792 0.166578905</span></span>
-<span><span class="co">#&gt; [25] 0.166578905 0.166578905 0.186542436 0.189858181 0.190141074 0.190141074</span></span>
-<span><span class="co">#&gt; [31] 0.190141074 0.190141074 0.190141074 0.190141074 0.190141074 0.190141074</span></span>
-<span><span class="co">#&gt; [37] 0.190141074 0.190141074 0.190141074 0.190141074 0.190141074 0.190141074</span></span>
-<span><span class="co">#&gt; [43] 0.321050421 0.384388781 0.384467697 0.384467697 0.384467697 0.384467697</span></span>
-<span><span class="co">#&gt; [49] 0.384467697 0.384467697 0.384467697 0.384467697 0.384467697 0.384467697</span></span>
-<span><span class="co">#&gt; [55] 0.384467697 0.384467697 0.384467697 0.384467697 0.384467697 0.384467697</span></span>
-<span><span class="co">#&gt; [61] 0.389518311 0.419093912 0.419093912 0.504567399 0.504567399 0.504567399</span></span>
-<span><span class="co">#&gt; [67] 0.504567399 0.504567399 0.595299586 0.595299586 0.595299586 0.595299586</span></span>
-<span><span class="co">#&gt; [73] 0.595299586 0.595299586 0.595378502 0.596695086 0.608438340 0.608438340</span></span>
-<span><span class="co">#&gt; [79] 0.608438340 0.658716861 0.658716861 0.658716861 0.658716861 0.767013172</span></span>
-<span><span class="co">#&gt; [85] 0.767013172 0.767024748 0.767296064 0.770611809 0.770611809 0.790575340</span></span>
-<span><span class="co">#&gt; [91] 0.790575340 0.790575340 0.842377453 0.885948158 0.891584920 0.891584920</span></span>
-<span><span class="co">#&gt; [97] 0.912153406 0.955007383 0.985277064</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "getgamma1bin"</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">gg_res</span>, base_size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/overview-qs-gamma-1.png" width="768"></p>
 <hr>
 </div>
 </div>
