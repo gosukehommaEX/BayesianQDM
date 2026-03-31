@@ -8,9 +8,9 @@
   x,
   title = NULL,
   xlab = NULL,
-  col_go = "#004C97",
-  col_nogo = "#F0B323",
-  col_gray = "gray60",
+  col_go = "#658D1B",
+  col_nogo = "#D91E49",
+  col_gray = "#939597",
   base_size = 28,
   ...
 )
@@ -26,13 +26,13 @@ Defaults to \code{NULL}, which auto-generates a label based on
 \code{design}.}
 
 \item{col_go}{A character string specifying the colour for the Go curve.
-Default is \code{"#004C97"}.}
+Default is \code{"#658D1B"}.}
 
 \item{col_nogo}{A character string specifying the colour for the NoGo curve.
-Default is \code{"#F0B323"}.}
+Default is \code{"#D91E49"}.}
 
 \item{col_gray}{A character string specifying the colour for the Gray curve.
-Default is \code{"gray60"}.}
+Default is \code{"#939597"}.}
 
 \item{base_size}{A positive numeric scalar specifying the base font size
 (in points) passed to \code{theme_bw()}. Default is \code{28}.}
