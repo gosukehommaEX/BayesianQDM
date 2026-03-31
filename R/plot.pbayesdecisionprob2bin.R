@@ -65,9 +65,11 @@
 #'         \code{gtable} object (\code{which = "all"}).
 #'
 #' @importFrom ggplot2 ggplot aes geom_tile geom_vline geom_hline annotate
-#'   scale_fill_gradient scale_fill_manual scale_x_continuous scale_y_continuous
+#'   scale_fill_gradient scale_fill_stepsn scale_fill_manual
+#'   scale_x_continuous scale_y_continuous
 #'   coord_cartesian labs theme_bw theme element_text element_line element_blank
-#'   margin unit geom_point scale_color_gradient geom_text
+#'   margin unit geom_point scale_color_gradient scale_color_stepsn geom_text
+#'   guide_colorsteps
 #' @importFrom grDevices col2rgb rgb
 #' @importFrom gridExtra grid.arrange
 #' @export
@@ -200,13 +202,15 @@ plot.pbayesdecisionprob2bin <- function(x,
   common_theme <- function(bs) {
     ggplot2::theme_bw(base_size = bs) +
       ggplot2::theme(
-        legend.position   = "bottom",
-        legend.margin     = ggplot2::margin(t = 10, r = 0, b = 0, l = 0),
-        legend.box.margin = ggplot2::margin(t = 5,  r = 0, b = 0, l = 0),
-        legend.text       = ggplot2::element_text(size = bs * 0.54),
-        legend.title      = ggplot2::element_text(size = bs * 0.54),
-        legend.key.width  = ggplot2::unit(1.5, "cm"),
+        legend.position   = "right",
+        legend.margin     = ggplot2::margin(t = 0, r = 0, b = 0, l = 10),
+        legend.box.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 5),
+        legend.text       = ggplot2::element_text(size = bs * 0.74),
+        legend.title      = ggplot2::element_text(size = bs * 0.74,
+                                                  hjust = 0),
+        legend.key.height = ggplot2::unit(bs * 0.04, "cm"),
         panel.grid.minor  = ggplot2::element_blank(),
+        panel.grid.major  = ggplot2::element_blank(),
         panel.border      = ggplot2::element_blank(),
         axis.line         = ggplot2::element_line(color = "black",
                                                   linewidth = 0.8),
@@ -227,8 +231,10 @@ plot.pbayesdecisionprob2bin <- function(x,
       stop("Package 'gridExtra' is required for which = \"overlay\".")
     }
 
-    x_rng_ov <- range(ax1)
-    y_rng_ov <- range(ax2)
+    tile_w_ov <- if (length(unique(ax1)) > 1L) min(diff(sort(unique(ax1)))) / 2 else 0.05
+    tile_h_ov <- if (length(unique(ax2)) > 1L) min(diff(sort(unique(ax2)))) / 2 else 0.05
+    x_rng_ov  <- c(min(ax1) - tile_w_ov, max(ax1) + tile_w_ov)
+    y_rng_ov  <- c(min(ax2) - tile_h_ov, max(ax2) + tile_h_ov)
 
     df_ov <- data.frame(ax1 = ax1, ax2 = ax2,
                         Go = x[["Go"]], Gray = x[["Gray"]], NoGo = x[["NoGo"]])
@@ -266,7 +272,7 @@ plot.pbayesdecisionprob2bin <- function(x,
     }, df_ov$dominant, df_ov$prob_bin)
 
     p_main <- ggplot2::ggplot(df_ov, ggplot2::aes(x = ax1, y = ax2)) +
-      ggplot2::geom_tile(ggplot2::aes(fill = I(fill_col)), color = "white",
+      ggplot2::geom_tile(ggplot2::aes(fill = I(fill_col)), color = "gray50",
                          linewidth = 0.3) +
       ggplot2::scale_x_continuous(breaks = axis_breaks(ax1), expand = c(0, 0)) +
       ggplot2::scale_y_continuous(breaks = axis_breaks(ax2), expand = c(0, 0)) +
@@ -318,8 +324,10 @@ plot.pbayesdecisionprob2bin <- function(x,
   # ---------------------------------------------------------------------------
   if (is_grid) {
 
-    x_rng <- range(ax1)
-    y_rng <- range(ax2)
+    tile_w <- if (length(u1) > 1L) min(diff(u1)) / 2 else 0.05
+    tile_h <- if (length(u2) > 1L) min(diff(u2)) / 2 else 0.05
+    x_rng  <- c(min(ax1) - tile_w, max(ax1) + tile_w)
+    y_rng  <- c(min(ax2) - tile_h, max(ax2) + tile_h)
 
     # Helper: build a single gradient tile panel
     # - prob_col  : column name in x ("Go", "Gray", "NoGo")
@@ -331,13 +339,27 @@ plot.pbayesdecisionprob2bin <- function(x,
                        ax2      = ax2,
                        prob_val = x[[prob_col]])
 
+      legend_label <- switch(prob_col,
+                             Go   = "Pr(Go)",
+                             NoGo = "Pr(NoGo)",
+                             Gray = "Pr(Gray)")
+
       p <- ggplot2::ggplot(df, ggplot2::aes(x = ax1, y = ax2)) +
-        ggplot2::geom_tile(ggplot2::aes(fill = prob_val)) +
-        ggplot2::scale_fill_gradient(
-          name   = "",
-          low    = "white",
-          high   = high_col,
-          limits = c(0, 1)
+        ggplot2::geom_tile(ggplot2::aes(fill = prob_val),
+                           color = "gray50", linewidth = 0.5) +
+        ggplot2::scale_fill_stepsn(
+          name   = legend_label,
+          colors = c("white", high_col),
+          breaks = seq(0.1, 0.9, by = 0.1),
+          limits = c(0, 1),
+          guide  = ggplot2::guide_colorsteps(
+            title.position = "top",
+            title.hjust    = 0,
+            barheight      = ggplot2::unit(bs * 0.50, "cm"),
+            barwidth       = ggplot2::unit(bs * 0.06, "cm"),
+            direction      = "vertical",
+            show.limits    = TRUE
+          )
         ) +
         ggplot2::scale_x_continuous(breaks = axis_breaks(ax1),
                                     expand = c(0, 0)) +
@@ -401,14 +423,29 @@ plot.pbayesdecisionprob2bin <- function(x,
 
     df_scatter <- data.frame(ax1 = ax1, ax2 = ax2, prob_val = prob_vals)
 
+    legend_label <- switch(prob_col,
+                           Go   = "Pr(Go)",
+                           NoGo = "Pr(NoGo)",
+                           Gray = "Pr(Gray)")
+
     p <- ggplot2::ggplot(df_scatter,
                          ggplot2::aes(x = ax1, y = ax2, color = prob_val)) +
       ggplot2::geom_point(size = 4) +
-      ggplot2::scale_color_gradient(
-        name   = "",
-        low    = "white",
-        high   = high_col,
-        limits = c(0, 1)
+      ggplot2::scale_color_stepsn(
+        name   = legend_label,
+        colors = c("white", high_col),
+        breaks = seq(0.1, 0.9, by = 0.1),
+        limits = c(0, 1),
+        guide  = ggplot2::guide_colorsteps(
+          title.position  = "top",
+          title.hjust     = 0,
+          barheight       = ggplot2::unit(base_size * 0.50, "cm"),
+          barwidth        = ggplot2::unit(base_size * 0.06, "cm"),
+          direction       = "vertical",
+          ticks           = TRUE,
+          ticks.colour    = "white",
+          ticks.linewidth = 1.5
+        )
       ) +
       ggplot2::scale_x_continuous(breaks = axis_breaks(ax1),
                                   expand = c(0.05, 0)) +
