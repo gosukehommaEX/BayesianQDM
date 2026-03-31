@@ -290,15 +290,19 @@ Let $V_j$ be the scale matrix of $T_j$ ($j = t, c$), and define
 $$A = \left(\frac{\nu_t}{\nu_t - 2} V_t +
             \frac{\nu_c}{\nu_c - 2} V_c\right)^{\!-1},$$
 
-$$Q_m = \frac{1}{p(p+2)}\left[
+$$Q_m = \frac{1}{p(p+2)}\Biggl[
   \frac{\nu_t^2}{(\nu_t-2)(\nu_t-4)}
-  \!\left\{(\mathrm{tr}(AV_t))^2 + 2\,\mathrm{tr}(AV_t AV_t)\right\}
+  \left\{(\mathrm{tr}(AV_t))^2 + 2\,\mathrm{tr}(AV_t AV_t)\right\}$$
+
+$$\quad
   + \frac{\nu_c^2}{(\nu_c-2)(\nu_c-4)}
-  \!\left\{(\mathrm{tr}(AV_c))^2 + 2\,\mathrm{tr}(AV_c AV_c)\right\}
+  \left\{(\mathrm{tr}(AV_c))^2 + 2\,\mathrm{tr}(AV_c AV_c)\right\}$$
+
+$$\quad
   + \frac{2\nu_t\nu_c}{(\nu_t-2)(\nu_c-2)}
-  \!\left\{\mathrm{tr}(AV_t)\,\mathrm{tr}(AV_c) +
-            2\,\mathrm{tr}(AV_t AV_c)\right\}
-\right]$$
+  \left\{\mathrm{tr}(AV_t)\,\mathrm{tr}(AV_c) +
+  2\,\mathrm{tr}(AV_t AV_c)\right\}
+\Biggr]$$
 
 with $p = 2$. Then $\boldsymbol{D} \approx Z^* \sim
 t_{\nu^*}(\boldsymbol{\mu}^*, \Sigma^*)$, where
@@ -501,6 +505,8 @@ $$\boldsymbol{\mu}_j \mid \mathbf{Y}_j \;\sim\;
   \frac{\Lambda_{nj}^*}{\kappa_{nj}^*(\nu_{nj}^* - 1)}\right).$$
 
 ```{r ext-post-vague}
+S_t     <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S_c     <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
 Se2_ext <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
 
 set.seed(2)
@@ -563,6 +569,11 @@ $$\boldsymbol{\mu}_j \mid \mathbf{Y}_j \;\sim\;
   \frac{\Lambda_{nj}^*}{\kappa_{nj}^*(\nu_{nj}^* - 1)}\right).$$
 
 ```{r ext-post}
+S_t     <- matrix(c(18.0, 3.6, 3.6, 9.0), 2, 2)
+S_c     <- matrix(c(16.0, 2.8, 2.8, 8.5), 2, 2)
+L0      <- matrix(c(8.0, 0.0, 0.0, 2.0), 2, 2)
+Se2_ext <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
+
 set.seed(3)
 p_ext <- pbayespostpred2cont(
   prob = 'posterior', design = 'external', prior = 'N-Inv-Wishart',
