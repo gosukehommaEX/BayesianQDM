@@ -41,9 +41,10 @@
 #'        for Endpoint 2.  Must have the same length as \code{pi_t1}.
 #' @param rho_t A numeric vector of true within-treatment-arm correlations
 #'        between Endpoint 1 and Endpoint 2.  Must have the same length as
-#'        \code{pi_t1}.  Each element must be within the feasible range
-#'        for the corresponding \code{(pi_t1, pi_t2)} pair (checked via
-#'        \code{\link{getjointbin}}).
+#'        \code{pi_t1}.  If any element is outside the feasible range for
+#'        the corresponding \code{(pi_t1, pi_t2)} pair, that scenario returns
+#'        \code{NA} for all decision probabilities instead of stopping with
+#'        an error.
 #' @param pi_c1 A numeric vector of true control response probabilities for
 #'        Endpoint 1.  For \code{design = 'uncontrolled'}, this parameter
 #'        is not used in probability calculations but must still be supplied;
@@ -54,7 +55,10 @@
 #'        \code{pi_c1}.  Must have the same length as \code{pi_t1}.
 #' @param rho_c A numeric vector of true within-control-arm correlations.
 #'        For \code{design = 'uncontrolled'}, not used in probability
-#'        calculations.  Must have the same length as \code{pi_t1}.
+#'        calculations.  Must have the same length as \code{pi_t1}.  If any
+#'        element is outside the feasible range for the corresponding
+#'        \code{(pi_c1, pi_c2)} pair, that scenario returns \code{NA} for
+#'        all decision probabilities.
 #' @param n_t A positive integer giving the number of patients in the
 #'        treatment group in the proof-of-concept (PoC) trial.
 #' @param n_c A positive integer giving the number of patients in the
@@ -1096,8 +1100,18 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
     for (s in seq_len(n_scen)) {
 
-      # Convert (pi, rho) to four-cell probability vector for each arm
-      p_t <- getjointbin(pi1 = pi_t1[s], pi2 = pi_t2[s], rho = rho_t[s])
+      # Convert (pi, rho) to four-cell probability vector for each arm.
+      # If the correlation is infeasible for the given marginals, return NA
+      # for this scenario instead of stopping with an error.
+      p_t <- tryCatch(
+        getjointbin(pi1 = pi_t1[s], pi2 = pi_t2[s], rho = rho_t[s]),
+        error = function(e) NULL
+      )
+
+      if (is.null(p_t)) {
+        result_mat[s, ] <- NA_real_
+        next
+      }
 
       if (design == 'uncontrolled') {
         # Control distribution is fixed (Dir(a2 + z)) and independent of x_c.
@@ -1113,7 +1127,15 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
 
       } else {
         # Controlled or external: both arms contribute multinomial weights
-        p_c <- getjointbin(pi1 = pi_c1[s], pi2 = pi_c2[s], rho = rho_c[s])
+        p_c <- tryCatch(
+          getjointbin(pi1 = pi_c1[s], pi2 = pi_c2[s], rho = rho_c[s]),
+          error = function(e) NULL
+        )
+
+        if (is.null(p_c)) {
+          result_mat[s, ] <- NA_real_
+          next
+        }
 
         w_t <- apply(counts_t, 1L, function(x)
           dmultinom(x, size = n_t, prob = p_t))
@@ -1136,14 +1158,17 @@ pbayesdecisionprob2bin <- function(nsim        = 10000L,
   # ---------------------------------------------------------------------------
 
   # Suppress floating-point rounding artefacts near zero before Miss check
-  result_mat[result_mat < .Machine$double.eps ^ 0.25] <- 0
+  # (only for non-NA rows)
+  non_na <- !is.na(result_mat[, 1L])
+  result_mat[non_na & result_mat < .Machine$double.eps ^ 0.25] <- 0
 
   # Check for positive Miss probability (after zeroing out numerical noise)
-  if (error_if_Miss && any(result_mat[, 3L] > 0)) {
+  if (error_if_Miss && any(result_mat[non_na, 3L] > 0)) {
     stop("Positive Miss probability detected. Please re-consider the chosen thresholds.")
   }
 
   # Gray probability = complement of Go + NoGo (+ Miss if not included)
+  # NA scenarios propagate NA to GrayProb automatically
   if (Gray_inc_Miss) {
     GrayProb <- 1 - result_mat[, 1L] - result_mat[, 2L]
   } else {

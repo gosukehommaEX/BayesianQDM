@@ -101,9 +101,10 @@ for Endpoint 2.  Must have the same length as \code{pi_t1}.}
 
 \item{rho_t}{A numeric vector of true within-treatment-arm correlations
 between Endpoint 1 and Endpoint 2.  Must have the same length as
-\code{pi_t1}.  Each element must be within the feasible range
-for the corresponding \code{(pi_t1, pi_t2)} pair (checked via
-\code{\link{getjointbin}}).}
+\code{pi_t1}.  If any element is outside the feasible range for
+the corresponding \code{(pi_t1, pi_t2)} pair, that scenario returns
+\code{NA} for all decision probabilities instead of stopping with
+an error.}
 
 \item{pi_c1}{A numeric vector of true control response probabilities for
 Endpoint 1.  For \code{design = 'uncontrolled'}, this parameter
@@ -117,7 +118,10 @@ Endpoint 2.  For \code{design = 'uncontrolled'}, see note for
 
 \item{rho_c}{A numeric vector of true within-control-arm correlations.
 For \code{design = 'uncontrolled'}, not used in probability
-calculations.  Must have the same length as \code{pi_t1}.}
+calculations.  Must have the same length as \code{pi_t1}.  If any
+element is outside the feasible range for the corresponding
+\code{(pi_c1, pi_c2)} pair, that scenario returns \code{NA} for
+all decision probabilities.}
 
 \item{n_t}{A positive integer giving the number of patients in the
 treatment group in the proof-of-concept (PoC) trial.}
