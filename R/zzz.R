@@ -8,6 +8,9 @@ utils::globalVariables(c(
   "prob_val",   # plot.pbayesdecisionprob2bin, plot.pbayesdecisionprob2cont
   "pt_grp",     # plot.getgamma1bin, plot.getgamma1cont,
   # plot.getgamma2bin, plot.getgamma2cont
-  "Scenario"    # plot.getgamma1bin, plot.getgamma1cont,
+  "Scenario",   # plot.getgamma1bin, plot.getgamma1cont,
   # plot.getgamma2bin, plot.getgamma2cont
+  "fill_col",   # plot.pbayesdecisionprob2bin (overlay mode)
+  "y",          # plot.pbayesdecisionprob2bin (overlay legend)
+  "lab"         # plot.pbayesdecisionprob2bin (overlay legend)
 ))

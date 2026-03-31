@@ -68,6 +68,7 @@
 #'   scale_fill_gradient scale_fill_manual scale_x_continuous scale_y_continuous
 #'   coord_cartesian labs theme_bw theme element_text element_line element_blank
 #'   margin unit geom_point scale_color_gradient geom_text
+#' @importFrom grDevices col2rgb rgb
 #' @importFrom gridExtra grid.arrange
 #' @export
 plot.pbayesdecisionprob2bin <- function(x,
