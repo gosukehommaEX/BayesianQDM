@@ -41,10 +41,8 @@
 #'
 #' @param x An object of class \code{pbayesdecisionprob2bin}.
 #' @param which A character string specifying which decision probability to
-#'        plot.  Must be one of \code{"Go"}, \code{"Gray"}, \code{"NoGo"}, or
-#'        \code{"all"}.  When \code{"all"}, all three panels are arranged
-#'        side-by-side via \code{gridExtra::grid.arrange}.
-#'        Default is \code{"Go"}.
+#'        plot.  Must be one of \code{"Go"}, \code{"Gray"}, \code{"NoGo"},
+#'        \code{"all"}, or \code{"overlay"}.  Default is \code{"Go"}.
 #' @param title A character string for the plot title.  Defaults to
 #'        \code{NULL} (no title displayed).
 #' @param xlab A character string or expression for the x-axis label.
@@ -54,11 +52,11 @@
 #'        Defaults to \code{NULL}, which auto-generates a label based on
 #'        \code{design}.
 #' @param col_go A character string specifying the high-end fill colour for the
-#'        Go probability gradient.  Default is \code{"#004C97"}.
+#'        Go probability gradient.  Default is \code{"#658D1B"}.
 #' @param col_nogo A character string specifying the high-end fill colour for
-#'        the NoGo probability gradient.  Default is \code{"#F0B323"}.
+#'        the NoGo probability gradient.  Default is \code{"#D91E49"}.
 #' @param col_gray A character string specifying the high-end fill colour for
-#'        the Gray probability gradient.  Default is \code{"gray60"}.
+#'        the Gray probability gradient.  Default is \code{"#939597"}.
 #' @param base_size A positive numeric scalar specifying the base font size
 #'        (in points) passed to \code{theme_bw()}.  Default is \code{28}.
 #' @param ... Further arguments passed to or from other methods (ignored).
@@ -67,9 +65,9 @@
 #'         \code{gtable} object (\code{which = "all"}).
 #'
 #' @importFrom ggplot2 ggplot aes geom_tile geom_vline geom_hline annotate
-#'   scale_fill_gradient scale_x_continuous scale_y_continuous coord_cartesian
-#'   labs theme_bw theme element_text element_line element_blank margin unit
-#'   geom_point scale_color_gradient
+#'   scale_fill_gradient scale_fill_manual scale_x_continuous scale_y_continuous
+#'   coord_cartesian labs theme_bw theme element_text element_line element_blank
+#'   margin unit geom_point scale_color_gradient geom_text
 #' @importFrom gridExtra grid.arrange
 #' @export
 plot.pbayesdecisionprob2bin <- function(x,
@@ -77,15 +75,15 @@ plot.pbayesdecisionprob2bin <- function(x,
                                         title     = NULL,
                                         xlab      = NULL,
                                         ylab      = NULL,
-                                        col_go    = "#004C97",
-                                        col_nogo  = "#F0B323",
-                                        col_gray  = "gray60",
+                                        col_go    = "#658D1B",
+                                        col_nogo  = "#D91E49",
+                                        col_gray  = "#939597",
                                         base_size = 28,
                                         ...) {
 
   # --- Input validation ---
-  if (!which %in% c("Go", "Gray", "NoGo", "all")) {
-    stop("'which' must be one of \"Go\", \"Gray\", \"NoGo\", or \"all\"")
+  if (!which %in% c("Go", "Gray", "NoGo", "all", "overlay")) {
+    stop("'which' must be one of \"Go\", \"Gray\", \"NoGo\", \"all\", or \"overlay\"")
   }
   if (nrow(x) < 2L) {
     stop("'x' must contain at least 2 scenarios (rows) to produce a plot")
@@ -139,7 +137,8 @@ plot.pbayesdecisionprob2bin <- function(x,
   # --- Helper: axis breaks ---
   axis_breaks <- function(vals) {
     b <- pretty(vals, n = 6L)
-    b[b >= min(vals) & b <= max(vals)]
+    eps <- 1e-9
+    b[b >= (min(vals) - eps) & b <= (max(vals) + eps)]
   }
 
   # --- Helper: add threshold reference lines and labels ---
@@ -201,8 +200,8 @@ plot.pbayesdecisionprob2bin <- function(x,
     ggplot2::theme_bw(base_size = bs) +
       ggplot2::theme(
         legend.position   = "bottom",
-        legend.margin     = ggplot2::margin(t = -10, r = 0, b = 0, l = 0),
-        legend.box.margin = ggplot2::margin(t = -10, r = 0, b = 0, l = 0),
+        legend.margin     = ggplot2::margin(t = 10, r = 0, b = 0, l = 0),
+        legend.box.margin = ggplot2::margin(t = 5,  r = 0, b = 0, l = 0),
         legend.text       = ggplot2::element_text(size = bs * 0.54),
         legend.title      = ggplot2::element_text(size = bs * 0.54),
         legend.key.width  = ggplot2::unit(1.5, "cm"),
@@ -213,6 +212,104 @@ plot.pbayesdecisionprob2bin <- function(x,
         strip.text        = ggplot2::element_text(size = bs * 0.64,
                                                   face = "bold")
       )
+  }
+
+  # ---------------------------------------------------------------------------
+  # OVERLAY MODE
+  # ---------------------------------------------------------------------------
+  if (which == "overlay") {
+
+    if (!is_grid) {
+      stop("'which = \"overlay\"' requires a regular grid input.")
+    }
+    if (!requireNamespace("gridExtra", quietly = TRUE)) {
+      stop("Package 'gridExtra' is required for which = \"overlay\".")
+    }
+
+    x_rng_ov <- range(ax1)
+    y_rng_ov <- range(ax2)
+
+    df_ov <- data.frame(ax1 = ax1, ax2 = ax2,
+                        Go = x[["Go"]], Gray = x[["Gray"]], NoGo = x[["NoGo"]])
+    df_ov$dominant <- apply(df_ov[, c("Go","Gray","NoGo")], 1L, function(r) {
+      if (any(is.na(r))) return(NA_character_)
+      c("Go","Gray","NoGo")[which.max(r)]
+    })
+    df_ov$max_prob <- apply(df_ov[, c("Go","Gray","NoGo")], 1L, function(r) {
+      if (any(is.na(r))) return(NA_real_)
+      max(r, na.rm = TRUE)
+    })
+    bin_labels <- c("< 0.50","0.50-0.60","0.60-0.70","0.70-0.80","> 0.80")
+    df_ov$prob_bin <- cut(df_ov$max_prob,
+                          breaks = c(0, 0.50, 0.60, 0.70, 0.80, 1.001),
+                          labels = bin_labels, include.lowest = TRUE, right = FALSE)
+
+    make_shades <- function(base_col, n = 5L) {
+      alphas <- seq(0.20, 1.00, length.out = n)
+      sapply(alphas, function(a) {
+        v <- col2rgb(base_col) / 255
+        rgb(1 - a*(1-v[1]), 1 - a*(1-v[2]), 1 - a*(1-v[3]))
+      })
+    }
+    go_sh   <- make_shades(col_go);   names(go_sh)   <- bin_labels
+    gray_sh <- make_shades(col_gray); names(gray_sh) <- bin_labels
+    nogo_sh <- make_shades(col_nogo); names(nogo_sh) <- bin_labels
+
+    df_ov$fill_col <- mapply(function(dom, bin) {
+      if (is.na(dom) || is.na(bin)) return("white")
+      b <- as.character(bin)
+      if (dom == "Go")   return(unname(go_sh[b]))
+      if (dom == "Gray") return(unname(gray_sh[b]))
+      if (dom == "NoGo") return(unname(nogo_sh[b]))
+      "white"
+    }, df_ov$dominant, df_ov$prob_bin)
+
+    p_main <- ggplot2::ggplot(df_ov, ggplot2::aes(x = ax1, y = ax2)) +
+      ggplot2::geom_tile(ggplot2::aes(fill = I(fill_col)), color = "white",
+                         linewidth = 0.3) +
+      ggplot2::scale_x_continuous(breaks = axis_breaks(ax1), expand = c(0, 0)) +
+      ggplot2::scale_y_continuous(breaks = axis_breaks(ax2), expand = c(0, 0)) +
+      ggplot2::coord_cartesian(xlim = x_rng_ov, ylim = y_rng_ov) +
+      ggplot2::labs(title = title, x = x_label, y = y_label) +
+      common_theme(base_size) +
+      ggplot2::theme(legend.position = "none",
+                     plot.margin = ggplot2::margin(t = 10, r = 5, b = 5, l = 5))
+
+    df_na <- df_ov[is.na(df_ov$dominant), , drop = FALSE]
+    if (nrow(df_na) > 0L) {
+      p_main <- p_main +
+        ggplot2::geom_text(data = df_na,
+                           mapping = ggplot2::aes(x = ax1, y = ax2, label = "NA"),
+                           color = "gray50", size = base_size / 10, inherit.aes = FALSE)
+    }
+    p_main <- add_thresholds(p_main, x_rng_ov, y_rng_ov, base_size)
+
+    gray_5 <- make_shades("#808080")
+    leg_df <- data.frame(
+      y   = c(7, 6, 5, 3, 2, 1, 0, -1),
+      col = c(unname(go_sh[5L]), unname(gray_sh[5L]), unname(nogo_sh[5L]),
+              unname(gray_5)),
+      lab = c("Go", "Grey", "NoGo", bin_labels),
+      stringsAsFactors = FALSE
+    )
+    p_leg <- ggplot2::ggplot(leg_df, ggplot2::aes(x = 0, y = y)) +
+      ggplot2::geom_tile(ggplot2::aes(fill = I(col)), width = 0.8, height = 0.8) +
+      ggplot2::geom_text(ggplot2::aes(x = 0.6, label = lab),
+                         hjust = 0, size = base_size * 0.26) +
+      ggplot2::annotate("text", x = -0.4, y = 8.0, label = "Decision",
+                        hjust = 0, fontface = "bold", size = base_size * 0.28) +
+      ggplot2::annotate("text", x = -0.4, y = 4.0, label = "Probability",
+                        hjust = 0, fontface = "bold", size = base_size * 0.28) +
+      ggplot2::scale_x_continuous(limits = c(-0.5, 4.0), expand = c(0, 0)) +
+      ggplot2::scale_y_continuous(limits = c(-1.6, 8.5), expand = c(0, 0)) +
+      ggplot2::coord_fixed(ratio = 1) +
+      ggplot2::theme_void() +
+      ggplot2::theme(plot.margin = ggplot2::margin(t = 2, r = 2, b = 2, l = 2))
+
+    out <- gridExtra::grid.arrange(
+      p_main, p_leg, ncol = 2L, widths = c(6, 1)
+    )
+    return(invisible(out))
   }
 
   # ---------------------------------------------------------------------------
@@ -236,7 +333,7 @@ plot.pbayesdecisionprob2bin <- function(x,
       p <- ggplot2::ggplot(df, ggplot2::aes(x = ax1, y = ax2)) +
         ggplot2::geom_tile(ggplot2::aes(fill = prob_val)) +
         ggplot2::scale_fill_gradient(
-          name   = paste0("P(", prob_col, ")"),
+          name   = "",
           low    = "white",
           high   = high_col,
           limits = c(0, 1)
@@ -307,7 +404,7 @@ plot.pbayesdecisionprob2bin <- function(x,
                          ggplot2::aes(x = ax1, y = ax2, color = prob_val)) +
       ggplot2::geom_point(size = 4) +
       ggplot2::scale_color_gradient(
-        name   = paste0("P(", prob_col, ")"),
+        name   = "",
         low    = "white",
         high   = high_col,
         limits = c(0, 1)

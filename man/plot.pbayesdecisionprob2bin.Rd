@@ -10,9 +10,9 @@
   title = NULL,
   xlab = NULL,
   ylab = NULL,
-  col_go = "#004C97",
-  col_nogo = "#F0B323",
-  col_gray = "gray60",
+  col_go = "#658D1B",
+  col_nogo = "#D91E49",
+  col_gray = "#939597",
   base_size = 28,
   ...
 )
@@ -21,10 +21,8 @@
 \item{x}{An object of class \code{pbayesdecisionprob2bin}.}
 
 \item{which}{A character string specifying which decision probability to
-plot.  Must be one of \code{"Go"}, \code{"Gray"}, \code{"NoGo"}, or
-\code{"all"}.  When \code{"all"}, all three panels are arranged
-side-by-side via \code{gridExtra::grid.arrange}.
-Default is \code{"Go"}.}
+plot.  Must be one of \code{"Go"}, \code{"Gray"}, \code{"NoGo"},
+\code{"all"}, or \code{"overlay"}.  Default is \code{"Go"}.}
 
 \item{title}{A character string for the plot title.  Defaults to
 \code{NULL} (no title displayed).}
@@ -38,13 +36,13 @@ Defaults to \code{NULL}, which auto-generates a label based on
 \code{design}.}
 
 \item{col_go}{A character string specifying the high-end fill colour for the
-Go probability gradient.  Default is \code{"#004C97"}.}
+Go probability gradient.  Default is \code{"#658D1B"}.}
 
 \item{col_nogo}{A character string specifying the high-end fill colour for
-the NoGo probability gradient.  Default is \code{"#F0B323"}.}
+the NoGo probability gradient.  Default is \code{"#D91E49"}.}
 
 \item{col_gray}{A character string specifying the high-end fill colour for
-the Gray probability gradient.  Default is \code{"gray60"}.}
+the Gray probability gradient.  Default is \code{"#939597"}.}
 
 \item{base_size}{A positive numeric scalar specifying the base font size
 (in points) passed to \code{theme_bw()}.  Default is \code{28}.}
