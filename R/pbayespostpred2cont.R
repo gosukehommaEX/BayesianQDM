@@ -504,6 +504,15 @@ pbayespostpred2cont <- function(prob,
                   "external data must be provided"))
     if (!is.null(ne_t)) ne_t <- as.integer(ne_t)
     if (!is.null(ne_c)) ne_c <- as.integer(ne_c)
+    # Vague prior with external design: NIW hyperparameters must not be provided
+    if (prior == 'vague') {
+      niw_args <- c('kappa0_t', 'nu0_t', 'mu0_t', 'Lambda0_t',
+                    'kappa0_c', 'nu0_c', 'mu0_c', 'Lambda0_c')
+      for (nm in niw_args) {
+        if (!is.null(get(nm)))
+          warning(paste0("'", nm, "' is ignored when prior = 'vague'"))
+      }
+    }
   }
 
   if (!is.character(CalcMethod) || length(CalcMethod) != 1L ||
@@ -568,6 +577,24 @@ pbayespostpred2cont <- function(prob,
     list(df = df, mu_n = ybar_k, V = V)
   }
 
+  # Vague power prior then PoC update (Corollary 2 of Huang et al., 2025)
+  .vague_ext_post <- function(n_k, ybar_k, S_k,
+                              n_e, alpha0e, ybar_e, S_e,
+                              for_predictive = FALSE) {
+    kappa_n  <- alpha0e * n_e + n_k
+    nu_n     <- alpha0e * n_e + n_k - 1L
+    mu_n     <- (alpha0e * n_e * ybar_e + n_k * ybar_k) / kappa_n
+    Lambda_n <- alpha0e * S_e + S_k +
+      (alpha0e * n_e * n_k / kappa_n) * tcrossprod(ybar_k - ybar_e)
+    df <- nu_n - 1L
+    V  <- if (for_predictive) {
+      ((1 + kappa_n) / kappa_n) * Lambda_n / (nu_n - 1L)
+    } else {
+      Lambda_n / (kappa_n * (nu_n - 1L))
+    }
+    list(df = df, mu_n = mu_n, V = V)
+  }
+
   # NIW power prior then PoC update (Theorem 5)
   .niw_ext_post <- function(n_k, ybar_k, S_k, kappa0, nu0, mu0, Lambda0,
                             n_e, alpha0e, ybar_e, S_e,
@@ -585,20 +612,24 @@ pbayespostpred2cont <- function(prob,
 
   # Pre-compute effective external hyperparameters (scalar, done once)
   if (design == 'external') {
-    if (!is.null(ne_t)) {
-      kappa_e_t  <- alpha0e_t * ne_t + kappa0_t
-      nu_e_t     <- alpha0e_t * ne_t + nu0_t
-      mu_e_t     <- (alpha0e_t * ne_t * bar_ye_t + kappa0_t * mu0_t) / kappa_e_t
-      Lambda_e_t <- alpha0e_t * se_t + Lambda0_t +
-        (kappa0_t * alpha0e_t * ne_t / kappa_e_t) * tcrossprod(mu0_t - bar_ye_t)
+    if (prior == 'N-Inv-Wishart') {
+      if (!is.null(ne_t)) {
+        kappa_e_t  <- alpha0e_t * ne_t + kappa0_t
+        nu_e_t     <- alpha0e_t * ne_t + nu0_t
+        mu_e_t     <- (alpha0e_t * ne_t * bar_ye_t + kappa0_t * mu0_t) / kappa_e_t
+        Lambda_e_t <- alpha0e_t * se_t + Lambda0_t +
+          (kappa0_t * alpha0e_t * ne_t / kappa_e_t) * tcrossprod(mu0_t - bar_ye_t)
+      }
+      if (!is.null(ne_c)) {
+        kappa_e_c  <- alpha0e_c * ne_c + kappa0_c
+        nu_e_c     <- alpha0e_c * ne_c + nu0_c
+        mu_e_c     <- (alpha0e_c * ne_c * bar_ye_c + kappa0_c * mu0_c) / kappa_e_c
+        Lambda_e_c <- alpha0e_c * se_c + Lambda0_c +
+          (kappa0_c * alpha0e_c * ne_c / kappa_e_c) * tcrossprod(mu0_c - bar_ye_c)
+      }
     }
-    if (!is.null(ne_c)) {
-      kappa_e_c  <- alpha0e_c * ne_c + kappa0_c
-      nu_e_c     <- alpha0e_c * ne_c + nu0_c
-      mu_e_c     <- (alpha0e_c * ne_c * bar_ye_c + kappa0_c * mu0_c) / kappa_e_c
-      Lambda_e_c <- alpha0e_c * se_c + Lambda0_c +
-        (kappa0_c * alpha0e_c * ne_c / kappa_e_c) * tcrossprod(mu0_c - bar_ye_c)
-    }
+    # For vague prior, external hyperparameters are computed per observation
+    # inside the loop via .vague_ext_post()
   }
 
   # ---------------------------------------------------------------------------
@@ -670,8 +701,14 @@ pbayespostpred2cont <- function(prob,
     if (design == 'uncontrolled')                df_c <- df_t
   }
   if (design == 'external') {
-    if (!is.null(ne_t)) df_t <- as.integer(nu_e_t + n_t - 1L)
-    if (!is.null(ne_c)) df_c <- as.integer(nu_e_c + n_c - 1L)
+    if (prior == 'N-Inv-Wishart') {
+      if (!is.null(ne_t)) df_t <- as.integer(nu_e_t + n_t - 1L)
+      if (!is.null(ne_c)) df_c <- as.integer(nu_e_c + n_c - 1L)
+    } else {
+      # Vague prior: df = (alpha0e * ne + n) - 1 - 1 = alpha0e * ne + n - 2
+      if (!is.null(ne_t)) df_t <- as.integer(alpha0e_t * ne_t + n_t - 2L)
+      if (!is.null(ne_c)) df_c <- as.integer(alpha0e_c * ne_c + n_c - 2L)
+    }
   }
 
   # Check MM feasibility
@@ -720,11 +757,16 @@ pbayespostpred2cont <- function(prob,
     S_t_i <- S_t[[i]]
 
     # Posterior parameters for group 1
-    if (design == 'external' && !is.null(ne_t)) {
+    if (design == 'external' && !is.null(ne_t) && prior == 'N-Inv-Wishart') {
       post_t <- .niw_post(n_t, yb_t, S_t_i,
                           kappa0 = kappa_e_t, nu0 = nu_e_t,
                           mu0 = mu_e_t, Lambda0 = Lambda_e_t,
                           for_predictive = use_pred)
+    } else if (design == 'external' && !is.null(ne_t) && prior == 'vague') {
+      post_t <- .vague_ext_post(n_t, yb_t, S_t_i,
+                                n_e = ne_t, alpha0e = alpha0e_t,
+                                ybar_e = bar_ye_t, S_e = se_t,
+                                for_predictive = use_pred)
     } else if (prior == 'N-Inv-Wishart') {
       post_t <- .niw_post(n_t, yb_t, S_t_i,
                           kappa0 = kappa0_t, nu0 = nu0_t,
@@ -737,13 +779,25 @@ pbayespostpred2cont <- function(prob,
     # Posterior parameters for group 2
     if (design == 'uncontrolled') {
       post_c <- list(df = post_t$df, mu_n = mu0_c, V = r * post_t$V)
-    } else if (design == 'external' && !is.null(ne_c)) {
+    } else if (design == 'external' && !is.null(ne_c) && prior == 'N-Inv-Wishart') {
       yb_c <- ybar_c[i, ]
       S_c_i <- S_c[[i]]
       post_c <- .niw_post(n_c, yb_c, S_c_i,
                           kappa0 = kappa_e_c, nu0 = nu_e_c,
                           mu0 = mu_e_c, Lambda0 = Lambda_e_c,
                           for_predictive = use_pred)
+    } else if (design == 'external' && !is.null(ne_c) && prior == 'vague') {
+      yb_c <- ybar_c[i, ]
+      S_c_i <- S_c[[i]]
+      post_c <- .vague_ext_post(n_c, yb_c, S_c_i,
+                                n_e = ne_c, alpha0e = alpha0e_c,
+                                ybar_e = bar_ye_c, S_e = se_c,
+                                for_predictive = use_pred)
+    } else if (design == 'external' && prior == 'vague') {
+      # External design, vague prior, no external data for this group
+      yb_c <- ybar_c[i, ]
+      S_c_i <- S_c[[i]]
+      post_c <- .vague_post(n_c, yb_c, S_c_i, for_predictive = use_pred)
     } else if (prior == 'N-Inv-Wishart') {
       yb_c <- ybar_c[i, ]
       S_c_i <- S_c[[i]]

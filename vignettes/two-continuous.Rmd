@@ -282,21 +282,41 @@ per observation.
 
 ### 3.2 Moment-Matching Approximation (`CalcMethod = 'MM'`)
 
-For each marginal component $k = 1, 2$, the difference
-$D_k = T_{t,k} - T_{c,k}$ is approximated by a univariate
-$t_{\nu_k^*}(\mu_k^*, \sigma_k^*)$ using the same fourth-moment
-equations as for the single-endpoint case (see
-`vignette("single-continuous")`).
+The difference $\boldsymbol{D} = T_t - T_c$ is approximated by a
+bivariate non-standardised $t$-distribution
+(Yamaguchi et al., 2025, Theorem 3).
+Let $V_j$ be the scale matrix of $T_j$ ($j = t, c$), and define
 
-The joint probability over the rectangular region $R$ is then evaluated
-using the bivariate $t$-distribution from `mvtnorm::pmvt()`, treating
-the two approximate marginals as jointly $t$-distributed with a
-correlation derived from the posterior covariance matrices.  This avoids
-simulation entirely and is exact in the normal limit
-($\nu_{nj} \to \infty$).
+$$A = \left(\frac{\nu_t}{\nu_t - 2} V_t +
+            \frac{\nu_c}{\nu_c - 2} V_c\right)^{\!-1},$$
 
-The MM method requires $\nu_{nj} - 1 > 4$ for both groups; if this
-condition is not met, the function falls back to MC automatically.
+$$Q_m = \frac{1}{p(p+2)}\left[
+  \frac{\nu_t^2}{(\nu_t-2)(\nu_t-4)}
+  \!\left\{(\mathrm{tr}(AV_t))^2 + 2\,\mathrm{tr}(AV_t AV_t)\right\}
+  + \frac{\nu_c^2}{(\nu_c-2)(\nu_c-4)}
+  \!\left\{(\mathrm{tr}(AV_c))^2 + 2\,\mathrm{tr}(AV_c AV_c)\right\}
+  + \frac{2\nu_t\nu_c}{(\nu_t-2)(\nu_c-2)}
+  \!\left\{\mathrm{tr}(AV_t)\,\mathrm{tr}(AV_c) +
+            2\,\mathrm{tr}(AV_t AV_c)\right\}
+\right]$$
+
+with $p = 2$. Then $\boldsymbol{D} \approx Z^* \sim
+t_{\nu^*}(\boldsymbol{\mu}^*, \Sigma^*)$, where
+
+$$\boldsymbol{\mu}^* = \boldsymbol{\mu}_t - \boldsymbol{\mu}_c,$$
+
+$$\nu^* = \frac{2 - 4Q_m}{1 - Q_m},$$
+
+$$\Sigma^* = \left(\frac{\nu_t}{\nu_t - 2} V_t +
+  \frac{\nu_c}{\nu_c - 2} V_c\right) \frac{\nu^* - 2}{\nu^*}.$$
+
+The joint probability over each rectangular region is evaluated by a
+single call to `mvtnorm::pmvt()`, which avoids simulation entirely and
+is exact in the normal limit ($\nu_{nj} \to \infty$).
+
+The MM method requires $\nu_{nj} - 1 > 4$ for both groups ($\nu_j > 4$
+in the notation above); if this condition is not met, the function falls
+back to MC automatically.
 
 ---
 
@@ -450,37 +470,100 @@ p_unctrl <- pbayespostpred2cont(
 print(round(p_unctrl, 4))
 ```
 
-### 4.3 External Control Design (Power Prior)
+### 4.3 External Design (Power Prior)
 
-External data for the control group (sample size $n_{e,c}$, sample mean
-$\bar{\mathbf{y}}_{e,c}$, sum-of-squares $S_{e,c}$) are incorporated via
-a power prior with weight $\alpha_{0e,c} \in (0,1]$
-(arguments `ne_c`, `bar_ye_c`, `se_c`, `alpha0e_c`).
+External data for group $j$ (sample size $n_{e,j}$, sample mean
+$\bar{\mathbf{y}}_{e,j}$, sum-of-squares matrix $S_{e,j}$) are incorporated via
+a power prior with weight $\alpha_{0e,j} \in (0,1]$.
+Both `prior = 'vague'` and `prior = 'N-Inv-Wishart'` are supported.
 
-Under the NIW conjugate formulation, the augmented prior for the control
-group is first constructed from the external data:
+#### Vague prior (`prior = 'vague'`)
 
-$$\kappa_{0c}^{\mathrm{aug}} = \kappa_{0c} + \alpha_{0e,c}\,n_{e,c}, \qquad
-  \nu_{0c}^{\mathrm{aug}} = \nu_{0c} + \alpha_{0e,c}\,n_{e,c},$$
+The posterior parameters after combining the vague power prior with the
+PoC data are given by Corollary 2 of Huang et al. (2025):
 
-$$\boldsymbol{\mu}_{0c}^{\mathrm{aug}} =
-  \frac{\kappa_{0c}\,\boldsymbol{\mu}_{0c} +
-        \alpha_{0e,c}\,n_{e,c}\,\bar{\mathbf{y}}_{e,c}}
-       {\kappa_{0c}^{\mathrm{aug}}},$$
+$$\boldsymbol{\mu}_{nj}^* =
+  \frac{\alpha_{0e,j}\,n_{e,j}\,\bar{\mathbf{y}}_{e,j} + n_j\,\bar{\mathbf{y}}_j}
+       {\kappa_{nj}^*},$$
 
-$$\Lambda_{0c}^{\mathrm{aug}} = \Lambda_{0c} + \alpha_{0e,c}\,S_{e,c} +
-  \frac{\kappa_{0c}\,\alpha_{0e,c}\,n_{e,c}}
-       {\kappa_{0c}^{\mathrm{aug}}}
-  (\bar{\mathbf{y}}_{e,c} - \boldsymbol{\mu}_{0c})
-  (\bar{\mathbf{y}}_{e,c} - \boldsymbol{\mu}_{0c})^\top.$$
+$$\kappa_{nj}^* = \alpha_{0e,j}\,n_{e,j} + n_j, \qquad
+  \nu_{nj}^* = \alpha_{0e,j}\,n_{e,j} + n_j - 1,$$
 
-These augmented parameters replace $(\kappa_{0c}, \nu_{0c},
-\boldsymbol{\mu}_{0c}, \Lambda_{0c})$ in the posterior update.
+$$\Lambda_{nj}^* = \alpha_{0e,j}\,S_{e,j} + S_j +
+  \frac{\alpha_{0e,j}\,n_{e,j}\,n_j}{\kappa_{nj}^*}
+  (\bar{\mathbf{y}}_j - \bar{\mathbf{y}}_{e,j})
+  (\bar{\mathbf{y}}_j - \bar{\mathbf{y}}_{e,j})^\top.$$
 
-```{r ext-post}
+The marginal posterior of $\boldsymbol{\mu}_j$ is then
+
+$$\boldsymbol{\mu}_j \mid \mathbf{Y}_j \;\sim\;
+  t_{\nu_{nj}^* - 1}\!\!\left(\boldsymbol{\mu}_{nj}^*,\;
+  \frac{\Lambda_{nj}^*}{\kappa_{nj}^*(\nu_{nj}^* - 1)}\right).$$
+
+```{r ext-post-vague}
 Se2_ext <- matrix(c(15.0, 2.5, 2.5, 7.5), 2, 2)
 
 set.seed(2)
+p_ext_vague <- pbayespostpred2cont(
+  prob = 'posterior', design = 'external', prior = 'vague',
+  theta_TV1  = 1.5, theta_MAV1 = 0.5,
+  theta_TV2  = 1.0, theta_MAV2 = 0.3,
+  theta_NULL1 = NULL, theta_NULL2 = NULL,
+  n_t = 20L, n_c = 20L,
+  ybar_t = c(3.5, 2.1), S_t = S_t,
+  ybar_c = c(1.8, 1.0), S_c = S_c,
+  m_t = NULL, m_c = NULL,
+  kappa0_t = NULL, nu0_t = NULL, mu0_t = NULL, Lambda0_t = NULL,
+  kappa0_c = NULL, nu0_c = NULL, mu0_c = NULL, Lambda0_c = NULL,
+  r = NULL,
+  ne_t = NULL, ne_c = 10L, alpha0e_t = NULL, alpha0e_c = 0.5,
+  bar_ye_t = NULL, bar_ye_c = c(1.5, 0.8), se_t = NULL, se_c = Se2_ext,
+  nMC = 5000L
+)
+print(round(p_ext_vague, 4))
+```
+
+#### N-Inv-Wishart prior (`prior = 'N-Inv-Wishart'`)
+
+The power prior first combines the initial NIW prior with the discounted
+external data (Theorem 5 of Huang et al., 2025):
+
+$$\boldsymbol{\mu}_{e,j} =
+  \frac{\alpha_{0e,j}\,n_{e,j}\,\bar{\mathbf{y}}_{e,j} +
+        \kappa_{0j}\,\boldsymbol{\mu}_{0j}}
+       {\kappa_{e,j}},$$
+
+$$\kappa_{e,j} = \alpha_{0e,j}\,n_{e,j} + \kappa_{0j}, \qquad
+  \nu_{e,j} = \alpha_{0e,j}\,n_{e,j} + \nu_{0j},$$
+
+$$\Lambda_{e,j} = \alpha_{0e,j}\,S_{e,j} + \Lambda_{0j} +
+  \frac{\kappa_{0j}\,\alpha_{0e,j}\,n_{e,j}}{\kappa_{e,j}}
+  (\boldsymbol{\mu}_{0j} - \bar{\mathbf{y}}_{e,j})
+  (\boldsymbol{\mu}_{0j} - \bar{\mathbf{y}}_{e,j})^\top.$$
+
+This intermediate NIW result is then updated with the current PoC data
+by standard conjugate updating (Theorem 6 of Huang et al., 2025):
+
+$$\boldsymbol{\mu}_{nj}^* =
+  \frac{\kappa_{e,j}\,\boldsymbol{\mu}_{e,j} + n_j\,\bar{\mathbf{y}}_j}
+       {\kappa_{nj}^*},$$
+
+$$\kappa_{nj}^* = \kappa_{e,j} + n_j, \qquad
+  \nu_{nj}^* = \nu_{e,j} + n_j,$$
+
+$$\Lambda_{nj}^* = \Lambda_{e,j} + S_j +
+  \frac{\kappa_{e,j}\,n_j}{\kappa_{nj}^*}
+  (\bar{\mathbf{y}}_j - \boldsymbol{\mu}_{e,j})
+  (\bar{\mathbf{y}}_j - \boldsymbol{\mu}_{e,j})^\top.$$
+
+The marginal posterior of $\boldsymbol{\mu}_j$ is then
+
+$$\boldsymbol{\mu}_j \mid \mathbf{Y}_j \;\sim\;
+  t_{\nu_{nj}^* - 1}\!\!\left(\boldsymbol{\mu}_{nj}^*,\;
+  \frac{\Lambda_{nj}^*}{\kappa_{nj}^*(\nu_{nj}^* - 1)}\right).$$
+
+```{r ext-post}
+set.seed(3)
 p_ext <- pbayespostpred2cont(
   prob = 'posterior', design = 'external', prior = 'N-Inv-Wishart',
   theta_TV1  = 1.5, theta_MAV1 = 0.5,
@@ -698,12 +781,12 @@ This vignette covered two continuous endpoint analysis in BayesianQDM:
    for predictive probability; typical choice Go = R1, NoGo = R9 (posterior)
    or R4 (predictive).
 3. Two computation methods: MC (vectorised pre-generated draws with
-   Cholesky reuse) and MM (fourth-moment matching per component +
-   `mvtnorm::pmvt` for the joint probability).
+   Cholesky reuse) and MM (Mahalanobis-distance fourth-moment matching
+   via Yamaguchi et al. (2025), Theorem 3, + `mvtnorm::pmvt` for joint
+   probability; requires $\nu_j > 4$).
 4. Three study designs: controlled, uncontrolled ($\boldsymbol{\mu}_{0c}$
-   and $r$ fixed), external control (NIW power prior with explicit augmentation
-   formulae for $\kappa_{0c}^{\mathrm{aug}}$, $\nu_{0c}^{\mathrm{aug}}$,
-   $\boldsymbol{\mu}_{0c}^{\mathrm{aug}}$, $\Lambda_{0c}^{\mathrm{aug}}$).
+   and $r$ fixed), external design (vague power prior follows Corollary 2
+   of Huang et al. (2025); NIW power prior follows Theorems 5--6).
 5. Operating characteristics: Monte Carlo estimation with vectorised
    region probability computation.
 6. Optimal threshold search: three-stage strategy in `getgamma2cont()`

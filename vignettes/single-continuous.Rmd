@@ -191,56 +191,32 @@ $n_{\mathrm{MC}} \times n_{\mathrm{sim}}$ matrix to avoid loop overhead.
 ### 3.3 Moment-Matching Approximation (MM)
 
 The difference $D = T_t - T_c$ is approximated by a single
-non-standardised $t$-distribution
-$D \approx t_{\nu^*}(\mu^*, \sigma^*)$ by matching its first two even
-moments.
+non-standardised $t$-distribution (Yamaguchi et al., 2025, Theorem 1).
+Let
 
-Step 1: The mean of $D$ is
+$$Q^*_u = \left(\sigma_t^2\,\frac{\nu_t}{\nu_t - 2} +
+  \sigma_c^2\,\frac{\nu_c}{\nu_c - 2}\right)^{\!2},$$
 
-$$\mu^* = \mu_t - \mu_c.$$
+$$Q_u = \frac{(\sigma_t^2)^2\,\nu_t^2}{(\nu_t-2)(\nu_t-4)} +
+  \frac{(\sigma_c^2)^2\,\nu_c^2}{(\nu_c-2)(\nu_c-4)} +
+  2\left(\sigma_t^2\,\frac{\nu_t}{\nu_t-2}\right)
+   \!\left(\sigma_c^2\,\frac{\nu_c}{\nu_c-2}\right)
+  \qquad (\nu_t > 4,\; \nu_c > 4).$$
 
-Step 2: The variance of each $T_j$ is
+Then $D \approx Z^* \sim t_{\nu^*}(\mu^*, \sigma^*)$, where
 
-$$\mathrm{Var}(T_j) = \sigma_j^2 \cdot \frac{\nu_j}{\nu_j - 2}
-  \qquad (\nu_j > 2),$$
+$$\mu^* = \mu_t - \mu_c,$$
 
-so the variance of $D$ is
+$$\nu^* = \frac{2Q^*_u - 4Q_u}{Q^*_u - Q_u},$$
 
-$$V = \mathrm{Var}(D) = \sigma_t^2\,\frac{\nu_t}{\nu_t - 2} +
-  \sigma_c^2\,\frac{\nu_c}{\nu_c - 2}.$$
+$$\sigma^* = \sqrt{\left(\sigma_t^2\,\frac{\nu_t}{\nu_t - 2} +
+  \sigma_c^2\,\frac{\nu_c}{\nu_c - 2}\right)
+  \frac{\nu^* - 2}{\nu^*}}.$$
 
-Step 3: The effective degrees of freedom $\nu^*$ are obtained from
-the fourth-moment equation. The fourth central moment of
-$T_j \sim t_{\nu_j}(\mu_j, \sigma_j)$ is
-
-$$\mu_4(T_j) = 3\,\sigma_j^4\,\frac{\nu_j^2}{(\nu_j-2)(\nu_j-4)}
-  \qquad (\nu_j > 4).$$
-
-Matching the fourth moment of $D$ to that of $t_{\nu^*}(\mu^*, \sigma^*)$
-yields
-
-$$\nu^* =
-  \frac{2V^2 - 4Q}{V^2 - Q},$$
-
-where
-
-$$Q = \sigma_t^4\,\frac{\nu_t^2}{(\nu_t-2)(\nu_t-4)} +
-      \sigma_c^4\,\frac{\nu_c^2}{(\nu_c-2)(\nu_c-4)} +
-      2\,\mathrm{Var}(T_t)\,\mathrm{Var}(T_c).$$
-
-Step 4: The scale $\sigma^*$ is determined from the second-moment
-equation:
-
-$$\sigma^* = \sqrt{V \cdot \frac{\nu^* - 2}{\nu^*}}.$$
-
-Step 5: The CDF is evaluated as
-
-$$P(D > \theta_0) = P\!\left(Z > \frac{\theta_0 - \mu^*}{\sigma^*}\right),
-  \quad Z \sim t_{\nu^*}(0, 1),$$
-
-via a single call to `stats::pt()`. This method requires $\nu_j > 4$,
-is exact in the normal limit ($\nu_j \to \infty$), and is fully vectorised
---- making it the recommended method for large-scale simulation.
+The CDF is evaluated via a single call to `stats::pt()`. This method
+requires $\nu_j > 4$, is exact in the normal limit
+($\nu_j \to \infty$), and is fully vectorised --- making it the
+recommended method for large-scale simulation.
 
 ### 3.4 Comparison of the Three Methods
 
@@ -404,22 +380,85 @@ p_unctrl <- pbayespostpred1cont(
 cat(sprintf("P(theta > theta_TV | data, uncontrolled) = %.4f\n", p_unctrl))
 ```
 
-### 4.3 External Control Design (Power Prior)
+### 4.3 External Design (Power Prior)
 
-In the external control design, historical external data from a prior study
-are incorporated via a power prior with borrowing weight
-$\alpha_{0e,c} \in (0, 1]$ (`alpha0e_c`). The augmented posterior parameters
-for the control group are:
+In the external design, historical data from a prior study are
+incorporated via a power prior with borrowing weight
+$\alpha_{0e} \in (0, 1]$. The two prior specifications yield different
+posterior update formulae.
 
-$$\mu_{nc} = \frac{\alpha_{0e,c}\, n_{e,c}\, \bar{y}_{e,c} + n_c\, \bar{y}_c}
-  {\alpha_{0e,c}\, n_{e,c} + n_c},$$
+#### Vague prior (`prior = 'vague'`)
 
-$$\sigma_{nc}^2 = \frac{\alpha_{0e,c}(n_{e,c}-1)\, s_{e,c}^2 + (n_c-1)\, s_c^2 +
-  \dfrac{\alpha_{0e,c}\, n_{e,c}\, n_c\, (\bar{y}_{e,c} - \bar{y}_c)^2}
-        {\alpha_{0e,c}\, n_{e,c} + n_c}}
-  {\alpha_{0e,c}\, n_{e,c} + n_c},$$
+For group $j$ with $n_{e,j}$ external patients, external mean
+$\bar{y}_{e,j}$, and external SD $s_{e,j}$, the posterior parameters
+after combining the power prior with the PoC data are given by
+Theorem 4 of Huang et al. (2025):
 
-with degrees of freedom $\nu_{nc} = \alpha_{0e,c}\, n_{e,c} + n_c - 1$.
+$$\mu_{nj}^* = \frac{\alpha_{0e,j}\, n_{e,j}\, \bar{y}_{e,j} + n_j\, \bar{y}_j}
+  {\alpha_{0e,j}\, n_{e,j} + n_j},$$
+
+$$\kappa_{nj}^* = \alpha_{0e,j}\, n_{e,j} + n_j,$$
+
+$$\nu_{nj}^* = \alpha_{0e,j}\, n_{e,j} + n_j - 1,$$
+
+$$(\sigma_{nj}^*)^2 = \frac{\alpha_{0e,j}(n_{e,j}-1)\, s_{e,j}^2 +
+  (n_j-1)\, s_j^2 +
+  \dfrac{\alpha_{0e,j}\, n_{e,j}\, n_j\, (\bar{y}_{e,j} - \bar{y}_j)^2}
+        {\alpha_{0e,j}\, n_{e,j} + n_j}}
+  {\alpha_{0e,j}\, n_{e,j} + n_j}.$$
+
+The marginal posterior of $\mu_j$ is then
+
+$$\mu_j \mid \mathbf{y}_j \;\sim\;
+  t_{\nu_{nj}^*}\!\!\left(\mu_{nj}^*,\;
+  \frac{\sigma_{nj}^*}{\sqrt{\kappa_{nj}^*}}\right).$$
+
+Setting $\alpha_{0e,j} = 1$ corresponds to full borrowing;
+as $\alpha_{0e,j} \to 0$ the result recovers the vague-prior posterior
+from the current data alone.
+
+#### N-Inv-$\chi^2$ prior (`prior = 'N-Inv-Chisq'`)
+
+When an informative N-Inv-$\chi^2(\mu_{0j}, \kappa_{0j}, \nu_{0j}, \sigma_{0j}^2)$
+initial prior is specified, the power prior is first formed by combining
+the initial prior with the discounted external data (Theorem 1 of
+Huang et al., 2025):
+
+$$\mu_{e,j} = \frac{\alpha_{0e,j}\, n_{e,j}\, \bar{y}_{e,j} + \kappa_{0j}\, \mu_{0j}}
+  {\alpha_{0e,j}\, n_{e,j} + \kappa_{0j}},$$
+
+$$\kappa_{e,j} = \alpha_{0e,j}\, n_{e,j} + \kappa_{0j},$$
+
+$$\nu_{e,j} = \alpha_{0e,j}\, n_{e,j} + \nu_{0j},$$
+
+$$\sigma_{e,j}^2 = \frac{\alpha_{0e,j}(n_{e,j}-1)\, s_{e,j}^2 +
+  \nu_{0j}\, \sigma_{0j}^2 +
+  \dfrac{\alpha_{0e,j}\, n_{e,j}\, \kappa_{0j}\, (\bar{y}_{e,j} - \mu_{0j})^2}
+        {\alpha_{0e,j}\, n_{e,j} + \kappa_{0j}}}
+  {\nu_{e,j}}.$$
+
+This intermediate result is then updated with the PoC data by standard
+conjugate updating (Theorem 2 of Huang et al., 2025):
+
+$$\mu_{nj}^* = \frac{\kappa_{e,j}\, \mu_{e,j} + n_j\, \bar{y}_j}
+  {\kappa_{e,j} + n_j},$$
+
+$$\kappa_{nj}^* = \kappa_{e,j} + n_j,$$
+
+$$\nu_{nj}^* = \nu_{e,j} + n_j,$$
+
+$$(\sigma_{nj}^*)^2 = \frac{\nu_{e,j}\, \sigma_{e,j}^2 + (n_j-1)\, s_j^2 +
+  \dfrac{n_j\, \kappa_{e,j}\, (\mu_{e,j} - \bar{y}_j)^2}
+        {\kappa_{e,j} + n_j}}
+  {\nu_{nj}^*}.$$
+
+The marginal posterior of $\mu_j$ is then
+
+$$\mu_j \mid \mathbf{y}_j \;\sim\;
+  t_{\nu_{nj}^*}\!\!\left(\mu_{nj}^*,\;
+  \frac{\sigma_{nj}^*}{\sqrt{\kappa_{nj}^*}}\right).$$
+
+#### Example: external control design, vague prior
 
 Here, $n_{e,c} = 20$ (`ne_c`), $\bar{y}_{e,c} = 0.9$ (`bar_ye_c`),
 $s_{e,c} = 1.8$ (`se_c`), $\alpha_{0e,c} = 0.5$ (`alpha0e_c`)
@@ -627,11 +666,13 @@ This vignette covered single continuous endpoint analysis in BayesianQDM:
 2. Posterior and predictive distributions: marginal $t$-distributions
    for $\mu_j$ and $\bar{\tilde{y}}_j$, with explicit scale expressions.
 3. Three computation methods: NI (exact), MC (simulation), MM
-   (moment-matching via fourth-moment equation); MM is recommended for
-   large-scale simulation ($\nu_j > 4$ required).
+   (moment-matching approximation; Yamaguchi et al., 2025, Theorem 1);
+   MM requires $\nu_j > 4$ and is recommended for large-scale simulation.
 4. Three study designs: controlled (both groups observed), uncontrolled
-   ($\mu_{0c}$ and $r$ fixed from prior knowledge), external control design
-   (power prior with borrowing weight $\alpha_{0e,c}$).
+   ($\mu_{0c}$ and $r$ fixed from prior knowledge), external design
+   (power prior with borrowing weight $\alpha_{0e,j}$; vague prior follows
+   Theorem 4 of Huang et al. (2025), N-Inv-$\chi^2$ prior follows
+   Theorems 1--2 of Huang et al. (2025)).
 5. Operating characteristics: Monte Carlo estimation of
    $\Pr(\mathrm{Go})$, $\Pr(\mathrm{NoGo})$, $\Pr(\mathrm{Gray})$
    across true parameter scenarios.

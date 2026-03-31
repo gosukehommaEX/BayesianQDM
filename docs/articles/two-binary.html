@@ -11,13 +11,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<!-- mathjax math --><script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script><script>
-  window.MathJax = {
-    chtml: {
-      fontURL: "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/output/chtml/fonts/woff-v2"
-    }
-  };
-</script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -90,7 +84,8 @@ with two co-primary binary endpoints:</p>
 <li>Endpoint 1: ACR20 response (1 = responder, 0 = non-responder)</li>
 <li>Endpoint 2: DAS28 remission (1 = achieved, 0 = not achieved)</li>
 </ul>
-<p>The trial enrolls <span class="math inline">\(n_t = n_c = 7\)</span>
+<p>The trial enrolls
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>t</mi></msub><mo>=</mo><msub><mi>n</mi><mi>c</mi></msub><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">n_t = n_c = 7</annotation></semantics></math>
 patients per group in a 1:1 randomised controlled design.</p>
 <p>Clinically meaningful thresholds (posterior probability):</p>
 <table class="table">
@@ -101,29 +96,35 @@ patients per group in a 1:1 randomised controlled design.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><span class="math inline">\(\theta_{\mathrm{TV}1}\)</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">T</mi><mi mathvariant="normal">V</mi></mrow><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{TV}1}</annotation></semantics></math></td>
 <td>0.20</td>
 <td>0.20</td>
 </tr>
 <tr class="even">
-<td><span class="math inline">\(\theta_{\mathrm{MAV}1}\)</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">A</mi><mi mathvariant="normal">V</mi></mrow><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">\theta_{\mathrm{MAV}1}</annotation></semantics></math></td>
 <td>0.10</td>
 <td>0.10</td>
 </tr>
 </tbody>
 </table>
-<p>Null hypothesis thresholds (predictive probability): <span class="math inline">\(\theta_{\mathrm{NULL}1} = 0.15\)</span>, <span class="math inline">\(\theta_{\mathrm{NULL}2} = 0.15\)</span>.</p>
-<p>Decision thresholds: <span class="math inline">\(\gamma_{\mathrm{go}}
-= 0.80\)</span> (Go), <span class="math inline">\(\gamma_{\mathrm{nogo}}
-= 0.80\)</span> (NoGo).</p>
+<p>Null hypothesis thresholds (predictive probability):
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">U</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow><mn>1</mn></mrow></msub><mo>=</mo><mn>0.15</mn></mrow><annotation encoding="application/x-tex">\theta_{\mathrm{NULL}1} = 0.15</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mrow><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">U</mi><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow><mn>2</mn></mrow></msub><mo>=</mo><mn>0.15</mn></mrow><annotation encoding="application/x-tex">\theta_{\mathrm{NULL}2} = 0.15</annotation></semantics></math>.</p>
+<p>Decision thresholds:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>=</mo><mn>0.80</mn></mrow><annotation encoding="application/x-tex">\gamma_{\mathrm{go}} = 0.80</annotation></semantics></math>
+(Go),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>=</mo><mn>0.80</mn></mrow><annotation encoding="application/x-tex">\gamma_{\mathrm{nogo}} = 0.80</annotation></semantics></math>
+(NoGo).</p>
 <p>Observed data (used in Sections 2–4): treatment group counts for the
-four response patterns <span class="math inline">\((Y_{i,1}, Y_{i,2})
-\in \{(0,0),(0,1),(1,0),(1,1)\}\)</span>:</p>
+four response patterns
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mrow><mi>i</mi><mo>,</mo><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>Y</mi><mrow><mi>i</mi><mo>,</mo><mn>2</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">(Y_{i,1}, Y_{i,2}) \in \{(0,0),(0,1),(1,0),(1,1)\}</annotation></semantics></math>:</p>
 <table class="table">
 <thead><tr class="header">
 <th>Pattern</th>
-<th align="center">Treatment (<span class="math inline">\(x_{t,lm}\)</span>)</th>
-<th align="center">Control (<span class="math inline">\(x_{c,lm}\)</span>)</th>
+<th align="center">Treatment
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mrow><mi>t</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><annotation encoding="application/x-tex">x_{t,lm}</annotation></semantics></math>)</th>
+<th align="center">Control
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><annotation encoding="application/x-tex">x_{c,lm}</annotation></semantics></math>)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -148,7 +149,12 @@ four response patterns <span class="math inline">\((Y_{i,1}, Y_{i,2})
 </tr>
 </tbody>
 </table>
-<p>Marginal responder counts: treatment <span class="math inline">\(y_{t,1} = 5\)</span>, <span class="math inline">\(y_{t,2} = 4\)</span>; control <span class="math inline">\(y_{c,1} = 4\)</span>, <span class="math inline">\(y_{c,2} = 3\)</span>.</p>
+<p>Marginal responder counts: treatment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mn>1</mn></mrow></msub><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">y_{t,1} = 5</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>t</mi><mo>,</mo><mn>2</mn></mrow></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">y_{t,2} = 4</annotation></semantics></math>;
+control
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>c</mi><mo>,</mo><mn>1</mn></mrow></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">y_{c,1} = 4</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mrow><mi>c</mi><mo>,</mo><mn>2</mn></mrow></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">y_{c,2} = 3</annotation></semantics></math>.</p>
 <hr>
 </div>
 <div class="section level2">
@@ -157,81 +163,97 @@ four response patterns <span class="math inline">\((Y_{i,1}, Y_{i,2})
 <div class="section level3">
 <h3 id="response-pattern-parameterisation">1.1 Response Pattern Parameterisation<a class="anchor" aria-label="anchor" href="#response-pattern-parameterisation"></a>
 </h3>
-<p>Because the two endpoints within each patient <span class="math inline">\(i\)</span> (<span class="math inline">\(i = 1,
-\ldots, n_j\)</span>) are correlated, the bivariate binary outcome <span class="math inline">\((Y_{i,1}, Y_{i,2})\)</span> is modelled jointly
-through its four-cell probability vector</p>
-<p><span class="math display">\[\mathbf{p}_j = (p_{j,00},\, p_{j,01},\,
-p_{j,10},\, p_{j,11})^\top,
-\qquad \mathbf{p}_j \in \Delta^3,\]</span></p>
-<p>where <span class="math inline">\(j \in \{t, c\}\)</span> denotes the
-treatment or control group, <span class="math inline">\(\Delta^3\)</span> denotes the 3-simplex (all
-entries non-negative and summing to 1), and the subscripts refer to the
-values of <span class="math inline">\((Y_{i,1}, Y_{i,2})\)</span>.</p>
-<p>The observed count vector <span class="math inline">\(\mathbf{x}_j =
-(x_{j,00}, x_{j,01}, x_{j,10},
-x_{j,11})^\top\)</span> with <span class="math inline">\(\sum_{lm}
-x_{j,lm} = n_j\)</span> follows</p>
-<p><span class="math display">\[\mathbf{x}_j \mid \mathbf{p}_j \;\sim\;
-  \mathrm{Multinomial}(n_j,\, \mathbf{p}_j).\]</span></p>
+<p>Because the two endpoints within each patient
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>n</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">i = 1, \ldots, n_j</annotation></semantics></math>)
+are correlated, the bivariate binary outcome
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mrow><mi>i</mi><mo>,</mo><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>Y</mi><mrow><mi>i</mi><mo>,</mo><mn>2</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(Y_{i,1}, Y_{i,2})</annotation></semantics></math>
+is modelled jointly through its four-cell probability vector</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐩</mi><mi>j</mi></msub><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>00</mn></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>01</mn></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>⊤</mi></msup><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>𝐩</mi><mi>j</mi></msub><mo>∈</mo><msup><mi>Δ</mi><mn>3</mn></msup><mo>,</mo></mrow><annotation encoding="application/x-tex">\mathbf{p}_j = (p_{j,00},\, p_{j,01},\, p_{j,10},\, p_{j,11})^\top,
+\qquad \mathbf{p}_j \in \Delta^3,</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mi>t</mi><mo>,</mo><mi>c</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">j \in \{t, c\}</annotation></semantics></math>
+denotes the treatment or control group,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>Δ</mi><mn>3</mn></msup><annotation encoding="application/x-tex">\Delta^3</annotation></semantics></math>
+denotes the 3-simplex (all entries non-negative and summing to 1), and
+the subscripts refer to the values of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>Y</mi><mrow><mi>i</mi><mo>,</mo><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>Y</mi><mrow><mi>i</mi><mo>,</mo><mn>2</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(Y_{i,1}, Y_{i,2})</annotation></semantics></math>.</p>
+<p>The observed count vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐱</mi><mi>j</mi></msub><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mn>00</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mn>01</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>⊤</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{x}_j = (x_{j,00}, x_{j,01}, x_{j,10},
+x_{j,11})^\top</annotation></semantics></math> with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mrow><mi>l</mi><mi>m</mi></mrow></msub><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>=</mo><msub><mi>n</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">\sum_{lm} x_{j,lm} = n_j</annotation></semantics></math>
+follows</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐱</mi><mi>j</mi></msub><mo>∣</mo><msub><mi>𝐩</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mi>j</mi></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>𝐩</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\mathbf{x}_j \mid \mathbf{p}_j \;\sim\;
+  \mathrm{Multinomial}(n_j,\, \mathbf{p}_j).</annotation></semantics></math></p>
 <p>The marginal response rates and treatment effects are obtained by
 summing:</p>
-<p><span class="math display">\[\pi_{j1} = p_{j,10} + p_{j,11}, \qquad
-  \pi_{j2} = p_{j,01} + p_{j,11},\]</span></p>
-<p><span class="math display">\[\theta_1 = \pi_{t1} - \pi_{c1}, \qquad
-  \theta_2 = \pi_{t2} - \pi_{c2}.\]</span></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>+</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mo>=</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>01</mn></mrow></msub><mo>+</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">\pi_{j1} = p_{j,10} + p_{j,11}, \qquad
+  \pi_{j2} = p_{j,01} + p_{j,11},</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mn>1</mn></msub><mo>=</mo><msub><mi>π</mi><mrow><mi>t</mi><mn>1</mn></mrow></msub><mo>−</mo><msub><mi>π</mi><mrow><mi>c</mi><mn>1</mn></mrow></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>θ</mi><mn>2</mn></msub><mo>=</mo><msub><mi>π</mi><mrow><mi>t</mi><mn>2</mn></mrow></msub><mo>−</mo><msub><mi>π</mi><mrow><mi>c</mi><mn>2</mn></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">\theta_1 = \pi_{t1} - \pi_{c1}, \qquad
+  \theta_2 = \pi_{t2} - \pi_{c2}.</annotation></semantics></math></p>
 </div>
 <div class="section level3">
 <h3 id="prior-dirichlet-distribution">1.2 Prior: Dirichlet Distribution<a class="anchor" aria-label="anchor" href="#prior-dirichlet-distribution"></a>
 </h3>
-<p>The conjugate prior for <span class="math inline">\(\mathbf{p}_j\)</span> is the Dirichlet
-distribution:</p>
-<p><span class="math display">\[\mathbf{p}_j \;\sim\;
-\mathrm{Dir}(\alpha_{j,00},\, \alpha_{j,01},\,
-  \alpha_{j,10},\, \alpha_{j,11}),\]</span></p>
-<p>where all hyperparameters <span class="math inline">\(\alpha_{j,lm}
-&gt; 0\)</span> (corresponding to <code>a_t_00</code>,
-<code>a_t_01</code>, <code>a_t_10</code>, <code>a_t_11</code> for <span class="math inline">\(j = t\)</span> and <code>a_c_00</code>,
-<code>a_c_01</code>, <code>a_c_10</code>, <code>a_c_11</code> for <span class="math inline">\(j = c\)</span>). The symmetric choice <span class="math inline">\(\alpha_{j,lm} = 0.25\)</span> for all <span class="math inline">\(lm\)</span> is the natural extension of the
-Jeffreys prior to the four-cell multinomial and is used throughout this
-vignette.</p>
+<p>The conjugate prior for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐩</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\mathbf{p}_j</annotation></semantics></math>
+is the Dirichlet distribution:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐩</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mn>00</mn></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mn>01</mn></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>,</mo><mspace width="0.167em"></mspace><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\mathbf{p}_j \;\sim\; \mathrm{Dir}(\alpha_{j,00},\, \alpha_{j,01},\,
+  \alpha_{j,10},\, \alpha_{j,11}),</annotation></semantics></math></p>
+<p>where all hyperparameters
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha_{j,lm} &gt; 0</annotation></semantics></math>
+(corresponding to <code>a_t_00</code>, <code>a_t_01</code>,
+<code>a_t_10</code>, <code>a_t_11</code> for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">j = t</annotation></semantics></math>
+and <code>a_c_00</code>, <code>a_c_01</code>, <code>a_c_10</code>,
+<code>a_c_11</code> for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">j = c</annotation></semantics></math>).
+The symmetric choice
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>=</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">\alpha_{j,lm} = 0.25</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">lm</annotation></semantics></math>
+is the natural extension of the Jeffreys prior to the four-cell
+multinomial and is used throughout this vignette.</p>
 </div>
 <div class="section level3">
 <h3 id="posterior-distribution">1.3 Posterior Distribution<a class="anchor" aria-label="anchor" href="#posterior-distribution"></a>
 </h3>
 <p>By conjugacy of the Dirichlet-Multinomial model, the posterior
 is:</p>
-<p><span class="math display">\[\mathbf{p}_j \mid \mathbf{x}_j \;\sim\;
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐩</mi><mi>j</mi></msub><mo>∣</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mn>00</mn></mrow><mo>*</mo></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mn>01</mn></mrow><mo>*</mo></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mn>10</mn></mrow><mo>*</mo></msubsup><mo>,</mo><mspace width="0.167em"></mspace><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\mathbf{p}_j \mid \mathbf{x}_j \;\sim\;
   \mathrm{Dir}(\alpha_{j,00}^*,\, \alpha_{j,01}^*,\,
-  \alpha_{j,10}^*,\, \alpha_{j,11}^*),\]</span></p>
+  \alpha_{j,10}^*,\, \alpha_{j,11}^*),</annotation></semantics></math></p>
 <p>where the posterior parameters are</p>
-<p><span class="math display">\[\alpha_{j,lm}^* = \alpha_{j,lm} +
-x_{j,lm}, \qquad
-  lm \in \{00, 01, 10, 11\}.\]</span></p>
-<p>The posterior mean for each cell is <span class="math inline">\(E[p_{j,lm} \mid \mathbf{x}_j] = \alpha_{j,lm}^* /
-A_j^*\)</span>, where <span class="math inline">\(A_j^* = \sum_{lm}
-\alpha_{j,lm}^*\)</span>.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mo>*</mo></msubsup><mo>=</mo><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>+</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>,</mo><mspace width="2.0em"></mspace><mi>l</mi><mi>m</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>00</mn><mo>,</mo><mn>01</mn><mo>,</mo><mn>10</mn><mo>,</mo><mn>11</mn><mo stretchy="false" form="postfix">}</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">\alpha_{j,lm}^* = \alpha_{j,lm} + x_{j,lm}, \qquad
+  lm \in \{00, 01, 10, 11\}.</annotation></semantics></math></p>
+<p>The posterior mean for each cell is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>∣</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mo>*</mo></msubsup><mi>/</mi><msubsup><mi>A</mi><mi>j</mi><mo>*</mo></msubsup></mrow><annotation encoding="application/x-tex">E[p_{j,lm} \mid \mathbf{x}_j] = \alpha_{j,lm}^* / A_j^*</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>A</mi><mi>j</mi><mo>*</mo></msubsup><mo>=</mo><msub><mo>∑</mo><mrow><mi>l</mi><mi>m</mi></mrow></msub><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mo>*</mo></msubsup></mrow><annotation encoding="application/x-tex">A_j^* = \sum_{lm} \alpha_{j,lm}^*</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="within-group-correlation">1.4 Within-Group Correlation<a class="anchor" aria-label="anchor" href="#within-group-correlation"></a>
 </h3>
 <p>The within-group Pearson correlation between Endpoint 1 and Endpoint
 2 is</p>
-<p><span class="math display">\[\rho_j = \frac{p_{j,11} -
-\pi_{j1}\,\pi_{j2}}
-               {\sqrt{\pi_{j1}(1-\pi_{j1})\,\pi_{j2}(1-\pi_{j2})}}.\]</span></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ρ</mi><mi>j</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow></msub><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mspace width="0.167em"></mspace><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub></mrow><msqrt><mrow><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msqrt></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">\rho_j = \frac{p_{j,11} - \pi_{j1}\,\pi_{j2}}
+               {\sqrt{\pi_{j1}(1-\pi_{j1})\,\pi_{j2}(1-\pi_{j2})}}.</annotation></semantics></math></p>
 <p>When specifying operating characteristic scenarios, the true
-parameter vector <span class="math inline">\(\mathbf{p}_j\)</span> is
-specified via the reparameterisation <span class="math inline">\((\pi_{j1}, \pi_{j2}, \rho_j)\)</span>, with the
-feasibility constraint:</p>
-<p><span class="math display">\[\rho_{\min} =
-\frac{\max(0,\pi_{j1}+\pi_{j2}-1) - \pi_{j1}\pi_{j2}}
+parameter vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐩</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\mathbf{p}_j</annotation></semantics></math>
+is specified via the reparameterisation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mo>,</mo><msub><mi>ρ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\pi_{j1}, \pi_{j2}, \rho_j)</annotation></semantics></math>,
+with the feasibility constraint:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ρ</mi><mo>min</mo></msub><mo>=</mo><mfrac><mrow><mo>max</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo>,</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub></mrow><msqrt><mrow><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msqrt></mfrac><mspace width="0.278em"></mspace><mo>≤</mo><mspace width="0.278em"></mspace><msub><mi>ρ</mi><mi>j</mi></msub><mspace width="0.278em"></mspace><mo>≤</mo><mspace width="0.278em"></mspace><mfrac><mrow><mo>min</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub></mrow><msqrt><mrow><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msqrt></mfrac><mo>=</mo><msub><mi>ρ</mi><mo>max</mo></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">\rho_{\min} = \frac{\max(0,\pi_{j1}+\pi_{j2}-1) - \pi_{j1}\pi_{j2}}
                      {\sqrt{\pi_{j1}(1-\pi_{j1})\pi_{j2}(1-\pi_{j2})}}
 \;\le\; \rho_j \;\le\;
 \frac{\min(\pi_{j1},\pi_{j2}) - \pi_{j1}\pi_{j2}}
      {\sqrt{\pi_{j1}(1-\pi_{j1})\pi_{j2}(1-\pi_{j2})}}
-= \rho_{\max}.\]</span></p>
-<p>The helper function <code><a href="../reference/getjointbin.html">getjointbin()</a></code> converts <span class="math inline">\((\pi_{j1}, \pi_{j2}, \rho_j)\)</span> to <span class="math inline">\((p_{j,00}, p_{j,01}, p_{j,10},
-p_{j,11})\)</span>:</p>
+= \rho_{\max}.</annotation></semantics></math></p>
+<p>The helper function <code><a href="../reference/getjointbin.html">getjointbin()</a></code> converts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow></msub><mo>,</mo><msub><mi>ρ</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\pi_{j1}, \pi_{j2}, \rho_j)</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>00</mn></mrow></msub><mo>,</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>01</mn></mrow></msub><mo>,</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>,</mo><msub><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(p_{j,00}, p_{j,01}, p_{j,10}, p_{j,11})</annotation></semantics></math>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Convert marginal rates + correlation to cell probabilities</span></span>
 <span><span class="fu"><a href="../reference/getjointbin.html">getjointbin</a></span><span class="op">(</span>pi1 <span class="op">=</span> <span class="fl">0.30</span>, pi2 <span class="op">=</span> <span class="fl">0.35</span>, rho <span class="op">=</span> <span class="fl">0.20</span><span class="op">)</span></span>
@@ -244,7 +266,11 @@ p_{j,11})\)</span>:</p>
 <div class="section level3">
 <h3 id="nine-region-grid-posterior-probability">1.5 Nine-Region Grid (Posterior Probability)<a class="anchor" aria-label="anchor" href="#nine-region-grid-posterior-probability"></a>
 </h3>
-<p>The bivariate threshold grid for <span class="math inline">\((\theta_1, \theta_2)\)</span> creates a <span class="math inline">\(3 \times 3\)</span> partition:</p>
+<p>The bivariate threshold grid for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>θ</mi><mn>1</mn></msub><mo>,</mo><msub><mi>θ</mi><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\theta_1, \theta_2)</annotation></semantics></math>
+creates a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>×</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">3 \times 3</annotation></semantics></math>
+partition:</p>
 <table style="border-collapse:collapse; text-align:center; font-size:0.9em;" class="table">
 <caption>
 Nine-region grid for two-endpoint posterior probability
@@ -320,14 +346,17 @@ R9
 </tr>
 </tbody>
 </table>
-<p>Typical choices: Go if <span class="math inline">\(P(R_1) \ge
-\gamma_{\mathrm{go}}\)</span>, NoGo if <span class="math inline">\(P(R_9) \ge \gamma_{\mathrm{nogo}}\)</span>.</p>
+<p>Typical choices: Go if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>R</mi><mn>1</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≥</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">P(R_1) \ge \gamma_{\mathrm{go}}</annotation></semantics></math>,
+NoGo if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>R</mi><mn>9</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>≥</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">P(R_9) \ge \gamma_{\mathrm{nogo}}</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="four-region-grid-predictive-probability">1.6 Four-Region Grid (Predictive Probability)<a class="anchor" aria-label="anchor" href="#four-region-grid-predictive-probability"></a>
 </h3>
-<p>For the predictive probability, a <span class="math inline">\(2
-\times 2\)</span> partition is used:</p>
+<p>For the predictive probability, a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>×</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">2 \times 2</annotation></semantics></math>
+partition is used:</p>
 <table style="border-collapse:collapse; text-align:center; font-size:0.9em;" class="table">
 <caption>
 Four-region grid for two-endpoint predictive probability
@@ -389,41 +418,44 @@ R4
 <div class="section level3">
 <h3 id="dirichlet-multinomial-predictive-distribution">2.1 Dirichlet-Multinomial Predictive Distribution<a class="anchor" aria-label="anchor" href="#dirichlet-multinomial-predictive-distribution"></a>
 </h3>
-<p>Let <span class="math inline">\(\tilde{\mathbf{x}}_j \sim
-\mathrm{Multinomial}(m_j, \mathbf{p}_j)\)</span> be the future count
-vector with <span class="math inline">\(m_j\)</span> future patients
-(corresponding to <code>m_t</code> and <code>m_c</code>). Integrating
-out <span class="math inline">\(\mathbf{p}_j\)</span> over its Dirichlet
-posterior gives the Dirichlet-Multinomial predictive distribution:</p>
-<p><span class="math display">\[P(\tilde{\mathbf{x}}_j = \mathbf{c} \mid
-\mathbf{x}_j) =
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>𝐱</mi><mo accent="true">̃</mo></mover><mi>j</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>j</mi></msub><mo>,</mo><msub><mi>𝐩</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\tilde{\mathbf{x}}_j \sim \mathrm{Multinomial}(m_j, \mathbf{p}_j)</annotation></semantics></math>
+be the future count vector with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mi>j</mi></msub><annotation encoding="application/x-tex">m_j</annotation></semantics></math>
+future patients (corresponding to <code>m_t</code> and
+<code>m_c</code>). Integrating out
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐩</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\mathbf{p}_j</annotation></semantics></math>
+over its Dirichlet posterior gives the Dirichlet-Multinomial predictive
+distribution:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>𝐱</mi><mo accent="true">̃</mo></mover><mi>j</mi></msub><mo>=</mo><mi>𝐜</mi><mo>∣</mo><msub><mi>𝐱</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>m</mi><mi>j</mi></msub><mi>𝐜</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mfrac><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>𝛂</mi><mi>j</mi><mo>*</mo></msubsup><mo>+</mo><mi>𝐜</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>𝛂</mi><mi>j</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>,</mo><mspace width="1.0em"></mspace><munder><mo>∑</mo><mrow><mi>l</mi><mi>m</mi></mrow></munder><msub><mi>c</mi><mrow><mi>l</mi><mi>m</mi></mrow></msub><mo>=</mo><msub><mi>m</mi><mi>j</mi></msub><mo>,</mo></mrow><annotation encoding="application/x-tex">P(\tilde{\mathbf{x}}_j = \mathbf{c} \mid \mathbf{x}_j) =
   \binom{m_j}{\mathbf{c}}
-  \frac{B(\boldsymbol{\alpha}_j^* +
-\mathbf{c})}{B(\boldsymbol{\alpha}_j^*)},
-  \quad \sum_{lm} c_{lm} = m_j,\]</span></p>
-<p>where <span class="math inline">\(B(\cdot)\)</span> is the
-multivariate Beta function and <span class="math inline">\(\binom{m_j}{\mathbf{c}} = m_j! / \prod_{lm}
-c_{lm}!\)</span> is the multinomial coefficient.</p>
+  \frac{B(\boldsymbol{\alpha}_j^* + \mathbf{c})}{B(\boldsymbol{\alpha}_j^*)},
+  \quad \sum_{lm} c_{lm} = m_j,</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>⋅</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">B(\cdot)</annotation></semantics></math>
+is the multivariate Beta function and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><msub><mi>m</mi><mi>j</mi></msub><mi>𝐜</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>m</mi><mi>j</mi></msub><mi>!</mi><mi>/</mi><msub><mo>∏</mo><mrow><mi>l</mi><mi>m</mi></mrow></msub><msub><mi>c</mi><mrow><mi>l</mi><mi>m</mi></mrow></msub><mi>!</mi></mrow><annotation encoding="application/x-tex">\binom{m_j}{\mathbf{c}} = m_j! / \prod_{lm} c_{lm}!</annotation></semantics></math>
+is the multinomial coefficient.</p>
 </div>
 <div class="section level3">
 <h3 id="monte-carlo-evaluation">2.2 Monte Carlo Evaluation<a class="anchor" aria-label="anchor" href="#monte-carlo-evaluation"></a>
 </h3>
 <p>Because the Dirichlet-Multinomial does not yield a tractable closed
-form for the joint probability that <span class="math inline">\((\tilde\theta_1, \tilde\theta_2)\)</span> falls in
-a given region, all region probabilities are estimated by Monte
+form for the joint probability that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mover><mi>θ</mi><mo accent="true">̃</mo></mover><mn>1</mn></msub><mo>,</mo><msub><mover><mi>θ</mi><mo accent="true">̃</mo></mover><mn>2</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\tilde\theta_1, \tilde\theta_2)</annotation></semantics></math>
+falls in a given region, all region probabilities are estimated by Monte
 Carlo:</p>
-<p><span class="math display">\[\widehat{P}(R_r) =
-\frac{1}{n_\mathrm{MC}} \sum_{s=1}^{n_\mathrm{MC}}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>P</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>R</mi><mi>r</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">C</mi></mrow></msub></mfrac><munderover><mo>∑</mo><mrow><mi>s</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>n</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">C</mi></mrow></msub></munderover><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>π</mi><mrow><mi>t</mi><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msubsup><mi>π</mi><mrow><mi>c</mi><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>,</mo><mspace width="0.278em"></mspace><msubsup><mi>π</mi><mrow><mi>t</mi><mn>2</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msubsup><mi>π</mi><mrow><mi>c</mi><mn>2</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msub><mi>R</mi><mi>r</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\widehat{P}(R_r) = \frac{1}{n_\mathrm{MC}} \sum_{s=1}^{n_\mathrm{MC}}
   \mathbf{1}\!\left[(\pi_{t1}^{(s)} - \pi_{c1}^{(s)},\;
-  \pi_{t2}^{(s)} - \pi_{c2}^{(s)}) \in R_r\right],\]</span></p>
-<p>where <span class="math inline">\(\mathbf{p}_j^{(s)} \sim
-\mathrm{Dir}(\boldsymbol{\alpha}_j^*)\)</span> are draws from the
-Dirichlet posterior and <span class="math inline">\(\pi_{j1}^{(s)} =
-p_{j,10}^{(s)} + p_{j,11}^{(s)}\)</span>, <span class="math inline">\(\pi_{j2}^{(s)} = p_{j,01}^{(s)} +
-p_{j,11}^{(s)}\)</span>. For the predictive probability, future
-proportion differences <span class="math inline">\(\tilde\theta_k^{(s)}
-= \tilde{\pi}_{t,k}^{(s)} - \tilde{\pi}_{c,k}^{(s)}\)</span> are
-computed from corresponding Multinomial draws conditioned on the
+  \pi_{t2}^{(s)} - \pi_{c2}^{(s)}) \in R_r\right],</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>𝐩</mi><mi>j</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>∼</mo><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>𝛂</mi><mi>j</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{p}_j^{(s)} \sim \mathrm{Dir}(\boldsymbol{\alpha}_j^*)</annotation></semantics></math>
+are draws from the Dirichlet posterior and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>π</mi><mrow><mi>j</mi><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>10</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msubsup><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\pi_{j1}^{(s)} = p_{j,10}^{(s)} + p_{j,11}^{(s)}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>π</mi><mrow><mi>j</mi><mn>2</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>01</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>+</mo><msubsup><mi>p</mi><mrow><mi>j</mi><mo>,</mo><mn>11</mn></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\pi_{j2}^{(s)} = p_{j,01}^{(s)} + p_{j,11}^{(s)}</annotation></semantics></math>.
+For the predictive probability, future proportion differences
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>θ</mi><mo accent="true">̃</mo></mover><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>=</mo><msubsup><mover><mi>π</mi><mo accent="true">̃</mo></mover><mrow><mi>t</mi><mo>,</mo><mi>k</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>−</mo><msubsup><mover><mi>π</mi><mo accent="true">̃</mo></mover><mrow><mi>c</mi><mo>,</mo><mi>k</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></msubsup></mrow><annotation encoding="application/x-tex">\tilde\theta_k^{(s)} = \tilde{\pi}_{t,k}^{(s)} - \tilde{\pi}_{c,k}^{(s)}</annotation></semantics></math>
+are computed from corresponding Multinomial draws conditioned on the
 Dirichlet samples.</p>
 <hr>
 </div>
@@ -435,11 +467,14 @@ Dirichlet samples.</p>
 <h3 id="controlled-design">3.1 Controlled Design<a class="anchor" aria-label="anchor" href="#controlled-design"></a>
 </h3>
 <p>Both groups are observed in the PoC trial. The posterior parameters
-are updated as <span class="math inline">\(\alpha_{j,lm}^* =
-\alpha_{j,lm} + x_{j,lm}\)</span>, where <span class="math inline">\((x_{t,00}, x_{t,01}, x_{t,10}, x_{t,11})\)</span>
-and <span class="math inline">\((x_{c,00}, x_{c,01}, x_{c,10},
-x_{c,11})\)</span> are supplied as <code>x_t_00</code>, …,
-<code>x_t_11</code> and <code>x_c_00</code>, …, <code>x_c_11</code>.</p>
+are updated as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mo>*</mo></msubsup><mo>=</mo><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>+</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\alpha_{j,lm}^* = \alpha_{j,lm} + x_{j,lm}</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>,</mo><mn>00</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>,</mo><mn>01</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>t</mi><mo>,</mo><mn>11</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x_{t,00}, x_{t,01}, x_{t,10}, x_{t,11})</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mn>00</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mn>01</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>,</mo><msub><mi>x</mi><mrow><mi>c</mi><mo>,</mo><mn>11</mn></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x_{c,00}, x_{c,01}, x_{c,10}, x_{c,11})</annotation></semantics></math>
+are supplied as <code>x_t_00</code>, …, <code>x_t_11</code> and
+<code>x_c_00</code>, …, <code>x_c_11</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">p_post_ctrl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayespostpred2bin.html">pbayespostpred2bin</a></span><span class="op">(</span></span>
@@ -472,7 +507,8 @@ x_{c,11})\)</span> are supplied as <code>x_t_00</code>, …,
 <span>  <span class="va">p_post_ctrl</span><span class="op">[</span><span class="st">"R9"</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">p_post_ctrl</span><span class="op">[</span><span class="st">"R9"</span><span class="op">]</span> <span class="op">&gt;=</span> <span class="fl">0.80</span>, <span class="st">"YES -&gt; NoGo"</span>, <span class="st">"NO"</span><span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; NoGo region (R9): P = 0.2170  &gt;= gamma_nogo (0.80)? NO</span></span></code></pre></div>
-<p>Posterior predictive probability (future Phase III: <span class="math inline">\(m_t = m_c = 15\)</span>):</p>
+<p>Posterior predictive probability (future Phase III:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>t</mi></msub><mo>=</mo><msub><mi>m</mi><mi>c</mi></msub><mo>=</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">m_t = m_c = 15</annotation></semantics></math>):</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
 <span><span class="va">p_pred_ctrl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pbayespostpred2bin.html">pbayespostpred2bin</a></span><span class="op">(</span></span>
@@ -505,11 +541,12 @@ x_{c,11})\)</span> are supplied as <code>x_t_00</code>, …,
 <h3 id="uncontrolled-design">3.2 Uncontrolled Design<a class="anchor" aria-label="anchor" href="#uncontrolled-design"></a>
 </h3>
 <p>When no concurrent control group is enrolled, the control
-distribution is specified via a hypothetical count vector <span class="math inline">\(\mathbf{z} = (z_{00}, z_{01}, z_{10},
-z_{11})\)</span> combined with the Dirichlet prior:</p>
-<p><span class="math display">\[\mathbf{p}_c \;\sim\;
+distribution is specified via a hypothetical count vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝐳</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>z</mi><mn>00</mn></msub><mo>,</mo><msub><mi>z</mi><mn>01</mn></msub><mo>,</mo><msub><mi>z</mi><mn>10</mn></msub><mo>,</mo><msub><mi>z</mi><mn>11</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathbf{z} = (z_{00}, z_{01}, z_{10}, z_{11})</annotation></semantics></math>
+combined with the Dirichlet prior:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>𝐩</mi><mi>c</mi></msub><mspace width="0.278em"></mspace><mo>∼</mo><mspace width="0.278em"></mspace><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">r</mi></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mrow><mi>c</mi><mo>,</mo><mn>00</mn></mrow></msub><mo>+</mo><msub><mi>z</mi><mn>00</mn></msub><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>α</mi><mrow><mi>c</mi><mo>,</mo><mn>01</mn></mrow></msub><mo>+</mo><msub><mi>z</mi><mn>01</mn></msub><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>α</mi><mrow><mi>c</mi><mo>,</mo><mn>10</mn></mrow></msub><mo>+</mo><msub><mi>z</mi><mn>10</mn></msub><mo>,</mo><mspace width="0.278em"></mspace><msub><mi>α</mi><mrow><mi>c</mi><mo>,</mo><mn>11</mn></mrow></msub><mo>+</mo><msub><mi>z</mi><mn>11</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\mathbf{p}_c \;\sim\;
   \mathrm{Dir}(\alpha_{c,00} + z_{00},\; \alpha_{c,01} + z_{01},\;
-  \alpha_{c,10} + z_{10},\; \alpha_{c,11} + z_{11}).\]</span></p>
+  \alpha_{c,10} + z_{10},\; \alpha_{c,11} + z_{11}).</annotation></semantics></math></p>
 <p>This specification encodes prior belief about the bivariate control
 response rates — including any assumed within-group correlation —
 without requiring observed control data. The hypothetical counts are
@@ -540,21 +577,27 @@ supplied as <code>z00</code>, <code>z01</code>, <code>z10</code>,
 <div class="section level3">
 <h3 id="external-control-design-power-prior">3.3 External Control Design (Power Prior)<a class="anchor" aria-label="anchor" href="#external-control-design-power-prior"></a>
 </h3>
-<p>External data for group <span class="math inline">\(j\)</span> (count
-vector <span class="math inline">\(\mathbf{x}_{ej}\)</span>, supplied as
-<code>xe_t_00</code>, …, <code>xe_t_11</code> for <span class="math inline">\(j = t\)</span> and <code>xe_c_00</code>, …,
-<code>xe_c_11</code> for <span class="math inline">\(j = c\)</span>) are
-incorporated via a Dirichlet power prior with weight <span class="math inline">\(\alpha_{0e,j} \in (0, 1]\)</span>
+<p>External data for group
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+(count vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐱</mi><mrow><mi>e</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\mathbf{x}_{ej}</annotation></semantics></math>,
+supplied as <code>xe_t_00</code>, …, <code>xe_t_11</code> for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">j = t</annotation></semantics></math>
+and <code>xe_c_00</code>, …, <code>xe_c_11</code> for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">j = c</annotation></semantics></math>)
+are incorporated via a Dirichlet power prior with weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mn>0</mn><mi>e</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>∈</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\alpha_{0e,j} \in (0, 1]</annotation></semantics></math>
 (<code>alpha0e_t</code>, <code>alpha0e_c</code>). The augmented prior
 parameters are:</p>
-<p><span class="math display">\[\alpha_{j,lm}^{*} = \alpha_{j,lm} +
-\alpha_{0e,j} \cdot x_{ej,lm}.\]</span></p>
-<p>Setting <span class="math inline">\(\alpha_{0e,j} = 1\)</span> treats
-the external data as equivalent to current trial data; <span class="math inline">\(\alpha_{0e,j} \to 0\)</span> recovers the original
-prior. The current PoC data then update these augmented parameters:</p>
-<p><span class="math display">\[\alpha_{j,lm}^{**} = \alpha_{j,lm}^{*} +
-x_{j,lm}
-  = \alpha_{j,lm} + \alpha_{0e,j}\, x_{ej,lm} + x_{j,lm}.\]</span></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mo>*</mo></msubsup><mo>=</mo><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>+</mo><msub><mi>α</mi><mrow><mn>0</mn><mi>e</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>⋅</mo><msub><mi>x</mi><mrow><mi>e</mi><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">\alpha_{j,lm}^{*} = \alpha_{j,lm} + \alpha_{0e,j} \cdot x_{ej,lm}.</annotation></semantics></math></p>
+<p>Setting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mn>0</mn><mi>e</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\alpha_{0e,j} = 1</annotation></semantics></math>
+treats the external data as equivalent to current trial data;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mn>0</mn><mi>e</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha_{0e,j} \to 0</annotation></semantics></math>
+recovers the original prior. The current PoC data then update these
+augmented parameters:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mrow><mi>*</mi><mo>*</mo></mrow></msubsup><mo>=</mo><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mo>*</mo></msubsup><mo>+</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>=</mo><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>+</mo><msub><mi>α</mi><mrow><mn>0</mn><mi>e</mi><mo>,</mo><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>x</mi><mrow><mi>e</mi><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>+</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">\alpha_{j,lm}^{**} = \alpha_{j,lm}^{*} + x_{j,lm}
+  = \alpha_{j,lm} + \alpha_{0e,j}\, x_{ej,lm} + x_{j,lm}.</annotation></semantics></math></p>
 <p>When only the control group uses external data (external control
 design), <code>xe_t_00</code> through <code>xe_t_11</code> and
 <code>alpha0e_t</code> are set to <code>NULL</code>.</p>
@@ -579,7 +622,8 @@ design), <code>xe_t_00</code> through <code>xe_t_11</code> and
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">p_ext</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    R1    R2    R3    R4    R5    R6    R7    R8    R9 </span></span>
 <span><span class="co">#&gt; 0.215 0.072 0.151 0.087 0.036 0.078 0.151 0.075 0.135</span></span></code></pre></div>
-<p>Sensitivity to borrowing weight <span class="math inline">\(\alpha_{0e,c}\)</span>:</p>
+<p>Sensitivity to borrowing weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mrow><mn>0</mn><mi>e</mi><mo>,</mo><mi>c</mi></mrow></msub><annotation encoding="application/x-tex">\alpha_{0e,c}</annotation></semantics></math>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ae_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">1.0</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">p_ae</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">ae_seq</span>, <span class="kw">function</span><span class="op">(</span><span class="va">ae</span><span class="op">)</span> <span class="op">{</span></span>
@@ -623,62 +667,77 @@ design), <code>xe_t_00</code> through <code>xe_t_11</code> and
 <div class="section level3">
 <h3 id="definition">4.1 Definition<a class="anchor" aria-label="anchor" href="#definition"></a>
 </h3>
-<p>For given true parameters <span class="math inline">\((\mathbf{p}_t,
-\mathbf{p}_c)\)</span>, the operating characteristics are computed by
-exact enumeration over all possible multinomial count combinations via a
-two-stage strategy.</p>
-<p>Stage 1 (precomputation): all count combinations <span class="math inline">\(\mathbf{x}_{t,i}\)</span> (<span class="math inline">\(K_t\)</span> combinations) and <span class="math inline">\(\mathbf{x}_{c,j}\)</span> (<span class="math inline">\(K_c\)</span> combinations) are enumerated by
-<code><a href="../reference/allmultinom.html">allmultinom()</a></code>. For each pair <span class="math inline">\((i, j)\)</span>, <code><a href="../reference/pbayespostpred2bin.html">pbayespostpred2bin()</a></code>
-computes the region probability vector once, yielding <span class="math inline">\(\hat{g}_{\mathrm{go},ij}\)</span> and <span class="math inline">\(\hat{g}_{\mathrm{nogo},ij}\)</span> independent of
-any decision threshold.</p>
-<p>Stage 2 (weighting): for given thresholds <span class="math inline">\((\gamma_{\mathrm{go}},
-\gamma_{\mathrm{nogo}})\)</span>:</p>
-<p><span class="math display">\[\Pr(\mathrm{Go}) = \sum_{i=1}^{K_t}
-\sum_{j=1}^{K_c}
-  w_{ij}\, \mathbf{1}\!\left[\hat{g}_{\mathrm{go},ij} \ge
-\gamma_{\mathrm{go}}
-  \text{ and } \hat{g}_{\mathrm{nogo},ij} &lt;
-\gamma_{\mathrm{nogo}}\right],\]</span></p>
-<p><span class="math display">\[\Pr(\mathrm{NoGo}) = \sum_{i=1}^{K_t}
-\sum_{j=1}^{K_c}
-  w_{ij}\, \mathbf{1}\!\left[\hat{g}_{\mathrm{nogo},ij} \ge
-\gamma_{\mathrm{nogo}}
-  \text{ and } \hat{g}_{\mathrm{go},ij} &lt;
-\gamma_{\mathrm{go}}\right],\]</span></p>
-<p>where <span class="math inline">\(w_{ij} =
-P_\mathrm{Mult}(\mathbf{x}_{t,i};\, n_t, \mathbf{p}_t)
-\times P_\mathrm{Mult}(\mathbf{x}_{c,j};\, n_c, \mathbf{p}_c)\)</span>,
+<p>For given true parameters
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐩</mi><mi>t</mi></msub><mo>,</mo><msub><mi>𝐩</mi><mi>c</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathbf{p}_t, \mathbf{p}_c)</annotation></semantics></math>,
+the operating characteristics are computed by exact enumeration over all
+possible multinomial count combinations via a two-stage strategy.</p>
+<p>Stage 1 (precomputation): all count combinations
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><annotation encoding="application/x-tex">\mathbf{x}_{t,i}</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>K</mi><mi>t</mi></msub><annotation encoding="application/x-tex">K_t</annotation></semantics></math>
+combinations) and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐱</mi><mrow><mi>c</mi><mo>,</mo><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\mathbf{x}_{c,j}</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>K</mi><mi>c</mi></msub><annotation encoding="application/x-tex">K_c</annotation></semantics></math>
+combinations) are enumerated by <code><a href="../reference/allmultinom.html">allmultinom()</a></code>. For each
+pair
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(i, j)</annotation></semantics></math>,
+<code><a href="../reference/pbayespostpred2bin.html">pbayespostpred2bin()</a></code> computes the region probability vector
+once, yielding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\hat{g}_{\mathrm{go},ij}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\hat{g}_{\mathrm{nogo},ij}</annotation></semantics></math>
+independent of any decision threshold.</p>
+<p>Stage 2 (weighting): for given thresholds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>,</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}})</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>K</mi><mi>t</mi></msub></munderover><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>K</mi><mi>c</mi></msub></munderover><msub><mi>w</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and </mtext><mspace width="0.333em"></mspace></mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>&lt;</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go}) = \sum_{i=1}^{K_t} \sum_{j=1}^{K_c}
+  w_{ij}\, \mathbf{1}\!\left[\hat{g}_{\mathrm{go},ij} \ge \gamma_{\mathrm{go}}
+  \text{ and } \hat{g}_{\mathrm{nogo},ij} &lt; \gamma_{\mathrm{nogo}}\right],</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>K</mi><mi>t</mi></msub></munderover><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>K</mi><mi>c</mi></msub></munderover><msub><mi>w</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and </mtext><mspace width="0.333em"></mspace></mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>&lt;</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{NoGo}) = \sum_{i=1}^{K_t} \sum_{j=1}^{K_c}
+  w_{ij}\, \mathbf{1}\!\left[\hat{g}_{\mathrm{nogo},ij} \ge \gamma_{\mathrm{nogo}}
+  \text{ and } \hat{g}_{\mathrm{go},ij} &lt; \gamma_{\mathrm{go}}\right],</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>P</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">t</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>n</mi><mi>t</mi></msub><mo>,</mo><msub><mi>𝐩</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><msub><mi>P</mi><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">u</mi><mi mathvariant="normal">l</mi><mi mathvariant="normal">t</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mrow><mi>c</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>;</mo><mspace width="0.167em"></mspace><msub><mi>n</mi><mi>c</mi></msub><mo>,</mo><msub><mi>𝐩</mi><mi>c</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">w_{ij} = P_\mathrm{Mult}(\mathbf{x}_{t,i};\, n_t, \mathbf{p}_t)
+\times P_\mathrm{Mult}(\mathbf{x}_{c,j};\, n_c, \mathbf{p}_c)</annotation></semantics></math>,
 and</p>
-<p><span class="math display">\[\hat{g}_{\mathrm{go},ij}   = \sum_{r \in
-\text{GoRegions}}   \hat{P}(R_r \mid \mathbf{x}_{t,i},
-\mathbf{x}_{c,j}),\]</span> <span class="math display">\[\hat{g}_{\mathrm{nogo},ij} = \sum_{r \in
-\text{NoGoRegions}} \hat{P}(R_r \mid \mathbf{x}_{t,i},
-\mathbf{x}_{c,j}).\]</span></p>
-<p>A Miss (<span class="math inline">\(\hat{g}_{\mathrm{go},ij} \ge
-\gamma_{\mathrm{go}}\)</span> AND <span class="math inline">\(\hat{g}_{\mathrm{nogo},ij} \ge
-\gamma_{\mathrm{nogo}}\)</span>) indicates an inconsistent threshold
-configuration and triggers an error by default
-(<code>error_if_Miss = TRUE</code>). Gray comprises all remaining
-outcomes.</p>
-<p>For large <span class="math inline">\(n_t\)</span> or <span class="math inline">\(n_c\)</span>, the <code>CalcMethod = 'MC'</code>
-option replaces full enumeration with <span class="math inline">\(n_\mathrm{sim}\)</span> multinomial draws,
-deduplicates them into <span class="math inline">\(K \ll
-n_\mathrm{sim}\)</span> unique pairs, and evaluates
-<code><a href="../reference/pbayespostpred2bin.html">pbayespostpred2bin()</a></code> only for those unique pairs.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>r</mi><mo>∈</mo><mtext mathvariant="normal">GoRegions</mtext></mrow></munder><mover><mi>P</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>R</mi><mi>r</mi></msub><mo>∣</mo><msub><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><msub><mi>𝐱</mi><mrow><mi>c</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\hat{g}_{\mathrm{go},ij}   = \sum_{r \in \text{GoRegions}}   \hat{P}(R_r \mid \mathbf{x}_{t,i}, \mathbf{x}_{c,j}),</annotation></semantics></math><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><munder><mo>∑</mo><mrow><mi>r</mi><mo>∈</mo><mtext mathvariant="normal">NoGoRegions</mtext></mrow></munder><mover><mi>P</mi><mo accent="true">̂</mo></mover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>R</mi><mi>r</mi></msub><mo>∣</mo><msub><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><msub><mi>𝐱</mi><mrow><mi>c</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\hat{g}_{\mathrm{nogo},ij} = \sum_{r \in \text{NoGoRegions}} \hat{P}(R_r \mid \mathbf{x}_{t,i}, \mathbf{x}_{c,j}).</annotation></semantics></math></p>
+<p>A Miss
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\hat{g}_{\mathrm{go},ij} \ge \gamma_{\mathrm{go}}</annotation></semantics></math>
+AND
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\hat{g}_{\mathrm{nogo},ij} \ge \gamma_{\mathrm{nogo}}</annotation></semantics></math>)
+indicates an inconsistent threshold configuration and triggers an error
+by default (<code>error_if_Miss = TRUE</code>). Gray comprises all
+remaining outcomes.</p>
+<p>For large
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>t</mi></msub><annotation encoding="application/x-tex">n_t</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>c</mi></msub><annotation encoding="application/x-tex">n_c</annotation></semantics></math>,
+the <code>CalcMethod = 'MC'</code> option replaces full enumeration with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow></msub><annotation encoding="application/x-tex">n_\mathrm{sim}</annotation></semantics></math>
+multinomial draws, deduplicates them into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>≪</mo><msub><mi>n</mi><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">m</mi></mrow></msub></mrow><annotation encoding="application/x-tex">K \ll n_\mathrm{sim}</annotation></semantics></math>
+unique pairs, and evaluates <code><a href="../reference/pbayespostpred2bin.html">pbayespostpred2bin()</a></code> only for
+those unique pairs.</p>
 <blockquote>
 <p><strong>Note on computation time.</strong> The number of multinomial
-count combinations grows rapidly with <span class="math inline">\(n\)</span>: for <span class="math inline">\(n_j\)</span> patients and 4 response categories
-the number of combinations is <span class="math inline">\(\binom{n_j +
-3}{3}\)</span>, which equals 286 for <span class="math inline">\(n_j =
-10\)</span> and 1771 for <span class="math inline">\(n_j = 20\)</span>.
-For the Exact method with two groups this means up to <span class="math inline">\(286^2 \approx 82{,}000\)</span> unique pairs each
-requiring <code>nMC</code> Dirichlet draws. When predictive probability
-is used (<span class="math inline">\(m_j &gt; 0\)</span>), an additional
-layer of Multinomial sampling is added inside each Dirichlet draw,
-further multiplying computation time. Use small <code>nMC</code>
-(100–500) and <code>n_t = n_c = 10</code> for demonstration; switch to
-<code>CalcMethod = 'MC'</code> with moderate <code>nsim</code> for
-larger sample sizes.</p>
+count combinations grows rapidly with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>:
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mi>j</mi></msub><annotation encoding="application/x-tex">n_j</annotation></semantics></math>
+patients and 4 response categories the number of combinations is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mrow><msub><mi>n</mi><mi>j</mi></msub><mo>+</mo><mn>3</mn></mrow><mn>3</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\binom{n_j + 3}{3}</annotation></semantics></math>,
+which equals 286 for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>j</mi></msub><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">n_j = 10</annotation></semantics></math>
+and 1771 for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mi>j</mi></msub><mo>=</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">n_j = 20</annotation></semantics></math>.
+For the Exact method with two groups this means up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>286</mn><mn>2</mn></msup><mo>≈</mo><mn>82</mn><mo>,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">286^2 \approx 82{,}000</annotation></semantics></math>
+unique pairs each requiring <code>nMC</code> Dirichlet draws. When
+predictive probability is used
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>j</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">m_j &gt; 0</annotation></semantics></math>),
+an additional layer of Multinomial sampling is added inside each
+Dirichlet draw, further multiplying computation time. Use small
+<code>nMC</code> (100–500) and <code>n_t = n_c = 10</code> for
+demonstration; switch to <code>CalcMethod = 'MC'</code> with moderate
+<code>nsim</code> for larger sample sizes.</p>
 </blockquote>
 </div>
 <div class="section level3">
@@ -818,68 +877,73 @@ identical across all combinations.</p>
 <div class="section level3">
 <h3 id="objective-and-algorithm">5.1 Objective and Algorithm<a class="anchor" aria-label="anchor" href="#objective-and-algorithm"></a>
 </h3>
-<p><code><a href="../reference/getgamma2bin.html">getgamma2bin()</a></code> finds the optimal pair <span class="math inline">\((\gamma_{\mathrm{go}}^*,
-\gamma_{\mathrm{nogo}}^*)\)</span> by the same two-stage
-precompute-then-sweep strategy as <code><a href="../reference/pbayesdecisionprob2bin.html">pbayesdecisionprob2bin()</a></code>,
-but sweeps over the two-dimensional grid <span class="math inline">\(\Gamma_{\mathrm{go}} \times
-\Gamma_{\mathrm{nogo}}\)</span> (<code>gamma_go_grid</code> <span class="math inline">\(\times\)</span> <code>gamma_nogo_grid</code>). The
-two thresholds are calibrated independently under separate
-scenarios:</p>
+<p><code><a href="../reference/getgamma2bin.html">getgamma2bin()</a></code> finds the optimal pair
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>*</mo></msubsup><mo>,</mo><msubsup><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>*</mo></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\gamma_{\mathrm{go}}^*, \gamma_{\mathrm{nogo}}^*)</annotation></semantics></math>
+by the same two-stage precompute-then-sweep strategy as
+<code><a href="../reference/pbayesdecisionprob2bin.html">pbayesdecisionprob2bin()</a></code>, but sweeps over the
+two-dimensional grid
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>×</mo><msub><mi>Γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\Gamma_{\mathrm{go}} \times \Gamma_{\mathrm{nogo}}</annotation></semantics></math>
+(<code>gamma_go_grid</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>×</mi><annotation encoding="application/x-tex">\times</annotation></semantics></math><code>gamma_nogo_grid</code>). The two thresholds are calibrated
+independently under separate scenarios:</p>
 <ul>
 <li>
-<span class="math inline">\(\gamma_{\mathrm{go}}^*\)</span>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>*</mo></msubsup><annotation encoding="application/x-tex">\gamma_{\mathrm{go}}^*</annotation></semantics></math>:
 calibrated under the Go-calibration scenario (<code>pi_t1_go</code>,
 <code>pi_t2_go</code>, <code>rho_t_go</code>, <code>pi_c1_go</code>,
 <code>pi_c2_go</code>, <code>rho_c_go</code>; typically the null
-scenario <span class="math inline">\(\pi_t = \pi_c\)</span>), so that
-<span class="math inline">\(\Pr(\mathrm{Go}) &lt;
-\texttt{target_go}\)</span>.</li>
+scenario
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mi>t</mi></msub><mo>=</mo><msub><mi>π</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">\pi_t = \pi_c</annotation></semantics></math>),
+so that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><mtext mathvariant="monospace">𝚝𝚊𝚛𝚐𝚎𝚝_𝚐𝚘</mtext></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go}) &lt; \texttt{target_go}</annotation></semantics></math>.</li>
 <li>
-<span class="math inline">\(\gamma_{\mathrm{nogo}}^*\)</span>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>*</mo></msubsup><annotation encoding="application/x-tex">\gamma_{\mathrm{nogo}}^*</annotation></semantics></math>:
 calibrated under the NoGo-calibration scenario (<code>pi_t1_nogo</code>,
 <code>pi_t2_nogo</code>, <code>rho_t_nogo</code>,
 <code>pi_c1_nogo</code>, <code>pi_c2_nogo</code>,
 <code>rho_c_nogo</code>; typically the alternative scenario), so that
-<span class="math inline">\(\Pr(\mathrm{NoGo}) &lt;
-\texttt{target_nogo}\)</span>.</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>&lt;</mo><mtext mathvariant="monospace">𝚝𝚊𝚛𝚐𝚎𝚝_𝚗𝚘𝚐𝚘</mtext></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{NoGo}) &lt; \texttt{target_nogo}</annotation></semantics></math>.</li>
 </ul>
 <p>Stage 1 (precomputation): <code><a href="../reference/pbayespostpred2bin.html">pbayespostpred2bin()</a></code> is called
-for every unique multinomial outcome combination <span class="math inline">\((\mathbf{x}_{t,i}, \mathbf{x}_{c,j})\)</span>
+for every unique multinomial outcome combination
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>𝐱</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>,</mo><msub><mi>𝐱</mi><mrow><mi>c</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\mathbf{x}_{t,i}, \mathbf{x}_{c,j})</annotation></semantics></math>
 enumerated by <code><a href="../reference/allmultinom.html">allmultinom()</a></code>. The region probability vector
 is summed over <code>GoRegions</code> and <code>NoGoRegions</code> to
-obtain <span class="math inline">\(\hat{g}_{\mathrm{go},ij}\)</span> and
-<span class="math inline">\(\hat{g}_{\mathrm{nogo},ij}\)</span>,
-independent of <span class="math inline">\((\gamma_{\mathrm{go}},
-\gamma_{\mathrm{nogo}})\)</span>.</p>
-<p>Stage 2 (gamma sweep): for every pair <span class="math inline">\((\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}}) \in
-\Gamma_{\mathrm{go}} \times \Gamma_{\mathrm{nogo}}\)</span>:</p>
-<p><span class="math display">\[\Pr(\mathrm{Go} \mid
-\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}}) =
+obtain
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\hat{g}_{\mathrm{go},ij}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\hat{g}_{\mathrm{nogo},ij}</annotation></semantics></math>,
+independent of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>,</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}})</annotation></semantics></math>.</p>
+<p>Stage 2 (gamma sweep): for every pair
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>,</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>∈</mo><msub><mi>Γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>×</mo><msub><mi>Γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub></mrow><annotation encoding="application/x-tex">(\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}}) \in \Gamma_{\mathrm{go}} \times \Gamma_{\mathrm{nogo}}</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>,</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msub><mi>w</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and </mtext><mspace width="0.333em"></mspace></mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>&lt;</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go} \mid \gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}}) =
   \sum_{i,j} w_{ij}\,
-  \mathbf{1}\!\left[\hat{g}_{\mathrm{go},ij} \ge \gamma_{\mathrm{go}}
-\text{ and }
-  \hat{g}_{\mathrm{nogo},ij} &lt;
-\gamma_{\mathrm{nogo}}\right],\]</span></p>
-<p><span class="math display">\[\Pr(\mathrm{NoGo} \mid
-\gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}}) =
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{go},ij} \ge \gamma_{\mathrm{go}} \text{ and }
+  \hat{g}_{\mathrm{nogo},ij} &lt; \gamma_{\mathrm{nogo}}\right],</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">N</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo>∣</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo>,</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msub><mi>w</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><mn>𝟏</mn><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>≥</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and </mtext><mspace width="0.333em"></mspace></mrow><msub><mover><mi>g</mi><mo accent="true">̂</mo></mover><mrow><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow><mo>,</mo><mi>i</mi><mi>j</mi></mrow></msub><mo>&lt;</mo><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">]</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{NoGo} \mid \gamma_{\mathrm{go}}, \gamma_{\mathrm{nogo}}) =
   \sum_{i,j} w_{ij}\,
-  \mathbf{1}\!\left[\hat{g}_{\mathrm{nogo},ij} \ge
-\gamma_{\mathrm{nogo}} \text{ and }
-  \hat{g}_{\mathrm{go},ij} &lt;
-\gamma_{\mathrm{go}}\right].\]</span></p>
-<p>Results are stored in <span class="math inline">\(|\Gamma_{\mathrm{go}}| \times
-|\Gamma_{\mathrm{nogo}}|\)</span> matrices <code>PrGo_grid</code> and
-<code>PrNoGo_grid</code>.</p>
-<p>Stage 3 (optimal selection): for each candidate <span class="math inline">\(\gamma_{\mathrm{go}}\)</span>, the worst-case
-<span class="math inline">\(\Pr(\mathrm{Go})\)</span> over all <span class="math inline">\(\gamma_{\mathrm{nogo}}\)</span> is compared
-against <code>target_go</code>; analogously for <span class="math inline">\(\gamma_{\mathrm{nogo}}\)</span>.</p>
+  \mathbf{1}\!\left[\hat{g}_{\mathrm{nogo},ij} \ge \gamma_{\mathrm{nogo}} \text{ and }
+  \hat{g}_{\mathrm{go},ij} &lt; \gamma_{\mathrm{go}}\right].</annotation></semantics></math></p>
+<p>Results are stored in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>Γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">|</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>Γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">|</mo></mrow></mrow><annotation encoding="application/x-tex">|\Gamma_{\mathrm{go}}| \times |\Gamma_{\mathrm{nogo}}|</annotation></semantics></math>
+matrices <code>PrGo_grid</code> and <code>PrNoGo_grid</code>.</p>
+<p>Stage 3 (optimal selection): for each candidate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{\mathrm{go}}</annotation></semantics></math>,
+the worst-case
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>Pr</mo><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mi mathvariant="normal">G</mi><mi mathvariant="normal">o</mi></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Pr(\mathrm{Go})</annotation></semantics></math>
+over all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{\mathrm{nogo}}</annotation></semantics></math>
+is compared against <code>target_go</code>; analogously for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><annotation encoding="application/x-tex">\gamma_{\mathrm{nogo}}</annotation></semantics></math>.</p>
 </div>
 <div class="section level3">
 <h3 id="example-controlled-design-posterior-probability-1">5.2 Example: Controlled Design, Posterior Probability<a class="anchor" aria-label="anchor" href="#example-controlled-design-posterior-probability-1"></a>
 </h3>
-<p>Null scenario: <span class="math inline">\(\pi_{t1} = \pi_{c1} =
-0.20\)</span>, <span class="math inline">\(\pi_{t2} = \pi_{c2} =
-0.20\)</span>, <span class="math inline">\(\rho_t = \rho_c = 0\)</span>
+<p>Null scenario:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mrow><mi>t</mi><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>π</mi><mrow><mi>c</mi><mn>1</mn></mrow></msub><mo>=</mo><mn>0.20</mn></mrow><annotation encoding="application/x-tex">\pi_{t1} = \pi_{c1} = 0.20</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>π</mi><mrow><mi>t</mi><mn>2</mn></mrow></msub><mo>=</mo><msub><mi>π</mi><mrow><mi>c</mi><mn>2</mn></mrow></msub><mo>=</mo><mn>0.20</mn></mrow><annotation encoding="application/x-tex">\pi_{t2} = \pi_{c2} = 0.20</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ρ</mi><mi>t</mi></msub><mo>=</mo><msub><mi>ρ</mi><mi>c</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\rho_t = \rho_c = 0</annotation></semantics></math>
 (no treatment effect, independence).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_gamma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/getgamma2bin.html">getgamma2bin</a></span><span class="op">(</span></span>
@@ -928,10 +992,18 @@ all combinations.</p>
 BayesianQDM:</p>
 <ol style="list-style-type: decimal">
 <li>Bayesian model: Dirichlet-Multinomial conjugate, modelling the
-bivariate binary outcome through the four-cell probability vector <span class="math inline">\(\mathbf{p}_j\)</span> (<span class="math inline">\(j \in \{t, c\}\)</span>). Posterior update: <span class="math inline">\(\alpha_{j,lm}^* = \alpha_{j,lm} +
-x_{j,lm}\)</span>. The symmetric Jeffreys-type prior <span class="math inline">\(\alpha_{j,lm} = 0.25\)</span> is recommended.</li>
-<li>Within-group correlation: parameterised via <span class="math inline">\(\rho_j\)</span> using the moment-matching
-identity; feasible range enforced by <code><a href="../reference/getjointbin.html">getjointbin()</a></code>.</li>
+bivariate binary outcome through the four-cell probability vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>𝐩</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\mathbf{p}_j</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mi>t</mi><mo>,</mo><mi>c</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">j \in \{t, c\}</annotation></semantics></math>).
+Posterior update:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mo>*</mo></msubsup><mo>=</mo><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>+</mo><msub><mi>x</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\alpha_{j,lm}^* = \alpha_{j,lm} + x_{j,lm}</annotation></semantics></math>.
+The symmetric Jeffreys-type prior
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>=</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">\alpha_{j,lm} = 0.25</annotation></semantics></math>
+is recommended.</li>
+<li>Within-group correlation: parameterised via
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ρ</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\rho_j</annotation></semantics></math>
+using the moment-matching identity; feasible range enforced by
+<code><a href="../reference/getjointbin.html">getjointbin()</a></code>.</li>
 <li>Nine-region grid for posterior probability and four-region grid for
 predictive probability, identical in structure to the two continuous
 endpoint case.</li>
@@ -939,17 +1011,20 @@ endpoint case.</li>
 no closed-form expression for the joint probability exists in the
 bivariate binary case.</li>
 <li>Three study designs: controlled design (standard posterior update),
-uncontrolled design (hypothetical count vector <span class="math inline">\(\mathbf{z}\)</span> fixes the control Dirichlet
-distribution), external control design (Dirichlet power prior with <span class="math inline">\(\alpha_{j,lm}^* = \alpha_{j,lm} + \alpha_{0e,j}\,
-x_{ej,lm}\)</span>).</li>
+uncontrolled design (hypothetical count vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝐳</mi><annotation encoding="application/x-tex">\mathbf{z}</annotation></semantics></math>
+fixes the control Dirichlet distribution), external control design
+(Dirichlet power prior with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow><mo>*</mo></msubsup><mo>=</mo><msub><mi>α</mi><mrow><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub><mo>+</mo><msub><mi>α</mi><mrow><mn>0</mn><mi>e</mi><mo>,</mo><mi>j</mi></mrow></msub><mspace width="0.167em"></mspace><msub><mi>x</mi><mrow><mi>e</mi><mi>j</mi><mo>,</mo><mi>l</mi><mi>m</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\alpha_{j,lm}^* = \alpha_{j,lm} + \alpha_{0e,j}\, x_{ej,lm}</annotation></semantics></math>).</li>
 <li>Exact operating characteristics: two-stage precomputation over all
 multinomial count combinations via <code><a href="../reference/allmultinom.html">allmultinom()</a></code>, with
 multinomial probability weighting (no outer Monte Carlo needed for small
-<span class="math inline">\(n\)</span>).</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>).</li>
 <li>Optimal threshold search: three-stage precompute-then-sweep in
-<code><a href="../reference/getgamma2bin.html">getgamma2bin()</a></code>, producing <span class="math inline">\(|\Gamma_{\mathrm{go}}| \times
-|\Gamma_{\mathrm{nogo}}|\)</span> matrices <code>PrGo_grid</code> and
-<code>PrNoGo_grid</code>, visualised as contour plots.</li>
+<code><a href="../reference/getgamma2bin.html">getgamma2bin()</a></code>, producing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>Γ</mi><mrow><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">|</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>Γ</mi><mrow><mi mathvariant="normal">n</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi></mrow></msub><mo stretchy="true" form="postfix">|</mo></mrow></mrow><annotation encoding="application/x-tex">|\Gamma_{\mathrm{go}}| \times |\Gamma_{\mathrm{nogo}}|</annotation></semantics></math>
+matrices <code>PrGo_grid</code> and <code>PrNoGo_grid</code>, visualised
+as contour plots.</li>
 </ol>
 <p>See <code><a href="../articles/overview.html">vignette("overview")</a></code> for a comparison across all
 four endpoint types.</p>
@@ -973,7 +1048,15 @@ four endpoint types.</p>
 
 
 
-
-
-  </body>
+  <script>
+  window.MathJax = {
+    loader: {load: ['[tex]/boldsymbol']},
+    tex: {
+      packages: {'[+]': ['boldsymbol']},
+      inlineMath: [['\\(', '\\)']],
+      displayMath: [['$', '$']]
+    }
+  };
+</script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+</body>
 </html>

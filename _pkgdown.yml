@@ -1,7 +1,19 @@
 url: https://gosukehommaEX.github.io/BayesianQDM/
 template:
   bootstrap: 5
-  math-rendering: mathjax
+  includes:
+    after_body: |
+      <script>
+        window.MathJax = {
+          loader: {load: ['[tex]/boldsymbol']},
+          tex: {
+            packages: {'[+]': ['boldsymbol']},
+            inlineMath: [['\\(', '\\)']],
+            displayMath: [['$$', '$$']]
+          }
+        };
+      </script>
+      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
 
 home:
   title: BayesianQDM
