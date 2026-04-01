@@ -287,7 +287,7 @@ plot.pbayesdecisionprob2bin <- function(x,
       p_main <- p_main +
         ggplot2::geom_text(data = df_na,
                            mapping = ggplot2::aes(x = ax1, y = ax2, label = "NA"),
-                           color = "gray50", size = base_size / 10, inherit.aes = FALSE)
+                           color = "gray50", size = base_size * 0.35, inherit.aes = FALSE)
     }
     p_main <- add_thresholds(p_main, x_rng_ov, y_rng_ov, base_size)
 
@@ -304,9 +304,9 @@ plot.pbayesdecisionprob2bin <- function(x,
       ggplot2::geom_text(ggplot2::aes(x = 0.6, label = lab),
                          hjust = 0, size = base_size * 0.26) +
       ggplot2::annotate("text", x = -0.4, y = 8.0, label = "Decision",
-                        hjust = 0, fontface = "bold", size = base_size * 0.28) +
+                        hjust = 0, fontface = "bold", size = base_size * 0.35) +
       ggplot2::annotate("text", x = -0.4, y = 4.0, label = "Probability",
-                        hjust = 0, fontface = "bold", size = base_size * 0.28) +
+                        hjust = 0, fontface = "bold", size = base_size * 0.35) +
       ggplot2::scale_x_continuous(limits = c(-0.5, 4.0), expand = c(0, 0)) +
       ggplot2::scale_y_continuous(limits = c(-1.6, 8.5), expand = c(0, 0)) +
       ggplot2::coord_fixed(ratio = 1) +
@@ -368,6 +368,20 @@ plot.pbayesdecisionprob2bin <- function(x,
         ggplot2::coord_cartesian(xlim = x_rng, ylim = y_rng) +
         ggplot2::labs(title = panel_title, x = x_label, y = y_label) +
         common_theme(bs)
+
+      # Overlay white tiles and "NA" text on missing cells
+      df_na_tile <- df[is.na(df$prob_val), , drop = FALSE]
+      if (nrow(df_na_tile) > 0L) {
+        p <- p +
+          ggplot2::geom_tile(data = df_na_tile,
+                             mapping = ggplot2::aes(x = ax1, y = ax2),
+                             fill = "white", color = "gray50",
+                             linewidth = 0.5, inherit.aes = FALSE) +
+          ggplot2::geom_text(data = df_na_tile,
+                             mapping = ggplot2::aes(x = ax1, y = ax2, label = "NA"),
+                             color = "gray50", size = bs * 0.35,
+                             inherit.aes = FALSE)
+      }
 
       p <- add_thresholds(p, x_rng, y_rng, bs)
       p
@@ -453,6 +467,15 @@ plot.pbayesdecisionprob2bin <- function(x,
                                   expand = c(0.05, 0)) +
       ggplot2::labs(title = title, x = x_label, y = y_label) +
       common_theme(base_size)
+
+    df_na_sc <- df_scatter[is.na(df_scatter$prob_val), , drop = FALSE]
+    if (nrow(df_na_sc) > 0L) {
+      p <- p +
+        ggplot2::geom_text(data = df_na_sc,
+                           mapping = ggplot2::aes(x = ax1, y = ax2, label = "NA"),
+                           color = "gray50", size = base_size * 0.35,
+                           inherit.aes = FALSE)
+    }
 
     p <- add_thresholds(p, x_rng, y_rng, base_size)
   }
