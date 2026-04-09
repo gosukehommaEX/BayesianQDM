@@ -164,7 +164,7 @@ R package version 0.1.0.
 
 ## License
 
-This package is licensed under GPL (>= 3).
+This package is licensed under GPL (>= 2).
 
 ## Authors
 
