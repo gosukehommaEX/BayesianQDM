@@ -23,14 +23,17 @@ Description: Provides comprehensive methods to calculate posterior probabilities
     External designs incorporate historical data through power priors
     using exact conjugate representations (Normal-Inverse-Chi-squared for single
     continuous, Normal-Inverse-Wishart for two continuous, and Dirichlet for
-    binary endpoints), enabling closed-form posterior computation without MCMC
-    sampling. This approach significantly reduces computational burden while
-    preserving complete Bayesian rigor. The package also provides grid-search
-    functions to find optimal Go and NoGo thresholds that satisfy user-specified
-    operating characteristic criteria for all supported endpoint types and
-    study designs. S3 print() and plot() methods are provided for all decision
-    probability classes, enabling formatted display and visualisation of
-    Go/NoGo/Gray operating characteristics across treatment scenarios.
+    binary endpoints), enabling closed-form posterior computation without Markov
+    chain Monte Carlo (MCMC) sampling. This approach significantly reduces
+    computational burden while preserving complete Bayesian rigor. The package
+    also provides grid-search functions to find optimal Go and NoGo thresholds
+    that satisfy user-specified operating characteristic criteria for all
+    supported endpoint types and study designs. S3 print() and plot() methods
+    are provided for all decision probability classes, enabling formatted display
+    and visualisation of Go/NoGo/Gray operating characteristics across treatment
+    scenarios.
+    See Kang, Yamaguchi, and Han (2026) <doi:10.1080/10543406.2026.2655410>
+    for the methodological framework.
 License: GPL (>= 2)
 Encoding: UTF-8
 Language: en-US

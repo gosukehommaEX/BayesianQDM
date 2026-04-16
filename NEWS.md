@@ -1,5 +1,12 @@
 # BayesianQDM 0.1.0
 
+## Resubmission
+
+* Expanded the MCMC acronym to "Markov chain Monte Carlo (MCMC)" in DESCRIPTION.
+* Added a reference to Kang, Yamaguchi, and Han (2026) in DESCRIPTION.
+* Replaced `\dontrun{}` with `\donttest{}` in examples for `getgamma2bin()` and
+  `getgamma2cont()`.
+
 ## Initial Release
 
 Initial release providing a comprehensive Bayesian quantitative decision-making

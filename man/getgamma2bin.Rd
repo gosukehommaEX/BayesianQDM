@@ -332,7 +332,7 @@ is less than \code{target_nogo}.
 # Example 1: Controlled design, posterior probability
 # gamma_go  : smallest gamma_go   s.t. max_{gamma_nogo} Pr(Go)   < 0.05 under Null
 # gamma_nogo: smallest gamma_nogo s.t. max_{gamma_go}   Pr(NoGo) < 0.20 under Alt
-\dontrun{
+\donttest{
 getgamma2bin(
   prob = 'posterior', design = 'controlled',
   GoRegions = 1L, NoGoRegions = 9L,
@@ -359,7 +359,7 @@ getgamma2bin(
 }
 
 # Example 2: Uncontrolled design, posterior probability
-\dontrun{
+\donttest{
 getgamma2bin(
   prob = 'posterior', design = 'uncontrolled',
   GoRegions = 1L, NoGoRegions = 9L,
@@ -386,7 +386,7 @@ getgamma2bin(
 }
 
 # Example 3: External design, posterior probability
-\dontrun{
+\donttest{
 getgamma2bin(
   prob = 'posterior', design = 'external',
   GoRegions = 1L, NoGoRegions = 9L,
@@ -413,7 +413,7 @@ getgamma2bin(
 }
 
 # Example 4: Controlled design, predictive probability
-\dontrun{
+\donttest{
 getgamma2bin(
   prob = 'predictive', design = 'controlled',
   GoRegions = 1L, NoGoRegions = 4L,
@@ -440,7 +440,7 @@ getgamma2bin(
 }
 
 # Example 5: Uncontrolled design, predictive probability
-\dontrun{
+\donttest{
 getgamma2bin(
   prob = 'predictive', design = 'uncontrolled',
   GoRegions = 1L, NoGoRegions = 4L,
@@ -467,7 +467,7 @@ getgamma2bin(
 }
 
 # Example 6: External design, predictive probability
-\dontrun{
+\donttest{
 getgamma2bin(
   prob = 'predictive', design = 'external',
   GoRegions = 1L, NoGoRegions = 4L,

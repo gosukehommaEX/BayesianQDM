@@ -343,7 +343,7 @@ Analogously, the optimal \eqn{\gamma_{\mathrm{nogo}}} is the
 # Example 1: Controlled design, posterior probability, vague prior
 # gamma_go  : smallest gamma_go   s.t. max_{gamma_nogo} Pr(Go)   < 0.05 under Null
 # gamma_nogo: smallest gamma_nogo s.t. max_{gamma_go}   Pr(NoGo) < 0.20 under Alt
-\dontrun{
+\donttest{
 Sigma_null <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 Sigma_alt  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
@@ -373,7 +373,7 @@ getgamma2cont(
 }
 
 # Example 2: Uncontrolled design, posterior probability, vague prior
-\dontrun{
+\donttest{
 Sigma_null <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 Sigma_alt  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
@@ -403,7 +403,7 @@ getgamma2cont(
 }
 
 # Example 3: External design (control only), posterior probability, NIW prior
-\dontrun{
+\donttest{
 Sigma  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 Lambda <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 se_c   <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
@@ -434,7 +434,7 @@ getgamma2cont(
 }
 
 # Example 4: Controlled design, predictive probability, vague prior
-\dontrun{
+\donttest{
 Sigma_null <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 Sigma_alt  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
@@ -464,7 +464,7 @@ getgamma2cont(
 }
 
 # Example 5: Uncontrolled design, predictive probability, vague prior
-\dontrun{
+\donttest{
 Sigma_null <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 Sigma_alt  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 getgamma2cont(
@@ -494,7 +494,7 @@ getgamma2cont(
 }
 
 # Example 6: External design (control only), predictive probability, NIW prior
-\dontrun{
+\donttest{
 Sigma  <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 Lambda <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)
 se_c   <- matrix(c(6400.0, 15.0, 15.0, 36.0), 2, 2)

@@ -10,7 +10,12 @@
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+* checking for future file timestamps ... NOTE
+  unable to verify current time
+  This is a transient network issue in the check environment and is not
+  related to the package itself.
 
 ## Package Summary
 
@@ -39,6 +44,11 @@ operating characteristics across treatment scenarios.
   speed and precision; default values are set conservatively for CRAN checks
 * All examples in the documentation are designed to complete within a few seconds
 
-## Previous CRAN Submissions
+## Resubmission
 
-This is the initial submission to CRAN.
+This is a resubmission following reviewer feedback. The following changes were made:
+
+* Expanded the MCMC acronym to "Markov chain Monte Carlo (MCMC)" in DESCRIPTION.
+* Added a reference to Kang, Yamaguchi, and Han (2026) in DESCRIPTION.
+* Replaced `\dontrun{}` with `\donttest{}` in examples for `getgamma2bin()` and
+  `getgamma2cont()`.
