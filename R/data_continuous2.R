@@ -1,6 +1,6 @@
 #' Data for two continuous endpoints
 #'
-#' Summarises the data of one group for two continuous endpoints by their
+#' Summarizes the data of one group for two continuous endpoints by their
 #' sufficient statistics: the number of subjects, the vector of sample means
 #' and the sample covariance matrix (with divisor \code{n - 1}).
 #'

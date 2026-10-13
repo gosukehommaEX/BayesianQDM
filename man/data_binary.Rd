@@ -16,7 +16,7 @@ An object of class \code{c("qdm_data_binary", "qdm_data")} with
 integer elements \code{n} and \code{y}.
 }
 \description{
-Summarises the data of one group for a single binary endpoint as the number
+Summarizes the data of one group for a single binary endpoint as the number
 of subjects and the number of responders. Used for observed proof-of-concept
 data, external data and hypothetical control data.
 }

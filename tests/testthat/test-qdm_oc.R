@@ -188,3 +188,126 @@ test_that("qdm_oc() agrees with simulated trials", {
     expect_lt(abs(mean(dec == d) - p), 4 * sqrt(p * (1 - p) / nrep) + 1e-12)
   }
 })
+
+test_that("qdm_oc() reproduces Kang et al. (2026), Supplemental Table 2", {
+  # Beta(0.5, 0.5) priors, n_t = n_c = 12, pi_c = 0.4 and treatment effects
+  # -0.4, -0.2, 0, 0.4, 0.6. Published values (three decimals):
+  # inst/validation/kang2026_supplement.csv, rows 1, 10, 19, 28 and 37 of
+  # Table 2. The full comparison is in inst/validation/run_validation.R.
+  jeff <- prior_beta(0.5, 0.5)
+  scen <- data.frame(pi_t = c(0, 0.2, 0.4, 0.8, 1), pi_c = 0.4)
+  d_post <- design_binary(12, 12, jeff, jeff, crit_post())
+  d_pred <- design_binary(12, 12, jeff, jeff,
+                          criterion_predictive(0, m_t = 50, gamma_go = 0.9,
+                                               gamma_nogo = 0.7))
+  pub_post <- rbind(c(0, 1, 0), c(0.013, 0.812, 0.175),
+                    c(0.149, 0.418, 0.433), c(0.853, 0.010, 0.137),
+                    c(0.997, 0, 0.003))
+  pub_pred <- rbind(c(0, 0.998, 0.002), c(0.006, 0.677, 0.317),
+                    c(0.076, 0.267, 0.657), c(0.739, 0.003, 0.258),
+                    c(0.997, 0, 0.003))
+  cols <- c("Go", "NoGo", "Gray")
+  post <- as.matrix(qdm_oc(d_post, scen)[, cols])
+  pred <- as.matrix(qdm_oc(d_pred, scen)[, cols])
+  expect_lt(max(abs(post - pub_post)), 0.0005 + 1e-9)
+  expect_lt(max(abs(pred - pub_pred)), 0.0005 + 1e-9)
+})
+
+# Continuous endpoint. Exact operating characteristics of the uncontrolled
+# designs C3 and C6 (vague prior, hypothetical control):
+# Python_reference/ref_continuous_qdm.py, where each criterion is a threshold
+# on a statistic with a noncentral t distribution. The simulated
+# probabilities are compared with a tolerance of 4.5 standard errors plus
+# 0.002 (Python_reference/port_continuous_oc.py checks the same procedure).
+exact_oc_cont <- list(
+  C3 = list(
+    scen = data.frame(mu_t = c(0, 20, 35), sd_t = c(20, 20, 25)),
+    NI = list(Go = c(5.59007059741e-05, 0.339921868611, 0.951288822042),
+              NoGo = c(0.502398874545, 0.000333627271368, 3.94025694328e-07)),
+    MM = list(Go = c(5.60512055178e-05, 0.340178784483, 0.9513624542),
+              NoGo = c(0.502915282701, 0.000335015391109, 3.96193102629e-07))
+  ),
+  C6 = list(
+    scen = data.frame(mu_t = c(0, 5, 12), sd_t = c(12, 12, 15)),
+    NI = list(Go = c(0.00299458547153, 0.12035425217, 0.722001478),
+              NoGo = c(0.847885721764, 0.282128401915, 0.00881718335511)),
+    MM = list(Go = c(0.00300601509893, 0.120621873617, 0.722483043333),
+              NoGo = c(0.848072473479, 0.282387849867, 0.00883485467116))
+  )
+)
+
+expect_oc_close <- function(oc, ref, nsim, info) {
+  for (d in c("Go", "NoGo")) {
+    p <- ref[[d]]
+    expect_true(all(abs(oc[[d]] - p) <= 4.5 * sqrt(p * (1 - p) / nsim) +
+                      0.002), info = paste(info, d))
+  }
+  expect_identical(oc$Miss, c(0, 0, 0), info = info)
+}
+
+test_that("qdm_oc() matches the exact references for continuous designs (MM)", {
+  for (name in c("C3", "C6")) {
+    ex <- exact_oc_cont[[name]]
+    oc <- qdm_oc(ref_design_cont(name, "MM"), ex$scen, nsim = 20000,
+                 seed = 20261013)
+    expect_oc_close(oc, ex$MM, 20000, paste(name, "MM"))
+  }
+})
+
+test_that("qdm_oc() matches the exact references for design C3 (NI)", {
+  skip_on_cran()
+  ex <- exact_oc_cont$C3
+  oc <- qdm_oc(ref_design_cont("C3"), ex$scen, nsim = 1000, seed = 1)
+  expect_oc_close(oc, ex$NI, 1000, "C3 NI")
+})
+
+test_that("qdm_oc() matches the exact references for design C6 (NI)", {
+  skip_on_cran()
+  ex <- exact_oc_cont$C6
+  oc <- qdm_oc(ref_design_cont("C6"), ex$scen, nsim = 1000, seed = 2)
+  expect_oc_close(oc, ex$NI, 1000, "C6 NI")
+})
+
+test_that("qdm_oc() simulates continuous designs with a concurrent control", {
+  des <- ref_design_cont("C1", "MM")
+  set.seed(5)
+  before <- .Random.seed
+  oc <- qdm_oc(des, cbind(label = c("a", "b", "c"), scen_cont_c),
+               nsim = 500, seed = 7)
+  expect_identical(.Random.seed, before)
+  expect_s3_class(oc, c("qdm_oc", "data.frame"), exact = TRUE)
+  expect_identical(names(oc), c("label", "mu_t", "sd_t", "mu_c", "sd_c",
+                                "Go", "NoGo", "Gray", "Miss"))
+  expect_equal(oc$Go + oc$NoGo + oc$Gray + oc$Miss, c(1, 1, 1))
+  expect_identical(attr(oc, "method"),
+                   paste("simulation of 500 studies; probabilities by",
+                         "moment-matching approximation"))
+  # Common random numbers: the probability of Go increases with the effect
+  expect_true(all(diff(oc$Go) > 0))
+  expect_true(all(diff(oc$NoGo) < 0))
+  # The same seed gives the same result
+  expect_identical(qdm_oc(des, scen_cont_c, nsim = 500, seed = 7)$Go, oc$Go)
+})
+
+test_that("qdm_oc() works with Monte Carlo probabilities", {
+  # With the predictive criterion, the Monte Carlo probabilities of the Go
+  # and NoGo regions of each simulated study add up to 1, so both criteria
+  # cannot be met when gamma_go + gamma_nogo > 1 (0.7 + 0.6 in design C6)
+  des <- ref_design_cont("C6", "MC", 2000L)
+  oc <- qdm_oc(des, exact_oc_cont$C6$scen, nsim = 100, seed = 3)
+  expect_identical(oc$Miss, c(0, 0, 0))
+  expect_equal(oc$Go + oc$NoGo + oc$Gray, c(1, 1, 1))
+  expect_lt(abs(oc$Go[3] - 0.722), 4.5 * sqrt(0.722 * 0.278 / 100) + 0.02)
+})
+
+test_that("qdm_oc() validates the scenarios of continuous designs", {
+  des <- ref_design_cont("C1", "MM")
+  expect_error(qdm_oc(des, data.frame(mu_t = 1, sd_t = 1)),
+               paste("'scenarios' must have the column\\(s\\) mu_t, sd_t,",
+                     "mu_c, sd_c."))
+  expect_error(qdm_oc(des, data.frame(mu_t = 1, sd_t = 0, mu_c = 0,
+                                      sd_c = 1)),
+               "'scenarios\\$sd_t' must be greater than 0.")
+  expect_error(qdm_oc(ref_design_cont("C3", "MM"), data.frame(mu_t = 1)),
+               "'scenarios' must have the column\\(s\\) mu_t, sd_t.")
+})

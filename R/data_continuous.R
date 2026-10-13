@@ -1,6 +1,6 @@
 #' Continuous endpoint data
 #'
-#' Summarises the data of one group for a single continuous endpoint by its
+#' Summarizes the data of one group for a single continuous endpoint by its
 #' sufficient statistics: the number of subjects, the sample mean and the
 #' sample standard deviation (with divisor \code{n - 1}).
 #'

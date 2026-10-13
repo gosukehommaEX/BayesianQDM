@@ -18,7 +18,7 @@ An object of class \code{c("qdm_data_continuous", "qdm_data")} with
 elements \code{n}, \code{mean} and \code{sd}.
 }
 \description{
-Summarises the data of one group for a single continuous endpoint by its
+Summarizes the data of one group for a single continuous endpoint by its
 sufficient statistics: the number of subjects, the sample mean and the
 sample standard deviation (with divisor \code{n - 1}).
 }

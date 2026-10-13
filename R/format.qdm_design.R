@@ -18,6 +18,7 @@
 format.qdm_design <- function(x, digits = 4L, ...) {
   endpoint <- switch(x$endpoint,
                      binary = "one binary endpoint",
+                     continuous = "one continuous endpoint",
                      stop("Unknown design.", call. = FALSE))
   control <- switch(x$control,
                     concurrent = sprintf("concurrent, n = %d", x$n_c),
@@ -30,8 +31,12 @@ format.qdm_design <- function(x, digits = 4L, ...) {
     out <- c(out, sprintf("    External data: %s",
                           format(x$external_t, digits = digits)))
   }
-  out <- c(out, sprintf("  Control: %s, prior %s", control,
-                        format(x$prior_c, digits = digits)))
+  out <- c(out, if (is.null(x$prior_c)) {
+    sprintf("  Control: %s", control)
+  } else {
+    sprintf("  Control: %s, prior %s", control,
+            format(x$prior_c, digits = digits))
+  })
   if (!is.null(x$external_c)) {
     out <- c(out, sprintf("    External data: %s",
                           format(x$external_c, digits = digits)))
@@ -40,5 +45,10 @@ format.qdm_design <- function(x, digits = 4L, ...) {
     out <- c(out, sprintf("    Hypothetical control: %s",
                           format(x$hypothetical_c, digits = digits)))
   }
-  c(out, format(x$criterion, digits = digits))
+  out <- c(out, format(x$criterion, digits = digits))
+  if (!is.null(x$method)) {
+    out <- c(out, sprintf("Probabilities: %s", method_label(x$method,
+                                                             x$nMC)))
+  }
+  out
 }

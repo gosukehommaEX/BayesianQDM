@@ -28,3 +28,18 @@ test_that("check_scenarios() validates the scenarios", {
                                                Miss = 0)),
                "must not have columns named Go, NoGo, Gray or Miss.")
 })
+
+test_that("check_scenarios() validates the scenarios of continuous designs", {
+  des <- ref_design_cont("C1")
+  expect_identical(check_scenarios(des, scen_cont_c), scen_cont_c)
+  expect_error(check_scenarios(des, data.frame(mu_t = 1, sd_t = 1, mu_c = 0)),
+               "must have the column\\(s\\) mu_t, sd_t, mu_c, sd_c.")
+  expect_error(check_scenarios(des, data.frame(mu_t = 1, sd_t = 1, mu_c = 0,
+                                               sd_c = -1)),
+               "'scenarios\\$sd_c' must be greater than 0.")
+  expect_error(check_scenarios(des, data.frame(mu_t = Inf, sd_t = 1,
+                                               mu_c = 0, sd_c = 1)),
+               "'scenarios\\$mu_t' must be finite.")
+  u <- data.frame(mu_t = c(-5, 5), sd_t = c(1, 2))
+  expect_identical(check_scenarios(ref_design_cont("C3"), u), u)
+})

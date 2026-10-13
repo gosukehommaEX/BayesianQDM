@@ -1,7 +1,8 @@
 #' Outcomes of a design and their probabilities
 #'
 #' Dispatches to the function for the endpoint of the design. For binary
-#' endpoints all outcomes are enumerated and \code{nsim} is not used.
+#' endpoints all outcomes are enumerated and \code{nsim} is not used; for
+#' continuous endpoints \code{nsim} studies are simulated.
 #'
 #' @param design An object of class \code{"qdm_design"}.
 #' @param scenarios Data frame of scenarios (checked).
@@ -13,5 +14,6 @@
 #' @noRd
 oc_sample <- function(design, scenarios, nsim) {
   switch(design$endpoint,
-         binary = oc_sample_binary(design, scenarios))
+         binary = oc_sample_binary(design, scenarios),
+         continuous = oc_sample_continuous(design, scenarios, nsim))
 }

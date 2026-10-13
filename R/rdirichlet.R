@@ -1,6 +1,6 @@
 #' Random generation from the Dirichlet distribution
 #'
-#' Draws random vectors from the Dirichlet distribution by normalising
+#' Draws random vectors from the Dirichlet distribution by normalizing
 #' independent Gamma variables, using the random number generator of R.
 #'
 #' @param n Number of draws (a whole number of at least 1).

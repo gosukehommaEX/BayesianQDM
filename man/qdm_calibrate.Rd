@@ -16,8 +16,9 @@ qdm_calibrate(
 )
 }
 \arguments{
-\item{design}{A design created by \code{\link{design_binary}}. Its
-thresholds are replaced by the calibrated ones.}
+\item{design}{A design created by \code{\link{design_binary}} or
+\code{\link{design_continuous}}. Its thresholds are replaced by the
+calibrated ones.}
 
 \item{scenario_go, scenario_nogo}{Data frames with one row each, giving the
 scenarios used to calibrate \eqn{\gamma_{go}} and \eqn{\gamma_{nogo}}
@@ -30,7 +31,8 @@ is met under \code{scenario_nogo}, strictly between 0 and 1.}
 \item{grid}{Candidate thresholds, strictly between 0 and 1.}
 
 \item{nsim, seed}{As in \code{\link{qdm_oc}}; not used for binary
-endpoints.}
+endpoints. For a continuous endpoint, the probabilities for all values
+of \code{grid} are computed from the same simulated studies.}
 }
 \value{
 An object of class \code{"qdm_calibration"}: a list with elements

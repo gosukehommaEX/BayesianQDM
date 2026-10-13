@@ -29,9 +29,11 @@ check_scenarios <- function(design, scenarios, name = "scenarios",
     stop(sprintf("'%s' must not have columns named Go, NoGo, Gray or Miss.",
                  name), call. = FALSE)
   }
-  for (col in cols$names) {
+  for (k in seq_along(cols$names)) {
+    col <- cols$names[k]
     check_numeric(scenarios[[col]], sprintf("%s$%s", name, col), len = NULL,
-                  lower = cols$lower, upper = cols$upper)
+                  lower = cols$lower[k], upper = cols$upper[k],
+                  lower_open = cols$lower_open[k])
   }
   scenarios
 }

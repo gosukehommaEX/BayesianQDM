@@ -49,6 +49,34 @@ release.
   equal to the threshold, so that exact ties are not decided by rounding
   errors.
 
+## Designs and operations: one continuous endpoint
+
+* `design_continuous()` specifies a study with one normally distributed
+  endpoint: sample sizes, Normal-Inverse-chi-squared (`prior_nix()`) or vague
+  (`prior_vague()`) priors, external data for either group (`borrow()`), a
+  concurrent, external-only or hypothetical control group, and the method
+  used to compute the probabilities (`"NI"`, `"MM"` or `"MC"`).
+* External data enter through the conjugate representation of the power
+  prior. With the vague prior, the posterior distribution of the mean has
+  `a0 * n_e + n - 1` degrees of freedom, and the posterior scale uses the
+  same denominator (version 0.1.0 used `a0 * n_e + n`, so the posterior did
+  not reduce to the one without external data as `a0` tends to 0).
+* The posterior predictive distribution of the mean of `m` future subjects
+  is `t(nu_n, mu_n, sigma_n^2 * (1 / kappa_n + 1 / m))`. Version 0.1.0 used
+  the squared scale `sigma_n^2 * (1 + 1 / kappa_n) / m`, which treats the `m`
+  future subjects as independent draws from the predictive distribution of
+  one subject and understates the uncertainty for `m` of 2 or more.
+* A hypothetical control (`hypothetical(mean = mu0c, r = r)`) gives the
+  control mean the distribution `t(nu_nt, mu0c, r * sigma_nt^2 / kappa_nt)`
+  (Kang et al., 2026, Section 4.2.4). For the predictive criterion its
+  squared scale is `r * sigma_nt^2 * (1 / kappa_nt + 1 / m_c)`.
+* `qdm_oc()` and `qdm_calibrate()` simulate the sample means and standard
+  deviations of `nsim` studies, with the same random numbers for all
+  scenarios. With `method = "MC"`, the probabilities of the Go and NoGo
+  regions are estimated from the same draws, so that they add up to 1 for
+  the predictive criterion.
+* `qdm_decide()` has a `seed` argument for designs with `method = "MC"`.
+
 ## Distribution functions
 
 * `pbetadiff()` has the argument order `(q, a_t, b_t, a_c, b_c)`. The range

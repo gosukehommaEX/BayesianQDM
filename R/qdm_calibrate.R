@@ -19,8 +19,9 @@
 #' Miss decisions (both criteria met) can occur, and a warning is given when
 #' they have positive probability.
 #'
-#' @param design A design created by \code{\link{design_binary}}. Its
-#'   thresholds are replaced by the calibrated ones.
+#' @param design A design created by \code{\link{design_binary}} or
+#'   \code{\link{design_continuous}}. Its thresholds are replaced by the
+#'   calibrated ones.
 #' @param scenario_go,scenario_nogo Data frames with one row each, giving the
 #'   scenarios used to calibrate \eqn{\gamma_{go}} and \eqn{\gamma_{nogo}}
 #'   (see \code{\link{qdm_oc}} for the columns).
@@ -29,7 +30,8 @@
 #'   is met under \code{scenario_nogo}, strictly between 0 and 1.
 #' @param grid Candidate thresholds, strictly between 0 and 1.
 #' @param nsim,seed As in \code{\link{qdm_oc}}; not used for binary
-#'   endpoints.
+#'   endpoints. For a continuous endpoint, the probabilities for all values
+#'   of \code{grid} are computed from the same simulated studies.
 #'
 #' @return An object of class \code{"qdm_calibration"}: a list with elements
 #'   \describe{

@@ -129,3 +129,36 @@ test_that("qdm_calibrate() with a seed leaves the random number stream unchanged
   expect_identical(.Random.seed, before)
   expect_equal(cal$gamma_go, ref_cal$D3$gamma_go)
 })
+
+test_that("qdm_calibrate() matches the exact curves of a continuous design", {
+  # Python_reference/ref_continuous_qdm.py, design C3 with method "MM":
+  # probabilities that the Go criterion is met under mu_t = 10 and that the
+  # NoGo criterion is met under mu_t = 20 (sd_t = 20), gamma = 0.1, ..., 0.9
+  ex_go <- c(0.644148402974, 0.370239194278, 0.195251555187,
+             0.0945586633576, 0.0416322583318, 0.0162867375315,
+             0.00540389479526, 0.00136970089245, 0.000193194739424)
+  ex_nogo <- c(0.33847199557, 0.123049979982, 0.0436537914186,
+               0.0147880630576, 0.00468738422972, 0.00134979585112,
+               0.000335015391109, 6.40013474872e-05, 6.72233598684e-06)
+  nsim <- 20000
+  grid <- seq(0.1, 0.9, by = 0.1)
+  sc_go <- data.frame(mu_t = 10, sd_t = 20)
+  sc_nogo <- data.frame(mu_t = 20, sd_t = 20)
+  cal <- qdm_calibrate(ref_design_cont("C3", "MM"), sc_go, sc_nogo,
+                       target_go = 0.1, target_nogo = 0.05, grid = grid,
+                       nsim = nsim, seed = 5)
+  tol <- function(p) 4.5 * sqrt(p * (1 - p) / nsim) + 0.002
+  expect_true(all(abs(cal$curve$prob_go - ex_go) <= tol(ex_go)))
+  expect_true(all(abs(cal$curve$prob_nogo - ex_nogo) <= tol(ex_nogo)))
+  # The chosen thresholds are the smallest grid values whose simulated
+  # probabilities meet the targets
+  expect_equal(cal$gamma_go,
+               grid[which(cal$curve$prob_go <= 0.1 + 1e-12)[1]])
+  expect_equal(cal$gamma_nogo,
+               grid[which(cal$curve$prob_nogo <= 0.05 + 1e-12)[1]])
+  # The decision probabilities are those of qdm_oc() with the same seed
+  oc <- qdm_oc(cal$design, rbind(sc_go, sc_nogo), nsim = nsim, seed = 5)
+  expect_equal(cal$oc$Go, oc$Go)
+  expect_equal(cal$oc$NoGo, oc$NoGo)
+  expect_identical(cal$method, attr(oc, "method"))
+})

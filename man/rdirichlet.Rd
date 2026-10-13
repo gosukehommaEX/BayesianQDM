@@ -18,7 +18,7 @@ columns whose rows sum to 1 (a matrix is returned even when
 \code{n = 1}). Column names are taken from \code{names(alpha)}.
 }
 \description{
-Draws random vectors from the Dirichlet distribution by normalising
+Draws random vectors from the Dirichlet distribution by normalizing
 independent Gamma variables, using the random number generator of R.
 }
 \examples{

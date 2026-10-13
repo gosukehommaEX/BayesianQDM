@@ -1,6 +1,6 @@
 #' Data for two binary endpoints
 #'
-#' Summarises the data of one group for two binary endpoints by the counts of
+#' Summarizes the data of one group for two binary endpoints by the counts of
 #' the four joint response patterns.
 #'
 #' The cells are ordered as \code{"00"}, \code{"01"}, \code{"10"} and

@@ -18,3 +18,17 @@ test_that("format.qdm_decision() describes predictive criteria", {
   expect_identical(out[2], paste("  Go:   P(future theta > 0.05 | data) =",
                                  "0.406 (threshold 0.9, not met)"))
 })
+
+test_that("format.qdm_decision() describes continuous decisions", {
+  d <- ref_data_cont$C1
+  res <- qdm_decide(ref_design_cont("C1"), d$t, d$c)
+  expect_identical(
+    format(res),
+    c("Decision: Gray",
+      "  Go:   P(theta > 30 | data) = 0.5 (threshold 0.6, not met)",
+      "  NoGo: P(theta <= 15 | data) = 0.08784 (threshold 0.7, not met)",
+      "Posterior distributions",
+      "  Treatment: mean ~ t(df = 11, location = 18, scale = 7.217)",
+      "  Control:   mean ~ t(df = 11, location = -12, scale = 7.217)")
+  )
+})

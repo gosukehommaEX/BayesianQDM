@@ -17,7 +17,7 @@ elements \code{n} (the total count) and \code{counts} (a named integer
 vector of length 4).
 }
 \description{
-Summarises the data of one group for two binary endpoints by the counts of
+Summarizes the data of one group for two binary endpoints by the counts of
 the four joint response patterns.
 }
 \details{

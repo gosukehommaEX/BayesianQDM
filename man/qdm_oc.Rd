@@ -7,13 +7,16 @@
 qdm_oc(design, scenarios, nsim = 10000L, seed = NULL)
 }
 \arguments{
-\item{design}{A design created by \code{\link{design_binary}}.}
+\item{design}{A design created by \code{\link{design_binary}} or
+\code{\link{design_continuous}}.}
 
 \item{scenarios}{A data frame with one row per scenario. For a binary
 endpoint the columns \code{pi_t} and \code{pi_c} give the true response
-rates of the treatment and control groups; \code{pi_c} is not needed for
-a design without a concurrent control group. Other columns, such as
-labels, are kept in the result.}
+rates of the treatment and control groups. For a continuous endpoint the
+columns \code{mu_t}, \code{sd_t}, \code{mu_c} and \code{sd_c} give the
+true means and standard deviations. The columns of the control group are
+not needed for a design without a concurrent control group. Other
+columns, such as labels, are kept in the result.}
 
 \item{nsim}{Number of simulated data sets for endpoints whose operating
 characteristics are computed by simulation.}
@@ -37,6 +40,18 @@ For a binary endpoint, all possible outcomes of the proof-of-concept study
 are enumerated and the probabilities are exact (Kang et al., 2026, Section
 4.3); \code{nsim} and \code{seed} are not used.
 
+For a continuous endpoint, \code{nsim} studies are simulated under each
+scenario. Only the sufficient statistics are simulated: the sample mean
+\eqn{\bar y = \mu + \sigma Z / \sqrt{n}} and the sample standard deviation
+\eqn{s = \sigma \sqrt{X / (n - 1)}}, with \eqn{Z \sim N(0, 1)} and
+\eqn{X \sim \chi^2_{n - 1}}. The same random numbers are used for all
+scenarios, so the results change smoothly across scenarios. The
+probabilities have a simulation standard error of at most
+\eqn{0.5 / \sqrt{nsim}} (0.005 for the default \code{nsim}). For each
+simulated study, the probabilities of the Go and NoGo regions are computed
+by the method of the design (see \code{\link{design_continuous}}), of which
+\code{method = "MM"} is the fastest.
+
 The decision for each outcome is made as in \code{\link{qdm_decide}}. A
 warning is given when Miss decisions (both criteria met) have positive
 probability in some scenario.
@@ -51,6 +66,19 @@ des <- design_binary(
 oc <- qdm_oc(des, data.frame(pi_t = seq(0.2, 0.8, by = 0.1), pi_c = 0.4))
 oc
 plot(oc)
+
+# Continuous endpoint (moment-matching approximation for speed)
+des2 <- design_continuous(
+  n_t = 12, n_c = 12,
+  prior_t = prior_vague(), prior_c = prior_vague(),
+  criterion = criterion_posterior(theta_tv = 30, theta_mav = 15,
+                                  gamma_go = 0.6, gamma_nogo = 0.7),
+  method = "MM"
+)
+oc2 <- qdm_oc(des2, data.frame(mu_t = seq(0, 50, by = 10), sd_t = 25,
+                               mu_c = 0, sd_c = 25),
+              nsim = 2000, seed = 1)
+oc2
 }
 \references{
 Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative

@@ -18,9 +18,10 @@ A \code{ggplot} object.
 Draws the probabilities of Go, NoGo and Gray decisions (and Miss decisions
 if they have positive probability) against the true treatment effect of
 the scenarios. For a design without a concurrent control group, the
-horizontal axis is the true response rate of the treatment group and the
-thresholds of the criterion are shifted by the mean of the distribution of
-the control group.
+horizontal axis is the true response rate (binary endpoint) or mean
+(continuous endpoint) of the treatment group, and the thresholds of the
+criterion are shifted by the mean (binary) or location (continuous) of the
+distribution of the control group.
 }
 \examples{
 des <- design_binary(

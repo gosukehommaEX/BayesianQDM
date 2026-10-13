@@ -96,4 +96,8 @@ decision-making framework in cell and gene therapy development for rare
 diseases. \emph{Journal of Biopharmaceutical Statistics}.
 \doi{10.1080/10543406.2026.2655410}
 }
+\seealso{
+Other designs:
+\code{\link[=design_continuous]{design_continuous()}}
+}
 \concept{designs}

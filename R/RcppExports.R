@@ -9,6 +9,10 @@ cpp_ptdiff_mc_upper <- function(q, mu_t, scale_t, df_t, mu_c, scale_c, df_c, nMC
     .Call(`_BayesianQDM_cpp_ptdiff_mc_upper`, q, mu_t, scale_t, df_t, mu_c, scale_c, df_c, nMC)
 }
 
+cpp_ptdiff_mc_regions <- function(q_go, q_nogo, mu_t, scale_t, df_t, mu_c, scale_c, df_c, nMC) {
+    .Call(`_BayesianQDM_cpp_ptdiff_mc_regions`, q_go, q_nogo, mu_t, scale_t, df_t, mu_c, scale_c, df_c, nMC)
+}
+
 cpp_ptdiff_ni_upper <- function(q, mu_t, scale_t, df_t, mu_c, scale_c, df_c) {
     .Call(`_BayesianQDM_cpp_ptdiff_ni_upper`, q, mu_t, scale_t, df_t, mu_c, scale_c, df_c)
 }

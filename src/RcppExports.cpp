@@ -43,6 +43,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_ptdiff_mc_regions
+Rcpp::NumericMatrix cpp_ptdiff_mc_regions(Rcpp::NumericVector q_go, Rcpp::NumericVector q_nogo, Rcpp::NumericVector mu_t, Rcpp::NumericVector scale_t, Rcpp::NumericVector df_t, Rcpp::NumericVector mu_c, Rcpp::NumericVector scale_c, Rcpp::NumericVector df_c, int nMC);
+RcppExport SEXP _BayesianQDM_cpp_ptdiff_mc_regions(SEXP q_goSEXP, SEXP q_nogoSEXP, SEXP mu_tSEXP, SEXP scale_tSEXP, SEXP df_tSEXP, SEXP mu_cSEXP, SEXP scale_cSEXP, SEXP df_cSEXP, SEXP nMCSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type q_go(q_goSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type q_nogo(q_nogoSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mu_t(mu_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type scale_t(scale_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type df_t(df_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mu_c(mu_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type scale_c(scale_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type df_c(df_cSEXP);
+    Rcpp::traits::input_parameter< int >::type nMC(nMCSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_ptdiff_mc_regions(q_go, q_nogo, mu_t, scale_t, df_t, mu_c, scale_c, df_c, nMC));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpp_ptdiff_ni_upper
 Rcpp::NumericVector cpp_ptdiff_ni_upper(Rcpp::NumericVector q, Rcpp::NumericVector mu_t, Rcpp::NumericVector scale_t, Rcpp::NumericVector df_t, Rcpp::NumericVector mu_c, Rcpp::NumericVector scale_c, Rcpp::NumericVector df_c);
 RcppExport SEXP _BayesianQDM_cpp_ptdiff_ni_upper(SEXP qSEXP, SEXP mu_tSEXP, SEXP scale_tSEXP, SEXP df_tSEXP, SEXP mu_cSEXP, SEXP scale_cSEXP, SEXP df_cSEXP) {
@@ -64,6 +83,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_BayesianQDM_cpp_pbetadiff_upper", (DL_FUNC) &_BayesianQDM_cpp_pbetadiff_upper, 5},
     {"_BayesianQDM_cpp_ptdiff_mc_upper", (DL_FUNC) &_BayesianQDM_cpp_ptdiff_mc_upper, 8},
+    {"_BayesianQDM_cpp_ptdiff_mc_regions", (DL_FUNC) &_BayesianQDM_cpp_ptdiff_mc_regions, 9},
     {"_BayesianQDM_cpp_ptdiff_ni_upper", (DL_FUNC) &_BayesianQDM_cpp_ptdiff_ni_upper, 7},
     {NULL, NULL, 0}
 };

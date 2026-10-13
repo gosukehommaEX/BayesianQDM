@@ -3,3 +3,11 @@ test_that("oc_sample() dispatches on the endpoint of the design", {
   sc <- data.frame(pi_t = 0.5)
   expect_identical(oc_sample(des, sc, 10L), oc_sample_binary(des, sc))
 })
+
+test_that("oc_sample() simulates continuous designs", {
+  des <- ref_design_cont("C3", "MM")
+  set.seed(1)
+  a <- oc_sample(des, scen_cont_u, 30L)
+  set.seed(1)
+  expect_identical(a, oc_sample_continuous(des, scen_cont_u, 30L))
+})

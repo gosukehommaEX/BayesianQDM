@@ -98,3 +98,111 @@ test_that("qdm_decide() validates the data", {
   expect_error(qdm_decide("design", data_binary(12, 3)),
                "'design' must be created by a design_\\*\\(\\) function")
 })
+
+# Continuous endpoint. References: Python_reference/ref_continuous_qdm.py
+# (closed-form posterior parameters, two numerical integrations and the
+# moment-matching formula); designs and data in
+# helper-designs-continuous.R.
+ref_decide_cont <- data.frame(
+  design = c("C1", "C2", "C3", "C4", "C5", "C6"),
+  mu_t = c(18, 19.3333333333, 25, 18.4615384615, 18, 9),
+  kappa_t = c(12, 15, 12, 13, 12, 15),
+  nu_t = c(11, 17, 11, 14, 11, 14),
+  sigma_t = c(25, 23.6610045699, 20, 22.2698238643, 25, 12),
+  mu_c = c(-12, -10.1428571429, -10, -12, -12, 0),
+  kappa_c = c(12, 21, 12, 12, 12, 15),
+  nu_c = c(11, 23, 11, 11, 11, 14),
+  sigma_c = c(25, 19.6574705664, 24.4948974278, 20.5382127221, 25,
+              16.9705627485),
+  go_ni = c(0.5, 0.472868606954, 0.697142834497, 0.520435789904,
+            0.938493080615, 0.7096513743),
+  nogo_ni = c(0.0878402872647, 0.0337620028253, 0.0248900866027,
+              0.048372965683, 0.0615069193852, 0.2903486257),
+  go_mm = c(0.5, 0.472839814489, 0.697418373575, 0.520460570391,
+            0.938485309768, 0.709872074443),
+  nogo_mm = c(0.0877885562533, 0.033819052643, 0.0249788420729,
+              0.0484064726881, 0.0615146902318, 0.290127925557),
+  decision = c("Gray", "Gray", "Go", "Gray", "Go", "Go")
+)
+
+test_that("qdm_decide() matches the references for continuous designs", {
+  r <- ref_decide_cont
+  for (i in seq_len(nrow(r))) {
+    d <- ref_data_cont[[r$design[i]]]
+    for (method in c("NI", "MM")) {
+      res <- qdm_decide(ref_design_cont(r$design[i], method), d$t, d$c)
+      info <- paste(r$design[i], method)
+      expect_equal(res$posterior_t,
+                   c(mu = r$mu_t[i], kappa = r$kappa_t[i], nu = r$nu_t[i],
+                     sigma = r$sigma_t[i]), tolerance = 1e-10, info = info)
+      expect_equal(res$posterior_c,
+                   c(mu = r$mu_c[i], kappa = r$kappa_c[i], nu = r$nu_c[i],
+                     sigma = r$sigma_c[i]), tolerance = 1e-10, info = info)
+      go <- if (method == "NI") r$go_ni[i] else r$go_mm[i]
+      nogo <- if (method == "NI") r$nogo_ni[i] else r$nogo_mm[i]
+      expect_equal(res$prob_go, go, tolerance = 1e-9, info = info)
+      expect_equal(res$prob_nogo, nogo, tolerance = 1e-9, info = info)
+      expect_identical(res$decision, r$decision[i], info = info)
+    }
+  }
+})
+
+test_that("qdm_decide() reproduces Yamaguchi et al. (submitted), Section 5.2", {
+  # Glaucoma example: P(Delta < 0 | data) = 0.9949 and
+  # P(Delta <= -2 | data) = 0.7011 (four decimals) with vague priors
+  des <- design_continuous(36, 31, prior_vague(), prior_vague(),
+                           criterion_posterior(theta_tv = 0, theta_mav = -2,
+                                               gamma_go = 0.5,
+                                               gamma_nogo = 0.5))
+  d_t <- data_continuous(36, -5.2, sqrt(15.62))
+  d_c <- data_continuous(31, -2.7, sqrt(13.28))
+  ni <- qdm_decide(des, d_t, d_c)
+  expect_equal(ni$prob_go, 0.00510195902552982, tolerance = 1e-9)
+  expect_equal(ni$prob_nogo, 0.701087911524607, tolerance = 1e-9)
+  des_mm <- design_continuous(36, 31, prior_vague(), prior_vague(),
+                              des$criterion, method = "MM")
+  mm <- qdm_decide(des_mm, d_t, d_c)
+  expect_equal(mm$prob_go, 0.00510318693692072, tolerance = 1e-9)
+  expect_equal(mm$prob_nogo, 0.701095827640321, tolerance = 1e-9)
+  for (res in list(ni, mm)) {
+    expect_equal(round(1 - res$prob_go, 4), 0.9949)
+    expect_equal(round(res$prob_nogo, 4), 0.7011)
+  }
+})
+
+test_that("qdm_decide() reproduces Huang et al. (submitted), Table 3", {
+  # P(delta < -2 | data) = 0.928, 0.954 and 0.970 for a0 = 0.25, 0.5, 0.75
+  # (vague priors, power priors with equal weights for both groups)
+  pub <- c(0.928, 0.954, 0.970)
+  a0 <- c(0.25, 0.5, 0.75)
+  for (i in seq_along(a0)) {
+    des <- design_continuous(
+      30, 30, prior_vague(), prior_vague(),
+      criterion_posterior(theta_tv = 0, theta_mav = -2, gamma_go = 0.5,
+                          gamma_nogo = 0.95),
+      external_t = borrow(data_continuous(60, -0.7, 3.8), a0[i]),
+      external_c = borrow(data_continuous(60, 2.5, 4), a0[i])
+    )
+    res <- qdm_decide(des, data_continuous(30, -0.5, 3.9),
+                      data_continuous(30, 2.8, 4.3))
+    expect_equal(round(res$prob_nogo, 3), pub[i], info = paste("a0", a0[i]))
+  }
+})
+
+test_that("qdm_decide() uses the seed for Monte Carlo probabilities", {
+  des <- ref_design_cont("C5", method = "MC", nMC = 20000L)
+  d <- ref_data_cont$C5
+  set.seed(99)
+  before <- runif(1)
+  set.seed(99)
+  r1 <- qdm_decide(des, d$t, d$c, seed = 1)
+  expect_identical(runif(1), before)
+  r2 <- qdm_decide(des, d$t, d$c, seed = 1)
+  expect_identical(r1$prob_go, r2$prob_go)
+  expect_equal(r1$prob_go + r1$prob_nogo, 1, tolerance = 1e-14)
+  expect_lt(abs(r1$prob_go - 0.938493080615),
+            4.5 * sqrt(0.9385 * 0.0615 / 20000))
+  expect_identical(r1$decision, "Go")
+  expect_error(qdm_decide(des, d$t, d$c, seed = "a"),
+               "'seed' must be numeric.")
+})

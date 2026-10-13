@@ -33,3 +33,16 @@ test_that("plot.qdm_oc() needs the design attribute", {
   attr(oc, "design") <- NULL
   expect_error(plot(oc), "'x' must be an unmodified result of qdm_oc().")
 })
+
+test_that("plot.qdm_oc() draws continuous operating characteristics", {
+  oc <- qdm_oc(ref_design_cont("C1", "MM"), scen_cont_c, nsim = 200,
+               seed = 1)
+  b <- ggplot2::ggplot_build(plot(oc))
+  expect_equal(sort(unique(b$data[[1]]$xintercept)), c(15, 30))
+  expect_equal(sort(unique(b$data[[3]]$x)), c(0, 20, 40))
+  oc3 <- qdm_oc(ref_design_cont("C3", "MM"), scen_cont_u, nsim = 200,
+                seed = 1)
+  b3 <- ggplot2::ggplot_build(plot(oc3))
+  expect_equal(sort(unique(b3$data[[1]]$xintercept)), c(5, 20))
+  expect_equal(sort(unique(b3$data[[3]]$x)), scen_cont_u$mu_t)
+})
