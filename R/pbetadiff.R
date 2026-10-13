@@ -1,99 +1,54 @@
-#' Cumulative Distribution Function of the Difference Between Two
-#' Independent Beta Variables
+#' Distribution function of the difference of two Beta variables
 #'
-#' Calculates the cumulative distribution function (CDF) of the difference
-#' between two independent Beta-distributed random variables. Specifically,
-#' computes \eqn{P(\pi_t - \pi_c \le q)} or \eqn{P(\pi_t - \pi_c > q)}, where
-#' \eqn{\pi_j \sim \mathrm{Beta}(\alpha_j, \beta_j)} for
-#' \eqn{j \in \{t, c\}}.
+#' Computes \eqn{\Pr(\pi_t - \pi_c \le q)} (or the upper tail
+#' \eqn{\Pr(\pi_t - \pi_c > q)}) for independent
+#' \eqn{\pi_t \sim \textrm{Beta}(a_t, b_t)} and
+#' \eqn{\pi_c \sim \textrm{Beta}(a_c, b_c)}. This is the posterior probability
+#' used for a single binary endpoint.
 #'
-#' @param q A numeric scalar in \code{[-1, 1]} representing the quantile
-#'        threshold for the difference in proportions.
-#' @param alpha_t A positive numeric scalar giving the first shape parameter
-#'        of the Beta distribution for the treatment group.
-#' @param alpha_c A positive numeric scalar giving the first shape parameter
-#'        of the Beta distribution for the control group.
-#' @param beta_t A positive numeric scalar giving the second shape parameter
-#'        of the Beta distribution for the treatment group.
-#' @param beta_c A positive numeric scalar giving the second shape parameter
-#'        of the Beta distribution for the control group.
-#' @param lower.tail A logical scalar; if \code{TRUE} (default), the function
-#'        returns \eqn{P(\pi_t - \pi_c \le q)}, otherwise
-#'        \eqn{P(\pi_t - \pi_c > q)}.
+#' The upper tail is computed as
+#' \deqn{\Pr(\pi_t - \pi_c > q) = \Pr(\pi_c < -q) +
+#'   \int f_c(x) \Pr(\pi_t > x + q) \, dx,}
+#' where the integral runs over the values of \eqn{x} with
+#' \eqn{0 \le x + q \le 1}, and the first term is zero for
+#' \eqn{q \ge 0}. The integral is evaluated by adaptive Gauss-Kronrod
+#' quadrature (the QUADPACK routine used by \code{\link[stats]{integrate}}),
+#' with the range split at quantiles of both Beta distributions so that
+#' concentrated distributions are integrated accurately. The lower tail is
+#' computed directly from the same formula with the roles of the two groups
+#' exchanged, so both tails are accurate near 0.
 #'
-#' @return A numeric scalar in \code{[0, 1]}.
+#' @param q Numeric vector of quantiles.
+#' @param a_t,b_t Positive shape parameters of the treatment group.
+#' @param a_c,b_c Positive shape parameters of the control group.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are
+#'   \eqn{\Pr(\pi_t - \pi_c \le q)}, otherwise \eqn{\Pr(\pi_t - \pi_c > q)}.
 #'
-#' @details
-#' The upper-tail probability is obtained via the convolution formula:
-#' \deqn{P(\pi_t - \pi_c > q)
-#'   = \int_0^1 F_{\mathrm{Beta}(\alpha_c, \beta_c)}(x - q)\,
-#'              f_{\mathrm{Beta}(\alpha_t, \beta_t)}(x)\, dx}
-#' where \eqn{f_{\mathrm{Beta}(\alpha_t, \beta_t)}} is the density of
-#' \eqn{\pi_t} and \eqn{F_{\mathrm{Beta}(\alpha_c, \beta_c)}} is the CDF of
-#' \eqn{\pi_c}. Boundary cases are handled automatically by \code{pbeta}
-#' (\eqn{0} for \eqn{x - q \le 0}, \eqn{1} for \eqn{x - q \ge 1}), so
-#' integrating over \code{[0, 1]} is safe.
+#' @return A numeric vector of probabilities. All arguments except
+#'   \code{lower.tail} are recycled to a common length; each must have length
+#'   1 or the common length.
 #'
-#' This single-integral convolution replaces an equivalent double-integral
-#' formulation based on Appell's F1 hypergeometric function, yielding the
-#' same result with lower computational cost because both \code{pbeta} and
-#' \code{dbeta} are implemented in compiled C code.
-#'
+#' @family distributions
 #' @examples
-#' # P(pi_t - pi_c > 0.2) with symmetric Beta(0.5, 0.5) priors
-#' pbetadiff(0.2, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
-#'
-#' # P(pi_t - pi_c > -0.1) with informative priors
-#' pbetadiff(-0.1, 2, 1, 3, 4, lower.tail = FALSE)
-#'
-#' # P(pi_t - pi_c > 0) with equal priors -- should be approximately 0.5
-#' pbetadiff(0, 1, 1, 1, 1, lower.tail = FALSE)
-#'
-#' # Lower tail: P(pi_t - pi_c <= 0.1) with symmetric priors
-#' pbetadiff(0.1, 2, 2, 2, 2, lower.tail = TRUE)
-#'
-#' @importFrom stats dbeta integrate pbeta
+#' # Posterior probability that the response rate difference exceeds 0.1,
+#' # with Jeffreys priors and 7/12 versus 4/12 responders
+#' pbetadiff(0.1, a_t = 7.5, b_t = 5.5, a_c = 4.5, b_c = 8.5,
+#'           lower.tail = FALSE)
 #' @export
-pbetadiff <- function(q, alpha_t, alpha_c, beta_t, beta_c, lower.tail = TRUE) {
-
-  # --- Input validation ---
-  if (!is.numeric(q) || length(q) != 1L || is.na(q) || q < -1 || q > 1) {
-    stop("'q' must be a single numeric value in [-1, 1]")
+pbetadiff <- function(q, a_t, b_t, a_c, b_c, lower.tail = TRUE) {
+  check_numeric(q, "q", len = NULL)
+  check_numeric(a_t, "a_t", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(b_t, "b_t", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(a_c, "a_c", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(b_c, "b_c", len = NULL, lower = 0, lower_open = TRUE)
+  check_flag(lower.tail, "lower.tail")
+  args <- recycle_common(list(q = q, a_t = a_t, b_t = b_t, a_c = a_c,
+                              b_c = b_c))
+  if (lower.tail) {
+    # P(pi_t - pi_c <= q) = P(pi_c - pi_t >= -q), the upper tail with the
+    # groups exchanged (the distribution is continuous).
+    cpp_pbetadiff_upper(-args$q, args$a_c, args$b_c, args$a_t, args$b_t)
+  } else {
+    cpp_pbetadiff_upper(args$q, args$a_t, args$b_t, args$a_c, args$b_c)
   }
-
-  if (!is.numeric(alpha_t) || length(alpha_t) != 1L || is.na(alpha_t) || alpha_t <= 0) {
-    stop("'alpha_t' must be a single positive numeric value")
-  }
-
-  if (!is.numeric(alpha_c) || length(alpha_c) != 1L || is.na(alpha_c) || alpha_c <= 0) {
-    stop("'alpha_c' must be a single positive numeric value")
-  }
-
-  if (!is.numeric(beta_t) || length(beta_t) != 1L || is.na(beta_t) || beta_t <= 0) {
-    stop("'beta_t' must be a single positive numeric value")
-  }
-
-  if (!is.numeric(beta_c) || length(beta_c) != 1L || is.na(beta_c) || beta_c <= 0) {
-    stop("'beta_c' must be a single positive numeric value")
-  }
-
-  if (!is.logical(lower.tail) || length(lower.tail) != 1L || is.na(lower.tail)) {
-    stop("'lower.tail' must be a single logical value (TRUE or FALSE)")
-  }
-
-  # --- Compute P(X_t - X_c > q) via convolution ---
-  # Integrand: f_Beta(alpha_t, beta_t)(x) * F_Beta(alpha_c, beta_c)(x - q)
-  # pbeta handles x - q outside [0, 1] automatically.
-  result <- integrate(
-    function(x) pbeta(x - q, alpha_c, beta_c) * dbeta(x, alpha_t, beta_t),
-    lower = 0,
-    upper = 1
-  )[["value"]]
-
-  # Convert to lower tail if requested:
-  #   lower.tail = TRUE  -> P(X_t - X_c <= q) = 1 - P(X_t - X_c > q)
-  #   lower.tail = FALSE -> P(X_t - X_c > q)
-  result <- lower.tail + c(1, -1)[lower.tail + 1] * result
-
-  return(result)
 }

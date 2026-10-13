@@ -1,3 +1,42 @@
+# BayesianQDM (development version)
+
+This version is a complete redesign of the package towards version 1.0.0.
+The functions of version 0.1.0 are being replaced by a new interface in which
+a trial is described by small specification objects. A table of
+correspondence between the old and new functions will be added before the
+release.
+
+## Specification functions
+
+* Priors: `prior_beta()`, `prior_dirichlet()`, `prior_nix()`, `prior_niw()`
+  and `prior_vague()`.
+* Data summaries: `data_binary()`, `data_continuous()`, `data_binary2()` and
+  `data_continuous2()`.
+* External data with a power prior weight from 0 to 1: `borrow()`.
+* Hypothetical control for uncontrolled studies: `hypothetical()`.
+* Decision criteria: `criterion_posterior()` and `criterion_predictive()`.
+  For all endpoints, the Go criterion is that the probability of the Go
+  region is at least `gamma_go` and the NoGo criterion is that the
+  probability of the NoGo region is at least `gamma_nogo`.
+* `qdm_regions()` shows the numbering of the regions for two endpoints.
+
+## Distribution functions
+
+* `pbetadiff()` has the argument order `(q, a_t, b_t, a_c, b_c)`. The range
+  of integration is restricted to the support and split at quantiles of both
+  Beta distributions, so concentrated distributions are integrated
+  accurately. The computation is done in C++.
+* `pbetabinomdiff()` has the argument order
+  `(q, m_t, a_t, b_t, m_c, a_c, b_c)` and computes the probability mass
+  functions on the log scale, so large numbers of future subjects no longer
+  cause overflow.
+* `ptdiff()` replaces `ptdiff_NI()`, `ptdiff_MC()` and `ptdiff_MM()`. The
+  numerical integration now covers the whole real line (version 0.1.0
+  truncated the range, with errors of up to about 3e-4 for small degrees of
+  freedom).
+* `rdirichlet()` always returns a matrix.
+* `cellprob_binary2()` replaces `getjointbin()`.
+
 # BayesianQDM 0.1.0
 
 ## Resubmission

@@ -2,86 +2,57 @@
 % Please edit documentation in R/pbetabinomdiff.R
 \name{pbetabinomdiff}
 \alias{pbetabinomdiff}
-\title{Cumulative Distribution Function of the Difference Between Two
-Independent Beta-Binomial Proportions}
+\title{Distribution function of the difference of two Beta-binomial proportions}
 \usage{
-pbetabinomdiff(
-  q,
-  m_t,
-  m_c,
-  alpha_t,
-  alpha_c,
-  beta_t,
-  beta_c,
-  lower.tail = TRUE
-)
+pbetabinomdiff(q, m_t, a_t, b_t, m_c, a_c, b_c, lower.tail = TRUE)
 }
 \arguments{
-\item{q}{A numeric scalar representing the quantile threshold for the
-difference in proportions.}
+\item{q}{Numeric vector of quantiles.}
 
-\item{m_t}{A positive integer giving the number of future patients in the
-treatment group.}
+\item{m_t, m_c}{Numbers of future subjects in the treatment and control
+groups (whole numbers of at least 1).}
 
-\item{m_c}{A positive integer giving the number of future patients in the
-control group.}
+\item{a_t, b_t}{Positive shape parameters of the treatment group.}
 
-\item{alpha_t}{A positive numeric scalar giving the first shape parameter
-of the Beta mixing distribution for the treatment group.}
+\item{a_c, b_c}{Positive shape parameters of the control group.}
 
-\item{alpha_c}{A positive numeric scalar giving the first shape parameter
-of the Beta mixing distribution for the control group.}
-
-\item{beta_t}{A positive numeric scalar giving the second shape parameter
-of the Beta mixing distribution for the treatment group.}
-
-\item{beta_c}{A positive numeric scalar giving the second shape parameter
-of the Beta mixing distribution for the control group.}
-
-\item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
-returns \eqn{P((Y_t / m_t) - (Y_c / m_c) \le q)}, otherwise
-\eqn{P((Y_t / m_t) - (Y_c / m_c) > q)}.}
+\item{lower.tail}{Logical; if \code{TRUE} (default), probabilities are
+\eqn{\Pr(Y_t / m_t - Y_c / m_c \le q)}, otherwise
+\eqn{\Pr(Y_t / m_t - Y_c / m_c > q)}.}
 }
 \value{
-A numeric scalar in \code{[0, 1]}.
+A numeric vector of probabilities. The arguments \code{q},
+\code{a_t}, \code{b_t}, \code{a_c} and \code{b_c} are recycled to a common
+length; each must have length 1 or the common length.
 }
 \description{
-Calculates the cumulative distribution function (CDF) of the difference
-between two independent Beta-Binomial proportions by exact enumeration.
-Specifically, computes \eqn{P((Y_t / m_t) - (Y_c / m_c) \le q)} or
-\eqn{P((Y_t / m_t) - (Y_c / m_c) > q)}, where
-\eqn{Y_j \sim \mathrm{BetaBinomial}(m_j, \alpha_j, \beta_j)} for
-\eqn{j \in \{t, c\}}.
+Computes \eqn{\Pr(Y_t / m_t - Y_c / m_c \le q)} (or the upper tail
+\eqn{\Pr(Y_t / m_t - Y_c / m_c > q)}) for independent
+\eqn{Y_t \sim \textrm{Beta-binomial}(m_t, a_t, b_t)} and
+\eqn{Y_c \sim \textrm{Beta-binomial}(m_c, a_c, b_c)}. This is the posterior
+predictive probability for the difference in response proportions of a
+future study with \eqn{m_t} and \eqn{m_c} subjects.
 }
 \details{
-The probability mass function of
-\eqn{Y_j \sim \mathrm{BetaBinomial}(m_j, \alpha_j, \beta_j)} is:
-\deqn{P(Y_j = k) = \binom{m_j}{k}
-  \frac{B(k + \alpha_j,\; m_j - k + \beta_j)}{B(\alpha_j, \beta_j)},
-  \quad k = 0, \ldots, m_j}
-where \eqn{B(\cdot, \cdot)} is the Beta function.
-
-The exact CDF is obtained by enumerating all
-\eqn{(m_t + 1)(m_c + 1)} outcome combinations and summing the joint
-probabilities for which the proportion difference satisfies the specified
-condition. Computation time therefore grows quadratically in \eqn{m_t} and
-\eqn{m_c}; for large future sample sizes consider a normal approximation.
-
-The Beta-Binomial distribution arises when the success probability in a
-Binomial model follows a Beta prior, making it appropriate for
-posterior predictive calculations in Bayesian binary-endpoint trials.
+The probability is an exact finite sum. The probability mass functions are
+computed on the log scale, so large values of \eqn{m_t} and \eqn{m_c} do not
+cause overflow. Each difference is compared with \code{q} after a single
+division of the exact integer numerator \eqn{m_c Y_t - m_t Y_c} by
+\eqn{m_t m_c}, so differences that are mathematically equal to a decimal
+\code{q} are classified correctly (they belong to the lower tail).
 }
 \examples{
-# P((Y_t/12) - (Y_c/12) > 0.2) with symmetric Beta(0.5, 0.5) priors
-pbetabinomdiff(0.2, 12, 12, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
-
-# P((Y_t/20) - (Y_c/15) > 0.1) with different future sample sizes
-pbetabinomdiff(0.1, 20, 15, 1, 1, 1, 1, lower.tail = FALSE)
-
-# P((Y_t/10) - (Y_c/10) > 0) with informative priors
-pbetabinomdiff(0, 10, 10, 2, 3, 3, 2, lower.tail = FALSE)
-
-# Lower tail: P((Y_t/15) - (Y_c/15) <= 0.05) with vague priors
-pbetabinomdiff(0.05, 15, 15, 1, 1, 1, 1, lower.tail = TRUE)
-
+# Predictive probability that the future difference exceeds 0, with
+# Jeffreys priors, 7/12 versus 4/12 responders and 20 future subjects per
+# group
+pbetabinomdiff(0, m_t = 20, a_t = 7.5, b_t = 5.5, m_c = 20, a_c = 4.5,
+               b_c = 8.5, lower.tail = FALSE)
 }
+\seealso{
+Other distributions:
+\code{\link[=cellprob_binary2]{cellprob_binary2()}},
+\code{\link[=pbetadiff]{pbetadiff()}},
+\code{\link[=ptdiff]{ptdiff()}},
+\code{\link[=rdirichlet]{rdirichlet()}}
+}
+\concept{distributions}

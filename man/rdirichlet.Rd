@@ -2,81 +2,34 @@
 % Please edit documentation in R/rdirichlet.R
 \name{rdirichlet}
 \alias{rdirichlet}
-\title{Generate Random Samples from a Dirichlet Distribution}
+\title{Random generation from the Dirichlet distribution}
 \usage{
 rdirichlet(n, alpha)
 }
 \arguments{
-\item{n}{A positive integer specifying the number of random vectors to
-generate.}
+\item{n}{Number of draws (a whole number of at least 1).}
 
-\item{alpha}{A numeric vector of length \eqn{K \ge 2} containing positive
-concentration parameters of the Dirichlet distribution.
-All elements must be strictly positive.}
+\item{alpha}{Numeric vector of at least two positive concentration
+parameters.}
 }
 \value{
-A numeric matrix of dimensions \code{n x K} where each row is one
-random draw from the Dirichlet distribution, with all elements in
-\code{[0, 1]} and each row summing to 1.
-When \code{n = 1}, a numeric vector of length \code{K} is returned.
+A numeric matrix with \code{n} rows and \code{length(alpha)}
+columns whose rows sum to 1 (a matrix is returned even when
+\code{n = 1}). Column names are taken from \code{names(alpha)}.
 }
 \description{
-Generates random samples from a Dirichlet distribution using the Gamma
-representation: if \eqn{Y_i \sim \mathrm{Gamma}(\alpha_i, 1)} independently
-for \eqn{i = 1, \ldots, K}, then
-\eqn{(Y_1 / S, \ldots, Y_K / S) \sim \mathrm{Dirichlet}(\alpha_1, \ldots, \alpha_K)},
-where \eqn{S = \sum_{i=1}^{K} Y_i}.
-}
-\details{
-The Dirichlet distribution is a multivariate generalisation of the Beta
-distribution and is commonly used as a conjugate prior for multinomial
-proportions in Bayesian statistics.
-
-The probability density function is:
-\deqn{f(x_1, \ldots, x_K) =
-  \frac{\Gamma\!\left(\sum_{i=1}^{K} \alpha_i\right)}
-       {\prod_{i=1}^{K} \Gamma(\alpha_i)}
-  \prod_{i=1}^{K} x_i^{\alpha_i - 1}}
-where \eqn{x_i > 0} and \eqn{\sum_{i=1}^{K} x_i = 1}.
-
-Key properties:
-\itemize{
-\item Each marginal follows a Beta distribution:
-\eqn{X_i \sim \mathrm{Beta}\!\left(\alpha_i,\,
-        \sum_{l \neq i} \alpha_l\right)}.
-\item \eqn{E[X_i] = \alpha_i / \sum_{l=1}^{K} \alpha_l}.
-\item Components are negatively correlated unless one component dominates.
-}
-
-Implementation steps:
-\enumerate{
-\item Generate independent \eqn{Y_i \sim \mathrm{Gamma}(\alpha_i, 1)} for
-each \eqn{i = 1, \ldots, K}.
-\item Normalise: \eqn{X_i = Y_i / \sum_{l=1}^{K} Y_l}.
-}
+Draws random vectors from the Dirichlet distribution by normalising
+independent Gamma variables, using the random number generator of R.
 }
 \examples{
-# Example 1: Generate 5 samples from Dirichlet(1, 1, 1) - uniform on simplex
-samples <- rdirichlet(5, c(1, 1, 1))
-print(samples)
-rowSums(samples)  # Each row should sum to 1
-
-# Example 2: Generate samples with unequal concentrations
-samples <- rdirichlet(1000, c(2, 5, 3))
-colMeans(samples)  # Expected values: approximately c(0.2, 0.5, 0.3)
-
-# Example 3: Sparse Dirichlet (small alpha values)
-samples <- rdirichlet(100, c(0.1, 0.1, 0.1, 0.1))
-head(samples)  # Most weight concentrated on one component
-
-# Example 4: Concentrated Dirichlet (large alpha values)
-samples <- rdirichlet(100, c(100, 100, 100))
-colMeans(samples)  # Concentrated around c(1/3, 1/3, 1/3)
-
-# Example 5: Bayesian update with Jeffreys prior for 4 categories
-prior_alpha     <- c(0.5, 0.5, 0.5, 0.5)
-observed_counts <- c(10, 5, 8, 7)
-posterior_samples <- rdirichlet(1000, prior_alpha + observed_counts)
-colMeans(posterior_samples)  # Posterior mean
-
+set.seed(1)
+rdirichlet(3, c(1.5, 0.5, 2, 1))
 }
+\seealso{
+Other distributions:
+\code{\link[=cellprob_binary2]{cellprob_binary2()}},
+\code{\link[=pbetabinomdiff]{pbetabinomdiff()}},
+\code{\link[=pbetadiff]{pbetadiff()}},
+\code{\link[=ptdiff]{ptdiff()}}
+}
+\concept{distributions}

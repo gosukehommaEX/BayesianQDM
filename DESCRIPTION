@@ -1,7 +1,7 @@
 Package: BayesianQDM
 Type: Package
 Title: Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: c(
     person(given  = "Gosuke",
            family = "Homma",
@@ -38,20 +38,15 @@ License: GPL (>= 2)
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Imports:
-    ggplot2 (>= 3.4.0),
-    gridExtra,
-    mvtnorm,
+    Rcpp,
     stats
+LinkingTo:
+    Rcpp
 Suggests:
-    testthat (>= 3.0.0),
-    knitr,
-    rmarkdown,
-    dplyr,
-    tidyr,
-    purrr,
-    spelling
-VignetteBuilder: knitr
+    spelling,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
 URL: https://gosukehommaEX.github.io/BayesianQDM/, https://github.com/gosukehommaEX/BayesianQDM
 BugReports: https://github.com/gosukehommaEX/BayesianQDM/issues
+Config/roxygen2/version: 8.0.0

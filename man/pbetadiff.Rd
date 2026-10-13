@@ -2,68 +2,56 @@
 % Please edit documentation in R/pbetadiff.R
 \name{pbetadiff}
 \alias{pbetadiff}
-\title{Cumulative Distribution Function of the Difference Between Two
-Independent Beta Variables}
+\title{Distribution function of the difference of two Beta variables}
 \usage{
-pbetadiff(q, alpha_t, alpha_c, beta_t, beta_c, lower.tail = TRUE)
+pbetadiff(q, a_t, b_t, a_c, b_c, lower.tail = TRUE)
 }
 \arguments{
-\item{q}{A numeric scalar in \code{[-1, 1]} representing the quantile
-threshold for the difference in proportions.}
+\item{q}{Numeric vector of quantiles.}
 
-\item{alpha_t}{A positive numeric scalar giving the first shape parameter
-of the Beta distribution for the treatment group.}
+\item{a_t, b_t}{Positive shape parameters of the treatment group.}
 
-\item{alpha_c}{A positive numeric scalar giving the first shape parameter
-of the Beta distribution for the control group.}
+\item{a_c, b_c}{Positive shape parameters of the control group.}
 
-\item{beta_t}{A positive numeric scalar giving the second shape parameter
-of the Beta distribution for the treatment group.}
-
-\item{beta_c}{A positive numeric scalar giving the second shape parameter
-of the Beta distribution for the control group.}
-
-\item{lower.tail}{A logical scalar; if \code{TRUE} (default), the function
-returns \eqn{P(\pi_t - \pi_c \le q)}, otherwise
-\eqn{P(\pi_t - \pi_c > q)}.}
+\item{lower.tail}{Logical; if \code{TRUE} (default), probabilities are
+\eqn{\Pr(\pi_t - \pi_c \le q)}, otherwise \eqn{\Pr(\pi_t - \pi_c > q)}.}
 }
 \value{
-A numeric scalar in \code{[0, 1]}.
+A numeric vector of probabilities. All arguments except
+\code{lower.tail} are recycled to a common length; each must have length
+1 or the common length.
 }
 \description{
-Calculates the cumulative distribution function (CDF) of the difference
-between two independent Beta-distributed random variables. Specifically,
-computes \eqn{P(\pi_t - \pi_c \le q)} or \eqn{P(\pi_t - \pi_c > q)}, where
-\eqn{\pi_j \sim \mathrm{Beta}(\alpha_j, \beta_j)} for
-\eqn{j \in \{t, c\}}.
+Computes \eqn{\Pr(\pi_t - \pi_c \le q)} (or the upper tail
+\eqn{\Pr(\pi_t - \pi_c > q)}) for independent
+\eqn{\pi_t \sim \textrm{Beta}(a_t, b_t)} and
+\eqn{\pi_c \sim \textrm{Beta}(a_c, b_c)}. This is the posterior probability
+used for a single binary endpoint.
 }
 \details{
-The upper-tail probability is obtained via the convolution formula:
-\deqn{P(\pi_t - \pi_c > q)
-  = \int_0^1 F_{\mathrm{Beta}(\alpha_c, \beta_c)}(x - q)\,
-             f_{\mathrm{Beta}(\alpha_t, \beta_t)}(x)\, dx}
-where \eqn{f_{\mathrm{Beta}(\alpha_t, \beta_t)}} is the density of
-\eqn{\pi_t} and \eqn{F_{\mathrm{Beta}(\alpha_c, \beta_c)}} is the CDF of
-\eqn{\pi_c}. Boundary cases are handled automatically by \code{pbeta}
-(\eqn{0} for \eqn{x - q \le 0}, \eqn{1} for \eqn{x - q \ge 1}), so
-integrating over \code{[0, 1]} is safe.
-
-This single-integral convolution replaces an equivalent double-integral
-formulation based on Appell's F1 hypergeometric function, yielding the
-same result with lower computational cost because both \code{pbeta} and
-\code{dbeta} are implemented in compiled C code.
+The upper tail is computed as
+\deqn{\Pr(\pi_t - \pi_c > q) = \Pr(\pi_c < -q) +
+  \int f_c(x) \Pr(\pi_t > x + q) \, dx,}
+where the integral runs over the values of \eqn{x} with
+\eqn{0 \le x + q \le 1}, and the first term is zero for
+\eqn{q \ge 0}. The integral is evaluated by adaptive Gauss-Kronrod
+quadrature (the QUADPACK routine used by \code{\link[stats]{integrate}}),
+with the range split at quantiles of both Beta distributions so that
+concentrated distributions are integrated accurately. The lower tail is
+computed directly from the same formula with the roles of the two groups
+exchanged, so both tails are accurate near 0.
 }
 \examples{
-# P(pi_t - pi_c > 0.2) with symmetric Beta(0.5, 0.5) priors
-pbetadiff(0.2, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
-
-# P(pi_t - pi_c > -0.1) with informative priors
-pbetadiff(-0.1, 2, 1, 3, 4, lower.tail = FALSE)
-
-# P(pi_t - pi_c > 0) with equal priors -- should be approximately 0.5
-pbetadiff(0, 1, 1, 1, 1, lower.tail = FALSE)
-
-# Lower tail: P(pi_t - pi_c <= 0.1) with symmetric priors
-pbetadiff(0.1, 2, 2, 2, 2, lower.tail = TRUE)
-
+# Posterior probability that the response rate difference exceeds 0.1,
+# with Jeffreys priors and 7/12 versus 4/12 responders
+pbetadiff(0.1, a_t = 7.5, b_t = 5.5, a_c = 4.5, b_c = 8.5,
+          lower.tail = FALSE)
 }
+\seealso{
+Other distributions:
+\code{\link[=cellprob_binary2]{cellprob_binary2()}},
+\code{\link[=pbetabinomdiff]{pbetabinomdiff()}},
+\code{\link[=ptdiff]{ptdiff()}},
+\code{\link[=rdirichlet]{rdirichlet()}}
+}
+\concept{distributions}

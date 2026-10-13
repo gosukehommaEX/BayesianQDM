@@ -1,128 +1,85 @@
-#' Cumulative Distribution Function of the Difference Between Two
-#' Independent Beta-Binomial Proportions
+#' Distribution function of the difference of two Beta-binomial proportions
 #'
-#' Calculates the cumulative distribution function (CDF) of the difference
-#' between two independent Beta-Binomial proportions by exact enumeration.
-#' Specifically, computes \eqn{P((Y_t / m_t) - (Y_c / m_c) \le q)} or
-#' \eqn{P((Y_t / m_t) - (Y_c / m_c) > q)}, where
-#' \eqn{Y_j \sim \mathrm{BetaBinomial}(m_j, \alpha_j, \beta_j)} for
-#' \eqn{j \in \{t, c\}}.
+#' Computes \eqn{\Pr(Y_t / m_t - Y_c / m_c \le q)} (or the upper tail
+#' \eqn{\Pr(Y_t / m_t - Y_c / m_c > q)}) for independent
+#' \eqn{Y_t \sim \textrm{Beta-binomial}(m_t, a_t, b_t)} and
+#' \eqn{Y_c \sim \textrm{Beta-binomial}(m_c, a_c, b_c)}. This is the posterior
+#' predictive probability for the difference in response proportions of a
+#' future study with \eqn{m_t} and \eqn{m_c} subjects.
 #'
-#' @param q A numeric scalar representing the quantile threshold for the
-#'        difference in proportions.
-#' @param m_t A positive integer giving the number of future patients in the
-#'        treatment group.
-#' @param m_c A positive integer giving the number of future patients in the
-#'        control group.
-#' @param alpha_t A positive numeric scalar giving the first shape parameter
-#'        of the Beta mixing distribution for the treatment group.
-#' @param alpha_c A positive numeric scalar giving the first shape parameter
-#'        of the Beta mixing distribution for the control group.
-#' @param beta_t A positive numeric scalar giving the second shape parameter
-#'        of the Beta mixing distribution for the treatment group.
-#' @param beta_c A positive numeric scalar giving the second shape parameter
-#'        of the Beta mixing distribution for the control group.
-#' @param lower.tail A logical scalar; if \code{TRUE} (default), the function
-#'        returns \eqn{P((Y_t / m_t) - (Y_c / m_c) \le q)}, otherwise
-#'        \eqn{P((Y_t / m_t) - (Y_c / m_c) > q)}.
+#' The probability is an exact finite sum. The probability mass functions are
+#' computed on the log scale, so large values of \eqn{m_t} and \eqn{m_c} do not
+#' cause overflow. Each difference is compared with \code{q} after a single
+#' division of the exact integer numerator \eqn{m_c Y_t - m_t Y_c} by
+#' \eqn{m_t m_c}, so differences that are mathematically equal to a decimal
+#' \code{q} are classified correctly (they belong to the lower tail).
 #'
-#' @return A numeric scalar in \code{[0, 1]}.
+#' @param q Numeric vector of quantiles.
+#' @param m_t,m_c Numbers of future subjects in the treatment and control
+#'   groups (whole numbers of at least 1).
+#' @param a_t,b_t Positive shape parameters of the treatment group.
+#' @param a_c,b_c Positive shape parameters of the control group.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are
+#'   \eqn{\Pr(Y_t / m_t - Y_c / m_c \le q)}, otherwise
+#'   \eqn{\Pr(Y_t / m_t - Y_c / m_c > q)}.
 #'
-#' @details
-#' The probability mass function of
-#' \eqn{Y_j \sim \mathrm{BetaBinomial}(m_j, \alpha_j, \beta_j)} is:
-#' \deqn{P(Y_j = k) = \binom{m_j}{k}
-#'   \frac{B(k + \alpha_j,\; m_j - k + \beta_j)}{B(\alpha_j, \beta_j)},
-#'   \quad k = 0, \ldots, m_j}
-#' where \eqn{B(\cdot, \cdot)} is the Beta function.
+#' @return A numeric vector of probabilities. The arguments \code{q},
+#'   \code{a_t}, \code{b_t}, \code{a_c} and \code{b_c} are recycled to a common
+#'   length; each must have length 1 or the common length.
 #'
-#' The exact CDF is obtained by enumerating all
-#' \eqn{(m_t + 1)(m_c + 1)} outcome combinations and summing the joint
-#' probabilities for which the proportion difference satisfies the specified
-#' condition. Computation time therefore grows quadratically in \eqn{m_t} and
-#' \eqn{m_c}; for large future sample sizes consider a normal approximation.
-#'
-#' The Beta-Binomial distribution arises when the success probability in a
-#' Binomial model follows a Beta prior, making it appropriate for
-#' posterior predictive calculations in Bayesian binary-endpoint trials.
-#'
+#' @family distributions
 #' @examples
-#' # P((Y_t/12) - (Y_c/12) > 0.2) with symmetric Beta(0.5, 0.5) priors
-#' pbetabinomdiff(0.2, 12, 12, 0.5, 0.5, 0.5, 0.5, lower.tail = FALSE)
-#'
-#' # P((Y_t/20) - (Y_c/15) > 0.1) with different future sample sizes
-#' pbetabinomdiff(0.1, 20, 15, 1, 1, 1, 1, lower.tail = FALSE)
-#'
-#' # P((Y_t/10) - (Y_c/10) > 0) with informative priors
-#' pbetabinomdiff(0, 10, 10, 2, 3, 3, 2, lower.tail = FALSE)
-#'
-#' # Lower tail: P((Y_t/15) - (Y_c/15) <= 0.05) with vague priors
-#' pbetabinomdiff(0.05, 15, 15, 1, 1, 1, 1, lower.tail = TRUE)
-#'
+#' # Predictive probability that the future difference exceeds 0, with
+#' # Jeffreys priors, 7/12 versus 4/12 responders and 20 future subjects per
+#' # group
+#' pbetabinomdiff(0, m_t = 20, a_t = 7.5, b_t = 5.5, m_c = 20, a_c = 4.5,
+#'                b_c = 8.5, lower.tail = FALSE)
 #' @export
-pbetabinomdiff <- function(q, m_t, m_c, alpha_t, alpha_c, beta_t, beta_c,
+pbetabinomdiff <- function(q, m_t, a_t, b_t, m_c, a_c, b_c,
                            lower.tail = TRUE) {
-
-  # --- Input validation ---
-  if (!is.numeric(q) || length(q) != 1L || is.na(q)) {
-    stop("'q' must be a single numeric value")
-  }
-
-  if (!is.numeric(m_t) || length(m_t) != 1L || is.na(m_t) ||
-      m_t != floor(m_t) || m_t < 1L) {
-    stop("'m_t' must be a single positive integer")
-  }
-
-  if (!is.numeric(m_c) || length(m_c) != 1L || is.na(m_c) ||
-      m_c != floor(m_c) || m_c < 1L) {
-    stop("'m_c' must be a single positive integer")
-  }
-
-  if (!is.numeric(alpha_t) || length(alpha_t) != 1L || is.na(alpha_t) || alpha_t <= 0) {
-    stop("'alpha_t' must be a single positive numeric value")
-  }
-
-  if (!is.numeric(alpha_c) || length(alpha_c) != 1L || is.na(alpha_c) || alpha_c <= 0) {
-    stop("'alpha_c' must be a single positive numeric value")
-  }
-
-  if (!is.numeric(beta_t) || length(beta_t) != 1L || is.na(beta_t) || beta_t <= 0) {
-    stop("'beta_t' must be a single positive numeric value")
-  }
-
-  if (!is.numeric(beta_c) || length(beta_c) != 1L || is.na(beta_c) || beta_c <= 0) {
-    stop("'beta_c' must be a single positive numeric value")
-  }
-
-  if (!is.logical(lower.tail) || length(lower.tail) != 1L || is.na(lower.tail)) {
-    stop("'lower.tail' must be a single logical value (TRUE or FALSE)")
-  }
-
-  # --- Compute Beta-Binomial PMFs ---
-  # PMF for Y_t ~ BetaBinomial(m_t, alpha_t, beta_t)
+  check_numeric(q, "q", len = NULL)
+  check_numeric(m_t, "m_t", lower = 1, integer = TRUE)
+  check_numeric(m_c, "m_c", lower = 1, integer = TRUE)
+  check_numeric(a_t, "a_t", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(b_t, "b_t", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(a_c, "a_c", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(b_c, "b_c", len = NULL, lower = 0, lower_open = TRUE)
+  check_flag(lower.tail, "lower.tail")
+  args <- recycle_common(list(q = q, a_t = a_t, b_t = b_t, a_c = a_c,
+                              b_c = b_c))
+  m_t <- round(m_t)
+  m_c <- round(m_c)
   k_t <- 0:m_t
-  dbetabinom_t <- choose(m_t, k_t) *
-    beta(k_t + alpha_t, m_t - k_t + beta_t) / beta(alpha_t, beta_t)
-
-  # PMF for Y_c ~ BetaBinomial(m_c, alpha_c, beta_c)
   k_c <- 0:m_c
-  dbetabinom_c <- choose(m_c, k_c) *
-    beta(k_c + alpha_c, m_c - k_c + beta_c) / beta(alpha_c, beta_c)
-
-  # --- Enumerate all (m_t+1) x (m_c+1) outcome combinations ---
-  # Proportion difference: (k_t/m_t) - (k_c/m_c) = (m_c*k_t - m_t*k_c) / (m_t*m_c)
-  # Use integer arithmetic via outer() to avoid floating-point comparison issues.
-  diff_numer <- outer(m_c * k_t, m_t * k_c, "-")  # numerator matrix (m_c*k_t - m_t*k_c)
-  denom      <- m_t * m_c
-
-  if (lower.tail) {
-    I <- (diff_numer / denom <= q)
-  } else {
-    I <- (diff_numer / denom > q)
+  # Numerators m_c * k_t of the differences on the common denominator
+  # m_t * m_c (exact in double precision)
+  num_t <- m_c * k_t
+  den <- m_t * m_c
+  out <- numeric(length(args$q))
+  for (i in seq_along(out)) {
+    q_i <- args$q[i]
+    # For each k_t, the largest k_c with (m_c * k_t - m_t * k_c) / den > q_i.
+    # The difference decreases in k_c, so the estimate below is within one of
+    # the exact value; the three neighbouring candidates are checked with the
+    # exact comparison.
+    k_est <- floor((num_t - q_i * den) / m_t)
+    k_max <- rep(-1, length(k_t))
+    for (shift in c(-1, 0, 1)) {
+      cand <- k_est + shift
+      ok <- (num_t - m_t * cand) / den > q_i
+      k_max <- ifelse(ok & cand > k_max, cand, k_max)
+    }
+    k_max <- pmin(pmax(k_max, -1), m_c)
+    p_t <- dbetabinom(k_t, m_t, args$a_t[i], args$b_t[i])
+    p_c <- dbetabinom(k_c, m_c, args$a_c[i], args$b_c[i])
+    if (lower.tail) {
+      # P(Y_c >= k_max + 1), with P(Y_c >= m_c + 1) = 0
+      tail_c <- c(rev(cumsum(rev(p_c))), 0)
+    } else {
+      # P(Y_c <= k_max), with P(Y_c <= -1) = 0
+      tail_c <- c(0, cumsum(p_c))
+    }
+    out[i] <- sum(p_t * tail_c[k_max + 2])
   }
-
-  # Sum joint probabilities over outcome pairs satisfying the condition
-  result <- as.numeric(crossprod(dbetabinom_t[row(I)[I]], dbetabinom_c[col(I)[I]]))
-
-  return(result)
+  pmin(pmax(out, 0), 1)
 }
