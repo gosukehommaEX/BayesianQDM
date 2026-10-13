@@ -13,3 +13,9 @@ test_that("data_binary() rejects invalid counts", {
   expect_error(data_binary(10, 2.5), "whole numbers")
   expect_error(data_binary(10, -1), "'y' must be at least 0.")
 })
+
+test_that("data_binary() accepts whole numbers stored as doubles only", {
+  expect_identical(data_binary(12.0, 3.0)$n, 12L)
+  expect_error(data_binary(c(10, 12), 3), "'n' must have length 1.")
+  expect_error(data_binary(10.5, 3), "whole numbers")
+})

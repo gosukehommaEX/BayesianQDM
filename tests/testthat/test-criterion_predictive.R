@@ -27,3 +27,22 @@ test_that("criterion_predictive() rejects invalid input", {
                                     gamma_nogo = 0.5, go_regions = 5),
                "'go_regions' must be at least 1 and at most 4.")
 })
+
+test_that("criterion_predictive() validates the null values and thresholds", {
+  expect_error(criterion_predictive(c(0, 0, 0), m_t = 10, gamma_go = 0.5,
+                                    gamma_nogo = 0.5),
+               "'theta_null' must have length 1")
+  expect_error(criterion_predictive(NA_real_, m_t = 10, gamma_go = 0.5,
+                                    gamma_nogo = 0.5),
+               "'theta_null' must not contain missing")
+  expect_error(criterion_predictive(0, m_t = 10, gamma_go = 0,
+                                    gamma_nogo = 0.5),
+               "'gamma_go' must be greater than 0 and less than 1.")
+  expect_error(criterion_predictive(0, m_t = 10, gamma_go = 0.5,
+                                    gamma_nogo = 1),
+               "'gamma_nogo' must be greater than 0 and less than 1.")
+  expect_error(criterion_predictive(c(0, 0), m_t = 10, gamma_go = 0.5,
+                                    gamma_nogo = 0.5, go_regions = 1,
+                                    nogo_regions = c(1, 4)),
+               "must not share any region")
+})

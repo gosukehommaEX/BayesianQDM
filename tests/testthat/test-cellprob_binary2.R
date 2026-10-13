@@ -24,3 +24,35 @@ test_that("cellprob_binary2() rejects infeasible correlations", {
   expect_error(cellprob_binary2(0.1, 0.9, 0.5), "is infeasible")
   expect_error(cellprob_binary2(0, 0.5, 0), "'pi1' must be greater than 0")
 })
+
+test_that("cellprob_binary2() recovers the margins and the correlation", {
+  for (pi1 in c(0.05, 0.3, 0.5, 0.8)) {
+    for (pi2 in c(0.1, 0.45, 0.9)) {
+      sd_prod <- sqrt(pi1 * (1 - pi1) * pi2 * (1 - pi2))
+      rho_min <- (max(0, pi1 + pi2 - 1) - pi1 * pi2) / sd_prod
+      rho_max <- (min(pi1, pi2) - pi1 * pi2) / sd_prod
+      for (rho in seq(rho_min, rho_max, length.out = 5)) {
+        p <- cellprob_binary2(pi1, pi2, rho)
+        info <- paste(pi1, pi2, rho)
+        expect_true(all(p >= 0), info = info)
+        expect_equal(sum(p), 1, tolerance = 1e-14, info = info)
+        expect_equal(unname(p["10"] + p["11"]), pi1, tolerance = 1e-12,
+                     info = info)
+        expect_equal(unname(p["01"] + p["11"]), pi2, tolerance = 1e-12,
+                     info = info)
+        expect_equal(unname((p["11"] - pi1 * pi2) / sd_prod), rho,
+                     tolerance = 1e-10, info = info)
+      }
+    }
+  }
+})
+
+test_that("cellprob_binary2() applies the tolerance to the feasible range", {
+  rho_max <- 1 / 9
+  expect_silent(cellprob_binary2(0.1, 0.9, rho_max + 1e-11))
+  expect_error(cellprob_binary2(0.1, 0.9, rho_max + 1e-6), "is infeasible")
+  expect_silent(cellprob_binary2(0.1, 0.9, rho_max + 1e-6, tol = 1e-5))
+  expect_error(cellprob_binary2(0.1, 0.9, -1.1), "is infeasible")
+  expect_error(cellprob_binary2(0.3, 0.4, 0, tol = -1),
+               "'tol' must be at least 0.")
+})

@@ -116,9 +116,13 @@ Rcpp::NumericVector cpp_ptdiff_ni_upper(Rcpp::NumericVector q,
       Rcpp::checkUserInterrupt();
     }
   }
+  // Warning for extreme parameter values for which QUADPACK reports a
+  // problem; not triggered by the tests (excluded from test coverage).
+  // # nocov start
   if (max_ier > 0 && max_abserr > 1e-8) {
     Rcpp::warning("Numerical integration may be inaccurate "
                   "(estimated absolute error %g).", max_abserr);
   }
+  // # nocov end
   return out;
 }

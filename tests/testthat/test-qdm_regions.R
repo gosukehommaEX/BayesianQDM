@@ -16,3 +16,10 @@ test_that("qdm_regions() follows Table 2 of Yamaguchi et al.", {
   expect_identical(r["theta2 > NULL2", "theta1 <= NULL1"], "R3")
   expect_error(qdm_regions("other"), "'arg' should be one of")
 })
+
+test_that("qdm_regions() shows the posterior regions by default", {
+  expect_identical(qdm_regions(), qdm_regions("posterior"))
+  expect_identical(sort(as.vector(unclass(qdm_regions()))), paste0("R", 1:9))
+  expect_identical(sort(as.vector(unclass(qdm_regions("predictive")))),
+                   paste0("R", 1:4))
+})

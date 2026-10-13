@@ -9,3 +9,9 @@ test_that("data_continuous() rejects invalid summaries", {
   expect_error(data_continuous(10, 0, 0), "'sd' must be greater than 0.")
   expect_error(data_continuous(10, Inf, 1), "'mean' must be finite.")
 })
+
+test_that("data_continuous() rejects non-numeric and vector input", {
+  expect_error(data_continuous(10, "1", 1), "'mean' must be numeric.")
+  expect_error(data_continuous(10, c(1, 2), 1), "'mean' must have length 1.")
+  expect_error(data_continuous(10.5, 1, 1), "whole numbers")
+})

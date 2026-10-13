@@ -47,3 +47,69 @@ test_that("pbetadiff() validates its arguments", {
   expect_error(pbetadiff(0, 1, 1, 1, 1, lower.tail = NA),
                "'lower.tail' must be TRUE or FALSE.")
 })
+
+test_that("pbetadiff() matches the finite-sum formula for integer a_t at q = 0", {
+  # For integer a_t, P(pi_t > pi_c) is a finite sum (Python_reference/
+  # check_closed_forms.py confirms it against numerical integration).
+  grid <- expand.grid(a_t = 1:8, b_t = c(0.5, 1, 3.5, 12),
+                      a_c = c(0.5, 1, 3.5, 12), b_c = c(0.5, 1, 3.5, 12))
+  exact <- vapply(seq_len(nrow(grid)), function(k) {
+    g <- grid[k, ]
+    i <- seq(0, g$a_t - 1)
+    sum(exp(lbeta(g$a_c + i, g$b_c + g$b_t) - log(g$b_t + i) -
+              lbeta(1 + i, g$b_t) - lbeta(g$a_c, g$b_c)))
+  }, numeric(1))
+  got <- pbetadiff(0, grid$a_t, grid$b_t, grid$a_c, grid$b_c,
+                   lower.tail = FALSE)
+  expect_equal(got, exact, tolerance = 1e-9)
+})
+
+test_that("pbetadiff() agrees with integration over the treatment variable", {
+  # Alternative representation: P(pi_t - pi_c > q) =
+  #   int f_t(y) F_c(y - q) dy + [q < 0] P(pi_t > 1 + q)
+  grid <- expand.grid(q = c(-0.6, -0.2, 0.05, 0.3, 0.7),
+                      shapes = 1:3)
+  shapes <- list(c(2.5, 4.5, 3.5, 6.5), c(0.5, 9.5, 1.5, 8.5),
+                 c(15.5, 5.5, 10.5, 10.5))
+  for (k in seq_len(nrow(grid))) {
+    q <- grid$q[k]
+    s <- shapes[[grid$shapes[k]]]
+    alt <- stats::integrate(
+      function(y) stats::dbeta(y, s[1], s[2]) * stats::pbeta(y - q, s[3], s[4]),
+      lower = max(0, q), upper = min(1, 1 + q), rel.tol = 1e-11
+    )$value
+    if (q < 0) {
+      alt <- alt + stats::pbeta(1 + q, s[1], s[2], lower.tail = FALSE)
+    }
+    expect_equal(pbetadiff(q, s[1], s[2], s[3], s[4], lower.tail = FALSE),
+                 alt, tolerance = 1e-7, info = paste("case", k))
+  }
+})
+
+test_that("pbetadiff() is a non-increasing function of q in [0, 1]", {
+  q <- seq(-1.2, 1.2, length.out = 241)
+  p <- pbetadiff(q, 3.5, 9.5, 6.5, 6.5, lower.tail = FALSE)
+  expect_true(all(diff(p) <= 1e-10))
+  expect_true(all(p >= 0 & p <= 1))
+  expect_identical(p[q <= -1], rep(1, sum(q <= -1)))
+  expect_identical(p[q >= 1], rep(0, sum(q >= 1)))
+})
+
+test_that("pbetadiff() handles long vectors", {
+  q <- seq(-0.5, 0.5, length.out = 1200)
+  p <- pbetadiff(q, 7.5, 5.5, 4.5, 8.5)
+  expect_length(p, 1200L)
+  expect_identical(p[c(1, 600, 1200)],
+                   pbetadiff(q[c(1, 600, 1200)], 7.5, 5.5, 4.5, 8.5))
+})
+
+test_that("pbetadiff() agrees with Monte Carlo simulation", {
+  skip_on_cran()
+  set.seed(11)
+  n <- 1e6
+  d <- stats::rbeta(n, 7.5, 5.5) - stats::rbeta(n, 4.5, 8.5)
+  for (q in c(-0.1, 0, 0.2)) {
+    p <- pbetadiff(q, 7.5, 5.5, 4.5, 8.5, lower.tail = FALSE)
+    expect_lt(abs(mean(d > q) - p), 4 * sqrt(p * (1 - p) / n))
+  }
+})

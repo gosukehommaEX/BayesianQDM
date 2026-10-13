@@ -13,3 +13,15 @@ test_that("prior_niw() rejects invalid hyperparameters", {
   expect_error(prior_niw(c(0, 0), 1, 4, matrix(c(1, 2, 2, 1), 2)),
                "'Lambda0' must be positive definite.")
 })
+
+test_that("prior_niw() checks every hyperparameter", {
+  expect_error(prior_niw(c(0, 0), 0, 4, diag(2)),
+               "'kappa0' must be greater than 0.")
+  expect_error(prior_niw(c(0, 0), 1, 4, matrix(c(1, 0.5, 0, 1), 2)),
+               "'Lambda0' must be symmetric.")
+  expect_error(prior_niw(c(0, 0), 1, 4, diag(3)),
+               "'Lambda0' must be a numeric 2 x 2 matrix.")
+  p <- prior_niw(c(0, 0), 1, 4,
+                 matrix(c(1, 0, 0, 1), 2, dimnames = list(c("a", "b"), NULL)))
+  expect_null(dimnames(p$Lambda0))
+})

@@ -58,3 +58,48 @@ test_that("pbetabinomdiff() validates its arguments", {
   expect_error(pbetabinomdiff(0, 10, 1, -1, 10, 1, 1),
                "'b_t' must be greater than 0.")
 })
+
+test_that("pbetabinomdiff() agrees with direct enumeration over a grid", {
+  pmf <- function(m, a, b) {
+    k <- 0:m
+    choose(m, k) * beta(k + a, m - k + b) / beta(a, b)
+  }
+  qs <- c(-1, -0.5, -0.1, 0, 1 / 12, 0.2, 0.5, 1)
+  for (m_t in c(1, 5, 12)) {
+    for (m_c in c(1, 4, 12)) {
+      for (s in list(c(0.5, 0.5, 0.5, 0.5), c(3, 1.5, 2, 6))) {
+        joint <- outer(pmf(m_t, s[1], s[2]), pmf(m_c, s[3], s[4]))
+        diffs <- outer(m_c * (0:m_t), m_t * (0:m_c), "-") / (m_t * m_c)
+        brute <- vapply(qs, function(q) sum(joint[diffs > q]), numeric(1))
+        got <- pbetabinomdiff(qs, m_t, s[1], s[2], m_c, s[3], s[4],
+                              lower.tail = FALSE)
+        expect_equal(got, brute, tolerance = 1e-12,
+                     info = paste("m_t =", m_t, "m_c =", m_c))
+      }
+    }
+  }
+})
+
+test_that("pbetabinomdiff() has the correct limits", {
+  args <- list(m_t = 6, a_t = 2, b_t = 3, m_c = 4, a_c = 1.5, b_c = 2.5)
+  up <- function(q) {
+    do.call(pbetabinomdiff, c(list(q = q, lower.tail = FALSE), args))
+  }
+  expect_identical(up(1), 0)
+  expect_equal(up(-1.01), 1, tolerance = 1e-14)
+  # The difference equals -1 only when Y_t = 0 and Y_c = m_c
+  p_t0 <- dbetabinom(0, 6, 2, 3)
+  p_cm <- dbetabinom(4, 4, 1.5, 2.5)
+  expect_equal(up(-1), 1 - p_t0 * p_cm, tolerance = 1e-12)
+})
+
+test_that("pbetabinomdiff() agrees with Monte Carlo simulation", {
+  skip_on_cran()
+  set.seed(12)
+  n <- 1e6
+  y_t <- stats::rbinom(n, 20, stats::rbeta(n, 7.5, 5.5))
+  y_c <- stats::rbinom(n, 15, stats::rbeta(n, 4.5, 8.5))
+  d <- y_t / 20 - y_c / 15
+  p <- pbetabinomdiff(0.1, 20, 7.5, 5.5, 15, 4.5, 8.5, lower.tail = FALSE)
+  expect_lt(abs(mean(d > 0.1) - p), 4 * sqrt(p * (1 - p) / n))
+})

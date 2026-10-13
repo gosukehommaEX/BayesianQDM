@@ -12,3 +12,8 @@ test_that("prior_nix() rejects invalid hyperparameters", {
   expect_error(prior_nix(0, 1, 0, 1), "'nu0' must be greater than 0.")
   expect_error(prior_nix(0, 1, 1, -2), "'sigma0' must be greater than 0.")
 })
+
+test_that("prior_nix() rejects vector hyperparameters", {
+  expect_error(prior_nix(c(0, 1), 1, 1, 1), "'mu0' must have length 1.")
+  expect_error(prior_nix(0, 1, c(1, 2), 1), "'nu0' must have length 1.")
+})

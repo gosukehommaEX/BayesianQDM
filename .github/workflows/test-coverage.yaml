@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Run the tests skipped on CRAN so that coverage includes them
+      NOT_CRAN: true
 
     steps:
       - uses: actions/checkout@v4

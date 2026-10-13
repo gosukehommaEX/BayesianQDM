@@ -37,3 +37,13 @@ test_that("criterion_posterior() rejects invalid input", {
                                    go_regions = 1, nogo_regions = 1),
                "must not share any region")
 })
+
+test_that("criterion_posterior() coerces region numbers to integers", {
+  cr <- criterion_posterior(c(0.2, 0.15), c(0.1, 0), 0.3, 0.4,
+                            go_regions = c(1, 2, 4), nogo_regions = 9)
+  expect_type(cr$go_regions, "integer")
+  expect_identical(cr$go_regions, c(1L, 2L, 4L))
+  expect_error(criterion_posterior(c(0.2, 0.15), c(0.1, 0), 0.3, 0.4,
+                                   go_regions = 0),
+               "'go_regions' must be at least 1 and at most 9.")
+})

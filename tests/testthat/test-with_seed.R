@@ -32,3 +32,16 @@ test_that("with_seed() removes .Random.seed if none existed before", {
 test_that("with_seed() validates the seed", {
   expect_error(with_seed(1.5, 1), "'seed' must contain whole numbers only.")
 })
+
+test_that("with_seed() restores the state when the expression fails", {
+  set.seed(3)
+  state <- get(".Random.seed", envir = globalenv())
+  expect_error(with_seed(1, stop("boom")), "boom")
+  expect_identical(get(".Random.seed", envir = globalenv()), state)
+})
+
+test_that("with_seed() does not change the random number generator kind", {
+  kind <- RNGkind()
+  with_seed(10, stats::rnorm(1))
+  expect_identical(RNGkind(), kind)
+})

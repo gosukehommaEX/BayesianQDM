@@ -29,13 +29,10 @@ void beta_diff_integrand(double *x, int n, void *ex) {
   }
 }
 
-// Integrates over [lo, hi] and records the largest error estimate and the
-// largest QUADPACK error code.
+// Integrates over [lo, hi] with lo < hi, and records the largest error
+// estimate and the largest QUADPACK error code.
 double integrate_segment(BetaDiffArgs &args, double lo, double hi,
                          double &max_abserr, int &max_ier) {
-  if (!(hi > lo)) {
-    return 0.0;
-  }
   double a = lo;
   double b = hi;
   double epsabs = 1e-13;
@@ -107,9 +104,13 @@ Rcpp::NumericVector cpp_pbetadiff_upper(Rcpp::NumericVector q,
       Rcpp::checkUserInterrupt();
     }
   }
+  // Warning for extreme parameter values for which QUADPACK reports a
+  // problem; not triggered by the tests (excluded from test coverage).
+  // # nocov start
   if (max_ier > 0 && max_abserr > 1e-8) {
     Rcpp::warning("Numerical integration may be inaccurate "
                   "(estimated absolute error %g).", max_abserr);
   }
+  // # nocov end
   return out;
 }

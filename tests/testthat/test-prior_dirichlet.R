@@ -9,3 +9,9 @@ test_that("prior_dirichlet() rejects invalid parameters", {
   expect_error(prior_dirichlet(c(1, 1, 1, 0)),
                "'alpha' must be greater than 0.")
 })
+
+test_that("prior_dirichlet() ignores input names", {
+  p <- prior_dirichlet(c(w = 1, x = 2, y = 3, z = 4))
+  expect_identical(names(p$alpha), c("00", "01", "10", "11"))
+  expect_error(prior_dirichlet(c(1, NA, 1, 1)), "'alpha' must not contain")
+})

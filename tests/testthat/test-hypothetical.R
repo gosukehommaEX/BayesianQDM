@@ -25,3 +25,11 @@ test_that("hypothetical() rejects incomplete or conflicting input", {
   expect_error(hypothetical(mean = 1:3, r = 1), "'mean' must have length 1")
   expect_error(hypothetical(mean = 1, r = 0), "'r' must be greater than 0.")
 })
+
+test_that("hypothetical() accepts two binary endpoints and checks 'r' alone", {
+  d <- data_binary2(c(5, 3, 2, 1))
+  expect_identical(hypothetical(data = d)$data, d)
+  expect_error(hypothetical(r = 1), "Both 'mean' and 'r' must be")
+  expect_error(hypothetical(mean = NA_real_, r = 1),
+               "'mean' must not contain missing")
+})

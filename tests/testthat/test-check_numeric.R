@@ -18,3 +18,23 @@ test_that("check_numeric() rejects invalid input with informative messages", {
   expect_error(check_numeric(1, "x", lower = 0, upper = 1, upper_open = TRUE),
                "'x' must be at least 0 and less than 1.")
 })
+
+test_that("check_numeric() describes one-sided and two-sided bounds", {
+  expect_error(check_numeric(2, "x", upper = 1), "'x' must be at most 1.")
+  expect_error(check_numeric(1, "x", upper = 1, upper_open = TRUE),
+               "'x' must be less than 1.")
+  expect_error(check_numeric(-1, "x", lower = 0, upper = 1),
+               "'x' must be at least 0 and at most 1.")
+  expect_error(check_numeric(c(1, 2), "x", len = 3L),
+               "'x' must have length 3.")
+  expect_error(check_numeric(c(0, 2), "x", len = NULL, upper = 1),
+               "'x' must be at most 1.")
+  expect_silent(check_numeric(c(0, 1), "x", len = NULL, lower = 0, upper = 1))
+})
+
+test_that("check_numeric() tolerates rounding error in whole numbers", {
+  expect_silent(check_numeric(3 + 1e-10, "x", integer = TRUE))
+  expect_silent(check_numeric(Inf, "x", integer = TRUE, allow_inf = TRUE))
+  expect_error(check_numeric(c(1, 2.5), "x", len = NULL, integer = TRUE),
+               "whole numbers")
+})

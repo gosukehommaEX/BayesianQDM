@@ -24,3 +24,26 @@ test_that("rdirichlet() validates its arguments", {
   expect_error(rdirichlet(2, 1), "'alpha' must have length 2 or more.")
   expect_error(rdirichlet(2, c(1, 0)), "'alpha' must be greater than 0.")
 })
+
+test_that("rdirichlet() has Beta margins and the Dirichlet covariance", {
+  set.seed(3)
+  alpha <- c(2, 3, 1.5)
+  a0 <- sum(alpha)
+  x <- rdirichlet(2e4, alpha)
+  # The first component follows Beta(alpha_1, a0 - alpha_1)
+  ks <- stats::ks.test(x[, 1], "pbeta", alpha[1], a0 - alpha[1])
+  expect_gt(ks$p.value, 1e-3)
+  # Cov(X_1, X_2) = -alpha_1 alpha_2 / (a0^2 (a0 + 1))
+  expect_equal(stats::cov(x[, 1], x[, 2]),
+               -alpha[1] * alpha[2] / (a0 ^ 2 * (a0 + 1)), tolerance = 0.1)
+})
+
+test_that("rdirichlet() is reproducible and does not name unnamed columns", {
+  set.seed(9)
+  a <- rdirichlet(3, c(1, 1))
+  set.seed(9)
+  b <- rdirichlet(3, c(1, 1))
+  expect_identical(a, b)
+  expect_null(colnames(a))
+  expect_error(rdirichlet(2.5, c(1, 1)), "whole numbers")
+})

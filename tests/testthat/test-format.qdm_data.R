@@ -9,3 +9,10 @@ test_that("format.qdm_data() describes each kind of data", {
                    paste("two continuous endpoints, n = 12, mean = (1, 2),",
                          "cov = (1, 0; 0, 1)"))
 })
+
+test_that("format.qdm_data() honours digits and rejects unknown classes", {
+  expect_identical(format(data_continuous(10, 1 / 3, 2 / 3), digits = 2),
+                   "continuous, n = 10, mean = 0.33, sd = 0.67")
+  fake <- structure(list(), class = c("qdm_data_other", "qdm_data"))
+  expect_error(format(fake), "Unknown data class.")
+})

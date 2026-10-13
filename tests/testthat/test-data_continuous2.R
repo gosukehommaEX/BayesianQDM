@@ -13,3 +13,10 @@ test_that("data_continuous2() rejects invalid summaries", {
   expect_error(data_continuous2(10, c(0, 0), matrix(c(1, 1, 1, 1), 2)),
                "'cov' must be positive definite.")
 })
+
+test_that("data_continuous2() drops dimnames and checks symmetry", {
+  S <- matrix(c(4, 1, 1, 2), 2, dimnames = list(c("a", "b"), c("a", "b")))
+  expect_null(dimnames(data_continuous2(10, c(0, 0), S)$cov))
+  expect_error(data_continuous2(10, c(0, 0), matrix(c(4, 1, 0, 2), 2)),
+               "'cov' must be symmetric.")
+})

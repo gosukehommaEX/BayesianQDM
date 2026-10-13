@@ -10,3 +10,9 @@ test_that("prior_beta() rejects non-positive shapes", {
   expect_error(prior_beta(1, -1), "'b' must be greater than 0.")
   expect_error(prior_beta(c(1, 2), 1), "'a' must have length 1.")
 })
+
+test_that("prior_beta() rejects missing and non-numeric shapes", {
+  expect_error(prior_beta(NA_real_, 1), "'a' must not contain missing")
+  expect_error(prior_beta(1, "2"), "'b' must be numeric.")
+  expect_error(prior_beta(Inf, 1), "'a' must be finite.")
+})

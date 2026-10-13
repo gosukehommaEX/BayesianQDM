@@ -10,3 +10,10 @@ test_that("data_binary2() rejects invalid counts", {
   expect_error(data_binary2(c(0, 0, 0, 0)), "at least one subject")
   expect_error(data_binary2(c(1, -1, 0, 0)), "'counts' must be at least 0.")
 })
+
+test_that("data_binary2() ignores input names and checks whole numbers", {
+  d <- data_binary2(c(a = 1, b = 0, c = 0, d = 0))
+  expect_identical(names(d$counts), c("00", "01", "10", "11"))
+  expect_identical(d$n, 1L)
+  expect_error(data_binary2(c(1, 0.5, 0, 0)), "whole numbers")
+})

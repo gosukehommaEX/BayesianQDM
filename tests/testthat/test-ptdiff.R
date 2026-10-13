@@ -81,3 +81,84 @@ test_that("ptdiff() validates its arguments", {
   expect_error(ptdiff(0, 0, 1, 3, 0, 1, 10, method = "XX"),
                "should be one of")
 })
+
+test_that("ptdiff() is exact for Cauchy variables (one degree of freedom)", {
+  # T_t - T_c is Cauchy with location mu_t - mu_c and scale s_t + s_c
+  grid <- expand.grid(q = c(-5, -1, 0, 0.3, 2, 20),
+                      s = 1:3)
+  sc <- list(c(1, 1), c(0.2, 3), c(5, 0.5))
+  for (k in seq_len(nrow(grid))) {
+    s <- sc[[grid$s[k]]]
+    exact <- stats::pcauchy(grid$q[k], 1.5 - 0.5, s[1] + s[2],
+                            lower.tail = FALSE)
+    expect_equal(ptdiff(grid$q[k], 1.5, s[1], 1, 0.5, s[2], 1,
+                        lower.tail = FALSE),
+                 exact, tolerance = 1e-8, info = paste("case", k))
+  }
+})
+
+test_that("ptdiff() is exact for normal variables (infinite df)", {
+  q <- c(-3, -0.5, 0, 0.7, 4)
+  exact <- stats::pnorm(q, 2 - 0.5, sqrt(1.2 ^ 2 + 0.8 ^ 2),
+                        lower.tail = FALSE)
+  for (m in c("NI", "MM")) {
+    expect_equal(ptdiff(q, 2, 1.2, Inf, 0.5, 0.8, Inf, method = m,
+                        lower.tail = FALSE),
+                 exact, tolerance = 1e-9, info = m)
+  }
+  # Large degrees of freedom are close to the normal case
+  expect_equal(ptdiff(q, 2, 1.2, 1e7, 0.5, 0.8, 1e7, lower.tail = FALSE),
+               exact, tolerance = 1e-6)
+})
+
+test_that("ptdiff() with MM is close to NI for moderate degrees of freedom", {
+  # Accuracy of the moment-matching approximation (Yamaguchi et al.)
+  grid <- expand.grid(q = c(-2, 0, 1, 3), df_t = c(10, 30), df_c = c(12, 60),
+                      scale_c = c(0.5, 1, 2))
+  ni <- ptdiff(grid$q, 0.5, 1, grid$df_t, 0, grid$scale_c, grid$df_c)
+  mm <- ptdiff(grid$q, 0.5, 1, grid$df_t, 0, grid$scale_c, grid$df_c,
+               method = "MM")
+  expect_lt(max(abs(ni - mm)), 2e-3)
+})
+
+test_that("ptdiff() is a non-increasing function of q", {
+  q <- seq(-10, 10, length.out = 201)
+  p <- ptdiff(q, 1, 1, 3, 0, 2, 7, lower.tail = FALSE)
+  expect_true(all(diff(p) <= 1e-10))
+  expect_true(all(p >= 0 & p <= 1))
+})
+
+test_that("ptdiff() handles long vectors", {
+  q <- seq(-3, 3, length.out = 1200)
+  p <- ptdiff(q, 1, 1, 8, 0, 1.5, 12)
+  expect_length(p, 1200L)
+  expect_identical(p[c(1, 600, 1200)],
+                   ptdiff(q[c(1, 600, 1200)], 1, 1, 8, 0, 1.5, 12))
+})
+
+test_that("ptdiff() with MC uses the default nMC and both tails", {
+  set.seed(5)
+  up <- ptdiff(1, 3, 1, 15, 1, 1, 15, method = "MC", lower.tail = FALSE)
+  lo <- ptdiff(1, 3, 1, 15, 1, 1, 15, method = "MC")
+  ref <- 0.7502661261453839
+  se <- sqrt(ref * (1 - ref) / 10000)
+  expect_lt(abs(up - ref), 4 * se)
+  expect_lt(abs(lo - (1 - ref)), 4 * se)
+})
+
+test_that("ptdiff() with MC agrees with NI for many draws", {
+  skip_on_cran()
+  set.seed(6)
+  ref <- ptdiff(c(-1, 0.5, 2), 1, 1, 6, 0, 1.5, 9, lower.tail = FALSE)
+  est <- ptdiff(c(-1, 0.5, 2), 1, 1, 6, 0, 1.5, 9, method = "MC",
+                nMC = 1e6, lower.tail = FALSE)
+  expect_true(all(abs(est - ref) < 4 * sqrt(ref * (1 - ref) / 1e6)))
+})
+
+test_that("ptdiff() checks the lengths of its arguments", {
+  expect_error(ptdiff(c(0, 1), c(0, 1, 2), 1, 5, 0, 1, 5),
+               "'q' must have length 1 or 3.")
+  expect_error(ptdiff(0, 0, 1, 0, 0, 1, 5), "'df_t' must be greater than 0.")
+  expect_error(ptdiff(0, 0, 1, 5, 0, 1, 5, lower.tail = "yes"),
+               "'lower.tail' must be TRUE or FALSE.")
+})
