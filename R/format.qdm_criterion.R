@@ -11,37 +11,25 @@
 #'                            gamma_go = 0.5, gamma_nogo = 0.8))
 #' @export
 format.qdm_criterion <- function(x, digits = 4L, ...) {
-  gamma_go <- format_num(x$gamma_go, digits)
-  gamma_nogo <- format_num(x$gamma_nogo, digits)
-  if (x$n_endpoints == 2L) {
-    go <- sprintf("P(regions {%s} | data) >= %s",
-                  paste(x$go_regions, collapse = ", "), gamma_go)
-    nogo <- sprintf("P(regions {%s} | data) >= %s",
-                    paste(x$nogo_regions, collapse = ", "), gamma_nogo)
-  }
+  labels <- event_labels(x, digits)
+  go <- sprintf("%s >= %s", labels[["go"]], format_num(x$gamma_go, digits))
+  nogo <- sprintf("%s >= %s", labels[["nogo"]],
+                  format_num(x$gamma_nogo, digits))
+  extra <- character(0)
   if (x$type == "posterior") {
     header <- "Posterior probability criterion"
-    tv <- format_num(x$theta_tv, digits)
-    mav <- format_num(x$theta_mav, digits)
-    if (x$n_endpoints == 1L) {
-      go <- sprintf("P(theta > %s | data) >= %s", tv, gamma_go)
-      nogo <- sprintf("P(theta <= %s | data) >= %s", mav, gamma_nogo)
-      extra <- character(0)
-    } else {
-      extra <- sprintf("  TV = (%s), MAV = (%s)", tv, mav)
+    if (x$n_endpoints == 2L) {
+      extra <- sprintf("  TV = (%s), MAV = (%s)",
+                       format_num(x$theta_tv, digits),
+                       format_num(x$theta_mav, digits))
     }
   } else {
     header <- sprintf(
       "Posterior predictive probability criterion (m_t = %d, m_c = %d)",
       x$m_t, x$m_c
     )
-    null <- format_num(x$theta_null, digits)
-    if (x$n_endpoints == 1L) {
-      go <- sprintf("P(future theta > %s | data) >= %s", null, gamma_go)
-      nogo <- sprintf("P(future theta <= %s | data) >= %s", null, gamma_nogo)
-      extra <- character(0)
-    } else {
-      extra <- sprintf("  NULL = (%s)", null)
+    if (x$n_endpoints == 2L) {
+      extra <- sprintf("  NULL = (%s)", format_num(x$theta_null, digits))
     }
   }
   c(header, paste0("  Go:   ", go), paste0("  NoGo: ", nogo), extra)

@@ -48,11 +48,18 @@ predictive) probability used for a single continuous endpoint.
 \details{
 Three methods are available.
 \describe{
-\item{\code{"NI"}}{Numerical integration of
-\eqn{\int f_c(u) \Pr(T_t > u + q) \, du} over the whole real line by
-adaptive Gauss-Kronrod quadrature (the QUADPACK routines used by
-\code{\link[stats]{integrate}}). Accurate to about 10 significant
-digits.}
+\item{\code{"NI"}}{Numerical integration over the whole real line by
+adaptive Gauss-Kronrod quadrature (the QUADPACK routine used by
+\code{\link[stats]{integrate}}). The integral is taken over the
+variable of the group with the smaller scale, for example
+\eqn{\int f_c(u) \Pr(T_t > u + q) \, du} when
+\eqn{s_c \le s_t}. The range is split around the peak of the density
+and around the change of the other factor, and the parts far from the
+origin are integrated on a logarithmic scale, so that heavy tails and
+very different scales are handled. The absolute error is below
+\eqn{10^{-9}} in the tests, which include scale ratios from
+\eqn{10^{-9}} to \eqn{10^3} and degrees of freedom from 0.5 to
+\code{Inf}.}
 \item{\code{"MM"}}{The moment-matching approximation of Yamaguchi et al.
 (submitted, Theorem 1), which replaces the difference by a single t
 distribution with matched second and fourth moments. It requires

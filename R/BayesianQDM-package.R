@@ -9,4 +9,5 @@
 #' @keywords internal
 #' @useDynLib BayesianQDM, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
+#' @importFrom ggplot2 .data
 "_PACKAGE"

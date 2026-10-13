@@ -20,12 +20,43 @@ release.
   probability of the NoGo region is at least `gamma_nogo`.
 * `qdm_regions()` shows the numbering of the regions for two endpoints.
 
+## Designs and operations: one binary endpoint
+
+* `design_binary()` specifies a study with one binary endpoint: sample sizes,
+  Beta priors, external data for either group (`borrow()`), and a concurrent,
+  external-only (`n_c = 0` with `external_c`) or hypothetical (`n_c = 0` with
+  `hypothetical_c`) control group.
+* `qdm_decide()` computes the probabilities of the Go and NoGo regions for
+  observed data and returns the decision: Go, NoGo, Gray, or Miss (both
+  criteria met).
+* `qdm_oc()` computes the probabilities of the four decisions under
+  scenarios for the true response rates by exact enumeration of the
+  outcomes. Miss decisions are reported in their own column with a warning;
+  the arguments `error_if_Miss` and `Gray_inc_Miss` of version 0.1.0 are
+  removed.
+* `qdm_calibrate()` chooses `gamma_go` and `gamma_nogo` as the smallest grid
+  values for which the probabilities that the Go criterion is met under one
+  scenario and that the NoGo criterion is met under another are at most
+  their targets, and returns the design with these thresholds and its
+  decision probabilities.
+* `print()` methods for designs, decisions, operating characteristics and
+  calibrations, and `plot()` methods (ggplot2) for operating characteristics
+  and calibrations. Without a concurrent control group, the thresholds in
+  the plot of operating characteristics are shifted by the mean of the
+  distribution of the control group.
+* Probabilities are no longer set to 0 below `.Machine$double.eps^0.25`. A
+  probability that is below a threshold by less than 1e-10 is treated as
+  equal to the threshold, so that exact ties are not decided by rounding
+  errors.
+
 ## Distribution functions
 
 * `pbetadiff()` has the argument order `(q, a_t, b_t, a_c, b_c)`. The range
   of integration is restricted to the support and split at quantiles of both
   Beta distributions, so concentrated distributions are integrated
-  accurately. The computation is done in C++.
+  accurately. When a shape parameter of the control group is below 1, the
+  integral near the unbounded end of its density is computed after a change
+  of variables that removes the singularity. The computation is done in C++.
 * `pbetabinomdiff()` has the argument order
   `(q, m_t, a_t, b_t, m_c, a_c, b_c)` and computes the probability mass
   functions on the log scale, so large numbers of future subjects no longer
@@ -33,7 +64,11 @@ release.
 * `ptdiff()` replaces `ptdiff_NI()`, `ptdiff_MC()` and `ptdiff_MM()`. The
   numerical integration now covers the whole real line (version 0.1.0
   truncated the range, with errors of up to about 3e-4 for small degrees of
-  freedom).
+  freedom). It integrates over the group with the smaller scale, splits the
+  range around the peak of the density and the change of the other factor,
+  and integrates the parts far from the origin on a logarithmic scale, so
+  that scale ratios from 1e-9 to 1e3 and degrees of freedom from 0.5 to
+  `Inf` are handled.
 * `rdirichlet()` always returns a matrix.
 * `cellprob_binary2()` replaces `getjointbin()`.
 

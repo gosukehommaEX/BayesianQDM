@@ -14,7 +14,11 @@
 #' \eqn{q \ge 0}. The integral is evaluated by adaptive Gauss-Kronrod
 #' quadrature (the QUADPACK routine used by \code{\link[stats]{integrate}}),
 #' with the range split at quantiles of both Beta distributions so that
-#' concentrated distributions are integrated accurately. The lower tail is
+#' concentrated distributions are integrated accurately. When the density of
+#' \eqn{\pi_c} is unbounded at 0 (\eqn{a_c < 1}) or at 1 (\eqn{b_c < 1}), the
+#' integral on that side of the median of \eqn{\pi_c} is evaluated in the
+#' variable \eqn{s = x^{a_c}} or \eqn{s = (1 - x)^{b_c}}, in which the
+#' integrand is bounded. The lower tail is
 #' computed directly from the same formula with the roles of the two groups
 #' exchanged, so both tails are accurate near 0.
 #'
