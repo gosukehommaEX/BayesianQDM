@@ -6,7 +6,8 @@ test_that("prior_nix() stores the hyperparameters", {
 })
 
 test_that("prior_nix() rejects invalid hyperparameters", {
-  expect_error(prior_nix(NA, 1, 1, 1), "'mu0' must not contain missing")
+  expect_error(prior_nix(NA_real_, 1, 1, 1),
+               "'mu0' must not contain missing")
   expect_error(prior_nix(0, 0, 1, 1), "'kappa0' must be greater than 0.")
   expect_error(prior_nix(0, 1, 0, 1), "'nu0' must be greater than 0.")
   expect_error(prior_nix(0, 1, 1, -2), "'sigma0' must be greater than 0.")
