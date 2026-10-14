@@ -20,6 +20,7 @@ format.qdm_design <- function(x, digits = 4L, ...) {
                      binary = "one binary endpoint",
                      continuous = "one continuous endpoint",
                      binary2 = "two binary endpoints",
+                     continuous2 = "two continuous endpoints",
                      stop("Unknown design.", call. = FALSE))
   control <- switch(x$control,
                     concurrent = sprintf("concurrent, n = %d", x$n_c),

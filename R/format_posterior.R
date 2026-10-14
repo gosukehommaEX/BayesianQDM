@@ -21,5 +21,13 @@ format_posterior <- function(design, post, digits = 4L) {
            format_num(post[["sigma"]] / sqrt(post[["kappa"]]), digits)
          ),
          binary2 = sprintf("Dirichlet(alpha = (%s))",
-                           format_num(post, digits)))
+                           format_num(post, digits)),
+         continuous2 = {
+           f <- 1 / (post[["kappa"]] * (post[["nu"]] - 1))
+           sprintf("mean ~ t(df = %s, location = (%s), scale = (%s; %s))",
+                   format_num(post[["nu"]] - 1, digits),
+                   format_num(post[c("mu1", "mu2")], digits),
+                   format_num(f * post[c("L11", "L12")], digits),
+                   format_num(f * post[c("L12", "L22")], digits))
+         })
 }

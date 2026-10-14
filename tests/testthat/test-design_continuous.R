@@ -26,6 +26,9 @@ test_that("design_continuous() validates the sample sizes and priors", {
                "'n_t' must be at least 2.")
   expect_error(design_continuous(12, 1, vague, vague, crit_cont()),
                "'n_c' must be 0 or a whole number of at least 2.")
+  # Within the tolerance of whole numbers, 1 + 1e-9 is 1
+  expect_error(design_continuous(12, 1 + 1e-9, vague, vague, crit_cont()),
+               "'n_c' must be 0 or a whole number of at least 2.")
   expect_error(design_continuous(12, 2.5, vague, vague, crit_cont()),
                "'n_c' must contain whole numbers only.")
   expect_error(design_continuous(12, 12, prior_beta(1, 1), vague,

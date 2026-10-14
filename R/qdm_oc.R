@@ -27,12 +27,22 @@
 #' feasible range for its response rates is not evaluable, and its
 #' probabilities are \code{NA} (with a warning).
 #'
+#' For two continuous endpoints, \code{nsim} studies are simulated under each
+#' scenario. Only the sufficient statistics are simulated: the sample means
+#' \eqn{\bar y = \mu + L z / \sqrt{n}} and the matrix of sums of squares and
+#' cross-products \eqn{S = L A A^T L^T}, where \eqn{L} is the Cholesky
+#' factor of the covariance matrix of the scenario, \eqn{z} has two
+#' independent standard normal elements and \eqn{A} is the Bartlett factor
+#' of a Wishart distribution with \eqn{n - 1} degrees of freedom. The same
+#' random numbers are used for all scenarios.
+#'
 #' The decision for each outcome is made as in \code{\link{qdm_decide}}. A
 #' warning is given when Miss decisions (both criteria met) have positive
 #' probability in some scenario.
 #'
 #' @param design A design created by \code{\link{design_binary}},
-#'   \code{\link{design_continuous}} or \code{\link{design_binary2}}.
+#'   \code{\link{design_continuous}}, \code{\link{design_binary2}} or
+#'   \code{\link{design_continuous2}}.
 #' @param scenarios A data frame with one row per scenario. For a binary
 #'   endpoint the columns \code{pi_t} and \code{pi_c} give the true response
 #'   rates of the treatment and control groups. For a continuous endpoint the
@@ -41,6 +51,11 @@
 #'   \code{pi_t1}, \code{pi_t2}, \code{rho_t}, \code{pi_c1}, \code{pi_c2} and
 #'   \code{rho_c} give the true response rates of endpoints 1 and 2 (strictly
 #'   between 0 and 1) and the correlation of the two endpoints in each group.
+#'   For two continuous endpoints the columns \code{mu_t1}, \code{mu_t2},
+#'   \code{sd_t1}, \code{sd_t2}, \code{rho_t}, \code{mu_c1}, \code{mu_c2},
+#'   \code{sd_c1}, \code{sd_c2} and \code{rho_c} give the true means,
+#'   standard deviations and correlation of the two endpoints in each group
+#'   (the correlation strictly between -1 and 1).
 #'   The columns of the control group are not needed for a design without a
 #'   concurrent control group. Other columns, such as labels, are kept in the
 #'   result.

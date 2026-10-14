@@ -1,10 +1,12 @@
 ACR
 Appell's
+Bartlett
 Binom
 Biopharmaceutical
 Bivariate
 CMD
 ChiSq
+Cholesky
 Codecov
 DAS
 GoRegions
@@ -32,12 +34,14 @@ QUADPACK
 RCT
 Resubmission
 Takeda
+Wishart
 Yamaguchi
 al
 aug
 bigl
 bigr
 binom
+bivariate
 boldsymbol
 cdot
 colour
@@ -61,6 +65,7 @@ ge
 generalisation
 getgamma
 ggplot
+hyperparameters
 ij
 infty
 integrand

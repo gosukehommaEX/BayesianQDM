@@ -320,7 +320,9 @@ test_that("qdm_oc() validates the scenarios of continuous designs", {
 # endpoint at a time, differences of Beta variables). For designs B3 and B4
 # no outcome has a probability within 5 Monte Carlo standard errors
 # (nMC = 20000) of a threshold, so the Monte Carlo error does not change any
-# decision.
+# decision. The published tables of Yamaguchi et al. (submitted) need the
+# enumeration of 286 x 286 pairs of outcomes and are reproduced in
+# inst/validation/validate_yamaguchi_binary2.R instead.
 ref_oc_bin2 <- list(
   B1 = rbind(c(0.156029909046664, 0.558146336369747, 0.282478801684779,
                0.00334495289881015),
@@ -403,25 +405,85 @@ test_that("qdm_oc() reports scenarios that are not evaluable", {
   }
 })
 
-test_that("qdm_oc() reproduces Yamaguchi et al. (submitted), Table 3", {
+# Two continuous endpoints. References: Python_reference/ref_continuous2_qdm.py,
+# section D (simulation of 1e5 studies per scenario from the raw data, moment
+# matching). The tolerance is 4.5 standard errors of both simulations plus
+# 0.002.
+ref_oc_cont2 <- list(
+  K1 = rbind(
+    c(0.02988, 0.48772, 0.4824, 0),
+    c(0.22913, 0.32022, 0.45065, 0),
+    c(0.50278, 0.30381, 0.1934, 1e-05)
+  ),
+  K2 = rbind(
+    c(0.04448, 0.64277, 0.31275, 0),
+    c(0.44666, 0.29693, 0.25641, 0),
+    c(0.76227, 0.1782, 0.03907, 0.02046)
+  ),
+  K3 = rbind(
+    c(0.01007, 0.51147, 0.47846, 0),
+    c(0.31993, 0.02817, 0.6519, 0),
+    c(0.76923, 0.00082, 0.22995, 0)
+  ),
+  K4 = rbind(
+    c(0.03128, 0.86085, 0.10725, 0.00062),
+    c(0.55416, 0.14516, 0.29981, 0.00087),
+    c(0.9525, 0.00022, 0.04727, 1e-05)
+  ),
+  K5 = rbind(
+    c(0.04574, 0.41433, 0.53993, 0),
+    c(0.33466, 0.05605, 0.60929, 0),
+    c(0.66123, 0.00532, 0.33345, 0)
+  ),
+  K6 = rbind(
+    c(0, 0.51155, 0.48845, 0),
+    c(0.00027, 0.00192, 0.99781, 0),
+    c(0.24199, 0, 0.75801, 0)
+  )
+)
+
+oc_cont2_quiet <- function(...) {
+  withCallingHandlers(qdm_oc(...), warning = function(w) {
+    if (grepl("Miss", conditionMessage(w))) {
+      invokeRestart("muffleWarning")
+    }
+  })
+}
+
+check_oc_cont2 <- function(name, nsim = 2000L) {
+  oc <- oc_cont2_quiet(ref_design_cont2(name), scen_cont2(name),
+                       nsim = nsim, seed = 2026)
+  got <- as.matrix(oc[, c("Go", "NoGo", "Gray", "Miss")])
+  ref <- ref_oc_cont2[[name]]
+  se <- sqrt(ref * (1 - ref) * (1 / nsim + 1 / 1e5))
+  expect_true(all(abs(got - ref) <= 4.5 * se + 0.002), info = name)
+  expect_equal(unname(rowSums(got)), rep(1, 3), tolerance = 1e-12)
+}
+
+test_that("qdm_oc() matches the references for two continuous endpoints", {
+  check_oc_cont2("K1")
+  check_oc_cont2("K6")
+})
+
+test_that("qdm_oc() matches the references for designs K2 and K3", {
   skip_on_cran()
-  # Case study 1, rho = 0, gamma_G = 0.263, gamma_N = 0.347. The article
-  # computes the posterior probabilities by Monte Carlo simulation; the
-  # tolerance is the probability of the outcomes whose posterior probability
-  # is within 0.01 of a threshold (Python_reference/port_binary2_oc.out)
-  # plus 0.00005 for rounding. The full comparison is in
-  # inst/validation/run_validation.R.
-  th1 <- c(0, 0.25, 0.15, 0.25)
-  th2 <- c(0, 0, 0.15, 0.25)
-  sc <- data.frame(pi_t1 = 0.15 + th1, pi_t2 = 0.20 + th2, rho_t = 0,
-                   pi_c1 = 0.15, pi_c2 = 0.20, rho_c = 0)
-  pub <- rbind(c(0.0495, 0.6325, 0.3180), c(0.2263, 0.2063, 0.5674),
-               c(0.3537, 0.1999, 0.4464), c(0.6241, 0.0639, 0.3120))
-  tol <- c(0.014925, 0.025380, 0.029036, 0.021393) + 0.00005
-  # gamma_G + gamma_N < 1, and a few outcomes meet both criteria
-  expect_warning(oc <- qdm_oc(ref_design_bin2("B5", nMC = 5000L), sc,
-                              seed = 2026),
-                 "Miss")
-  diff <- abs(as.matrix(oc[, c("Go", "NoGo", "Gray")]) - pub)
-  expect_true(all(diff <= tol))
+  check_oc_cont2("K2")
+  check_oc_cont2("K3")
+})
+
+test_that("qdm_oc() matches the references for designs K4 and K5", {
+  skip_on_cran()
+  check_oc_cont2("K4")
+  check_oc_cont2("K5")
+})
+
+test_that("qdm_oc() simulates two continuous endpoints with Monte Carlo", {
+  oc <- oc_cont2_quiet(ref_design_cont2("K1", "MC", 2000L),
+                       scen_cont2("K1")[2, ], nsim = 400L, seed = 5)
+  ref <- ref_oc_cont2$K1[2, ]
+  got <- unlist(oc[, c("Go", "NoGo", "Gray", "Miss")])
+  se <- sqrt(ref * (1 - ref) / 400)
+  expect_true(all(abs(got - ref) <= 4.5 * se + 0.02))
+  expect_match(attr(oc, "method"),
+               "simulation of 400 studies; .*Monte Carlo simulation")
 })

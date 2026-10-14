@@ -120,6 +120,38 @@ release.
   of the probability of each decision over the effects on the two endpoints
   and marks scenarios that are not evaluable with "NE".
 
+## Designs and operations: two continuous endpoints
+
+* `design_continuous2()` specifies a study with two continuous endpoints:
+  sample sizes, Normal-Inverse-Wishart (`prior_niw()`) or vague
+  (`prior_vague()`) priors, external data for either group
+  (`borrow(data_continuous2(...), a0)`), a concurrent, external-only or
+  hypothetical (`hypothetical(mean = c(m1, m2), r = r)`) control group, the
+  decision criterion for two endpoints (with `rule` as for two binary
+  endpoints), and the method used to compute the probabilities (`"MM"` or
+  `"MC"`).
+* The posterior parameters are updated with the external data (power prior)
+  and then with the current data; the vague prior corresponds to
+  `kappa0 = 0`, `nu0 = -1` and `Lambda0 = 0`.
+* The posterior predictive distribution of the mean of `m` future subjects
+  has the scale matrix `(1 / kappa_n + 1 / m) * Lambda_n / (nu_n - 1)`.
+  Version 0.1.0 used `(1 + kappa_n) / kappa_n * Lambda_n / (nu_n - 1) / m`,
+  which treats the `m` future subjects as independent draws from the
+  predictive distribution of one subject.
+* With `method = "MM"`, the moment-matching approximation of the difference
+  of two bivariate t distributions is used, and its rectangle probabilities
+  are computed by numerical integration in C++ for real degrees of freedom
+  (version 0.1.0 rounded the degrees of freedom to an integer for
+  `mvtnorm::pmvt()`). With `method = "MC"`, the probabilities of all
+  regions are estimated from the same draws, and every simulated study uses
+  its own draws (version 0.1.0 used the same draws for all simulated
+  studies, so the Monte Carlo error did not average out).
+* `qdm_oc()` takes scenarios with the columns `mu_t1`, `mu_t2`, `sd_t1`,
+  `sd_t2`, `rho_t`, `mu_c1`, `mu_c2`, `sd_c1`, `sd_c2` and `rho_c`, and
+  simulates the sample means and the sums of squares and cross-products
+  (Bartlett decomposition of the Wishart distribution) of `nsim` studies
+  with the same random numbers for all scenarios.
+
 ## Distribution functions
 
 * `pbetadiff()` has the argument order `(q, a_t, b_t, a_c, b_c)`. The range

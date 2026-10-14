@@ -145,6 +145,7 @@ of normal data.
 \seealso{
 Other designs:
 \code{\link[=design_binary]{design_binary()}},
-\code{\link[=design_binary2]{design_binary2()}}
+\code{\link[=design_binary2]{design_binary2()}},
+\code{\link[=design_continuous2]{design_continuous2()}}
 }
 \concept{designs}

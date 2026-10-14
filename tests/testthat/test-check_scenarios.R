@@ -66,3 +66,19 @@ test_that("check_scenarios() validates scenarios for two binary endpoints", {
   expect_error(check_scenarios(des, inf_c, "sc", feasible = TRUE),
                "'sc\\$rho_c' is outside the feasible range")
 })
+
+test_that("check_scenarios() validates scenarios of two continuous endpoints", {
+  des <- ref_design_cont2("K1")
+  sc <- scen_cont2("K1")
+  expect_identical(check_scenarios(des, sc), sc)
+  bad <- sc[1, ]
+  bad$rho_t <- 1
+  expect_error(check_scenarios(des, bad),
+               "'scenarios\\$rho_t' must be greater than -1 and less than 1.")
+  bad <- sc[1, ]
+  bad$sd_c2 <- 0
+  expect_error(check_scenarios(des, bad),
+               "'scenarios\\$sd_c2' must be greater than 0.")
+  expect_error(check_scenarios(des, sc[, 1:5]),
+               "must have the column\\(s\\) mu_t1, mu_t2, sd_t1, sd_t2, rho_t")
+})

@@ -23,7 +23,16 @@ scenario_columns <- function(design) {
                              "rho_c"),
                    lower = rep(c(0, 0, -1), 2L), upper = rep(1, 6L),
                    lower_open = rep(c(TRUE, TRUE, FALSE), 2L),
-                   upper_open = rep(c(TRUE, TRUE, FALSE), 2L))
+                   upper_open = rep(c(TRUE, TRUE, FALSE), 2L)),
+    continuous2 = list(names = c("mu_t1", "mu_t2", "sd_t1", "sd_t2", "rho_t",
+                                 "mu_c1", "mu_c2", "sd_c1", "sd_c2",
+                                 "rho_c"),
+                       lower = rep(c(-Inf, -Inf, 0, 0, -1), 2L),
+                       upper = rep(c(Inf, Inf, Inf, Inf, 1), 2L),
+                       lower_open = rep(c(FALSE, FALSE, TRUE, TRUE, TRUE),
+                                        2L),
+                       upper_open = rep(c(FALSE, FALSE, FALSE, FALSE, TRUE),
+                                        2L))
   )
   # Columns of the treatment group come first; those of the control group
   # are required only with a concurrent control group

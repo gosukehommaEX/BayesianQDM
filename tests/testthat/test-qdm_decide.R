@@ -236,3 +236,20 @@ test_that("qdm_decide() decides for two binary endpoints", {
   expect_lt(abs(r1$prob_go - 0.430209), 4.5 * sqrt(0.43 * 0.57 / 50000))
   expect_identical(r1$decision, "Go")
 })
+
+test_that("qdm_decide() decides for two continuous endpoints", {
+  # Moment matching: Python_reference/ref_continuous2_qdm.py, design K3
+  # (predictive criterion), P(R1) = 0.626 and P(R4) = 0.0609
+  d <- ref_data_cont2$K3
+  res <- qdm_decide(ref_design_cont2("K3"), d$t, d$c)
+  expect_identical(res$decision, "Go")
+  expect_equal(res$prob_go, 0.626051840857435, tolerance = 1e-9)
+  expect_equal(res$prob_nogo, 0.060905364287987, tolerance = 1e-9)
+  expect_length(res$prob_regions, 4L)
+  # Monte Carlo probabilities depend on the seed only
+  des <- ref_design_cont2("K3", "MC", 4000L)
+  a <- qdm_decide(des, d$t, d$c, seed = 21)
+  b <- qdm_decide(des, d$t, d$c, seed = 21)
+  expect_identical(a$prob_regions, b$prob_regions)
+  expect_lt(abs(a$prob_go - 0.626051840857435), 0.04)
+})

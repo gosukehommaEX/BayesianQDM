@@ -207,3 +207,34 @@ test_that("qdm_calibrate() requires feasible scenarios for two binary endpoints"
                              0.1, 0.1),
                "'scenario_go\\$rho_t' is outside the feasible range")
 })
+
+test_that("qdm_calibrate() matches the reference curves of design K1", {
+  # Python_reference/ref_continuous2_qdm.py, section D2 (simulation of 1e5
+  # studies per scenario)
+  grid <- seq(0.05, 0.95, by = 0.05)
+  ref_go <- c(0.56469, 0.38736, 0.27739, 0.20361, 0.15047, 0.11072, 0.08202,
+              0.05972, 0.04304, 0.03054, 0.02119, 0.01411, 0.0089, 0.00552,
+              0.00307, 0.00146, 0.00058, 0.00019, 0)
+  ref_nogo <- c(0.7759, 0.63428, 0.52364, 0.43519, 0.36244, 0.30263, 0.25039,
+                0.20524, 0.16722, 0.1336, 0.10499, 0.08139, 0.06218, 0.0451,
+                0.031, 0.01991, 0.0115, 0.00557, 0.00147)
+  sc <- scen_cont2("K1")
+  # gamma_go + gamma_nogo < 1, so Miss decisions are possible
+  cal <- withCallingHandlers(
+    qdm_calibrate(ref_design_cont2("K1"), sc[1, ], sc[3, ], target_go = 0.05,
+                  target_nogo = 0.2, grid = grid, nsim = 2000L, seed = 7),
+    warning = function(w) {
+      if (grepl("Miss", conditionMessage(w))) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+  tol <- function(ref) 4.5 * sqrt(ref * (1 - ref) * (1 / 2000 + 1 / 1e5)) +
+    0.002
+  expect_true(all(abs(cal$curve$prob_go - ref_go) <= tol(ref_go)))
+  expect_true(all(abs(cal$curve$prob_nogo - ref_nogo) <= tol(ref_nogo)))
+  # The chosen thresholds meet the targets on the grid
+  expect_lte(cal$prob_go, 0.05 + 1e-12)
+  expect_lte(cal$prob_nogo, 0.2 + 1e-12)
+  expect_s3_class(cal$design, "qdm_design_continuous2")
+})

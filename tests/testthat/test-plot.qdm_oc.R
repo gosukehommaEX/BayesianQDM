@@ -82,3 +82,23 @@ test_that("plot.qdm_oc() draws heat maps for two endpoints", {
   expect_identical(nrow(ggplot2::ggplot_build(plot(oc7))$data[[1]]),
                    n_dec * nrow(sc))
 })
+
+test_that("plot.qdm_oc() draws heat maps for two continuous endpoints", {
+  sc <- expand.grid(mu_t1 = c(-10, 10), mu_t2 = c(-1, 1, 3))
+  sc$sd_t1 <- 30
+  sc$sd_t2 <- 3
+  sc$rho_t <- 0.5
+  oc <- withCallingHandlers(
+    qdm_oc(ref_design_cont2("K4"), sc, nsim = 50L, seed = 1),
+    warning = function(w) {
+      if (grepl("Miss", conditionMessage(w))) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+  p <- plot(oc)
+  expect_s3_class(p, "ggplot")
+  n_dec <- 3L + any(oc$Miss > 0)
+  expect_identical(nrow(ggplot2::ggplot_build(p)$data[[1]]),
+                   n_dec * nrow(sc))
+})

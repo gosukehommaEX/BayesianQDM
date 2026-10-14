@@ -76,3 +76,24 @@ test_that("format.qdm_design() describes designs with two binary endpoints", {
                    c("Probabilities: exact computation",
                      "Operating characteristics: simulation"))
 })
+
+test_that("format.qdm_design() describes designs with two continuous endpoints", {
+  f2 <- format(ref_design_cont2("K2"))
+  expect_identical(f2[1:2],
+                   c("Design: two continuous endpoints",
+                     paste("  Treatment: n = 30, prior N-Inv-Wishart(mu0 =",
+                           "(0, 1), kappa0 = 0.1, nu0 = 4, Lambda0 = (6400,",
+                           "15; 15, 36))")))
+  expect_identical(f2[length(f2)],
+                   "Probabilities: moment-matching approximation")
+  f3 <- format(ref_design_cont2("K3"))
+  expect_identical(f3[3], paste("    External data: two continuous endpoints,",
+                                "n = 8, mean = (2, 1), cov = (25, 3; 3, 9),",
+                                "a0 = 0.5"))
+  f4 <- format(ref_design_cont2("K4", "MC", 2000L))
+  expect_identical(f4[3:4],
+                   c("  Control: hypothetical",
+                     "    Hypothetical control: mean = (-10, -1), r = 1.5"))
+  expect_identical(f4[length(f4)],
+                   "Probabilities: Monte Carlo simulation (nMC = 2000)")
+})

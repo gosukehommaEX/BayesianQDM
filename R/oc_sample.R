@@ -21,5 +21,6 @@ oc_sample <- function(design, scenarios, nsim) {
   switch(design$endpoint,
          binary = oc_sample_binary(design, scenarios),
          continuous = oc_sample_continuous(design, scenarios, nsim),
-         binary2 = oc_sample_binary2(design, scenarios, nsim))
+         binary2 = oc_sample_binary2(design, scenarios, nsim),
+         continuous2 = oc_sample_continuous2(design, scenarios, nsim))
 }

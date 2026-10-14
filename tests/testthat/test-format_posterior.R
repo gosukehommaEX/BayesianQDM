@@ -22,3 +22,12 @@ test_that("format_posterior() gives the Dirichlet parameters", {
                                       "11" = 4.25)),
                    "Dirichlet(alpha = (2.25, 1.25, 3.25, 4.25))")
 })
+
+test_that("format_posterior() gives the t distribution of two means", {
+  # kappa = 10, nu = 11: the scale matrix is Lambda / 100
+  post <- c(mu1 = 1, mu2 = -2, kappa = 10, nu = 11, L11 = 200, L12 = 50,
+            L22 = 100)
+  expect_identical(format_posterior(ref_design_cont2("K1"), post),
+                   paste("mean ~ t(df = 10, location = (1, -2),",
+                         "scale = (2.0, 0.5; 0.5, 1.0))"))
+})

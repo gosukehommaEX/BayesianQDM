@@ -32,3 +32,16 @@ test_that("scenario_columns() lists the columns for two binary endpoints", {
   expect_identical(scenario_columns(ref_design_bin2("B7"))$names,
                    c("pi_t1", "pi_t2", "rho_t"))
 })
+
+test_that("scenario_columns() lists the columns for two continuous endpoints", {
+  cols <- scenario_columns(ref_design_cont2("K1"))
+  expect_identical(cols$names, c("mu_t1", "mu_t2", "sd_t1", "sd_t2", "rho_t",
+                                 "mu_c1", "mu_c2", "sd_c1", "sd_c2",
+                                 "rho_c"))
+  expect_identical(cols$lower, rep(c(-Inf, -Inf, 0, 0, -1), 2))
+  expect_identical(cols$lower_open, rep(c(FALSE, FALSE, TRUE, TRUE, TRUE), 2))
+  expect_identical(cols$upper_open,
+                   rep(c(FALSE, FALSE, FALSE, FALSE, TRUE), 2))
+  expect_identical(scenario_columns(ref_design_cont2("K4"))$names,
+                   c("mu_t1", "mu_t2", "sd_t1", "sd_t2", "rho_t"))
+})

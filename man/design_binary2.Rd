@@ -117,6 +117,7 @@ drug development.
 \seealso{
 Other designs:
 \code{\link[=design_binary]{design_binary()}},
-\code{\link[=design_continuous]{design_continuous()}}
+\code{\link[=design_continuous]{design_continuous()}},
+\code{\link[=design_continuous2]{design_continuous2()}}
 }
 \concept{designs}

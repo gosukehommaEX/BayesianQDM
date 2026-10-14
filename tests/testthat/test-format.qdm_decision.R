@@ -57,3 +57,19 @@ test_that("format.qdm_decision() describes two binary endpoints", {
                            "(threshold 0.5, met)")))
   expect_identical(out2[5], "  NoGo: not met (rule \"and\")")
 })
+
+test_that("format.qdm_decision() describes two continuous endpoints", {
+  # Region probabilities of design K4: Python_reference/ref_continuous2_qdm.py
+  # (moment matching), P(R1) + P(R2) = 0.5799 and P(R9) = 0.0753
+  d <- ref_data_cont2$K4
+  out <- format(qdm_decide(ref_design_cont2("K4"), d$t), digits = 3)
+  expect_identical(out[1:3],
+                   c("Decision: Go",
+                     paste("  Go:   P(regions {1, 2} | data) = 0.58",
+                           "(threshold 0.4, met)"),
+                     paste("  NoGo: P(regions {9} | data) = 0.0753",
+                           "(threshold 0.3, not met)")))
+  expect_match(out[4], "^Region probabilities: R1 = 0.475, R2 = 0.104, ")
+  expect_match(out[7], paste("  Control:   mean ~ t(df = 13, location =",
+                             "(-10, -1), scale = ("), fixed = TRUE)
+})

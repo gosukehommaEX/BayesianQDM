@@ -12,8 +12,9 @@
 #' @return A \code{ggplot} object.
 #' @noRd
 plot_oc_two <- function(x, design) {
-  par <- switch(design$endpoint, binary2 = c("pi_t1", "pi_t2", "pi_c1",
-                                             "pi_c2"))
+  par <- switch(design$endpoint,
+                binary2 = c("pi_t1", "pi_t2", "pi_c1", "pi_c2"),
+                continuous2 = c("mu_t1", "mu_t2", "mu_c1", "mu_c2"))
   concurrent <- design$control == "concurrent"
   if (concurrent) {
     ax1 <- x[[par[1L]]] - x[[par[3L]]]

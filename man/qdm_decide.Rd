@@ -8,11 +8,13 @@ qdm_decide(design, data_t, data_c = NULL, seed = NULL)
 }
 \arguments{
 \item{design}{A design created by \code{\link{design_binary}},
-\code{\link{design_continuous}} or \code{\link{design_binary2}}.}
+\code{\link{design_continuous}}, \code{\link{design_binary2}} or
+\code{\link{design_continuous2}}.}
 
 \item{data_t}{Observed data of the treatment group, created by
-\code{\link{data_binary}}, \code{\link{data_continuous}} or
-\code{\link{data_binary2}} (matching the endpoint of the design).}
+\code{\link{data_binary}}, \code{\link{data_continuous}},
+\code{\link{data_binary2}} or \code{\link{data_continuous2}}
+(matching the endpoint of the design).}
 
 \item{data_c}{Observed data of the concurrent control group, created by
 the same function as \code{data_t}; \code{NULL} (the default) for a
@@ -45,7 +47,11 @@ deviation scale), so that the mean has the distribution
 \code{posterior_c} gives the distribution of the control mean in the
 same form (see \code{\link{design_continuous}}). For two binary
 endpoints, the Dirichlet parameters of the cells \code{"00"},
-\code{"01"}, \code{"10"} and \code{"11"}.}
+\code{"01"}, \code{"10"} and \code{"11"}. For two continuous
+endpoints, the Normal-Inverse-Wishart parameters \code{mu1},
+\code{mu2}, \code{kappa}, \code{nu} and the elements \code{L11},
+\code{L12} and \code{L22} of \eqn{\Lambda}, so that the mean has the
+distribution \eqn{t_{\nu - 1}(\mu, \Lambda / (\kappa (\nu - 1)))}.}
 \item{design, data_t, data_c}{The arguments.}
 }
 }

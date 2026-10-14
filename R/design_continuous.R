@@ -121,7 +121,7 @@ design_continuous <- function(n_t, n_c, prior_t, prior_c = NULL, criterion,
                               method = c("NI", "MM", "MC"), nMC = 10000L) {
   check_numeric(n_t, "n_t", lower = 2, integer = TRUE)
   check_numeric(n_c, "n_c", lower = 0, integer = TRUE)
-  if (n_c == 1) {
+  if (round(n_c) == 1) {
     stop("'n_c' must be 0 or a whole number of at least 2.", call. = FALSE)
   }
   check_prior_continuous(prior_t, "prior_t")

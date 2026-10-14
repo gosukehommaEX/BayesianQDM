@@ -1,0 +1,11 @@
+test_that("draws_continuous2() draws the random numbers in a fixed order", {
+  set.seed(4)
+  d <- draws_continuous2(5L, 8)
+  set.seed(4)
+  z1 <- stats::rnorm(5)
+  z2 <- stats::rnorm(5)
+  x1 <- stats::rchisq(5, 7)
+  x2 <- stats::rchisq(5, 6)
+  z12 <- stats::rnorm(5)
+  expect_identical(d, list(z1 = z1, z2 = z2, x1 = x1, x2 = x2, z12 = z12))
+})

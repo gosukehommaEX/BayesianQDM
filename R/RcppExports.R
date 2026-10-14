@@ -25,3 +25,11 @@ cpp_pred_regions_binary2 <- function(alpha_t, alpha_c, pair_t, pair_c, m_t, m_c,
     .Call(`_BayesianQDM_cpp_pred_regions_binary2`, alpha_t, alpha_c, pair_t, pair_c, m_t, m_c, q, masks)
 }
 
+cpp_regions_continuous2_mm <- function(loc_t, scale_t, df_t, loc_c, scale_c, df_c, tv, mav, masks) {
+    .Call(`_BayesianQDM_cpp_regions_continuous2_mm`, loc_t, scale_t, df_t, loc_c, scale_c, df_c, tv, mav, masks)
+}
+
+cpp_regions_continuous2_mc <- function(loc_t, scale_t, df_t, loc_c, scale_c, df_c, tv, mav, masks, nMC) {
+    .Call(`_BayesianQDM_cpp_regions_continuous2_mc`, loc_t, scale_t, df_t, loc_c, scale_c, df_c, tv, mav, masks, nMC)
+}
+

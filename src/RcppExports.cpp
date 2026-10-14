@@ -115,6 +115,45 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_regions_continuous2_mm
+Rcpp::NumericMatrix cpp_regions_continuous2_mm(Rcpp::NumericMatrix loc_t, Rcpp::NumericMatrix scale_t, Rcpp::NumericVector df_t, Rcpp::NumericMatrix loc_c, Rcpp::NumericMatrix scale_c, Rcpp::NumericVector df_c, Rcpp::NumericVector tv, Rcpp::NumericVector mav, Rcpp::IntegerVector masks);
+RcppExport SEXP _BayesianQDM_cpp_regions_continuous2_mm(SEXP loc_tSEXP, SEXP scale_tSEXP, SEXP df_tSEXP, SEXP loc_cSEXP, SEXP scale_cSEXP, SEXP df_cSEXP, SEXP tvSEXP, SEXP mavSEXP, SEXP masksSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type loc_t(loc_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type scale_t(scale_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type df_t(df_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type loc_c(loc_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type scale_c(scale_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type df_c(df_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type tv(tvSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mav(mavSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type masks(masksSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_regions_continuous2_mm(loc_t, scale_t, df_t, loc_c, scale_c, df_c, tv, mav, masks));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_regions_continuous2_mc
+Rcpp::NumericMatrix cpp_regions_continuous2_mc(Rcpp::NumericMatrix loc_t, Rcpp::NumericMatrix scale_t, Rcpp::NumericVector df_t, Rcpp::NumericMatrix loc_c, Rcpp::NumericMatrix scale_c, Rcpp::NumericVector df_c, Rcpp::NumericVector tv, Rcpp::NumericVector mav, Rcpp::IntegerVector masks, int nMC);
+RcppExport SEXP _BayesianQDM_cpp_regions_continuous2_mc(SEXP loc_tSEXP, SEXP scale_tSEXP, SEXP df_tSEXP, SEXP loc_cSEXP, SEXP scale_cSEXP, SEXP df_cSEXP, SEXP tvSEXP, SEXP mavSEXP, SEXP masksSEXP, SEXP nMCSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type loc_t(loc_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type scale_t(scale_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type df_t(df_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type loc_c(loc_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type scale_c(scale_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type df_c(df_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type tv(tvSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mav(mavSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type masks(masksSEXP);
+    Rcpp::traits::input_parameter< int >::type nMC(nMCSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_regions_continuous2_mc(loc_t, scale_t, df_t, loc_c, scale_c, df_c, tv, mav, masks, nMC));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_BayesianQDM_cpp_pbetadiff_upper", (DL_FUNC) &_BayesianQDM_cpp_pbetadiff_upper, 5},
@@ -123,6 +162,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianQDM_cpp_ptdiff_ni_upper", (DL_FUNC) &_BayesianQDM_cpp_ptdiff_ni_upper, 7},
     {"_BayesianQDM_cpp_post_regions_binary2", (DL_FUNC) &_BayesianQDM_cpp_post_regions_binary2, 8},
     {"_BayesianQDM_cpp_pred_regions_binary2", (DL_FUNC) &_BayesianQDM_cpp_pred_regions_binary2, 8},
+    {"_BayesianQDM_cpp_regions_continuous2_mm", (DL_FUNC) &_BayesianQDM_cpp_regions_continuous2_mm, 9},
+    {"_BayesianQDM_cpp_regions_continuous2_mc", (DL_FUNC) &_BayesianQDM_cpp_regions_continuous2_mc, 10},
     {NULL, NULL, 0}
 };
 
