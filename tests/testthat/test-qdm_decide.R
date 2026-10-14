@@ -206,3 +206,33 @@ test_that("qdm_decide() uses the seed for Monte Carlo probabilities", {
   expect_error(qdm_decide(des, d$t, d$c, seed = "a"),
                "'seed' must be numeric.")
 })
+
+test_that("qdm_decide() decides for two binary endpoints", {
+  # Predictive probabilities (exact): Python_reference/ref_binary2_qdm.py,
+  # case A1. With gamma_go = 0.4 and gamma_nogo = 0.3 (design B1) only the
+  # Go criterion is met.
+  d_t <- data_binary2(c(2, 1, 3, 4))
+  d_c <- data_binary2(c(4, 2, 3, 1))
+  res <- qdm_decide(ref_design_bin2("B1"), d_t, d_c)
+  expect_identical(res$decision, "Go")
+  expect_true(res$met_go)
+  expect_false(res$met_nogo)
+  expect_length(res$prob_regions, 4L)
+  # Marginal rule "and" (design B2): Go needs 0.643 >= 0.6 and 0.647 >= 0.5
+  res2 <- qdm_decide(ref_design_bin2("B2"), d_t, d_c)
+  expect_identical(res2$decision, "Go")
+  # Posterior probabilities by Monte Carlo simulation with a seed
+  des <- ref_design_bin2("B5", nMC = 50000L)
+  set.seed(5)
+  before <- runif(1)
+  set.seed(5)
+  r1 <- qdm_decide(des, d_t, d_c, seed = 3)
+  expect_identical(runif(1), before)
+  r2 <- qdm_decide(des, d_t, d_c, seed = 3)
+  expect_identical(r1$prob_regions, r2$prob_regions)
+  expect_equal(sum(r1$prob_regions), 1, tolerance = 1e-12)
+  expect_identical(r1$prob_go, r1$prob_regions[["R1"]])
+  expect_identical(r1$prob_nogo, r1$prob_regions[["R9"]])
+  expect_lt(abs(r1$prob_go - 0.430209), 4.5 * sqrt(0.43 * 0.57 / 50000))
+  expect_identical(r1$decision, "Go")
+})

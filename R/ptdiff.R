@@ -75,7 +75,8 @@ ptdiff <- function(q, mu_t, scale_t, df_t, mu_c, scale_c, df_c,
          call. = FALSE)
   }
   if (method == "MC") {
-    check_numeric(nMC, "nMC", lower = 1, integer = TRUE)
+    check_numeric(nMC, "nMC", lower = 1, upper = .Machine$integer.max,
+                  integer = TRUE)
   }
   if (lower.tail) {
     # P(T_t - T_c <= q) = P(T_c - T_t >= -q), the upper tail with the groups

@@ -57,7 +57,9 @@ pbetabinomdiff <- function(q, m_t, a_t, b_t, m_c, a_c, b_c,
   den <- m_t * m_c
   out <- numeric(length(args$q))
   for (i in seq_along(out)) {
-    q_i <- args$q[i]
+    # The differences lie in [-1, 1], so values of q outside [-2, 2] give
+    # the same result as -2 or 2 (and would lose precision below)
+    q_i <- min(max(args$q[i], -2), 2)
     # For each k_t, the largest k_c with (m_c * k_t - m_t * k_c) / den > q_i.
     # The difference decreases in k_c, so the estimate below is within one of
     # the exact value; the three neighbouring candidates are checked with the

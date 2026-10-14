@@ -16,13 +16,16 @@ qdm_calibrate(
 )
 }
 \arguments{
-\item{design}{A design created by \code{\link{design_binary}} or
-\code{\link{design_continuous}}. Its thresholds are replaced by the
-calibrated ones.}
+\item{design}{A design created by \code{\link{design_binary}},
+\code{\link{design_continuous}} or \code{\link{design_binary2}}. Its
+thresholds are replaced by the calibrated ones. For two endpoints with a
+marginal rule (\code{rule = "and"} or \code{"or"}), the same threshold is
+used for both endpoints.}
 
 \item{scenario_go, scenario_nogo}{Data frames with one row each, giving the
 scenarios used to calibrate \eqn{\gamma_{go}} and \eqn{\gamma_{nogo}}
-(see \code{\link{qdm_oc}} for the columns).}
+(see \code{\link{qdm_oc}} for the columns). For two binary endpoints, the
+correlations must be feasible.}
 
 \item{target_go, target_nogo}{Upper bounds for the probabilities that the
 Go criterion is met under \code{scenario_go} and that the NoGo criterion
@@ -30,9 +33,9 @@ is met under \code{scenario_nogo}, strictly between 0 and 1.}
 
 \item{grid}{Candidate thresholds, strictly between 0 and 1.}
 
-\item{nsim, seed}{As in \code{\link{qdm_oc}}; not used for binary
-endpoints. For a continuous endpoint, the probabilities for all values
-of \code{grid} are computed from the same simulated studies.}
+\item{nsim, seed}{As in \code{\link{qdm_oc}}. The probabilities for all
+values of \code{grid} are computed from the same outcomes (simulated
+studies or enumerated outcomes) and the same Monte Carlo draws.}
 }
 \value{
 An object of class \code{"qdm_calibration"}: a list with elements
@@ -72,9 +75,10 @@ probabilities decrease as the threshold increases, so the chosen thresholds
 are the least strict ones that meet the targets.
 
 The decision probabilities of the design with the chosen thresholds are
-computed under both scenarios. If \eqn{\gamma_{go} + \gamma_{nogo} \le 1},
-Miss decisions (both criteria met) can occur, and a warning is given when
-they have positive probability.
+computed under both scenarios. If \eqn{\gamma_{go} + \gamma_{nogo} \le 1}
+(and, for two endpoints with the marginal rule \code{"or"}, for any
+thresholds), Miss decisions (both criteria met) can occur, and a warning is
+given when they have positive probability.
 }
 \examples{
 des <- design_binary(

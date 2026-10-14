@@ -10,7 +10,8 @@ criterion_posterior(
   gamma_go,
   gamma_nogo,
   go_regions = 1L,
-  nogo_regions = 9L
+  nogo_regions = 9L,
+  rule = c("joint", "and", "or")
 )
 }
 \arguments{
@@ -22,18 +23,25 @@ the same length as \code{theta_tv}. Each element must be smaller than the
 corresponding element of \code{theta_tv}.}
 
 \item{gamma_go}{Probability threshold for the Go criterion, strictly
-between 0 and 1.}
+between 0 and 1. With \code{rule = "and"} or \code{"or"}, one threshold
+per endpoint (a single number is used for both).}
 
 \item{gamma_nogo}{Probability threshold for the NoGo criterion, strictly
-between 0 and 1.}
+between 0 and 1, given in the same way as \code{gamma_go}.}
 
 \item{go_regions}{Region numbers (from 1 to 9) forming the Go region for two
-endpoints. Ignored for one endpoint. The default, region 1, requires both
-effects to exceed their target values.}
+endpoints with \code{rule = "joint"}. Ignored for one endpoint. The
+default, region 1, requires both effects to exceed their target values.}
 
 \item{nogo_regions}{Region numbers (from 1 to 9) forming the NoGo region for
-two endpoints. Ignored for one endpoint. The default, region 9, requires
-both effects to be at most their minimum acceptable values.}
+two endpoints with \code{rule = "joint"}. Ignored for one endpoint. The
+default, region 9, requires both effects to be at most their minimum
+acceptable values.}
+
+\item{rule}{For two endpoints, \code{"joint"} (the default; probabilities
+of unions of regions), \code{"and"} or \code{"or"} (marginal
+probabilities of each endpoint, combined with AND or OR). Ignored for one
+endpoint.}
 }
 \value{
 An object of class
@@ -59,7 +67,14 @@ the plane of \eqn{(\theta_1, \theta_2)} into nine regions (see
 probability of the union of \code{go_regions} is at least
 \eqn{\gamma_{go}}, and the NoGo criterion is that the posterior probability
 of the union of \code{nogo_regions} is at least \eqn{\gamma_{nogo}}
-(Yamaguchi et al., submitted).
+(Yamaguchi et al., submitted, equations 2 and 3). With \code{rule = "and"}
+or \code{"or"}, the criteria are instead based on the marginal posterior
+probabilities of each endpoint (equations 4 and 5): the Go criterion is
+\eqn{\Pr(\theta_1 > \theta_{TV1} \mid D) \ge \gamma_{go1}} and (or)
+\eqn{\Pr(\theta_2 > \theta_{TV2} \mid D) \ge \gamma_{go2}}, and the NoGo
+criterion is \eqn{\Pr(\theta_1 \le \theta_{MAV1} \mid D) \ge
+\gamma_{nogo1}} and (or)
+\eqn{\Pr(\theta_2 \le \theta_{MAV2} \mid D) \ge \gamma_{nogo2}}.
 
 The decision is Go if only the Go criterion is met, NoGo if only the NoGo
 criterion is met, Gray if neither is met, and Miss if both are met. For one
@@ -73,6 +88,10 @@ criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
 # Two endpoints
 criterion_posterior(theta_tv = c(0.2, 0.15), theta_mav = c(0.1, 0.05),
                     gamma_go = 0.3, gamma_nogo = 0.4)
+
+# Two endpoints, marginal criteria combined with AND
+criterion_posterior(theta_tv = c(0.2, 0.15), theta_mav = c(0.1, 0.05),
+                    gamma_go = c(0.6, 0.5), gamma_nogo = 0.7, rule = "and")
 }
 \references{
 Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative

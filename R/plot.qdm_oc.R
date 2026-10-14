@@ -8,6 +8,14 @@
 #' criterion are shifted by the mean (binary) or location (continuous) of the
 #' distribution of the control group.
 #'
+#' For two endpoints, the plot has one heat map per decision, with the true
+#' treatment effects of the two endpoints (or the true parameters of the
+#' treatment group without a concurrent control group) on the axes and the
+#' probability of the decision in each cell; scenarios that are not evaluable
+#' are marked "NE". The scenarios must have distinct values on the axes, so
+#' scenarios with several correlations (or several parameters of the control
+#' group) are plotted separately.
+#'
 #' @param x An object of class \code{"qdm_oc"}.
 #' @param ... Not used.
 #'
@@ -27,6 +35,9 @@ plot.qdm_oc <- function(x, ...) {
   design <- attr(x, "design")
   if (is.null(design)) {
     stop("'x' must be an unmodified result of qdm_oc().", call. = FALSE)
+  }
+  if (design$criterion$n_endpoints == 2L) {
+    return(plot_oc_two(x, design))
   }
   axis <- oc_axis(design, x)
   decisions <- c("Go", "NoGo", "Gray", "Miss")

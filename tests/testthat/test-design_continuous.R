@@ -68,7 +68,7 @@ test_that("design_continuous() validates the other arguments", {
                "'arg' should be one of")
   expect_error(design_continuous(12, 12, vague, vague, crit_cont(),
                                  method = "MC", nMC = 0),
-               "'nMC' must be at least 1.")
+               "'nMC' must be at least 1 and at most 2147483647.")
 })
 
 test_that("design_continuous() requires a proper control distribution", {

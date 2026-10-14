@@ -79,12 +79,50 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_post_regions_binary2
+Rcpp::NumericMatrix cpp_post_regions_binary2(Rcpp::NumericMatrix alpha_t, Rcpp::NumericMatrix alpha_c, Rcpp::IntegerVector pair_t, Rcpp::IntegerVector pair_c, Rcpp::NumericVector tv, Rcpp::NumericVector mav, Rcpp::IntegerVector masks, int nMC);
+RcppExport SEXP _BayesianQDM_cpp_post_regions_binary2(SEXP alpha_tSEXP, SEXP alpha_cSEXP, SEXP pair_tSEXP, SEXP pair_cSEXP, SEXP tvSEXP, SEXP mavSEXP, SEXP masksSEXP, SEXP nMCSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type alpha_t(alpha_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type alpha_c(alpha_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type pair_t(pair_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type pair_c(pair_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type tv(tvSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type mav(mavSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type masks(masksSEXP);
+    Rcpp::traits::input_parameter< int >::type nMC(nMCSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_post_regions_binary2(alpha_t, alpha_c, pair_t, pair_c, tv, mav, masks, nMC));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_pred_regions_binary2
+Rcpp::NumericMatrix cpp_pred_regions_binary2(Rcpp::NumericMatrix alpha_t, Rcpp::NumericMatrix alpha_c, Rcpp::IntegerVector pair_t, Rcpp::IntegerVector pair_c, int m_t, int m_c, Rcpp::NumericVector q, Rcpp::IntegerVector masks);
+RcppExport SEXP _BayesianQDM_cpp_pred_regions_binary2(SEXP alpha_tSEXP, SEXP alpha_cSEXP, SEXP pair_tSEXP, SEXP pair_cSEXP, SEXP m_tSEXP, SEXP m_cSEXP, SEXP qSEXP, SEXP masksSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type alpha_t(alpha_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type alpha_c(alpha_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type pair_t(pair_tSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type pair_c(pair_cSEXP);
+    Rcpp::traits::input_parameter< int >::type m_t(m_tSEXP);
+    Rcpp::traits::input_parameter< int >::type m_c(m_cSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type q(qSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type masks(masksSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pred_regions_binary2(alpha_t, alpha_c, pair_t, pair_c, m_t, m_c, q, masks));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_BayesianQDM_cpp_pbetadiff_upper", (DL_FUNC) &_BayesianQDM_cpp_pbetadiff_upper, 5},
     {"_BayesianQDM_cpp_ptdiff_mc_upper", (DL_FUNC) &_BayesianQDM_cpp_ptdiff_mc_upper, 8},
     {"_BayesianQDM_cpp_ptdiff_mc_regions", (DL_FUNC) &_BayesianQDM_cpp_ptdiff_mc_regions, 9},
     {"_BayesianQDM_cpp_ptdiff_ni_upper", (DL_FUNC) &_BayesianQDM_cpp_ptdiff_ni_upper, 7},
+    {"_BayesianQDM_cpp_post_regions_binary2", (DL_FUNC) &_BayesianQDM_cpp_post_regions_binary2, 8},
+    {"_BayesianQDM_cpp_pred_regions_binary2", (DL_FUNC) &_BayesianQDM_cpp_pred_regions_binary2, 8},
     {NULL, NULL, 0}
 };
 

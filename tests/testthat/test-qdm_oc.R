@@ -166,7 +166,10 @@ test_that("qdm_oc() validates its arguments", {
                "'scenarios\\$pi_t' must be at least 0 and at most 1.")
   expect_error(qdm_oc(des, data.frame(pi_t = 0.4, pi_c = 0.4, Go = 1)),
                "must not have columns named Go, NoGo, Gray or Miss.")
-  expect_error(qdm_oc(des, scen_c, nsim = 0), "'nsim' must be at least 1.")
+  expect_error(qdm_oc(des, scen_c, nsim = 0),
+               "'nsim' must be at least 1 and at most 2147483647.")
+  expect_error(qdm_oc(des, scen_c, nsim = 3e9),
+               "'nsim' must be at least 1 and at most 2147483647.")
   expect_error(qdm_oc(des, scen_c, seed = 1.5),
                "'seed' must contain whole numbers only.")
 })
@@ -310,4 +313,115 @@ test_that("qdm_oc() validates the scenarios of continuous designs", {
                "'scenarios\\$sd_t' must be greater than 0.")
   expect_error(qdm_oc(ref_design_cont("C3", "MM"), data.frame(mu_t = 1)),
                "'scenarios' must have the column\\(s\\) mu_t, sd_t.")
+})
+
+# Two binary endpoints. Exact references: Python_reference/ref_binary2_qdm.py
+# (B: predictive criteria, rational arithmetic; D: posterior criteria on one
+# endpoint at a time, differences of Beta variables). For designs B3 and B4
+# no outcome has a probability within 5 Monte Carlo standard errors
+# (nMC = 20000) of a threshold, so the Monte Carlo error does not change any
+# decision.
+ref_oc_bin2 <- list(
+  B1 = rbind(c(0.156029909046664, 0.558146336369747, 0.282478801684779,
+               0.00334495289881015),
+             c(0.3312351, 0.2440805, 0.4199216, 0.0047628),
+             c(0.666686263299421, 0.0789967306310707, 0.249597442622606,
+               0.00471956344690299)),
+  B2 = rbind(c(0.0743517888004001, 0.326426105367674, 0.599222105831926, 0),
+             c(0.2607633, 0.1627937, 0.576443, 0),
+             c(0.535900183423335, 0.0307251043879517, 0.433374712188714, 0)),
+  B3 = rbind(c(0.12022101, 0.406285269999998, 0.473493719999998, 0),
+             c(0.426958559999999, 0.11187472, 0.461166719999999, 0),
+             c(0.796917759999999, 0.01171712, 0.19136512, 0)),
+  B4 = rbind(c(0.121502195183722, 0.424358895183721, 0.454138909632553, 0),
+             c(0.465942411080158, 0.163130761080159, 0.370926827839682, 0),
+             c(0.766733348737193, 0.0171192987371942, 0.216147352525611, 0))
+)
+
+test_that("qdm_oc() matches the exact references for two binary endpoints", {
+  for (name in names(ref_oc_bin2)) {
+    scen <- if (name %in% c("B1", "B2")) scen_bin2 else scen_bin2_d
+    if (name == "B1") {
+      expect_warning(oc <- qdm_oc(ref_design_bin2(name), scen, seed = 1),
+                     "Miss")
+    } else {
+      oc <- qdm_oc(ref_design_bin2(name), scen, seed = 1)
+    }
+    expect_equal(as.matrix(oc[, c("Go", "NoGo", "Gray", "Miss")]),
+                 ref_oc_bin2[[name]], tolerance = 1e-9,
+                 ignore_attr = TRUE, info = name)
+  }
+})
+
+test_that("qdm_oc() simulates studies with two binary endpoints", {
+  nsim <- 4000
+  expect_warning(oc <- qdm_oc(ref_design_bin2("B1", enumerate = FALSE),
+                              scen_bin2, nsim = nsim, seed = 11), "Miss")
+  ex <- ref_oc_bin2$B1
+  tol <- 4.5 * sqrt(ex * (1 - ex) / nsim) + 0.002
+  expect_true(all(abs(as.matrix(oc[, c("Go", "NoGo", "Gray", "Miss")]) -
+                        ex) <= tol))
+  expect_match(attr(oc, "method"), "^simulation of 4000 studies")
+})
+
+test_that("qdm_oc() enumerates the outcomes without a concurrent control", {
+  # Recompute the operating characteristics from the decisions for all
+  # outcomes of the treatment group
+  for (name in c("B7", "B8")) {
+    des <- ref_design_bin2(name)
+    x <- outcomes_binary2(3)
+    dec <- vapply(seq_len(nrow(x)), function(i) {
+      qdm_decide(des, data_binary2(x[i, ]))$decision
+    }, character(1))
+    sc <- scen_bin2[2, c("pi_t1", "pi_t2", "rho_t")]
+    w <- dmultinom_counts(x, cellprob_binary2(0.6, 0.5, 0))
+    oc <- suppressWarnings(qdm_oc(des, sc))
+    for (d in c("Go", "NoGo", "Gray", "Miss")) {
+      expect_equal(oc[[d]], sum(w[dec == d]), tolerance = 1e-12,
+                   info = paste(name, d))
+    }
+  }
+})
+
+test_that("qdm_oc() reports scenarios that are not evaluable", {
+  sc <- rbind(scen_bin2[1, ], data.frame(pi_t1 = 0.35, pi_t2 = 0.15,
+                                         rho_t = 0.6, pi_c1 = 0.2,
+                                         pi_c2 = 0.15, rho_c = 0.6))
+  for (enum in c(TRUE, FALSE)) {
+    w <- character(0)
+    oc <- withCallingHandlers(
+      qdm_oc(ref_design_bin2("B2", enumerate = enum), sc, nsim = 100,
+             seed = 1),
+      warning = function(e) {
+        w <<- c(w, conditionMessage(e))
+        invokeRestart("muffleWarning")
+      }
+    )
+    expect_true(any(grepl("Scenario\\(s\\) 2 are not evaluable", w)))
+    expect_true(all(is.na(oc[2, c("Go", "NoGo", "Gray", "Miss")])))
+    expect_false(anyNA(oc[1, c("Go", "NoGo", "Gray", "Miss")]))
+  }
+})
+
+test_that("qdm_oc() reproduces Yamaguchi et al. (submitted), Table 3", {
+  skip_on_cran()
+  # Case study 1, rho = 0, gamma_G = 0.263, gamma_N = 0.347. The article
+  # computes the posterior probabilities by Monte Carlo simulation; the
+  # tolerance is the probability of the outcomes whose posterior probability
+  # is within 0.01 of a threshold (Python_reference/port_binary2_oc.out)
+  # plus 0.00005 for rounding. The full comparison is in
+  # inst/validation/run_validation.R.
+  th1 <- c(0, 0.25, 0.15, 0.25)
+  th2 <- c(0, 0, 0.15, 0.25)
+  sc <- data.frame(pi_t1 = 0.15 + th1, pi_t2 = 0.20 + th2, rho_t = 0,
+                   pi_c1 = 0.15, pi_c2 = 0.20, rho_c = 0)
+  pub <- rbind(c(0.0495, 0.6325, 0.3180), c(0.2263, 0.2063, 0.5674),
+               c(0.3537, 0.1999, 0.4464), c(0.6241, 0.0639, 0.3120))
+  tol <- c(0.014925, 0.025380, 0.029036, 0.021393) + 0.00005
+  # gamma_G + gamma_N < 1, and a few outcomes meet both criteria
+  expect_warning(oc <- qdm_oc(ref_design_bin2("B5", nMC = 5000L), sc,
+                              seed = 2026),
+                 "Miss")
+  diff <- abs(as.matrix(oc[, c("Go", "NoGo", "Gray")]) - pub)
+  expect_true(all(diff <= tol))
 })

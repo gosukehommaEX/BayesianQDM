@@ -31,3 +31,21 @@ test_that("format.qdm_criterion() describes a two-endpoint predictive criterion"
                      "  NoGo: P(regions {2, 4} | data) >= 0.8",
                      "  NULL = (0.0, 0.1)"))
 })
+
+test_that("format.qdm_criterion() describes marginal rules", {
+  cr <- criterion_posterior(c(0.2, 0.15), c(0.1, 0.05), c(0.6, 0.5), 0.7,
+                            rule = "and")
+  expect_identical(format(cr),
+                   c("Posterior probability criterion, marginal rule \"and\"",
+                     paste("  Go:   P(theta1 > 0.2 | data) >= 0.6 and",
+                           "P(theta2 > 0.15 | data) >= 0.5"),
+                     paste("  NoGo: P(theta1 <= 0.1 | data) >= 0.7 and",
+                           "P(theta2 <= 0.05 | data) >= 0.7")))
+  cp <- criterion_predictive(c(0, 0.1), m_t = 30, gamma_go = 0.6,
+                             gamma_nogo = 0.8, rule = "or")
+  expect_identical(format(cp)[1:2],
+                   c(paste("Posterior predictive probability criterion",
+                           "(m_t = 30, m_c = 30), marginal rule \"or\""),
+                     paste("  Go:   P(future theta1 > 0 | data) >= 0.6 or",
+                           "P(future theta2 > 0.1 | data) >= 0.6")))
+})

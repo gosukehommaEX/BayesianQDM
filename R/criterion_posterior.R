@@ -18,7 +18,14 @@
 #' probability of the union of \code{go_regions} is at least
 #' \eqn{\gamma_{go}}, and the NoGo criterion is that the posterior probability
 #' of the union of \code{nogo_regions} is at least \eqn{\gamma_{nogo}}
-#' (Yamaguchi et al., submitted).
+#' (Yamaguchi et al., submitted, equations 2 and 3). With \code{rule = "and"}
+#' or \code{"or"}, the criteria are instead based on the marginal posterior
+#' probabilities of each endpoint (equations 4 and 5): the Go criterion is
+#' \eqn{\Pr(\theta_1 > \theta_{TV1} \mid D) \ge \gamma_{go1}} and (or)
+#' \eqn{\Pr(\theta_2 > \theta_{TV2} \mid D) \ge \gamma_{go2}}, and the NoGo
+#' criterion is \eqn{\Pr(\theta_1 \le \theta_{MAV1} \mid D) \ge
+#' \gamma_{nogo1}} and (or)
+#' \eqn{\Pr(\theta_2 \le \theta_{MAV2} \mid D) \ge \gamma_{nogo2}}.
 #'
 #' The decision is Go if only the Go criterion is met, NoGo if only the NoGo
 #' criterion is met, Gray if neither is met, and Miss if both are met. For one
@@ -30,15 +37,21 @@
 #'   the same length as \code{theta_tv}. Each element must be smaller than the
 #'   corresponding element of \code{theta_tv}.
 #' @param gamma_go Probability threshold for the Go criterion, strictly
-#'   between 0 and 1.
+#'   between 0 and 1. With \code{rule = "and"} or \code{"or"}, one threshold
+#'   per endpoint (a single number is used for both).
 #' @param gamma_nogo Probability threshold for the NoGo criterion, strictly
-#'   between 0 and 1.
+#'   between 0 and 1, given in the same way as \code{gamma_go}.
 #' @param go_regions Region numbers (from 1 to 9) forming the Go region for two
-#'   endpoints. Ignored for one endpoint. The default, region 1, requires both
-#'   effects to exceed their target values.
+#'   endpoints with \code{rule = "joint"}. Ignored for one endpoint. The
+#'   default, region 1, requires both effects to exceed their target values.
 #' @param nogo_regions Region numbers (from 1 to 9) forming the NoGo region for
-#'   two endpoints. Ignored for one endpoint. The default, region 9, requires
-#'   both effects to be at most their minimum acceptable values.
+#'   two endpoints with \code{rule = "joint"}. Ignored for one endpoint. The
+#'   default, region 9, requires both effects to be at most their minimum
+#'   acceptable values.
+#' @param rule For two endpoints, \code{"joint"} (the default; probabilities
+#'   of unions of regions), \code{"and"} or \code{"or"} (marginal
+#'   probabilities of each endpoint, combined with AND or OR). Ignored for one
+#'   endpoint.
 #'
 #' @return An object of class
 #'   \code{c("qdm_criterion_posterior", "qdm_criterion")}.
@@ -58,9 +71,14 @@
 #' # Two endpoints
 #' criterion_posterior(theta_tv = c(0.2, 0.15), theta_mav = c(0.1, 0.05),
 #'                     gamma_go = 0.3, gamma_nogo = 0.4)
+#'
+#' # Two endpoints, marginal criteria combined with AND
+#' criterion_posterior(theta_tv = c(0.2, 0.15), theta_mav = c(0.1, 0.05),
+#'                     gamma_go = c(0.6, 0.5), gamma_nogo = 0.7, rule = "and")
 #' @export
 criterion_posterior <- function(theta_tv, theta_mav, gamma_go, gamma_nogo,
-                                go_regions = 1L, nogo_regions = 9L) {
+                                go_regions = 1L, nogo_regions = 9L,
+                                rule = c("joint", "and", "or")) {
   check_numeric(theta_tv, "theta_tv", len = NULL)
   n_endpoints <- length(theta_tv)
   if (!(n_endpoints %in% c(1L, 2L))) {
@@ -72,18 +90,13 @@ criterion_posterior <- function(theta_tv, theta_mav, gamma_go, gamma_nogo,
     stop("Each element of 'theta_tv' must be greater than that of 'theta_mav'.",
          call. = FALSE)
   }
-  check_numeric(gamma_go, "gamma_go", lower = 0, upper = 1,
-                lower_open = TRUE, upper_open = TRUE)
-  check_numeric(gamma_nogo, "gamma_nogo", lower = 0, upper = 1,
-                lower_open = TRUE, upper_open = TRUE)
-  if (n_endpoints == 2L) {
-    regions <- check_regions(go_regions, nogo_regions, n_regions = 9L)
-  } else {
-    regions <- list(go = NULL, nogo = NULL)
-  }
+  rule <- match.arg(rule)
+  given <- !missing(go_regions) || !missing(nogo_regions)
+  r <- check_rule(rule, n_endpoints, gamma_go, gamma_nogo, go_regions,
+                  nogo_regions, regions_given = given, n_regions = 9L)
   structure(list(type = "posterior", n_endpoints = n_endpoints,
                  theta_tv = theta_tv, theta_mav = theta_mav,
-                 gamma_go = gamma_go, gamma_nogo = gamma_nogo,
-                 go_regions = regions$go, nogo_regions = regions$nogo),
+                 gamma_go = r$gamma_go, gamma_nogo = r$gamma_nogo,
+                 go_regions = r$go, nogo_regions = r$nogo, rule = r$rule),
             class = c("qdm_criterion_posterior", "qdm_criterion"))
 }

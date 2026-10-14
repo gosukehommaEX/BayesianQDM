@@ -2,6 +2,7 @@ ACR
 Appell's
 Binom
 Biopharmaceutical
+Bivariate
 CMD
 ChiSq
 Codecov
@@ -52,6 +53,7 @@ dx
 ec
 ej
 et
+evaluable
 frac
 gGo
 gNoGo
@@ -73,6 +75,7 @@ mathrm
 minimise
 modelled
 modelling
+multinomial
 nMC
 nc
 nj

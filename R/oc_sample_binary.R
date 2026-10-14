@@ -8,8 +8,9 @@
 #' @param scenarios Data frame of scenarios (checked).
 #'
 #' @return A list with elements \code{p_go} and \code{p_nogo} (vectors over
-#'   the outcomes), \code{weights} (matrix of outcome probabilities with one
-#'   column per scenario) and \code{method}.
+#'   the outcomes), \code{per_scenario} (\code{FALSE}), \code{weights}
+#'   (matrix of outcome probabilities with one column per scenario) and
+#'   \code{method}.
 #' @noRd
 oc_sample_binary <- function(design, scenarios) {
   n_t <- design$n_t
@@ -40,6 +41,6 @@ oc_sample_binary <- function(design, scenarios) {
     p <- region_prob_binary(design$criterion, post_t$a, post_t$b, post_c$a,
                             post_c$b)
   }
-  list(p_go = p$go, p_nogo = p$nogo, weights = weights,
-       method = "exact enumeration of the outcomes")
+  list(p_go = p$go, p_nogo = p$nogo, per_scenario = FALSE,
+       weights = weights, method = "exact enumeration of the outcomes")
 }

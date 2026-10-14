@@ -77,6 +77,49 @@ release.
   the predictive criterion.
 * `qdm_decide()` has a `seed` argument for designs with `method = "MC"`.
 
+## Designs and operations: two binary endpoints
+
+* `design_binary2()` specifies a study with two binary endpoints: sample
+  sizes, Dirichlet priors for the probabilities of the four combinations of
+  responses (`prior_dirichlet()`), external data for either group
+  (`borrow(data_binary2(...), a0)`), a concurrent, external-only or
+  hypothetical control group, the number of Monte Carlo draws `nMC`, and
+  whether the operating characteristics are computed by enumerating all
+  outcomes (`enumerate = TRUE`, the default) or by simulation.
+* For two endpoints, `criterion_posterior()` and `criterion_predictive()`
+  have the argument `rule`. With `rule = "joint"` (the default), the
+  criteria are on the probabilities of unions of regions (`go_regions` and
+  `nogo_regions`, numbered as in `qdm_regions()`). With `rule = "and"` or
+  `rule = "or"`, the criteria are on each endpoint separately (the
+  probability that the effect exceeds its TV, or is at most its MAV), with
+  one threshold for both endpoints or one per endpoint.
+* The posterior predictive probabilities of the regions are computed
+  exactly from the joint distribution of the numbers of future responders
+  on the two endpoints (Dirichlet-multinomial distribution) instead of by
+  Monte Carlo simulation. A future effect equal to the null value is not
+  counted as larger; version 0.1.0 compared differences of rounded
+  proportions, so some exact ties were counted as larger.
+* The posterior probabilities of the regions are estimated with `nMC`
+  draws (default 10000) from the Dirichlet posterior distributions, computed
+  in C++. The probabilities of all regions, and of the Go and NoGo regions,
+  are estimated from the same draws, and `qdm_decide()` reports all of them.
+  `qdm_decide()`, `qdm_oc()` and `qdm_calibrate()` take `seed` for these
+  draws.
+* `qdm_oc()` takes scenarios with the columns `pi_t1`, `pi_t2`, `rho_t`,
+  `pi_c1`, `pi_c2` and `rho_c`. With enumeration, the region probabilities
+  are computed once for every pair of treatment and control outcomes, with
+  the same Monte Carlo draws for all pairs, and weighted by the multinomial
+  probabilities under each scenario. With simulation, all scenarios use the
+  same uniform random numbers. Enumeration is limited to 1e7 pairs of
+  outcomes (for example, 24 subjects in each group). A scenario whose
+  correlation is outside the feasible range for its response rates is not
+  evaluable: its probabilities are `NA` with a warning (version 0.1.0
+  stopped with an error in its Monte Carlo path). `qdm_calibrate()` requires
+  feasible scenarios.
+* `plot()` of operating characteristics for two endpoints draws a heat map
+  of the probability of each decision over the effects on the two endpoints
+  and marks scenarios that are not evaluable with "NE".
+
 ## Distribution functions
 
 * `pbetadiff()` has the argument order `(q, a_t, b_t, a_c, b_c)`. The range
@@ -88,7 +131,7 @@ release.
 * `pbetabinomdiff()` has the argument order
   `(q, m_t, a_t, b_t, m_c, a_c, b_c)` and computes the probability mass
   functions on the log scale, so large numbers of future subjects no longer
-  cause overflow.
+  cause overflow. Values of `q` far outside [-1, 1] are handled exactly.
 * `ptdiff()` replaces `ptdiff_NI()`, `ptdiff_MC()` and `ptdiff_MM()`. The
   numerical integration now covers the whole real line (version 0.1.0
   truncated the range, with errors of up to about 3e-4 for small degrees of

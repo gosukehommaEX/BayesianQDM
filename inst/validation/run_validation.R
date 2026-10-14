@@ -17,7 +17,7 @@ local({
   env <- environment()
   for (f in c("validate_kang2026_binary.R", "validation_helpers.R",
               "validate_yamaguchi_glaucoma.R", "validate_huang_table3.R",
-              "validate_kang2026_table4.R")) {
+              "validate_kang2026_table4.R", "validate_yamaguchi_binary2.R")) {
     sys.source(file.path(val_dir, f), envir = env)
   }
   count <- function(x, v) sum(x == v)
@@ -37,6 +37,26 @@ local({
                max_abs_diff = max(d$max_abs_diff))
   }))
   tab <- tab[order(tab$table, tab$criterion), ]
+
+  # Two binary endpoints: operating characteristics
+  res2 <- validate_yamaguchi_binary2(file.path(val_dir,
+                                               "bivariate_binary2_tables.csv"))
+  utils::write.csv(res2, file.path(out_dir, "yamaguchi_binary2.csv"),
+                   row.names = FALSE)
+  self2 <- yamaguchi_binary2_self_check(res2)
+  tab2 <- do.call(rbind, lapply(split(res2, factor(res2$table,
+                                                   unique(res2$table))),
+                                function(d) {
+    ne <- is.na(d$pub_Go)
+    data.frame(table = d$table[1], checks = nrow(d),
+               PASS = count(d$verdict, "PASS"),
+               EXPLAINED = count(d$verdict, "EXPLAINED"),
+               FAIL = count(d$verdict, "FAIL"), NE = sum(ne),
+               max_abs_diff = max(d$max_abs_diff[!ne], -Inf),
+               max_sensitivity = max(d$sensitivity[!ne], -Inf))
+  }))
+  tab2$label <- ifelse(tab2$table == "3", "Table 3",
+                       paste("Supplemental Table", tab2$table))
 
   # One continuous endpoint: published numbers
   raw <- rbind(validate_yamaguchi_glaucoma(), validate_huang_table3(),
@@ -59,7 +79,7 @@ local({
   info <- num[num$verdict == "INFO", ]
   not_pass <- num[num$verdict %in% c("EXPLAINED", "FAIL"), ]
 
-  verdicts <- c(res$verdict, num$verdict)
+  verdicts <- c(res$verdict, res2$verdict, num$verdict)
   fmt_diff <- function(x) ifelse(is.finite(x), sprintf("%.4f", x), "-")
   lines <- c(
     "# Validation of BayesianQDM against published results",
@@ -75,6 +95,23 @@ local({
             tab$checks, tab$PASS, tab$EXPLAINED, tab$FAIL, tab$max_abs_diff),
     "",
     sprintf("Largest probability of a Miss decision: %.3g.", max(res$Miss)),
+    "",
+    paste("## Yamaguchi, Homma, Takeda and Maruo (submitted), Table 3 and",
+          "Supplemental Tables S1 and S2 (two binary endpoints)"),
+    "",
+    paste("| Table | Checks | PASS | EXPLAINED | FAIL | Not evaluable (NE) |",
+          "Largest difference | Largest sensitivity |"),
+    "|---|---|---|---|---|---|---|---|",
+    sprintf("| %s | %d | %d | %d | %d | %d | %.4f | %.4f |", tab2$label,
+            tab2$checks, tab2$PASS, tab2$EXPLAINED, tab2$FAIL, tab2$NE,
+            tab2$max_abs_diff, tab2$max_sensitivity),
+    "",
+    paste("One check per scenario (largest difference of Go, Gray and NoGo).",
+          "The scenarios that the article reports as not evaluable (NE)",
+          "are PASS when the probabilities of BayesianQDM are NA",
+          "(correlation outside the feasible range)."),
+    sprintf("Largest probability of a Miss decision: %.3g.",
+            max(res2$Miss, na.rm = TRUE)),
     "",
     "## Published numbers for one continuous endpoint",
     "",
@@ -115,6 +152,12 @@ local({
           "the probability of the outcomes whose exact predictive probability",
           "is within 0.01 of a threshold (plus 0.0005 for rounding), whose",
           "decisions Monte Carlo error can change."),
+    paste("- `bivariate_mc`: the article and BayesianQDM estimate the",
+          "posterior probabilities of the regions by Monte Carlo",
+          "simulation. The difference is at most the probability of the",
+          "outcomes whose posterior probability of the Go or NoGo region is",
+          "within 0.01 of its threshold (plus 0.00005 for rounding), whose",
+          "decisions Monte Carlo error can change."),
     paste("- `huang_mc`: the article summarizes Monte Carlo samples of the",
           "posterior distributions (its Section 6.3); the difference from",
           "the exact value is at most 0.01 beyond rounding."),
@@ -128,12 +171,18 @@ local({
                   "gives FAIL in %d of %d posterior rows (%s)."),
             self$n_fail, self$n_posterior,
             if (self$ok) "PASS" else "FAIL"),
+    sprintf(paste("Self-check: shifting the published Go probabilities of",
+                  "two binary endpoints by 0.15 gives FAIL in %d of %d",
+                  "evaluable scenarios (%s)."),
+            self2$n_fail, self2$n_evaluable,
+            if (self2$ok) "PASS" else "FAIL"),
     sprintf(paste("Self-check: shifting the published continuous numbers by",
                   "0.05 gives FAIL in %d of %d rows other than INFO (%s)."),
             self_num$n_fail, self_num$n_checked,
             if (self_num$ok) "PASS" else "FAIL"),
     "",
-    paste("Details: `inst/validation/results/kang2026_binary.csv` and",
+    paste("Details: `inst/validation/results/kang2026_binary.csv`,",
+          "`inst/validation/results/yamaguchi_binary2.csv` and",
           "`inst/validation/results/continuous.csv`.")
   )
   writeLines(lines, file.path(out_dir, "summary.md"))
@@ -142,5 +191,5 @@ local({
                   length(verdicts), count(verdicts, "PASS"),
                   count(verdicts, "EXPLAINED"), count(verdicts, "FAIL"),
                   count(verdicts, "INFO"),
-                  if (self$ok && self_num$ok) "PASS" else "FAIL"))
+                  if (self$ok && self2$ok && self_num$ok) "PASS" else "FAIL"))
 })

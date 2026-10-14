@@ -11,3 +11,11 @@ test_that("oc_sample() simulates continuous designs", {
   set.seed(1)
   expect_identical(a, oc_sample_continuous(des, scen_cont_u, 30L))
 })
+
+test_that("oc_sample() dispatches designs with two binary endpoints", {
+  des <- ref_design_bin2("B1", enumerate = FALSE)
+  set.seed(1)
+  a <- oc_sample(des, scen_bin2, 20L)
+  set.seed(1)
+  expect_identical(a, oc_sample_binary2(des, scen_bin2, 20L))
+})

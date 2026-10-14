@@ -19,18 +19,30 @@ format.qdm_decision <- function(x, digits = 4L, ...) {
   crit <- x$design$criterion
   labels <- event_labels(crit, digits)
   met <- function(m) if (m) "met" else "not met"
-  c(
-    sprintf("Decision: %s", x$decision),
-    sprintf("  Go:   %s = %s (threshold %s, %s)", labels[["go"]],
-            format_num(x$prob_go, digits), format_num(crit$gamma_go, digits),
-            met(x$met_go)),
-    sprintf("  NoGo: %s = %s (threshold %s, %s)", labels[["nogo"]],
-            format_num(x$prob_nogo, digits),
-            format_num(crit$gamma_nogo, digits), met(x$met_nogo)),
-    "Posterior distributions",
+  num <- function(v) format_num(v, digits)
+  describe <- function(name, lab, prob, gamma, met_all) {
+    if (length(prob) == 1L) {
+      return(sprintf("  %s %s = %s (threshold %s, %s)", name, lab, num(prob),
+                     num(gamma), met(met_all)))
+    }
+    c(sprintf("  %s %s (rule \"%s\")", name, met(met_all), crit$rule),
+      sprintf("    %s = %s (threshold %s, %s)", lab, vapply(prob, num, ""),
+              vapply(gamma, num, ""),
+              vapply(meets_threshold(prob, gamma), met, "")))
+  }
+  out <- c(sprintf("Decision: %s", x$decision),
+           describe("Go:  ", labels$go, x$prob_go, crit$gamma_go, x$met_go),
+           describe("NoGo:", labels$nogo, x$prob_nogo, crit$gamma_nogo,
+                    x$met_nogo))
+  if (!is.null(x$prob_regions)) {
+    out <- c(out, sprintf("Region probabilities: %s",
+                          paste(names(x$prob_regions),
+                                vapply(x$prob_regions, num, ""),
+                                sep = " = ", collapse = ", ")))
+  }
+  c(out, "Posterior distributions",
     sprintf("  Treatment: %s", format_posterior(x$design, x$posterior_t,
                                                 digits)),
     sprintf("  Control:   %s", format_posterior(x$design, x$posterior_c,
-                                                digits))
-  )
+                                                digits)))
 }

@@ -46,3 +46,16 @@ test_that("criterion_predictive() validates the null values and thresholds", {
                                     nogo_regions = c(1, 4)),
                "must not share any region")
 })
+
+test_that("criterion_predictive() supports marginal rules for two endpoints", {
+  cr <- criterion_predictive(c(0, 0.1), m_t = 30, gamma_go = 0.6,
+                             gamma_nogo = c(0.7, 0.8), rule = "or")
+  expect_identical(cr$rule, "or")
+  expect_identical(cr$gamma_go, c(0.6, 0.6))
+  expect_identical(cr$gamma_nogo, c(0.7, 0.8))
+  expect_null(cr$nogo_regions)
+  expect_error(criterion_predictive(c(0, 0), m_t = 30, gamma_go = 0.6,
+                                    gamma_nogo = 0.7, nogo_regions = 4,
+                                    rule = "and"),
+               "used only with rule = \"joint\"")
+})

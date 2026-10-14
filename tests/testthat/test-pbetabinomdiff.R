@@ -91,6 +91,11 @@ test_that("pbetabinomdiff() has the correct limits", {
   p_t0 <- dbetabinom(0, 6, 2, 3)
   p_cm <- dbetabinom(4, 4, 1.5, 2.5)
   expect_equal(up(-1), 1 - p_t0 * p_cm, tolerance = 1e-12)
+  # Values of q far outside [-1, 1] (the cut points are computed with q
+  # restricted to [-2, 2])
+  expect_equal(up(-1e17), 1, tolerance = 1e-14)
+  expect_identical(up(1e17), 0)
+  expect_identical(do.call(pbetabinomdiff, c(list(q = -1e17), args)), 0)
 })
 
 test_that("pbetabinomdiff() agrees with Monte Carlo simulation", {

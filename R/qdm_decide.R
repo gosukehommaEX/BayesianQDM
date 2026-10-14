@@ -13,24 +13,29 @@
 #' The sample sizes of the observed data may differ from those of the design,
 #' which are used only by \code{\link{qdm_oc}} and \code{\link{qdm_calibrate}}.
 #'
-#' @param design A design created by \code{\link{design_binary}} or
-#'   \code{\link{design_continuous}}.
+#' @param design A design created by \code{\link{design_binary}},
+#'   \code{\link{design_continuous}} or \code{\link{design_binary2}}.
 #' @param data_t Observed data of the treatment group, created by
-#'   \code{\link{data_binary}} or \code{\link{data_continuous}} (matching the
-#'   endpoint of the design).
+#'   \code{\link{data_binary}}, \code{\link{data_continuous}} or
+#'   \code{\link{data_binary2}} (matching the endpoint of the design).
 #' @param data_c Observed data of the concurrent control group, created by
 #'   the same function as \code{data_t}; \code{NULL} (the default) for a
 #'   design without a concurrent control group.
-#' @param seed Random seed for a continuous design with \code{method = "MC"},
-#'   or \code{NULL} to use the current random number stream. If given, the
-#'   previous state of the random number generator is restored on exit. Not
-#'   used by the other methods.
+#' @param seed Random seed for probabilities computed by Monte Carlo
+#'   simulation (a continuous design with \code{method = "MC"}, or posterior
+#'   probabilities for two binary endpoints), or \code{NULL} to use the
+#'   current random number stream. If given, the previous state of the random
+#'   number generator is restored on exit. Not used otherwise.
 #'
 #' @return An object of class \code{"qdm_decision"}: a list with elements
 #'   \describe{
 #'     \item{decision}{\code{"Go"}, \code{"NoGo"}, \code{"Gray"} or
 #'       \code{"Miss"}.}
-#'     \item{prob_go, prob_nogo}{Probabilities of the Go and NoGo regions.}
+#'     \item{prob_go, prob_nogo}{Probabilities of the Go and NoGo regions
+#'       (for two endpoints with a marginal rule, one probability per
+#'       endpoint).}
+#'     \item{prob_regions}{For two endpoints, the probabilities of all
+#'       regions (see \code{\link{qdm_regions}}); \code{NULL} otherwise.}
 #'     \item{met_go, met_nogo}{Whether the Go and NoGo criteria are met.}
 #'     \item{posterior_t, posterior_c}{Parameters of the posterior
 #'       distributions of the treatment and control groups: for a binary
@@ -40,7 +45,9 @@
 #'       deviation scale), so that the mean has the distribution
 #'       \eqn{t_{\nu}(\mu, \sigma^2 / \kappa)}. For a hypothetical control,
 #'       \code{posterior_c} gives the distribution of the control mean in the
-#'       same form (see \code{\link{design_continuous}}).}
+#'       same form (see \code{\link{design_continuous}}). For two binary
+#'       endpoints, the Dirichlet parameters of the cells \code{"00"},
+#'       \code{"01"}, \code{"10"} and \code{"11"}.}
 #'     \item{design, data_t, data_c}{The arguments.}
 #'   }
 #'
@@ -72,14 +79,16 @@ qdm_decide <- function(design, data_t, data_c = NULL, seed = NULL) {
   res <- with_seed(seed, switch(
     design$endpoint,
     binary = decide_binary(design, data_t, data_c),
-    continuous = decide_continuous(design, data_t, data_c)
+    continuous = decide_continuous(design, data_t, data_c),
+    binary2 = decide_binary2(design, data_t, data_c)
   ))
   crit <- design$criterion
-  met_go <- meets_threshold(res$prob_go, crit$gamma_go)
-  met_nogo <- meets_threshold(res$prob_nogo, crit$gamma_nogo)
+  met_go <- meets_criterion(res$prob_go, crit$gamma_go, crit$rule)
+  met_nogo <- meets_criterion(res$prob_nogo, crit$gamma_nogo, crit$rule)
   structure(list(decision = decision_label(met_go, met_nogo),
                  prob_go = res$prob_go, prob_nogo = res$prob_nogo,
                  met_go = met_go, met_nogo = met_nogo,
+                 prob_regions = res$prob_regions,
                  posterior_t = res$posterior_t,
                  posterior_c = res$posterior_c, design = design,
                  data_t = data_t, data_c = data_c),

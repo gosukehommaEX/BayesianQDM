@@ -46,3 +46,39 @@ test_that("plot.qdm_oc() draws continuous operating characteristics", {
   expect_equal(sort(unique(b3$data[[1]]$xintercept)), c(5, 20))
   expect_equal(sort(unique(b3$data[[3]]$x)), scen_cont_u$mu_t)
 })
+
+test_that("plot.qdm_oc() draws heat maps for two endpoints", {
+  sc <- expand.grid(th1 = c(0, 0.2), th2 = c(0, 0.2, 0.4))
+  sc <- data.frame(pi_t1 = 0.3 + sc$th1, pi_t2 = 0.3 + sc$th2, rho_t = 0.5,
+                   pi_c1 = 0.3, pi_c2 = 0.3, rho_c = 0.5)
+  w <- character(0)
+  oc <- withCallingHandlers(qdm_oc(ref_design_bin2("B2"), sc),
+                            warning = function(e) {
+                              w <<- c(w, conditionMessage(e))
+                              invokeRestart("muffleWarning")
+                            })
+  # Scenario 5 (pi_t1 = 0.3, pi_t2 = 0.7, rho_t = 0.5) is infeasible
+  expect_identical(w, paste("Scenario(s) 5 are not evaluable: the",
+                            "correlation is outside the feasible range for",
+                            "the response rates. Their probabilities are",
+                            "NA."))
+  expect_identical(which(is.na(oc$Go)), 5L)
+  p <- plot(oc)
+  expect_s3_class(p, "ggplot")
+  b <- ggplot2::ggplot_build(p)
+  tiles <- b$data[[1]]
+  expect_identical(nrow(tiles), 3L * nrow(sc))
+  labels <- b$data[[2]]$label
+  expect_identical(sum(labels == "NE"), 3L * sum(is.na(oc$Go)))
+  expect_true(all(labels[labels != "NE"] %in%
+                    sprintf("%.2f", c(oc$Go, oc$NoGo, oc$Gray))))
+  # Several correlations at the same effects cannot be drawn together
+  oc2 <- qdm_oc(ref_design_bin2("B2"), rbind(scen_bin2[1, ], scen_bin2[1, ]))
+  expect_error(plot(oc2), "with different correlations or control")
+  # Without a concurrent control group the axes are the treatment rates
+  oc7 <- suppressWarnings(qdm_oc(ref_design_bin2("B7"),
+                                 sc[, c("pi_t1", "pi_t2", "rho_t")]))
+  n_dec <- 3L + any(oc7$Miss > 0, na.rm = TRUE)
+  expect_identical(nrow(ggplot2::ggplot_build(plot(oc7))$data[[1]]),
+                   n_dec * nrow(sc))
+})

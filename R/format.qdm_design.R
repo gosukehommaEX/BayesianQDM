@@ -19,6 +19,7 @@ format.qdm_design <- function(x, digits = 4L, ...) {
   endpoint <- switch(x$endpoint,
                      binary = "one binary endpoint",
                      continuous = "one continuous endpoint",
+                     binary2 = "two binary endpoints",
                      stop("Unknown design.", call. = FALSE))
   control <- switch(x$control,
                     concurrent = sprintf("concurrent, n = %d", x$n_c),
@@ -49,6 +50,18 @@ format.qdm_design <- function(x, digits = 4L, ...) {
   if (!is.null(x$method)) {
     out <- c(out, sprintf("Probabilities: %s", method_label(x$method,
                                                              x$nMC)))
+  }
+  if (x$endpoint == "binary2") {
+    out <- c(out,
+             sprintf("Probabilities: %s",
+                     if (x$criterion$type == "posterior") {
+                       method_label("MC", x$nMC)
+                     } else {
+                       "exact computation"
+                     }),
+             sprintf("Operating characteristics: %s",
+                     if (x$enumerate) "enumeration of all outcomes" else
+                       "simulation"))
   }
   out
 }

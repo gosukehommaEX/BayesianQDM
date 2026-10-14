@@ -11,7 +11,8 @@ criterion_predictive(
   gamma_go,
   gamma_nogo,
   go_regions = 1L,
-  nogo_regions = 4L
+  nogo_regions = 4L,
+  rule = c("joint", "and", "or")
 )
 }
 \arguments{
@@ -23,18 +24,26 @@ endpoints.}
 the future study (whole numbers of at least 1).}
 
 \item{gamma_go}{Probability threshold for the Go criterion, strictly
-between 0 and 1.}
+between 0 and 1. With \code{rule = "and"} or \code{"or"}, one threshold
+per endpoint (a single number is used for both).}
 
 \item{gamma_nogo}{Probability threshold for the NoGo criterion, strictly
-between 0 and 1.}
+between 0 and 1, given in the same way as \code{gamma_go}.}
 
 \item{go_regions}{Region numbers (from 1 to 4) forming the Go region for two
-endpoints. Ignored for one endpoint. The default, region 1, requires both
-future effects to exceed their null values.}
+endpoints with \code{rule = "joint"}. Ignored for one endpoint. The
+default, region 1, requires both future effects to exceed their null
+values.}
 
 \item{nogo_regions}{Region numbers (from 1 to 4) forming the NoGo region for
-two endpoints. Ignored for one endpoint. The default, region 4, requires
-both future effects to be at most their null values.}
+two endpoints with \code{rule = "joint"}. Ignored for one endpoint. The
+default, region 4, requires both future effects to be at most their null
+values.}
+
+\item{rule}{For two endpoints, \code{"joint"} (the default; probabilities
+of unions of regions), \code{"and"} or \code{"or"} (marginal
+probabilities of each endpoint, combined with AND or OR). Ignored for one
+endpoint.}
 }
 \value{
 An object of class
@@ -61,7 +70,12 @@ the two probabilities add up to 1, a Gray decision is possible only when
 For two endpoints, the null values divide the plane of
 \eqn{(\tilde\theta_1, \tilde\theta_2)} into four regions (see
 \code{\link{qdm_regions}}), and the criteria are based on the predictive
-probabilities of the unions of \code{go_regions} and \code{nogo_regions}.
+probabilities of the unions of \code{go_regions} and \code{nogo_regions}
+(Yamaguchi et al., submitted, equations 7 and 8). With \code{rule = "and"}
+or \code{"or"}, they are based on the marginal predictive probabilities of
+each endpoint, \eqn{\Pr(\tilde\theta_k > \theta_{NULLk} \mid D)} for Go
+and \eqn{\Pr(\tilde\theta_k \le \theta_{NULLk} \mid D)} for NoGo,
+combined with AND or OR (equations 9 and 10).
 }
 \examples{
 criterion_predictive(theta_null = 0, m_t = 50, gamma_go = 0.9,

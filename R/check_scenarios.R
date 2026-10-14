@@ -7,11 +7,14 @@
 #' @param scenarios Object to check.
 #' @param name Name of the argument, used in error messages.
 #' @param one_row Logical; if \code{TRUE}, exactly one row is required.
+#' @param feasible Logical; if \code{TRUE}, scenarios of two binary endpoints
+#'   whose correlation is infeasible for their response rates are rejected
+#'   (otherwise they are reported as not evaluable by \code{qdm_oc()}).
 #'
 #' @return \code{scenarios} as a plain data frame.
 #' @noRd
 check_scenarios <- function(design, scenarios, name = "scenarios",
-                            one_row = FALSE) {
+                            one_row = FALSE, feasible = FALSE) {
   if (!is.data.frame(scenarios) || nrow(scenarios) == 0L) {
     stop(sprintf("'%s' must be a data frame with at least one row.", name),
          call. = FALSE)
@@ -33,7 +36,21 @@ check_scenarios <- function(design, scenarios, name = "scenarios",
     col <- cols$names[k]
     check_numeric(scenarios[[col]], sprintf("%s$%s", name, col), len = NULL,
                   lower = cols$lower[k], upper = cols$upper[k],
-                  lower_open = cols$lower_open[k])
+                  lower_open = cols$lower_open[k],
+                  upper_open = cols$upper_open[k])
+  }
+  if (feasible && design$endpoint == "binary2") {
+    groups <- if (design$control == "concurrent") c("t", "c") else "t"
+    for (g in groups) {
+      cells <- cellprob_scenarios(scenarios[[paste0("pi_", g, "1")]],
+                                  scenarios[[paste0("pi_", g, "2")]],
+                                  scenarios[[paste0("rho_", g)]])
+      if (anyNA(cells)) {
+        stop(sprintf(paste("'%s$rho_%s' is outside the feasible range for",
+                           "the response rates (see cellprob_binary2())."),
+                     name, g), call. = FALSE)
+      }
+    }
   }
   scenarios
 }

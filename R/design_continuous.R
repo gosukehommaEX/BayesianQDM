@@ -150,7 +150,8 @@ design_continuous <- function(n_t, n_c, prior_t, prior_c = NULL, criterion,
     check_prior_continuous(prior_c, "prior_c")
   }
   method <- match.arg(method)
-  check_numeric(nMC, "nMC", lower = 1, integer = TRUE)
+  check_numeric(nMC, "nMC", lower = 1, upper = .Machine$integer.max,
+                integer = TRUE)
   des <- structure(list(endpoint = "continuous",
                         n_t = as.integer(round(n_t)),
                         n_c = as.integer(round(n_c)), prior_t = prior_t,

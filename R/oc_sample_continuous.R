@@ -19,7 +19,8 @@
 #' @param nsim Number of simulated studies.
 #'
 #' @return A list with elements \code{p_go} and \code{p_nogo} (matrices with
-#'   one row per simulated study and one column per scenario), \code{weights}
+#'   one row per simulated study and one column per scenario),
+#'   \code{per_scenario} (\code{TRUE}), \code{weights}
 #'   (matrix of the same size with all elements \code{1 / nsim}) and
 #'   \code{method}.
 #' @noRd
@@ -57,7 +58,7 @@ oc_sample_continuous <- function(design, scenarios, nsim) {
     p_go[, j] <- p$go
     p_nogo[, j] <- p$nogo
   }
-  list(p_go = p_go, p_nogo = p_nogo,
+  list(p_go = p_go, p_nogo = p_nogo, per_scenario = TRUE,
        weights = matrix(1 / nsim, nsim, n_scen),
        method = sprintf("simulation of %d studies; probabilities by %s",
                         nsim, method_label(design$method, design$nMC)))

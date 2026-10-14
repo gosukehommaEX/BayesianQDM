@@ -183,7 +183,7 @@ test_that("ptdiff() validates its arguments", {
                "requires 'df_t' and 'df_c' greater than 4")
   expect_error(ptdiff(0, 0, 0, 3, 0, 1, 10), "'scale_t' must be greater")
   expect_error(ptdiff(0, 0, 1, 3, 0, 1, 10, method = "MC", nMC = 0),
-               "'nMC' must be at least 1.")
+               "'nMC' must be at least 1 and at most 2147483647.")
   expect_error(ptdiff(0, 0, 1, 3, 0, 1, 10, method = "XX"),
                "should be one of")
 })

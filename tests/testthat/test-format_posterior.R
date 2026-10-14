@@ -15,3 +15,10 @@ test_that("format_posterior() gives the t distribution of a continuous mean", {
                                            sigma = 2), digits = 2),
                    "mean ~ t(df = 2.5, location = -0.33, scale = 1)")
 })
+
+test_that("format_posterior() gives the Dirichlet parameters", {
+  expect_identical(format_posterior(ref_design_bin2("B1"),
+                                    c("00" = 2.25, "01" = 1.25, "10" = 3.25,
+                                      "11" = 4.25)),
+                   "Dirichlet(alpha = (2.25, 1.25, 3.25, 4.25))")
+})

@@ -43,3 +43,26 @@ test_that("check_scenarios() validates the scenarios of continuous designs", {
   u <- data.frame(mu_t = c(-5, 5), sd_t = c(1, 2))
   expect_identical(check_scenarios(ref_design_cont("C3"), u), u)
 })
+
+test_that("check_scenarios() validates scenarios for two binary endpoints", {
+  des <- ref_design_bin2("B1")
+  expect_identical(check_scenarios(des, scen_bin2), scen_bin2)
+  bad <- scen_bin2[1, ]
+  bad$pi_t1 <- 1
+  expect_error(check_scenarios(des, bad),
+               "'scenarios\\$pi_t1' must be greater than 0 and less than 1.")
+  bad <- scen_bin2[1, ]
+  bad$rho_c <- 1.5
+  expect_error(check_scenarios(des, bad),
+               "'scenarios\\$rho_c' must be at least -1 and at most 1.")
+  # Infeasible correlations are accepted unless feasibility is required
+  inf <- scen_bin2[1, ]
+  inf$rho_t <- -0.9
+  expect_identical(check_scenarios(des, inf), inf)
+  expect_error(check_scenarios(des, inf, "sc", feasible = TRUE),
+               "'sc\\$rho_t' is outside the feasible range")
+  inf_c <- scen_bin2[1, ]
+  inf_c$rho_c <- -0.9
+  expect_error(check_scenarios(des, inf_c, "sc", feasible = TRUE),
+               "'sc\\$rho_c' is outside the feasible range")
+})

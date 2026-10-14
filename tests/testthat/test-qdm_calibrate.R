@@ -113,7 +113,7 @@ test_that("qdm_calibrate() validates its arguments", {
                "'grid' must be greater than 0 and less than 1.")
   expect_error(qdm_calibrate(des, a$scenario_go, a$scenario_nogo, 0.05, 0.2,
                              nsim = -1),
-               "'nsim' must be at least 1.")
+               "'nsim' must be at least 1 and at most 2147483647.")
   expect_error(qdm_calibrate(des, a$scenario_go, a$scenario_nogo, 0.05, 0.2,
                              seed = "a"),
                "'seed' must be numeric.")
@@ -161,4 +161,49 @@ test_that("qdm_calibrate() matches the exact curves of a continuous design", {
   expect_equal(cal$oc$Go, oc$Go)
   expect_equal(cal$oc$NoGo, oc$NoGo)
   expect_identical(cal$method, attr(oc, "method"))
+})
+
+test_that("qdm_calibrate() matches the exact curves for two binary endpoints", {
+  # Python_reference/ref_binary2_qdm.py, design B1 (predictive, exact):
+  # P(Go criterion met | scenario 1) and P(NoGo criterion met | scenario 2)
+  ex_go <- c(0.593520788365099, 0.389565893365665, 0.240549158867837,
+             0.159374861945474, 0.0931251408088504, 0.0268240062260297,
+             0.0174331839434175, 0.00107659720288955, 0)
+  ex_nogo <- c(0.6868067, 0.4085798, 0.2488433, 0.1210625, 0.0716579,
+               0.0376649, 0.0119313, 0.0045342, 6.48e-05)
+  grid <- seq(0.1, 0.9, by = 0.1)
+  cal <- qdm_calibrate(ref_design_bin2("B1"), scen_bin2[1, ], scen_bin2[2, ],
+                       target_go = 0.1, target_nogo = 0.05, grid = grid)
+  expect_equal(cal$curve$prob_go, ex_go, tolerance = 1e-9)
+  expect_equal(cal$curve$prob_nogo, ex_nogo, tolerance = 1e-9)
+  expect_equal(cal$gamma_go, 0.5)
+  expect_equal(cal$gamma_nogo, 0.6)
+  expect_equal(cal$design$criterion$gamma_go, 0.5)
+  expect_identical(cal$oc$Miss, c(0, 0))
+})
+
+test_that("qdm_calibrate() uses one threshold for both endpoints with a marginal rule", {
+  des <- ref_design_bin2("B2")
+  grid <- seq(0.2, 0.8, by = 0.1)
+  cal <- qdm_calibrate(des, scen_bin2[1, ], scen_bin2[3, ], target_go = 0.1,
+                       target_nogo = 0.1, grid = grid)
+  expect_identical(length(cal$design$criterion$gamma_go), 2L)
+  expect_equal(cal$design$criterion$gamma_go, rep(cal$gamma_go, 2))
+  expect_equal(cal$design$criterion$gamma_nogo, rep(cal$gamma_nogo, 2))
+  # The curve agrees with qdm_oc() for a design with the thresholds (g, g)
+  g <- 0.4
+  des_g <- des
+  des_g$criterion$gamma_go <- c(g, g)
+  oc <- suppressWarnings(qdm_oc(des_g, scen_bin2[1, ]))
+  expect_equal(oc$Go + oc$Miss, cal$curve$prob_go[abs(grid - g) < 1e-9],
+               tolerance = 1e-12)
+  expect_true(all(diff(cal$curve$prob_go) <= 1e-12))
+})
+
+test_that("qdm_calibrate() requires feasible scenarios for two binary endpoints", {
+  bad <- data.frame(pi_t1 = 0.35, pi_t2 = 0.15, rho_t = 0.6, pi_c1 = 0.2,
+                    pi_c2 = 0.15, rho_c = 0.6)
+  expect_error(qdm_calibrate(ref_design_bin2("B1"), bad, scen_bin2[2, ],
+                             0.1, 0.1),
+               "'scenario_go\\$rho_t' is outside the feasible range")
 })

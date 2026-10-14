@@ -17,3 +17,11 @@ cpp_ptdiff_ni_upper <- function(q, mu_t, scale_t, df_t, mu_c, scale_c, df_c) {
     .Call(`_BayesianQDM_cpp_ptdiff_ni_upper`, q, mu_t, scale_t, df_t, mu_c, scale_c, df_c)
 }
 
+cpp_post_regions_binary2 <- function(alpha_t, alpha_c, pair_t, pair_c, tv, mav, masks, nMC) {
+    .Call(`_BayesianQDM_cpp_post_regions_binary2`, alpha_t, alpha_c, pair_t, pair_c, tv, mav, masks, nMC)
+}
+
+cpp_pred_regions_binary2 <- function(alpha_t, alpha_c, pair_t, pair_c, m_t, m_c, q, masks) {
+    .Call(`_BayesianQDM_cpp_pred_regions_binary2`, alpha_t, alpha_c, pair_t, pair_c, m_t, m_c, q, masks)
+}
+

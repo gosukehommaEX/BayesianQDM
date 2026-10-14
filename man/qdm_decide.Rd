@@ -7,28 +7,33 @@
 qdm_decide(design, data_t, data_c = NULL, seed = NULL)
 }
 \arguments{
-\item{design}{A design created by \code{\link{design_binary}} or
-\code{\link{design_continuous}}.}
+\item{design}{A design created by \code{\link{design_binary}},
+\code{\link{design_continuous}} or \code{\link{design_binary2}}.}
 
 \item{data_t}{Observed data of the treatment group, created by
-\code{\link{data_binary}} or \code{\link{data_continuous}} (matching the
-endpoint of the design).}
+\code{\link{data_binary}}, \code{\link{data_continuous}} or
+\code{\link{data_binary2}} (matching the endpoint of the design).}
 
 \item{data_c}{Observed data of the concurrent control group, created by
 the same function as \code{data_t}; \code{NULL} (the default) for a
 design without a concurrent control group.}
 
-\item{seed}{Random seed for a continuous design with \code{method = "MC"},
-or \code{NULL} to use the current random number stream. If given, the
-previous state of the random number generator is restored on exit. Not
-used by the other methods.}
+\item{seed}{Random seed for probabilities computed by Monte Carlo
+simulation (a continuous design with \code{method = "MC"}, or posterior
+probabilities for two binary endpoints), or \code{NULL} to use the
+current random number stream. If given, the previous state of the random
+number generator is restored on exit. Not used otherwise.}
 }
 \value{
 An object of class \code{"qdm_decision"}: a list with elements
 \describe{
 \item{decision}{\code{"Go"}, \code{"NoGo"}, \code{"Gray"} or
 \code{"Miss"}.}
-\item{prob_go, prob_nogo}{Probabilities of the Go and NoGo regions.}
+\item{prob_go, prob_nogo}{Probabilities of the Go and NoGo regions
+(for two endpoints with a marginal rule, one probability per
+endpoint).}
+\item{prob_regions}{For two endpoints, the probabilities of all
+regions (see \code{\link{qdm_regions}}); \code{NULL} otherwise.}
 \item{met_go, met_nogo}{Whether the Go and NoGo criteria are met.}
 \item{posterior_t, posterior_c}{Parameters of the posterior
 distributions of the treatment and control groups: for a binary
@@ -38,7 +43,9 @@ continuous endpoint, the Normal-Inverse-chi-squared parameters
 deviation scale), so that the mean has the distribution
 \eqn{t_{\nu}(\mu, \sigma^2 / \kappa)}. For a hypothetical control,
 \code{posterior_c} gives the distribution of the control mean in the
-same form (see \code{\link{design_continuous}}).}
+same form (see \code{\link{design_continuous}}). For two binary
+endpoints, the Dirichlet parameters of the cells \code{"00"},
+\code{"01"}, \code{"10"} and \code{"11"}.}
 \item{design, data_t, data_c}{The arguments.}
 }
 }

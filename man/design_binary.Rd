@@ -98,6 +98,7 @@ diseases. \emph{Journal of Biopharmaceutical Statistics}.
 }
 \seealso{
 Other designs:
+\code{\link[=design_binary2]{design_binary2()}},
 \code{\link[=design_continuous]{design_continuous()}}
 }
 \concept{designs}

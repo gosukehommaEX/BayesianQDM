@@ -19,24 +19,37 @@
 #' by the method of the design (see \code{\link{design_continuous}}), of which
 #' \code{method = "MM"} is the fastest.
 #'
+#' For two binary endpoints, all outcomes are enumerated (Yamaguchi et al.,
+#' submitted, equation A.5) or \code{nsim} studies are simulated, as specified
+#' by \code{enumerate} in \code{\link{design_binary2}}. The response rates
+#' and correlation of each group are converted to cell probabilities by
+#' \code{\link{cellprob_binary2}}; a scenario whose correlation is outside the
+#' feasible range for its response rates is not evaluable, and its
+#' probabilities are \code{NA} (with a warning).
+#'
 #' The decision for each outcome is made as in \code{\link{qdm_decide}}. A
 #' warning is given when Miss decisions (both criteria met) have positive
 #' probability in some scenario.
 #'
-#' @param design A design created by \code{\link{design_binary}} or
-#'   \code{\link{design_continuous}}.
+#' @param design A design created by \code{\link{design_binary}},
+#'   \code{\link{design_continuous}} or \code{\link{design_binary2}}.
 #' @param scenarios A data frame with one row per scenario. For a binary
 #'   endpoint the columns \code{pi_t} and \code{pi_c} give the true response
 #'   rates of the treatment and control groups. For a continuous endpoint the
 #'   columns \code{mu_t}, \code{sd_t}, \code{mu_c} and \code{sd_c} give the
-#'   true means and standard deviations. The columns of the control group are
-#'   not needed for a design without a concurrent control group. Other
-#'   columns, such as labels, are kept in the result.
-#' @param nsim Number of simulated data sets for endpoints whose operating
-#'   characteristics are computed by simulation.
-#' @param seed Random seed for the simulation, or \code{NULL} to use the
-#'   current random number stream. If given, the previous state of the random
-#'   number generator is restored on exit.
+#'   true means and standard deviations. For two binary endpoints the columns
+#'   \code{pi_t1}, \code{pi_t2}, \code{rho_t}, \code{pi_c1}, \code{pi_c2} and
+#'   \code{rho_c} give the true response rates of endpoints 1 and 2 (strictly
+#'   between 0 and 1) and the correlation of the two endpoints in each group.
+#'   The columns of the control group are not needed for a design without a
+#'   concurrent control group. Other columns, such as labels, are kept in the
+#'   result.
+#' @param nsim Number of simulated studies per scenario for designs whose
+#'   operating characteristics are computed by simulation.
+#' @param seed Random seed for the simulation and for Monte Carlo estimates
+#'   of probabilities, or \code{NULL} to use the current random number
+#'   stream. If given, the previous state of the random number generator is
+#'   restored on exit.
 #'
 #' @return An object of class \code{c("qdm_oc", "data.frame")}: the scenarios
 #'   with the columns \code{Go}, \code{NoGo}, \code{Gray} and \code{Miss}
@@ -73,20 +86,40 @@
 #'                                mu_c = 0, sd_c = 25),
 #'               nsim = 2000, seed = 1)
 #' oc2
+#'
+#' # Two binary endpoints (small nMC for speed)
+#' des3 <- design_binary2(
+#'   n_t = 6, n_c = 6,
+#'   prior_t = prior_dirichlet(rep(0.25, 4)),
+#'   prior_c = prior_dirichlet(rep(0.25, 4)),
+#'   criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+#'                                   theta_mav = c(0.10, 0.10),
+#'                                   gamma_go = 0.3, gamma_nogo = 0.4),
+#'   nMC = 2000
+#' )
+#' effects <- expand.grid(theta1 = c(0, 0.15, 0.3), theta2 = c(0, 0.15, 0.3))
+#' oc3 <- qdm_oc(des3, data.frame(pi_t1 = 0.2 + effects$theta1,
+#'                                pi_t2 = 0.2 + effects$theta2, rho_t = 0.3,
+#'                                pi_c1 = 0.2, pi_c2 = 0.2, rho_c = 0.3),
+#'               seed = 1)
+#' oc3
+#' plot(oc3)
 #' @export
 qdm_oc <- function(design, scenarios, nsim = 10000L, seed = NULL) {
   check_design(design)
   scenarios <- check_scenarios(design, scenarios)
-  check_numeric(nsim, "nsim", lower = 1, integer = TRUE)
+  check_numeric(nsim, "nsim", lower = 1, upper = .Machine$integer.max,
+                integer = TRUE)
   if (!is.null(seed)) {
     check_numeric(seed, "seed", integer = TRUE)
   }
   sample <- with_seed(seed, oc_sample(design, scenarios, nsim))
   probs <- oc_from_sample(sample, design$criterion$gamma_go,
-                          design$criterion$gamma_nogo)
+                          design$criterion$gamma_nogo,
+                          design$criterion$rule)
   out <- cbind(scenarios, as.data.frame(probs))
   rownames(out) <- NULL
-  warn_miss(out$Miss)
+  warn_miss(out$Miss, design$criterion$rule)
   structure(out, class = c("qdm_oc", "data.frame"), design = design,
             method = sample$method)
 }

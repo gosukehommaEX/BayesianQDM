@@ -47,3 +47,30 @@ test_that("criterion_posterior() coerces region numbers to integers", {
                                    go_regions = 0),
                "'go_regions' must be at least 1 and at most 9.")
 })
+
+test_that("criterion_posterior() supports marginal rules for two endpoints", {
+  cr <- criterion_posterior(c(0.2, 0.15), c(0.1, 0), gamma_go = c(0.6, 0.5),
+                            gamma_nogo = 0.7, rule = "and")
+  expect_identical(cr$rule, "and")
+  expect_identical(cr$gamma_go, c(0.6, 0.5))
+  expect_identical(cr$gamma_nogo, c(0.7, 0.7))
+  expect_null(cr$go_regions)
+  expect_identical(criterion_posterior(0.2, 0.1, 0.5, 0.5, rule = "or")$rule,
+                   "joint")
+  expect_identical(criterion_posterior(c(0.2, 0.1), c(0, 0), 0.5,
+                                       0.5)$rule, "joint")
+  expect_error(criterion_posterior(c(0.2, 0.15), c(0.1, 0), 0.5, 0.5,
+                                   go_regions = 1:2, rule = "or"),
+               "used only with rule = \"joint\"")
+  expect_error(criterion_posterior(c(0.2, 0.15), c(0.1, 0), c(0.5, 0.5),
+                                   0.5),
+               "'gamma_go' must have length 1.")
+  expect_error(criterion_posterior(c(0.2, 0.15), c(0.1, 0), c(0.5, 0.5, 0.5),
+                                   0.5, rule = "and"),
+               "must have length 1 or 2 \\(one threshold per endpoint\\)")
+  expect_error(criterion_posterior(c(0.2, 0.15), c(0.1, 0), c(0.5, 1),
+                                   0.5, rule = "and"),
+               "'gamma_go' must be greater than 0 and less than 1.")
+  expect_error(criterion_posterior(0.2, 0.1, 0.5, 0.5, rule = "xor"),
+               "'arg' should be one of")
+})

@@ -15,23 +15,27 @@
 #' are the least strict ones that meet the targets.
 #'
 #' The decision probabilities of the design with the chosen thresholds are
-#' computed under both scenarios. If \eqn{\gamma_{go} + \gamma_{nogo} \le 1},
-#' Miss decisions (both criteria met) can occur, and a warning is given when
-#' they have positive probability.
+#' computed under both scenarios. If \eqn{\gamma_{go} + \gamma_{nogo} \le 1}
+#' (and, for two endpoints with the marginal rule \code{"or"}, for any
+#' thresholds), Miss decisions (both criteria met) can occur, and a warning is
+#' given when they have positive probability.
 #'
-#' @param design A design created by \code{\link{design_binary}} or
-#'   \code{\link{design_continuous}}. Its thresholds are replaced by the
-#'   calibrated ones.
+#' @param design A design created by \code{\link{design_binary}},
+#'   \code{\link{design_continuous}} or \code{\link{design_binary2}}. Its
+#'   thresholds are replaced by the calibrated ones. For two endpoints with a
+#'   marginal rule (\code{rule = "and"} or \code{"or"}), the same threshold is
+#'   used for both endpoints.
 #' @param scenario_go,scenario_nogo Data frames with one row each, giving the
 #'   scenarios used to calibrate \eqn{\gamma_{go}} and \eqn{\gamma_{nogo}}
-#'   (see \code{\link{qdm_oc}} for the columns).
+#'   (see \code{\link{qdm_oc}} for the columns). For two binary endpoints, the
+#'   correlations must be feasible.
 #' @param target_go,target_nogo Upper bounds for the probabilities that the
 #'   Go criterion is met under \code{scenario_go} and that the NoGo criterion
 #'   is met under \code{scenario_nogo}, strictly between 0 and 1.
 #' @param grid Candidate thresholds, strictly between 0 and 1.
-#' @param nsim,seed As in \code{\link{qdm_oc}}; not used for binary
-#'   endpoints. For a continuous endpoint, the probabilities for all values
-#'   of \code{grid} are computed from the same simulated studies.
+#' @param nsim,seed As in \code{\link{qdm_oc}}. The probabilities for all
+#'   values of \code{grid} are computed from the same outcomes (simulated
+#'   studies or enumerated outcomes) and the same Monte Carlo draws.
 #'
 #' @return An object of class \code{"qdm_calibration"}: a list with elements
 #'   \describe{
@@ -74,9 +78,9 @@ qdm_calibrate <- function(design, scenario_go, scenario_nogo, target_go,
                           nsim = 10000L, seed = NULL) {
   check_design(design)
   scenario_go <- check_scenarios(design, scenario_go, "scenario_go",
-                                 one_row = TRUE)
+                                 one_row = TRUE, feasible = TRUE)
   scenario_nogo <- check_scenarios(design, scenario_nogo, "scenario_nogo",
-                                   one_row = TRUE)
+                                   one_row = TRUE, feasible = TRUE)
   check_numeric(target_go, "target_go", lower = 0, upper = 1,
                 lower_open = TRUE, upper_open = TRUE)
   check_numeric(target_nogo, "target_nogo", lower = 0, upper = 1,
@@ -84,7 +88,8 @@ qdm_calibrate <- function(design, scenario_go, scenario_nogo, target_go,
   check_numeric(grid, "grid", len = NULL, lower = 0, upper = 1,
                 lower_open = TRUE, upper_open = TRUE)
   grid <- sort(unique(grid))
-  check_numeric(nsim, "nsim", lower = 1, integer = TRUE)
+  check_numeric(nsim, "nsim", lower = 1, upper = .Machine$integer.max,
+                integer = TRUE)
   if (!is.null(seed)) {
     check_numeric(seed, "seed", integer = TRUE)
   }
@@ -92,12 +97,14 @@ qdm_calibrate <- function(design, scenario_go, scenario_nogo, target_go,
   scenarios <- rbind(scenario_go[, cols, drop = FALSE],
                      scenario_nogo[, cols, drop = FALSE])
   sample <- with_seed(seed, oc_sample(design, scenarios, nsim))
+  rule <- design$criterion$rule
   curve <- data.frame(
     gamma = grid,
-    prob_go = met_curve(sample_column(sample$p_go, 1L),
-                        sample$weights[, 1L], grid),
-    prob_nogo = met_curve(sample_column(sample$p_nogo, 2L),
-                          sample$weights[, 2L], grid)
+    prob_go = met_curve(sample_column(sample$p_go, 1L, sample$per_scenario),
+                        sample_weights(sample, 1L), grid, rule),
+    prob_nogo = met_curve(sample_column(sample$p_nogo, 2L,
+                                        sample$per_scenario),
+                          sample_weights(sample, 2L), grid, rule)
   )
   gamma_go <- select_gamma(grid, curve$prob_go, target_go)
   gamma_nogo <- select_gamma(grid, curve$prob_nogo, target_nogo)
@@ -117,13 +124,15 @@ qdm_calibrate <- function(design, scenario_go, scenario_nogo, target_go,
   new_design <- NULL
   if (!is.na(gamma_go) && !is.na(gamma_nogo)) {
     new_design <- design
-    new_design$criterion$gamma_go <- gamma_go
-    new_design$criterion$gamma_nogo <- gamma_nogo
-    probs <- oc_from_sample(sample, gamma_go, gamma_nogo)
+    k <- length(design$criterion$gamma_go)
+    new_design$criterion$gamma_go <- rep(gamma_go, k)
+    new_design$criterion$gamma_nogo <- rep(gamma_nogo, k)
+    probs <- oc_from_sample(sample, new_design$criterion$gamma_go,
+                            new_design$criterion$gamma_nogo, rule)
     oc <- cbind(data.frame(scenario = c("scenario_go", "scenario_nogo")),
                 scenarios, as.data.frame(probs))
     rownames(oc) <- NULL
-    warn_miss(oc$Miss)
+    warn_miss(oc$Miss, rule)
   }
   structure(list(gamma_go = gamma_go, gamma_nogo = gamma_nogo,
                  prob_go = curve$prob_go[match(gamma_go, grid)],
