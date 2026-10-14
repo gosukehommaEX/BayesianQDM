@@ -13,9 +13,15 @@
 // the same draws. The region of a pair is 3 c_1 + c_2 (0-based), where c_k is
 // 0 if theta_k > TV_k, 1 if MAV_k < theta_k <= TV_k and 2 if
 // theta_k <= MAV_k.
+//
+// The draws are stored for blocks of iterations and every pair is then
+// classified for the whole block, so that its counts stay in local variables;
+// the draws and the counts are the same as when the pairs are classified
+// after each iteration.
 
 #include <Rcpp.h>
 
+#include <algorithm>
 #include <vector>
 
 namespace {
@@ -33,8 +39,11 @@ inline void draw_margins(const double *a, double &pi1, double &pi2) {
   pi2 = (g[1] + g[3]) / total;
 }
 
+// Band of theta: 0 if theta > tv, 1 if mav < theta <= tv and 2 if
+// theta <= mav (tv > mav, as required by criterion_posterior()), computed
+// without branches.
 inline int band(double theta, double tv, double mav) {
-  return theta > tv ? 0 : (theta > mav ? 1 : 2);
+  return 2 - static_cast<int>(theta > mav) - static_cast<int>(theta > tv);
 }
 
 }  // namespace
@@ -81,34 +90,56 @@ Rcpp::NumericMatrix cpp_post_regions_binary2(Rcpp::NumericMatrix alpha_t,
       }
     }
   }
-  std::vector<double> pt1(n_t), pt2(n_t), pc1(n_c), pc2(n_c);
+  // Margins of the draws of a block of iterations, stored by distribution
+  // (row i holds the draws of distribution i in the iterations of the block)
+  const int block = 64;
+  std::vector<double> pt1(static_cast<std::size_t>(n_t) * block);
+  std::vector<double> pt2(static_cast<std::size_t>(n_t) * block);
+  std::vector<double> pc1(static_cast<std::size_t>(n_c) * block);
+  std::vector<double> pc2(static_cast<std::size_t>(n_c) * block);
+  // Counts by pair (row) and union (column)
   std::vector<int> count(static_cast<std::size_t>(n_pair) * n_mask, 0);
-  for (int u = 0; u < nMC; ++u) {
-    for (int i = 0; i < n_t; ++i) {
-      draw_margins(&a_t[4 * static_cast<std::size_t>(i)], pt1[i], pt2[i]);
-    }
-    for (int j = 0; j < n_c; ++j) {
-      draw_margins(&a_c[4 * static_cast<std::size_t>(j)], pc1[j], pc2[j]);
-    }
-    for (int p = 0; p < n_pair; ++p) {
-      const int i = pair_t[p];
-      const int j = pair_c[p];
-      const int r = 3 * band(pt1[i] - pc1[j], tv[0], mav[0]) +
-        band(pt2[i] - pc2[j], tv[1], mav[1]);
-      const std::vector<int> &ms = in_mask[r];
-      for (std::size_t q = 0; q < ms.size(); ++q) {
-        ++count[static_cast<std::size_t>(ms[q]) * n_pair + p];
+  const double tv1 = tv[0];
+  const double tv2 = tv[1];
+  const double mav1 = mav[0];
+  const double mav2 = mav[1];
+  for (int u0 = 0; u0 < nMC; u0 += block) {
+    const int nb = std::min(block, nMC - u0);
+    // Same order of draws as one iteration at a time: all treatment, then
+    // all control distributions
+    for (int b = 0; b < nb; ++b) {
+      for (int i = 0; i < n_t; ++i) {
+        const std::size_t k = static_cast<std::size_t>(i) * block + b;
+        draw_margins(&a_t[4 * static_cast<std::size_t>(i)], pt1[k], pt2[k]);
+      }
+      for (int j = 0; j < n_c; ++j) {
+        const std::size_t k = static_cast<std::size_t>(j) * block + b;
+        draw_margins(&a_c[4 * static_cast<std::size_t>(j)], pc1[k], pc2[k]);
       }
     }
-    if ((u + 1) % 100 == 0) {
-      Rcpp::checkUserInterrupt();
+    for (int p = 0; p < n_pair; ++p) {
+      const std::size_t i = static_cast<std::size_t>(pair_t[p]) * block;
+      const std::size_t j = static_cast<std::size_t>(pair_c[p]) * block;
+      int hist[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+      for (int b = 0; b < nb; ++b) {
+        ++hist[3 * band(pt1[i + b] - pc1[j + b], tv1, mav1) +
+               band(pt2[i + b] - pc2[j + b], tv2, mav2)];
+      }
+      int *cnt = &count[static_cast<std::size_t>(p) * n_mask];
+      for (int r = 0; r < 9; ++r) {
+        const std::vector<int> &ms = in_mask[r];
+        for (std::size_t q = 0; q < ms.size(); ++q) {
+          cnt[ms[q]] += hist[r];
+        }
+      }
     }
+    Rcpp::checkUserInterrupt();
   }
   Rcpp::NumericMatrix out(n_pair, n_mask);
   for (int m = 0; m < n_mask; ++m) {
     for (int p = 0; p < n_pair; ++p) {
       out(p, m) = static_cast<double>(
-        count[static_cast<std::size_t>(m) * n_pair + p]) / nMC;
+        count[static_cast<std::size_t>(p) * n_mask + m]) / nMC;
     }
   }
   return out;
