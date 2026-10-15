@@ -147,6 +147,23 @@ The calibrated thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
 $\gamma_{nogo} =$ `r cal$gamma_nogo`, and `cal$design` is the design with
 these thresholds, which can be passed to `qdm_decide()` and `qdm_oc()`.
 
+## Plots
+
+The `plot()` methods return ggplot2 objects. Depending on the plot, their
+arguments set the colors of the decisions (`col_go`, `col_nogo`, `col_gray`
+and `col_miss`), the width of the lines (`linewidth`), the size of the points
+(`point_size`), the size of the text drawn in the plot (`label_size`), the
+base font size (`base_size`) and the position of the legend
+(`legend_position`); the help pages of `plot.qdm_oc()`,
+`plot.qdm_calibration()` and `plot.qdm_boundary()` list them. Anything else
+can be changed by adding ggplot2 functions, as for any other ggplot2 plot:
+
+```{r plot-style}
+plot(oc, col_go = "darkgreen", col_nogo = "firebrick", linewidth = 0.7,
+     base_size = 13, legend_position = "right") +
+  ggplot2::labs(title = "Operating characteristics of the design")
+```
+
 ## Endpoints and computation
 
 | Endpoints | Design | Model | Probabilities of the regions | Operating characteristics |

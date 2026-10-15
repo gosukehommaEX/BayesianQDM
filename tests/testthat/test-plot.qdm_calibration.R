@@ -22,3 +22,30 @@ test_that("plot.qdm_calibration() omits thresholds that were not found", {
   b <- ggplot2::ggplot_build(plot(cal))
   expect_equal(b$data[[2]]$xintercept, 0.41)
 })
+
+test_that("plot.qdm_calibration() takes colors, line width and legend", {
+  cal <- run_cal("D1")
+  p <- plot(cal, col_go = "black", col_nogo = "blue", linewidth = 0.4,
+            base_size = 9, legend_position = "top")
+  b <- ggplot2::ggplot_build(p)
+  steps <- b$data[[3]]
+  expect_identical(unique(steps$colour[steps$group == 1]), "black")
+  expect_identical(unique(steps$colour[steps$group == 2]), "blue")
+  expect_identical(unique(steps$linewidth), 0.4)
+  # The targets take the colors of their criteria
+  expect_setequal(b$data[[1]]$colour, c("black", "blue"))
+  th <- plot_theme(p)
+  expect_identical(th[["legend.position"]], "top")
+  expect_identical(element_size(th[["text"]]), 9)
+  expect_identical(unique(ggplot2::ggplot_build(plot(cal))$data[[3]]$linewidth),
+                   1)
+  expect_error(plot(cal, col_nogo = NA),
+               "'col_nogo' must be a single color name", fixed = TRUE)
+  expect_error(plot(cal, base_size = -1), "'base_size' must be greater than 0.",
+               fixed = TRUE)
+  expect_warning(
+    plot(cal, point_size = 2),
+    "Ignoring unknown argument(s) of plot.qdm_calibration(): point_size.",
+    fixed = TRUE
+  )
+})

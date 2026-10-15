@@ -246,6 +246,25 @@ shows how to translate code written for version 0.1.0.
   continuous endpoints), and the number of events and the total observed
   time (time-to-event endpoint). Two binary endpoints are not supported.
 
+## Plots
+
+* The `plot()` methods for operating characteristics, calibrations and
+  decision boundaries return ggplot2 objects, which can be changed further
+  by adding ggplot2 functions such as `labs()` and `theme()`. In all three
+  plots, arguments set the colors of the decisions (`col_go`, `col_nogo`,
+  `col_gray` and `col_miss`, green, red, gray and orange by default; the
+  calibration plot uses `col_go` and `col_nogo`), the base font size
+  (`base_size`, 11 by default instead of 28 in version 0.1.0) and the
+  position of the legend (`legend_position`). The plots of operating
+  characteristics and calibrations also take the width of the lines
+  (`linewidth`), and the plot of operating characteristics the size of the
+  points (`point_size`) and of the text drawn in the plot (`label_size`).
+  Other arguments are ignored with a warning.
+* The heat maps of two endpoints shade each panel from white (probability 0)
+  to the color of its decision (probability 1); their colors are set by the
+  color arguments. They have no legend, since each cell shows its
+  probability. Scenarios that are not evaluable are white and marked "NE".
+
 ## Distribution functions
 
 * `pbetadiff()` has the argument order `(q, a_t, b_t, a_c, b_c)`. The range

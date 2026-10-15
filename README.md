@@ -125,7 +125,10 @@ qdm_calibrate(des,
 ```
 
 `plot()` draws the operating characteristics, the calibration curves and
-the decision boundaries computed by `qdm_boundary()`.
+the decision boundaries computed by `qdm_boundary()`. The plots are
+ggplot2 objects: their arguments set the colors of the decisions, the
+line widths, the text sizes and the position of the legend, and ggplot2
+functions can be added to change them further.
 
 ## Documentation
 

@@ -49,6 +49,9 @@ the changes in the results. The code for version 0.1.0 is shown but not run.
 | `design = 'uncontrolled'` with `z` (binary) or `mu0_c` and `r` (continuous) | `n_c = 0` and `hypothetical_c = hypothetical(...)` |
 | `pi_t`, `pi_c` and similar vectors of true parameters | A data frame of scenarios |
 | `error_if_Miss`, `Gray_inc_Miss` | Removed; Miss decisions are reported in their own column |
+| `col_go`, `col_nogo`, `col_gray` and `base_size` of the `plot()` methods | Same names, with `col_miss`, `linewidth`, `point_size`, `label_size` and `legend_position` where they apply; `base_size` is 11 by default instead of 28 |
+| `title`, `xlab` and `ylab` of the `plot()` methods | `ggplot2::labs()` added to the plot |
+| `which` of the `plot()` methods for two endpoints | Removed; the plot has one panel per decision |
 
 The meaning of `gamma_nogo` is unchanged: the NoGo criterion is
 $\Pr(\theta \le \theta_{MAV} \mid D) \ge \gamma_{nogo}$.

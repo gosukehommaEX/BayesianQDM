@@ -3,15 +3,18 @@
 #' Draws one panel per decision with the scenarios on a grid of the true
 #' treatment effects of the two endpoints (or the true parameters of the
 #' treatment group for a design without a concurrent control group). Each
-#' cell shows the probability of the decision; scenarios that are not
-#' evaluable are marked "NE".
+#' cell shows the probability of the decision and is shaded from white
+#' (probability 0) to the color of the decision (probability 1); scenarios
+#' that are not evaluable are white and marked "NE".
 #'
 #' @param x An object of class \code{"qdm_oc"}.
 #' @param design The design of \code{x}, with two endpoints.
+#' @param cols Colors of the decisions, named by decision.
+#' @param style Result of \code{plot_style()}.
 #'
 #' @return A \code{ggplot} object.
 #' @noRd
-plot_oc_two <- function(x, design) {
+plot_oc_two <- function(x, design, cols, style) {
   par <- switch(design$endpoint,
                 binary2 = c("pi_t1", "pi_t2", "pi_c1", "pi_c2"),
                 continuous2 = c("mu_t1", "mu_t2", "mu_c1", "mu_c2"))
@@ -48,14 +51,14 @@ plot_oc_two <- function(x, design) {
     prob = unlist(lapply(decisions, function(d) x[[d]]), use.names = FALSE)
   )
   long$label <- ifelse(is.na(long$prob), "NE", sprintf("%.2f", long$prob))
+  long$fill <- shade_color(long$prob, cols[as.character(long$decision)])
   ggplot2::ggplot(long, ggplot2::aes(x = .data$x, y = .data$y)) +
-    ggplot2::geom_tile(ggplot2::aes(fill = .data$prob), colour = "white") +
-    ggplot2::geom_text(ggplot2::aes(label = .data$label), size = 3) +
+    ggplot2::geom_tile(ggplot2::aes(fill = .data$fill), colour = "white") +
+    ggplot2::geom_text(ggplot2::aes(label = .data$label),
+                       size = style$label_size) +
     ggplot2::facet_wrap(ggplot2::vars(.data$decision)) +
-    ggplot2::scale_fill_gradient(low = "#F7FBFF", high = "#2171B5",
-                                 limits = c(0, 1), na.value = "gray85") +
-    ggplot2::labs(x = labs[1L], y = labs[2L], fill = "Probability") +
-    ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "bottom",
-                   panel.grid = ggplot2::element_blank())
+    ggplot2::scale_fill_identity() +
+    ggplot2::labs(x = labs[1L], y = labs[2L]) +
+    style$theme +
+    ggplot2::theme(panel.grid = ggplot2::element_blank())
 }

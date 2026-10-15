@@ -44,3 +44,25 @@ test_that("plot.qdm_boundary() needs the axes attribute", {
   expect_error(plot(b),
                "'x' must be an unmodified result of qdm_boundary\\(\\).")
 })
+
+test_that("plot.qdm_boundary() takes colors, text size and legend", {
+  b <- qdm_boundary(ref_design("D8"), n_t = 10:20)
+  p <- plot(b, col_go = "black", col_nogo = "blue", col_gray = "white",
+            base_size = 8, legend_position = "none")
+  tiles <- ggplot2::ggplot_build(p)$data[[1]]
+  idx <- match(paste(tiles$x, tiles$y), paste(b$n_t, b$y_t))
+  cols <- c(Go = "black", NoGo = "blue", Gray = "white", Miss = "#E69F00")
+  expect_identical(unname(tiles$fill), unname(cols[as.character(
+    b$decision[idx])]))
+  expect_true(all(c("Go", "NoGo", "Gray") %in% as.character(b$decision)))
+  th <- plot_theme(p)
+  expect_identical(th[["legend.position"]], "none")
+  expect_identical(element_size(th[["text"]]), 8)
+  expect_error(plot(b, col_gray = "grey500"),
+               "'col_gray' must be a single color name", fixed = TRUE)
+  expect_warning(
+    plot(b, linewidth = 2),
+    "Ignoring unknown argument(s) of plot.qdm_boundary(): linewidth.",
+    fixed = TRUE
+  )
+})

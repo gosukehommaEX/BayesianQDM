@@ -83,6 +83,9 @@ test_that("plot.qdm_oc() draws heat maps for two endpoints", {
   expect_identical(sum(labels == "NE"), 3L * sum(is.na(oc$Go)))
   expect_true(all(labels[labels != "NE"] %in%
                     sprintf("%.2f", c(oc$Go, oc$NoGo, oc$Gray))))
+  # Scenarios that are not evaluable are white
+  d <- plot_data(p)
+  expect_identical(unique(d$fill[is.na(d$prob)]), "#FFFFFF")
   # Several correlations at the same effects cannot be drawn together
   oc2 <- qdm_oc(ref_design_bin2("B2"), rbind(scen_bin2[1, ], scen_bin2[1, ]))
   expect_error(plot(oc2), "with different correlations or control")
@@ -125,4 +128,86 @@ test_that("plot.qdm_oc() draws fixed-control and time-to-event designs", {
   expect_equal(sort(unique(b_t$data[[1]]$xintercept)), c(0.72, 0.87))
   expect_equal(sort(unique(b_t$data[[3]]$x)),
                exp(-log(2) * 3 / sc$median_t))
+})
+
+test_that("plot.qdm_oc() takes colors, sizes and the legend position", {
+  oc <- qdm_oc(ref_design("D1"),
+               data.frame(pi_t = c(0.6, 0.2, 0.4), pi_c = 0.4))
+  p <- plot(oc, col_go = "black", col_nogo = "blue", col_gray = "#123456",
+            linewidth = 2, point_size = 3, label_size = 5, base_size = 16,
+            legend_position = "right")
+  b <- ggplot2::ggplot_build(p)
+  # Layers: threshold lines, their labels, curves, points
+  lines <- b$data[[3]]
+  expect_identical(unique(lines$colour[lines$group == 1]), "black")
+  expect_identical(unique(lines$colour[lines$group == 2]), "blue")
+  expect_identical(unique(lines$colour[lines$group == 3]), "#123456")
+  expect_identical(unique(lines$linewidth), 2)
+  expect_identical(unique(b$data[[4]]$size), 3)
+  expect_identical(unique(b$data[[2]]$size), 5)
+  th <- plot_theme(p)
+  expect_identical(th[["legend.position"]], "right")
+  expect_identical(element_size(th[["text"]]), 16)
+  # Defaults
+  b0 <- ggplot2::ggplot_build(plot(oc))
+  expect_identical(unique(b0$data[[3]]$linewidth), 1)
+  expect_identical(unique(b0$data[[4]]$size), 1.5)
+  expect_equal(unique(b0$data[[2]]$size), 0.8 * 11 / ggplot2::.pt)
+  expect_identical(plot_theme(plot(oc))[["legend.position"]], "bottom")
+  # The plot can be changed further with ggplot2
+  p2 <- suppressMessages(
+    plot(oc) + ggplot2::scale_colour_manual(
+      values = c(Go = "gray10", NoGo = "gray40", Gray = "gray70")
+    )
+  )
+  lines2 <- ggplot2::ggplot_build(p2)$data[[3]]
+  expect_identical(unique(lines2$colour[lines2$group == 1]), "gray10")
+  # Invalid arguments
+  expect_error(plot(oc, col_go = "nocolor"),
+               "'col_go' must be a single color name", fixed = TRUE)
+  expect_error(plot(oc, col_miss = NA),
+               "'col_miss' must be a single color name", fixed = TRUE)
+  expect_error(plot(oc, linewidth = -1), "'linewidth' must be at least 0.",
+               fixed = TRUE)
+  expect_error(plot(oc, legend_position = "inside"),
+               "'legend_position' must be one of", fixed = TRUE)
+  # Unknown arguments are ignored with a warning
+  expect_warning(p3 <- plot(oc, col_Go = "red"),
+                 "Ignoring unknown argument(s) of plot.qdm_oc(): col_Go.",
+                 fixed = TRUE)
+  expect_s3_class(p3, "ggplot")
+})
+
+test_that("plot.qdm_oc() shades the heat maps with the decision colors", {
+  sc <- expand.grid(mu_t1 = c(-10, 10), mu_t2 = c(-1, 1, 3))
+  sc$sd_t1 <- 30
+  sc$sd_t2 <- 3
+  sc$rho_t <- 0.5
+  oc <- withCallingHandlers(
+    qdm_oc(ref_design_cont2("K4"), sc, nsim = 50L, seed = 1),
+    warning = function(w) {
+      if (grepl("Miss", conditionMessage(w))) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+  p <- plot(oc)
+  d <- plot_data(p)
+  cols <- c(Go = "#658D1B", NoGo = "#D91E49", Gray = "#939597",
+            Miss = "#E69F00")
+  expect_identical(d$fill, shade_color(d$prob,
+                                       cols[as.character(d$decision)]))
+  b <- ggplot2::ggplot_build(p)
+  expect_identical(sort(b$data[[1]]$fill), sort(d$fill))
+  expect_equal(unique(b$data[[2]]$size), 0.8 * 11 / ggplot2::.pt)
+  # Other colors: with black, the shade of probability p is the gray level
+  # 255 (1 - p)
+  p2 <- plot(oc, col_go = "black", col_nogo = "darkgreen", col_gray = "gray",
+             col_miss = "red", label_size = 4, base_size = 9)
+  d2 <- plot_data(p2)
+  go <- d2$decision == "Go"
+  v <- as.integer(round(255 - 255 * d2$prob[go]))
+  expect_identical(d2$fill[go], sprintf("#%02X%02X%02X", v, v, v))
+  expect_identical(unique(ggplot2::ggplot_build(p2)$data[[2]]$size), 4)
+  expect_identical(element_size(plot_theme(p2)[["text"]]), 9)
 })
