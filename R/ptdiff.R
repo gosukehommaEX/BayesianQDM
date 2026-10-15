@@ -20,8 +20,9 @@
 #'     \eqn{10^{-9}} in the tests, which include scale ratios from
 #'     \eqn{10^{-9}} to \eqn{10^3} and degrees of freedom from 0.5 to
 #'     \code{Inf}.}
-#'   \item{\code{"MM"}}{The moment-matching approximation of Yamaguchi et al.
-#'     (submitted, Theorem 1), which replaces the difference by a single t
+#'   \item{\code{"MM"}}{The moment-matching approximation of Yamaguchi,
+#'     Homma, Takeda and Maruo (submitted, Theorem 1), which replaces the
+#'     difference by a single t
 #'     distribution with matched second and fourth moments. It requires
 #'     \eqn{\nu_t > 4} and \eqn{\nu_c > 4}, is evaluated in closed form, and is
 #'     the fastest method.}
@@ -45,6 +46,11 @@
 #' @return A numeric vector of probabilities. All arguments from \code{q} to
 #'   \code{df_c} are recycled to a common length; each must have length 1 or
 #'   the common length.
+#'
+#' @references
+#' Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
+#' Moment-matching approximation for t-differences in clinical trials with
+#' continuous endpoints.
 #'
 #' @family distributions
 #' @examples

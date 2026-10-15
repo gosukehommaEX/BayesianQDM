@@ -7,7 +7,8 @@
 #'
 #' @return A list with elements \code{prob_go}, \code{prob_nogo},
 #'   \code{posterior_t} and \code{posterior_c} (named vectors of the Beta
-#'   parameters \code{a} and \code{b}).
+#'   parameters \code{a} and \code{b}; for a fixed control,
+#'   \code{posterior_c} is the fixed value named \code{value}).
 #' @noRd
 decide_binary <- function(design, data_t, data_c) {
   if (!inherits(data_t, "qdm_data_binary")) {
@@ -25,15 +26,22 @@ decide_binary <- function(design, data_t, data_c) {
       stop(paste("'data_c' must be NULL for a design without a concurrent",
                  "control group."), call. = FALSE)
     }
-    post_c <- posterior_binary(design$prior_c, 0, 0,
-                               external = design$external_c,
-                               hypothetical = design$hypothetical_c)
+    post_c <- if (design$control == "fixed") {
+      NULL
+    } else {
+      posterior_binary(design$prior_c, 0, 0, external = design$external_c,
+                       hypothetical = design$hypothetical_c)
+    }
   }
   post_t <- posterior_binary(design$prior_t, data_t$n, data_t$y,
                              external = design$external_t)
   p <- region_prob_binary(design$criterion, post_t$a, post_t$b, post_c$a,
-                          post_c$b)
+                          post_c$b, fixed = design$fixed_c)
   list(prob_go = p$go, prob_nogo = p$nogo,
        posterior_t = c(a = post_t$a, b = post_t$b),
-       posterior_c = c(a = post_c$a, b = post_c$b))
+       posterior_c = if (is.null(post_c)) {
+         c(value = design$fixed_c)
+       } else {
+         c(a = post_c$a, b = post_c$b)
+       })
 }

@@ -30,6 +30,7 @@ Other distributions:
 \code{\link[=cellprob_binary2]{cellprob_binary2()}},
 \code{\link[=pbetabinomdiff]{pbetabinomdiff()}},
 \code{\link[=pbetadiff]{pbetadiff()}},
+\code{\link[=psurvdiff]{psurvdiff()}},
 \code{\link[=ptdiff]{ptdiff()}}
 }
 \concept{distributions}

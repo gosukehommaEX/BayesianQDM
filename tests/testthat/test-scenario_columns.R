@@ -45,3 +45,11 @@ test_that("scenario_columns() lists the columns for two continuous endpoints", {
   expect_identical(scenario_columns(ref_design_cont2("K4"))$names,
                    c("mu_t1", "mu_t2", "sd_t1", "sd_t2", "rho_t"))
 })
+
+test_that("scenario_columns() lists the columns for a time-to-event design", {
+  expect_identical(scenario_columns(ref_design_tte("T2")),
+                   list(names = c("median_t", "median_c"), lower = c(0, 0),
+                        upper = c(Inf, Inf), lower_open = c(TRUE, TRUE),
+                        upper_open = c(FALSE, FALSE)))
+  expect_identical(scenario_columns(ref_design_tte("T1"))$names, "median_t")
+})

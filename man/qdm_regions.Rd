@@ -30,3 +30,8 @@ four regions.
 qdm_regions("posterior")
 qdm_regions("predictive")
 }
+\references{
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.
+}

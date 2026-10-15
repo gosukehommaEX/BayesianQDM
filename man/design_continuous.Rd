@@ -13,6 +13,7 @@ design_continuous(
   external_t = NULL,
   external_c = NULL,
   hypothetical_c = NULL,
+  fixed_c = NULL,
   method = c("NI", "MM", "MC"),
   nMC = 10000L
 )
@@ -27,7 +28,7 @@ concurrent control group) or a whole number of at least 2.}
 \item{prior_t, prior_c}{Prior distributions of the mean and variance of the
 treatment and control groups, created by \code{\link{prior_nix}} or
 \code{\link{prior_vague}}. \code{prior_c} must be \code{NULL} (the
-default) for a hypothetical control and is required otherwise.}
+default) for a hypothetical or fixed control and is required otherwise.}
 
 \item{criterion}{Decision criterion for one endpoint, created by
 \code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.}
@@ -40,18 +41,28 @@ groups, created by \code{\link{borrow}} with
 \code{\link{hypothetical}} with \code{mean} (of length 1) and \code{r},
 or \code{NULL}. It can be used only when \code{n_c = 0}.}
 
+\item{fixed_c}{Fixed control mean, a number, or \code{NULL}. It can be used
+only when \code{n_c = 0}.}
+
 \item{method}{Method used to compute the probabilities: \code{"NI"}
 (numerical integration, the default), \code{"MM"} (moment-matching
 approximation, which requires the distributions of both group means to
 have more than 4 degrees of freedom) or \code{"MC"} (Monte Carlo
-simulation). See \code{\link{ptdiff}}.}
+simulation). See \code{\link{ptdiff}}. Numerical integration is exact
+up to a small numerical error but is the slowest of the deterministic
+methods: for operating characteristics, which need the probabilities for
+many simulated studies, \code{"MM"} is faster by about two orders of
+magnitude and is suited to exploring designs, and \code{"NI"} can be
+used to confirm the chosen design. The computing time of \code{"MC"} is
+proportional to \code{nMC}.}
 
 \item{nMC}{Number of Monte Carlo draws for \code{method = "MC"}.}
 }
 \value{
 An object of class \code{c("qdm_design_continuous", "qdm_design")},
 a list with the arguments and the element \code{control}
-(\code{"concurrent"}, \code{"external"} or \code{"hypothetical"}).
+(\code{"concurrent"}, \code{"external"}, \code{"hypothetical"} or
+\code{"fixed"}).
 }
 \description{
 Specifies a proof-of-concept study with one normally distributed endpoint:
@@ -81,7 +92,7 @@ distribution then has a closed form (Huang et al., submitted). With the
 vague prior and external data, the posterior distribution of the mean has
 \eqn{a_0 n_e + n_k - 1} degrees of freedom.
 
-The control group takes one of three forms.
+The control group takes one of four forms.
 \describe{
 \item{Concurrent control}{\code{n_c} is at least 2. External control
 data can be added through \code{external_c}.}
@@ -96,6 +107,14 @@ the posterior distribution of the treatment mean, with location
 \eqn{\mu_{0c}} and squared scale multiplied by \eqn{r}:
 \eqn{\mu_c \sim t_{\nu_{nt}}(\mu_{0c}, r \sigma_{nt}^2 / \kappa_{nt})}.
 \code{prior_c} is not used and must be \code{NULL}.}
+\item{Fixed control}{\code{n_c = 0} and \code{fixed_c} is given: the
+control mean is a known value \eqn{\mu_c}, as in a single-arm study
+compared with a benchmark. The probabilities of the Go and NoGo regions
+are computed exactly from the t distribution of the treatment mean
+(posterior) or of the mean of \eqn{m_t} future subjects (posterior
+predictive), shifted by \eqn{\mu_c}; \code{method}, \code{nMC} and
+\code{m_c} are not used. \code{prior_c} is not used and must be
+\code{NULL}.}
 }
 
 For the posterior predictive criterion (\code{\link{criterion_predictive}}),
@@ -131,6 +150,14 @@ design_continuous(
   hypothetical_c = hypothetical(mean = -10, r = 1),
   method = "MM"
 )
+
+# Single-arm study compared with a fixed control mean of -10
+design_continuous(
+  n_t = 12, n_c = 0, prior_t = prior_vague(),
+  criterion = criterion_posterior(theta_tv = 30, theta_mav = 15,
+                                  gamma_go = 0.6, gamma_nogo = 0.7),
+  fixed_c = -10
+)
 }
 \references{
 Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
@@ -146,6 +173,7 @@ of normal data.
 Other designs:
 \code{\link[=design_binary]{design_binary()}},
 \code{\link[=design_binary2]{design_binary2()}},
-\code{\link[=design_continuous2]{design_continuous2()}}
+\code{\link[=design_continuous2]{design_continuous2()}},
+\code{\link[=design_tte]{design_tte()}}
 }
 \concept{designs}

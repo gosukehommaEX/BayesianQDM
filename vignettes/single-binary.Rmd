@@ -1,0 +1,263 @@
+---
+title: "Single binary endpoint"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Single binary endpoint}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+This vignette describes the analysis of a proof-of-concept (PoC) study with
+one binary endpoint (Kang, Yamaguchi and Han, 2026). `vignette("overview")`
+introduces the decision criteria.
+
+## Model
+
+In group $k$ ($k = t$ for treatment, $c$ for control), $y_k$ of $n_k$
+subjects respond, $y_k \sim \textrm{Binomial}(n_k, \pi_k)$, and the response
+rate has the prior distribution $\pi_k \sim \textrm{Beta}(a_k, b_k)$
+(`prior_beta()`; `prior_beta(0.5, 0.5)` is the Jeffreys prior). The
+posterior distribution is
+$$\pi_k \mid y_k \sim \textrm{Beta}(a_k + y_k, b_k + n_k - y_k),$$
+and the treatment effect is $\theta = \pi_t - \pi_c$. The posterior
+probability $\Pr(\theta > q \mid D)$ is computed by numerical integration
+(`pbetadiff()`).
+
+For the predictive criterion, $m_k$ future subjects of group $k$ have
+$\tilde y_k$ responders, whose posterior predictive distribution is
+beta-binomial. The future effect is
+$\tilde\theta = \tilde y_t / m_t - \tilde y_c / m_c$, and its predictive
+probabilities are computed exactly by summation (`pbetabinomdiff()`).
+
+## Decision for observed data
+
+A study with 12 subjects in each group, Jeffreys priors and a posterior
+criterion with $\theta_{TV} = 0.2$, $\theta_{MAV} = 0.1$,
+$\gamma_{go} = 0.5$ and $\gamma_{nogo} = 0.8$:
+
+```{r design}
+jeffreys <- prior_beta(0.5, 0.5)
+crit <- criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                            gamma_go = 0.5, gamma_nogo = 0.8)
+des <- design_binary(n_t = 12, n_c = 12, prior_t = jeffreys,
+                     prior_c = jeffreys, criterion = crit)
+dec <- qdm_decide(des, data_t = data_binary(12, 9),
+                  data_c = data_binary(12, 3))
+dec
+```
+
+The probabilities of the Go and NoGo regions are the posterior probabilities
+$\Pr(\theta > 0.2 \mid D)$ and $\Pr(\theta \le 0.1 \mid D)$, which
+`pbetadiff()` gives from the posterior parameters:
+
+```{r pbetadiff}
+post_t <- dec$posterior_t
+post_c <- dec$posterior_c
+pbetadiff(0.2, a_t = post_t[["a"]], b_t = post_t[["b"]],
+          a_c = post_c[["a"]], b_c = post_c[["b"]], lower.tail = FALSE)
+pbetadiff(0.1, a_t = post_t[["a"]], b_t = post_t[["b"]],
+          a_c = post_c[["a"]], b_c = post_c[["b"]])
+```
+
+With 9 and 3 responders, the decision is `r dec$decision`.
+
+## Forms of the control group
+
+### External control data
+
+External data enter through a power prior: with $n_e$ subjects,
+$y_e$ responders and weight $a_0$ (from 0 to 1), the posterior distribution
+of the response rate is
+$$\textrm{Beta}(a + a_0 y_e + y, \; b + a_0 (n_e - y_e) + n - y).$$
+With $a_0 = 0$ the external data are ignored, and with $a_0 = 1$ they are
+pooled with the current data. Borrowing half of 20 external control
+subjects with 5 responders:
+
+```{r external}
+des_ext <- design_binary(
+  n_t = 12, n_c = 12, prior_t = jeffreys, prior_c = jeffreys,
+  criterion = crit,
+  external_c = borrow(data_binary(n = 20, y = 5), a0 = 0.5)
+)
+dec_ext <- qdm_decide(des_ext, data_t = data_binary(12, 9),
+                      data_c = data_binary(12, 3))
+dec_ext$posterior_c
+```
+
+The external data add
+`r dec_ext$posterior_c[["a"]] - dec$posterior_c[["a"]]` responders and
+`r dec_ext$posterior_c[["b"]] - dec$posterior_c[["b"]]` non-responders to the
+posterior distribution of the control group, and the
+probability of the Go region becomes
+`r format(dec_ext$prob_go, digits = 3)` (without them,
+`r format(dec$prob_go, digits = 3)`).
+
+Without a concurrent control group (`n_c = 0`), the control group can be
+described by the external data alone:
+
+```{r external-only}
+des_ext0 <- design_binary(
+  n_t = 12, n_c = 0, prior_t = jeffreys, prior_c = jeffreys,
+  criterion = crit,
+  external_c = borrow(data_binary(n = 40, y = 10), a0 = 1)
+)
+qdm_decide(des_ext0, data_t = data_binary(12, 9))
+```
+
+External treatment data (`external_t`) can be used in the same way with any
+form of the control group.
+
+### Hypothetical control
+
+For an uncontrolled study, Kang et al. (2026, Section 4.1.4) describe the
+control response rate by a hypothetical control,
+$\pi_c \sim \textrm{Beta}(a_t + z, b_t + n_t - z)$, where $z$ is the number
+of responders expected among $n_t$ control subjects. This is obtained with
+`prior_c` equal to `prior_t` and `hypothetical(data_binary(n_t, z))`:
+
+```{r hypothetical}
+des_hyp <- design_binary(
+  n_t = 12, n_c = 0, prior_t = jeffreys, prior_c = jeffreys,
+  criterion = crit,
+  hypothetical_c = hypothetical(data = data_binary(n = 12, y = 3))
+)
+qdm_decide(des_hyp, data_t = data_binary(12, 9))
+```
+
+### Fixed control
+
+A single-arm study is often compared with a known benchmark, such as the
+response rate of the standard of care reported in the literature. With
+`fixed_c`, the control response rate is a known value $\pi_{c0}$, the
+treatment effect is $\theta = \pi_t - \pi_{c0}$, and `prior_c` is not used
+(it must be `NULL`). The probability of the Go region is then the Beta
+probability $\Pr(\pi_t > \pi_{c0} + \theta_{TV} \mid D)$. A study with 20
+subjects compared with a benchmark of 0.2:
+
+```{r fixed}
+crit_fix <- criterion_posterior(theta_tv = 0.2, theta_mav = 0.05,
+                                gamma_go = 0.8, gamma_nogo = 0.8)
+des_fix <- design_binary(n_t = 20, n_c = 0, prior_t = prior_beta(1, 1),
+                         criterion = crit_fix, fixed_c = 0.2)
+dec_fix <- qdm_decide(des_fix, data_t = data_binary(20, 11))
+dec_fix
+pbeta(0.2 + 0.2, 1 + 11, 1 + 20 - 11, lower.tail = FALSE)
+```
+
+With `fixed_c = 0`, the effect is the response rate itself, and the
+thresholds are response rates. For the predictive criterion, the future
+effect is $\tilde y_t / m_t - \pi_{c0}$, and `m_c` is not used.
+
+## Predictive criterion
+
+The predictive criterion asks whether a future study with $m_t$ and $m_c$
+subjects would observe an effect larger than $\theta_{NULL}$. With 40
+subjects per group in the future study and $\theta_{NULL} = 0$:
+
+```{r predictive}
+des_pred <- design_binary(
+  n_t = 12, n_c = 12, prior_t = jeffreys, prior_c = jeffreys,
+  criterion = criterion_predictive(theta_null = 0, m_t = 40,
+                                   gamma_go = 0.9, gamma_nogo = 0.7)
+)
+dec_pred <- qdm_decide(des_pred, data_t = data_binary(12, 9),
+                       data_c = data_binary(12, 3))
+dec_pred
+post_t <- dec_pred$posterior_t
+post_c <- dec_pred$posterior_c
+pbetabinomdiff(0, m_t = 40, a_t = post_t[["a"]], b_t = post_t[["b"]],
+               m_c = 40, a_c = post_c[["a"]], b_c = post_c[["b"]],
+               lower.tail = FALSE)
+```
+
+The Go and NoGo regions of the predictive criterion are complementary, so
+their probabilities add up to 1. A Gray decision is then possible only when
+$\gamma_{go} + \gamma_{nogo} > 1$.
+
+## Operating characteristics
+
+`qdm_oc()` computes the probabilities of Go, NoGo, Gray and Miss decisions
+under scenarios for the true response rates. All outcomes
+$(y_t, y_c)$ of the study are enumerated and weighted by their binomial
+probabilities, so the results are exact.
+
+```{r oc}
+oc <- qdm_oc(des, data.frame(pi_t = seq(0.2, 0.8, by = 0.05), pi_c = 0.2))
+oc
+plot(oc)
+```
+
+The vertical lines mark the effects $\theta_{MAV}$ and $\theta_{TV}$. For
+the uncontrolled design, the horizontal axis is the response rate of the
+treatment group, and the lines are shifted by the mean of the hypothetical
+control distribution:
+
+```{r oc-hyp}
+oc_hyp <- qdm_oc(des_hyp, data.frame(pi_t = seq(0.2, 0.8, by = 0.05)))
+plot(oc_hyp)
+```
+
+## Decision boundary
+
+`qdm_boundary()` gives the decision for every possible outcome of the study,
+and its plot shows which outcomes lead to Go, NoGo and Gray decisions.
+Unlike the operating characteristics, it does not depend on the true
+response rates. For the design with a concurrent control group, the axes are
+the numbers of responders of the two groups:
+
+```{r boundary}
+plot(qdm_boundary(des))
+```
+
+Without a concurrent control group, the boundary is shown for several sample
+sizes of the treatment group, here from 10 to 40 subjects for the design
+with a fixed control:
+
+```{r boundary-fixed}
+b_fix <- qdm_boundary(des_fix, n_t = 10:40)
+plot(b_fix)
+```
+
+With 20 subjects, a Go decision needs at least
+`r min(b_fix$y_t[b_fix$n_t == 20 & b_fix$decision == "Go"])` responders, and
+the decision is NoGo with at most
+`r max(b_fix$y_t[b_fix$n_t == 20 & b_fix$decision == "NoGo"])` responders.
+
+## Calibration of the thresholds
+
+`qdm_calibrate()` chooses $\gamma_{go}$ as the smallest value of a grid for
+which the probability of meeting the Go criterion under `scenario_go` is at
+most `target_go`, and $\gamma_{nogo}$ in the same way for the NoGo criterion
+under `scenario_nogo`. Here the Go criterion should be met with probability
+at most 0.05 when the treatment has no effect, and the NoGo criterion with
+probability at most 0.2 when the effect is 0.3:
+
+```{r calibrate}
+cal <- qdm_calibrate(des,
+                     scenario_go = data.frame(pi_t = 0.2, pi_c = 0.2),
+                     scenario_nogo = data.frame(pi_t = 0.5, pi_c = 0.2),
+                     target_go = 0.05, target_nogo = 0.2)
+cal
+plot(cal)
+```
+
+The chosen thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
+$\gamma_{nogo} =$ `r cal$gamma_nogo`. The design with these thresholds is
+`cal$design`:
+
+```{r calibrated-oc}
+qdm_oc(cal$design, data.frame(pi_t = c(0.2, 0.35, 0.5), pi_c = 0.2))
+```
+
+## Reference
+
+Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
+decision-making framework in cell and gene therapy development for rare
+diseases. *Journal of Biopharmaceutical Statistics*.
+<https://doi.org/10.1080/10543406.2026.2655410>

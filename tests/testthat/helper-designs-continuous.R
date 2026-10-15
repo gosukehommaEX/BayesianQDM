@@ -1,7 +1,8 @@
-# Designs shared by the tests of the continuous endpoint. They are the designs
-# C1 to C6 of Python_reference/ref_continuous_qdm.py, whose results (closed
+# Designs shared by the tests of the continuous endpoint. C1 to C6 are the
+# designs of Python_reference/ref_continuous_qdm.py, whose results (closed
 # forms, two numerical integrations and noncentral t distributions) are used
-# as references.
+# as references; C7 and C8 (fixed control) are those of
+# Python_reference/ref_fixed_tte_qdm.py.
 crit_cont <- function(gamma_go = 0.6, gamma_nogo = 0.7, tv = 30, mav = 15) {
   criterion_posterior(theta_tv = tv, theta_mav = mav, gamma_go = gamma_go,
                       gamma_nogo = gamma_nogo)
@@ -44,7 +45,16 @@ ref_design_cont <- function(name, method = "NI", nMC = 10000L) {
                                                             gamma_go = 0.7,
                                                             gamma_nogo = 0.6),
                            hypothetical_c = hypothetical(mean = 0, r = 2),
-                           method = method, nMC = nMC)
+                           method = method, nMC = nMC),
+    # Fixed control, posterior criterion
+    C7 = design_continuous(12, 0, vague, criterion = crit_cont(),
+                           fixed_c = -10, method = method, nMC = nMC),
+    # Fixed control, predictive criterion
+    C8 = design_continuous(15, 0, vague,
+                           criterion = criterion_predictive(5, m_t = 30,
+                                                            gamma_go = 0.7,
+                                                            gamma_nogo = 0.6),
+                           fixed_c = 0, method = method, nMC = nMC)
   )
 }
 
@@ -55,7 +65,9 @@ ref_data_cont <- list(
   C3 = list(t = data_continuous(12, 25, 20), c = NULL),
   C4 = list(t = data_continuous(12, 20, 22), c = NULL),
   C5 = list(t = data_continuous(12, 18, 25), c = data_continuous(12, -12, 25)),
-  C6 = list(t = data_continuous(15, 9, 12), c = NULL)
+  C6 = list(t = data_continuous(15, 9, 12), c = NULL),
+  C7 = list(t = data_continuous(12, 25, 20), c = NULL),
+  C8 = list(t = data_continuous(15, 9, 12), c = NULL)
 )
 
 scen_cont_c <- data.frame(mu_t = c(0, 20, 40), sd_t = 25, mu_c = 0, sd_c = 25)

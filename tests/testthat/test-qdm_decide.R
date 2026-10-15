@@ -205,6 +205,8 @@ test_that("qdm_decide() uses the seed for Monte Carlo probabilities", {
   expect_identical(r1$decision, "Go")
   expect_error(qdm_decide(des, d$t, d$c, seed = "a"),
                "'seed' must be numeric.")
+  expect_error(qdm_decide(des, d$t, d$c, seed = -3e9),
+               "'seed' must be at least -2147483647 and at most 2147483647.")
 })
 
 test_that("qdm_decide() decides for two binary endpoints", {
@@ -252,4 +254,57 @@ test_that("qdm_decide() decides for two continuous endpoints", {
   b <- qdm_decide(des, d$t, d$c, seed = 21)
   expect_identical(a$prob_regions, b$prob_regions)
   expect_lt(abs(a$prob_go - 0.626051840857435), 0.04)
+})
+
+test_that("qdm_decide() decides with a fixed control for every endpoint", {
+  # References: Python_reference/ref_fixed_tte_qdm.py
+  res <- qdm_decide(ref_design("D8"), data_binary(20, 11))
+  expect_identical(res$decision, "Go")
+  expect_equal(res$prob_go, 0.915075681321, tolerance = 1e-10)
+  expect_null(res$data_c)
+  res <- qdm_decide(ref_design("D9"), data_binary(10, 3))
+  expect_identical(res$decision, "Gray")
+  expect_equal(res$prob_go, 283 / 646, tolerance = 1e-12)
+  res <- qdm_decide(ref_design_cont("C7"), ref_data_cont$C7$t)
+  expect_identical(res$decision, "Go")
+  expect_equal(res$prob_go, 0.797515237746, tolerance = 1e-10)
+  res <- qdm_decide(ref_design_cont("C8"), ref_data_cont$C8$t)
+  expect_identical(res$decision, "Go")
+  expect_equal(res$prob_go, 0.845153264581, tolerance = 1e-10)
+  res <- qdm_decide(ref_design_bin2("BF1"), data_binary2(c(1, 0, 1, 1)))
+  expect_identical(res$decision, "Gray")
+  expect_equal(res$prob_go, 0.204310825893, tolerance = 1e-10)
+  expect_equal(res$prob_nogo, 0.204310825893, tolerance = 1e-10)
+  res <- qdm_decide(ref_design_cont2("KF1"), ref_data_cont2$KF1$t)
+  expect_identical(res$decision, "Gray")
+  expect_equal(res$prob_go, 0.448613893688, tolerance = 1e-9)
+  res <- qdm_decide(ref_design_cont2("KF2"), ref_data_cont2$KF2$t)
+  expect_identical(res$decision, "Go")
+  expect_equal(res$prob_nogo, 0.13754578381, tolerance = 1e-9)
+  expect_error(qdm_decide(ref_design("D8"), data_binary(20, 11),
+                          data_binary(20, 4)),
+               "'data_c' must be NULL for a design without a concurrent")
+})
+
+test_that("qdm_decide() decides for a time-to-event endpoint", {
+  for (name in c("T1", "T2", "T5", "T6")) {
+    d <- ref_data_tte[[name]]
+    res <- qdm_decide(ref_design_tte(name), d$t, d$c)
+    expect_identical(res$decision, "Go", info = name)
+    expect_equal(c(res$prob_go, res$prob_nogo), unname(ref_prob_tte[[name]]),
+                 tolerance = 1e-10, info = name)
+  }
+  # Predictive probabilities: Monte Carlo estimates that depend on the seed
+  for (name in c("T3", "T4")) {
+    d <- ref_data_tte[[name]]
+    des <- ref_design_tte(name)
+    a <- qdm_decide(des, d$t, d$c, seed = 8)
+    b <- qdm_decide(des, d$t, d$c, seed = 8)
+    expect_identical(a$prob_go, b$prob_go, info = name)
+    ref <- ref_prob_tte[[name]][["go"]]
+    expect_lt(abs(a$prob_go - ref), 4.5 * sqrt(ref * (1 - ref) / 1e4) + 0.002)
+    expect_equal(a$prob_go + a$prob_nogo, 1)
+  }
+  expect_identical(qdm_decide(ref_design_tte("T3"), ref_data_tte$T3$t,
+                              seed = 8)$decision, "Go")
 })

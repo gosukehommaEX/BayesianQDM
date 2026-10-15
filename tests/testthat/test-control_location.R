@@ -12,3 +12,13 @@ test_that("control_location() gives the center of the control distribution", {
                                                0.4))
   expect_equal(control_location(des), (6 * 0 + 12 * -12) / 18)
 })
+
+test_that("control_location() gives the fixed value or the mean survival", {
+  expect_identical(control_location(ref_design("D8")), 0.2)
+  expect_identical(control_location(ref_design_cont("C7")), -10)
+  expect_identical(control_location(ref_design_tte("T1")), 0.72)
+  # Hypothetical control: Gamma(8.1, 61), E[exp(-3 lambda)] = (61 / 64)^8.1
+  expect_equal(control_location(ref_design_tte("T5")), (61 / 64)^8.1)
+  # External control only: Gamma(10.1, 51)
+  expect_equal(control_location(ref_design_tte("T6")), (51 / 54)^10.1)
+})

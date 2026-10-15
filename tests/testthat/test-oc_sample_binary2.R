@@ -73,3 +73,25 @@ test_that("oc_sample_binary2() maps simulated studies to their probabilities", {
   expect_identical(runif(1), after)
   expect_identical(dim(s7$p_go), c(nsim, 3L))
 })
+
+test_that("oc_sample_binary2() handles a fixed control", {
+  des <- ref_design_bin2("BF1")
+  sc <- scen_bin2[, 1:3]
+  s <- oc_sample_binary2(des, sc, 1L)
+  x_t <- outcomes_binary2(3)
+  expect_identical(dim(s$p_go), c(20L, 1L))
+  expect_equal(s$weights_c, matrix(1, 1L, 3L))
+  res <- decide_binary2(des, data_binary2(x_t[7, ]), NULL)
+  expect_equal(s$p_go[7, 1], res$prob_go, tolerance = 1e-12)
+  expect_equal(s$p_nogo[7, 1], res$prob_nogo, tolerance = 1e-12)
+  # Simulation
+  set.seed(6)
+  s2 <- oc_sample_binary2(ref_design_bin2("BF1", enumerate = FALSE), sc, 20L)
+  set.seed(6)
+  u_t <- matrix(runif(20 * 3), nrow = 20)
+  x <- simulate_counts_binary2(u_t, cellprob_binary2(sc$pi_t1[2],
+                                                     sc$pi_t2[2],
+                                                     sc$rho_t[2]))
+  res2 <- decide_binary2(des, data_binary2(x[5, ]), NULL)
+  expect_equal(s2$p_go[5, 2], res2$prob_go, tolerance = 1e-12)
+})

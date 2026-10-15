@@ -38,3 +38,18 @@ test_that("design_binary2() validates its arguments", {
   expect_error(design_binary2(5, 5, q, q, cr, enumerate = NA),
                "'enumerate' must be TRUE or FALSE.")
 })
+
+test_that("design_binary2() stores and checks a fixed control", {
+  des <- ref_design_bin2("BF1")
+  expect_identical(des$control, "fixed")
+  expect_identical(des$fixed_c, c(0.25, 0.5))
+  expect_null(des$prior_c)
+  q <- dir_q()
+  cr <- criterion_posterior(c(0.15, 0.15), c(0.1, 0.1), 0.3, 0.4)
+  expect_error(design_binary2(5, 0, q, q, cr, fixed_c = c(0.2, 0.3)),
+               "'prior_c' must be NULL for a fixed control")
+  expect_error(design_binary2(5, 0, q, criterion = cr, fixed_c = 0.2),
+               "'fixed_c' must have length 2.")
+  expect_error(design_binary2(5, 0, q, criterion = cr, fixed_c = c(0.2, 2)),
+               "'fixed_c' must be at least 0 and at most 1.")
+})

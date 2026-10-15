@@ -61,7 +61,21 @@ ref_design_bin2 <- function(name, nMC = 20000L, enumerate = TRUE) {
                                              gamma_nogo = 0.3),
                         external_c = borrow(data_binary2(c(14, 2, 3, 1)),
                                             0.5),
-                        nMC = nMC, enumerate = enumerate)
+                        nMC = nMC, enumerate = enumerate),
+    # Fixed control (Python_reference/ref_fixed_tte_qdm.py)
+    BF1 = design_binary2(3, 0, dir_q(),
+                         criterion = criterion_predictive(c(0.1, 0), m_t = 4,
+                                                          gamma_go = 0.4,
+                                                          gamma_nogo = 0.3),
+                         fixed_c = c(0.25, 0.5), nMC = nMC,
+                         enumerate = enumerate),
+    BF2 = design_binary2(10, 0, dir_q(),
+                         criterion = criterion_posterior(c(0.25, 0.2),
+                                                         c(0.05, 0),
+                                                         gamma_go = 0.5,
+                                                         gamma_nogo = 0.3),
+                         fixed_c = c(0.35, 0.3), nMC = nMC,
+                         enumerate = enumerate)
   )
 }
 

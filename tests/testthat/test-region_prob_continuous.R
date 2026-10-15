@@ -71,3 +71,22 @@ test_that("region_prob_continuous() estimates both regions from the same draws",
                                   "MC", n_mc)
   expect_identical(again, pst)
 })
+
+test_that("region_prob_continuous() uses the t distribution for a fixed control", {
+  # Reference: Python_reference/ref_fixed_tte_qdm.py, designs C7 and C8
+  p <- region_prob_continuous(crit_cont(), post(25, 12, 11, 400), NULL,
+                              "NI", fixed = -10)
+  expect_equal(p$go, 0.797515237746, tolerance = 1e-10)
+  expect_equal(p$nogo, 0.00264736615439, tolerance = 1e-10)
+  # The method is not used
+  expect_identical(region_prob_continuous(crit_cont(), post(25, 12, 11, 400),
+                                          NULL, "MC", nMC = 10L,
+                                          fixed = -10), p)
+  cr <- criterion_predictive(5, m_t = 30, gamma_go = 0.7, gamma_nogo = 0.6)
+  q <- region_prob_continuous(cr, post(c(9, 0), 15, 14, 144), NULL, "MM",
+                              fixed = 0)
+  expect_equal(q$go[1], 0.845153264581, tolerance = 1e-10)
+  expect_equal(q$go + q$nogo, c(1, 1), tolerance = 1e-12)
+  expect_equal(q$go[2], stats::pt(5 / sqrt(144 * (1 / 15 + 1 / 30)), 14,
+                                  lower.tail = FALSE))
+})

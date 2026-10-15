@@ -15,7 +15,8 @@ with_seed <- function(seed, expr) {
   if (is.null(seed)) {
     return(expr)
   }
-  check_numeric(seed, "seed", integer = TRUE)
+  check_numeric(seed, "seed", lower = -.Machine$integer.max,
+                upper = .Machine$integer.max, integer = TRUE)
   env <- globalenv()
   has_seed <- exists(".Random.seed", envir = env, inherits = FALSE)
   if (has_seed) {

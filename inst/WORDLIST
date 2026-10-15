@@ -12,6 +12,7 @@ DAS
 GoRegions
 HAQ
 Homma
+Hu
 Huang
 IIa
 Inv
@@ -32,6 +33,7 @@ Precompute
 QDM
 QUADPACK
 RCT
+Rcpp
 Resubmission
 Takeda
 Wishart
@@ -44,6 +46,7 @@ binom
 bivariate
 boldsymbol
 cdot
+cj
 colour
 coloured
 conjugacy
@@ -58,6 +61,7 @@ ec
 ej
 et
 evaluable
+exp
 frac
 gGo
 gNoGo
@@ -92,11 +96,13 @@ overset
 parameterised
 pbayesdecisionprob
 pbayespostpred
+piecewise
 pkgdown
 pmatrix
 pre
 precomputation
 precompute
+propto
 qquad
 quadratically
 randomised
@@ -105,9 +111,12 @@ reparameterisation
 responder
 responders
 sd
+sqrt
 standardised
+textrm
 texttt
 th
+tj
 visualisation
 visualised
 widehat

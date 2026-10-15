@@ -54,12 +54,14 @@ oc_sample_continuous <- function(design, scenarios, nsim) {
       post_c <- control_posterior_continuous(design, post_t)
     }
     p <- region_prob_continuous(design$criterion, post_t, post_c,
-                                design$method, design$nMC)
+                                design$method, design$nMC,
+                                fixed = design$fixed_c)
     p_go[, j] <- p$go
     p_nogo[, j] <- p$nogo
   }
   list(p_go = p_go, p_nogo = p_nogo, per_scenario = TRUE,
        weights = matrix(1 / nsim, nsim, n_scen),
        method = sprintf("simulation of %d studies; probabilities by %s",
-                        nsim, method_label(design$method, design$nMC)))
+                        nsim, method_label(design$method, design$nMC,
+                                           design$control == "fixed")))
 }

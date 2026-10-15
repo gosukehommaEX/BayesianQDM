@@ -20,6 +20,12 @@
 // Regions (0-based): 0 = both effects above the null values, 1 = endpoint 1
 // above and endpoint 2 not, 2 = endpoint 2 above and endpoint 1 not,
 // 3 = neither.
+//
+// With a fixed control (no control distributions), the future effect of
+// endpoint k is S_tk / m_t - v_k for the fixed response rate v_k. It exceeds
+// the null value q_k if S_tk / m_t - v_k - q_k > 1e-10, so that a future
+// effect that differs from q_k only by rounding errors is not counted as
+// larger.
 
 #include <Rcpp.h>
 
@@ -95,6 +101,8 @@ std::vector<int> cut_points(int m_t, int m_c, double q) {
 // m_t, m_c: numbers of future subjects; q: null values of the two endpoints.
 // masks: one integer per union of regions; bit r (0 to 3) is set if region
 //   r + 1 belongs to the union.
+// value_c: marginal response rates of a fixed control, used when alpha_c has
+//   no rows (pair_c and m_c are then not used).
 // Returns the probabilities, one row per pair and one column per union.
 // [[Rcpp::export]]
 Rcpp::NumericMatrix cpp_pred_regions_binary2(Rcpp::NumericMatrix alpha_t,
@@ -103,9 +111,11 @@ Rcpp::NumericMatrix cpp_pred_regions_binary2(Rcpp::NumericMatrix alpha_t,
                                              Rcpp::IntegerVector pair_c,
                                              int m_t, int m_c,
                                              Rcpp::NumericVector q,
-                                             Rcpp::IntegerVector masks) {
+                                             Rcpp::IntegerVector masks,
+                                             Rcpp::NumericVector value_c) {
   const int n_t = alpha_t.nrow();
   const int n_c = alpha_c.nrow();
+  const bool fixed = n_c == 0;
   const int n_pair = static_cast<int>(pair_t.size());
   const int n_mask = static_cast<int>(masks.size());
   const int wt = m_t + 1;
@@ -142,21 +152,43 @@ Rcpp::NumericMatrix cpp_pred_regions_binary2(Rcpp::NumericMatrix alpha_t,
   }
   const std::vector<int> k1 = cut_points(m_t, m_c, q[0]);
   const std::vector<int> k2 = cut_points(m_t, m_c, q[1]);
+  // Fixed control: whether S_tk / m_t - v_k exceeds q_k
+  std::vector<int> up1(m_t + 1, 0);
+  std::vector<int> up2(m_t + 1, 0);
+  if (fixed) {
+    for (int s = 0; s <= m_t; ++s) {
+      const double rate = static_cast<double>(s) / m_t;
+      up1[s] = (rate - value_c[0]) - q[0] > 1e-10;
+      up2[s] = (rate - value_c[1]) - q[1] > 1e-10;
+    }
+  }
   Rcpp::NumericMatrix out(n_pair, n_mask);
   for (int p = 0; p < n_pair; ++p) {
     const double *pt = &prob_t[static_cast<std::size_t>(pair_t[p]) * wt * wt];
-    const double *f = &cdf_c[static_cast<std::size_t>(pair_c[p]) * wc * wc];
     double both = 0.0;
     double above1 = 0.0;
     double above2 = 0.0;
-    for (int s1 = 0; s1 <= m_t; ++s1) {
-      const int x = k1[s1] + 1;
-      for (int s2 = 0; s2 <= m_t; ++s2) {
-        const double w = pt[s1 * wt + s2];
-        const int y = k2[s2] + 1;
-        both += w * f[x * wc + y];
-        above1 += w * f[x * wc + (m_c + 1)];
-        above2 += w * f[(m_c + 1) * wc + y];
+    if (fixed) {
+      for (int s1 = 0; s1 <= m_t; ++s1) {
+        for (int s2 = 0; s2 <= m_t; ++s2) {
+          const double w = pt[s1 * wt + s2];
+          both += w * up1[s1] * up2[s2];
+          above1 += w * up1[s1];
+          above2 += w * up2[s2];
+        }
+      }
+    } else {
+      const double *f =
+        &cdf_c[static_cast<std::size_t>(pair_c[p]) * wc * wc];
+      for (int s1 = 0; s1 <= m_t; ++s1) {
+        const int x = k1[s1] + 1;
+        for (int s2 = 0; s2 <= m_t; ++s2) {
+          const double w = pt[s1 * wt + s2];
+          const int y = k2[s2] + 1;
+          both += w * f[x * wc + y];
+          above1 += w * f[x * wc + (m_c + 1)];
+          above2 += w * f[(m_c + 1) * wc + y];
+        }
       }
     }
     double region[4];

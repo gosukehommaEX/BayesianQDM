@@ -76,3 +76,22 @@ test_that("decide_continuous2() checks the data and the degrees of freedom", {
   se <- sqrt(ref * (1 - ref) / 50000)
   expect_true(all(abs(res$prob_regions - ref) <= 4.5 * se + 0.002))
 })
+
+test_that("decide_continuous2() handles a fixed control", {
+  # Python_reference/ref_fixed_tte_qdm.py: exact probabilities of the
+  # bivariate t distribution of the treatment mean
+  res <- decide_continuous2(ref_design_cont2("KF1"), ref_data_cont2$KF1$t,
+                            NULL)
+  ref <- c(0.448613893688, 0.0645842074429, 0.0583932223851, 0.04589185081,
+           0.0113918100151, 0.0115909475048, 0.189182932775,
+           0.0656248379891, 0.104726297391)
+  expect_equal(unname(res$prob_regions), ref, tolerance = 1e-9)
+  expect_identical(res$posterior_c, c(value1 = -10, value2 = -1))
+  # Two degrees of freedom (no check for MM) and the method MC, which is not
+  # used
+  res2 <- decide_continuous2(ref_design_cont2("KF2", "MC", 10L),
+                             ref_data_cont2$KF2$t, NULL)
+  expect_equal(unname(res2$prob_regions),
+               c(0.545279559813, 0.187846642247, 0.12932801413,
+                 0.13754578381), tolerance = 1e-9)
+})

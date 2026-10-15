@@ -27,3 +27,7 @@ test_that("control_posterior_continuous() builds the hypothetical control", {
   expect_identical(post_c, list(mu = -10, kappa = 12, nu = 11,
                                 sigma2 = 1.5 * c(400, 100)))
 })
+
+test_that("control_posterior_continuous() returns NULL for a fixed control", {
+  expect_null(control_posterior_continuous(ref_design_cont("C7"), list()))
+})

@@ -1,178 +1,190 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file and run devtools::build_readme(). -->
+
 # BayesianQDM <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
+
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/BayesianQDM)](https://cran.r-project.org/package=BayesianQDM)
-[![CRAN downloads](https://cranlogs.r-pkg.org/badges/BayesianQDM)](https://cran.r-project.org/package=BayesianQDM)
-[![CRAN downloads total](https://cranlogs.r-pkg.org/badges/grand-total/BayesianQDM)](https://cran.r-project.org/package=BayesianQDM)
-[![R-CMD-check](https://github.com/gosukehommaEX/BayesianQDM/workflows/R-CMD-check/badge.svg)](https://github.com/gosukehommaEX/BayesianQDM/actions)
-[![Codecov test coverage](https://codecov.io/gh/gosukehommaEX/BayesianQDM/branch/main/graph/badge.svg)](https://app.codecov.io/gh/gosukehommaEX/BayesianQDM?branch=main)
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/BayesianQDM)](https://cran.r-project.org/package=BayesianQDM)
+[![CRAN downloads
+total](https://cranlogs.r-pkg.org/badges/grand-total/BayesianQDM)](https://cran.r-project.org/package=BayesianQDM)
+[![R-CMD-check](https://github.com/gosukehommaEX/BayesianQDM/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gosukehommaEX/BayesianQDM/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/gosukehommaEX/BayesianQDM/branch/main/graph/badge.svg)](https://app.codecov.io/gh/gosukehommaEX/BayesianQDM?branch=main)
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
 ## Overview
 
-BayesianQDM provides a comprehensive framework for **Bayesian Quantitative Decision-Making** in clinical trials. The package enables researchers to compute posterior probabilities, posterior predictive probabilities, and **Go/NoGo/Gray** decision probabilities for both single and two-endpoint analyses with binary and continuous outcomes. The package also provides functions to find optimal Go/NoGo thresholds that satisfy user-specified operating characteristic criteria.
+BayesianQDM implements Bayesian quantitative decision-making (QDM) for
+proof-of-concept (PoC) clinical trials (Kang, Yamaguchi and Han, 2026).
+The data of a PoC study lead to one of three decisions: Go (proceed to
+the next phase), NoGo (stop the development) or Gray (the evidence is
+not sufficient for either). The criteria compare the posterior or
+posterior predictive probability of the treatment effect with
+thresholds, for a target value (TV) and a minimum acceptable value (MAV)
+of the effect.
 
-## Key Features
+The package answers four questions for a planned or completed study:
 
-- **Single and Two Endpoints**: Supports single binary, single continuous, two binary, and two continuous endpoint analyses
-- **Multiple Study Designs**: Controlled, uncontrolled (hypothetical control), and external designs
-- **Flexible Prior Specification**: Vague (Jeffreys) priors and conjugate priors (Beta, Normal-Inverse-Chi-squared, Normal-Inverse-Wishart, Dirichlet)
-- **Power Priors**: Exact conjugate representation for incorporating historical or external data without MCMC
-- **Multiple Calculation Methods**: Numerical integration (NI), Monte Carlo simulation (MC), and Moment-Matching approximation (MM) for continuous endpoints
-- **Three-Zone Decision Framework**: Go/NoGo/Gray probability calculation with user-defined thresholds (TV and MAV)
-- **Optimal Threshold Search**: Grid-search functions to find Go/NoGo thresholds satisfying target operating characteristics
+- Which decision do the observed data lead to? (`qdm_decide()`)
+- How often does the design lead to each decision when the true effect
+  is known? (`qdm_oc()`)
+- Which thresholds keep the probabilities of a false Go and a false NoGo
+  decision below given targets? (`qdm_calibrate()`)
+- Which observed data lead to each decision? (`qdm_boundary()`)
+
+A study is described by small specification objects (priors, data,
+external data borrowed through a power prior, a hypothetical control and
+a decision criterion), which are combined into a design.
+
+| Endpoints | Design | Model | Computation of the probabilities |
+|----|----|----|----|
+| One binary | `design_binary()` | Beta-binomial | Numerical integration (posterior), exact sum (predictive) |
+| One continuous | `design_continuous()` | Normal-Inverse-chi-squared or vague | Numerical integration, moment matching or Monte Carlo |
+| Two binary | `design_binary2()` | Dirichlet-multinomial | Monte Carlo (posterior), exact sum (predictive) |
+| Two continuous | `design_continuous2()` | Normal-Inverse-Wishart or vague | Moment matching or Monte Carlo |
+| One time-to-event | `design_tte()` | Exponential with Gamma prior (milestone survival) | Numerical integration (posterior), simulation (predictive) |
+
+The control group can be a concurrent control group, external control
+data only, a hypothetical control, or a fixed value of the control
+parameter (a single-arm study compared with a benchmark), and external
+data can be borrowed for either group.
 
 ## Installation
 
-### From CRAN
-
-```r
+``` r
+# From CRAN
 install.packages("BayesianQDM")
+
+# Development version from GitHub
+# install.packages("pak")
+pak::pak("gosukehommaEX/BayesianQDM")
 ```
 
-### Development Version
+## Example
 
-```r
-# install.packages("devtools")
-devtools::install_github("gosukehommaEX/BayesianQDM")
+A PoC study with one binary endpoint and 12 subjects in each group,
+Jeffreys priors, and a posterior criterion with TV = 0.2 and MAV = 0.1:
+
+``` r
+des <- design_binary(
+  n_t = 12, n_c = 12,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                  gamma_go = 0.5, gamma_nogo = 0.8)
+)
 ```
 
-## Core Functions
+Decision for 9 responders in the treatment group and 4 in the control
+group:
 
-### Posterior / Posterior Predictive Probability Functions
+``` r
+qdm_decide(des, data_t = data_binary(12, 9), data_c = data_binary(12, 4))
+#> Decision: Go
+#>   Go:   P(theta > 0.2 | data) = 0.8517 (threshold 0.5, met)
+#>   NoGo: P(theta <= 0.1 | data) = 0.05935 (threshold 0.8, not met)
+#> Posterior distributions
+#>   Treatment: Beta(a = 9.5, b = 3.5)
+#>   Control:   Beta(a = 4.5, b = 8.5)
+```
 
-| Function | Description |
-|---|---|
-| `pbayespostpred1bin()` | Posterior or predictive probability for a single binary endpoint |
-| `pbayespostpred1cont()` | Posterior or predictive probability for a single continuous endpoint |
-| `pbayespostpred2bin()` | Joint region probabilities for two binary endpoints |
-| `pbayespostpred2cont()` | Joint region probabilities for two continuous endpoints |
+Operating characteristics for true response rates of the treatment group
+from 0.3 to 0.7 with a control rate of 0.3:
 
-### Decision Probability Functions
+``` r
+qdm_oc(des, data.frame(pi_t = seq(0.3, 0.7, by = 0.1), pi_c = 0.3))
+#> Operating characteristics (exact enumeration of the outcomes)
+#>  pi_t pi_c     Go    NoGo   Gray Miss
+#>   0.3  0.3 0.1316 0.41696 0.4514    0
+#>   0.4  0.3 0.2893 0.23249 0.4782    0
+#>   0.5  0.3 0.4883 0.10937 0.4023    0
+#>   0.6  0.3 0.6875 0.04137 0.2711    0
+#>   0.7  0.3 0.8472 0.01150 0.1413    0
+```
 
-| Function | Description |
-|---|---|
-| `pbayesdecisionprob1bin()` | Go/NoGo/Gray probabilities for a single binary endpoint |
-| `pbayesdecisionprob1cont()` | Go/NoGo/Gray probabilities for a single continuous endpoint |
-| `pbayesdecisionprob2bin()` | Go/NoGo/Gray probabilities for two binary endpoints |
-| `pbayesdecisionprob2cont()` | Go/NoGo/Gray probabilities for two continuous endpoints |
+Thresholds for which the probability of meeting the Go criterion is at
+most 0.05 when the treatment has no effect, and that of meeting the NoGo
+criterion is at most 0.2 when the effect is 0.3:
 
-### Optimal Threshold Search Functions
+``` r
+qdm_calibrate(des,
+              scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
+              scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
+              target_go = 0.05, target_nogo = 0.2)
+#> Calibration of the decision thresholds (exact enumeration of the outcomes)
+#>   gamma_go   = 0.74: P(Go criterion met | scenario_go) = 0.03587 (target 0.05)
+#>   gamma_nogo = 0.39: P(NoGo criterion met | scenario_nogo) = 0.182 (target 0.2)
+#> Decision probabilities with the chosen thresholds
+#>       scenario pi_t pi_c      Go   NoGo   Gray Miss
+#>    scenario_go  0.3  0.3 0.03587 0.7486 0.2155    0
+#>  scenario_nogo  0.6  0.3 0.36483 0.1820 0.4531    0
+```
 
-| Function | Description |
-|---|---|
-| `getgamma1bin()` | Find optimal Go/NoGo thresholds for a single binary endpoint |
-| `getgamma1cont()` | Find optimal Go/NoGo thresholds for a single continuous endpoint |
-| `getgamma2bin()` | Find optimal Go/NoGo thresholds for two binary endpoints |
-| `getgamma2cont()` | Find optimal Go/NoGo thresholds for two continuous endpoints |
-
-### S3 Methods
-
-| Function | Description |
-|---|---|
-| `print.pbayesdecisionprob1bin()` | Print method for `pbayesdecisionprob1bin` objects |
-| `print.pbayesdecisionprob1cont()` | Print method for `pbayesdecisionprob1cont` objects |
-| `print.pbayesdecisionprob2bin()` | Print method for `pbayesdecisionprob2bin` objects |
-| `print.pbayesdecisionprob2cont()` | Print method for `pbayesdecisionprob2cont` objects |
-| `plot.pbayesdecisionprob1bin()` | Plot method for `pbayesdecisionprob1bin` objects |
-| `plot.pbayesdecisionprob1cont()` | Plot method for `pbayesdecisionprob1cont` objects |
-| `plot.pbayesdecisionprob2bin()` | Plot method for `pbayesdecisionprob2bin` objects |
-| `plot.pbayesdecisionprob2cont()` | Plot method for `pbayesdecisionprob2cont` objects |
-| `plot.getgamma1bin()` | Plot method for `getgamma1bin` objects |
-| `plot.getgamma1cont()` | Plot method for `getgamma1cont` objects |
-| `plot.getgamma2bin()` | Plot method for `getgamma2bin` objects |
-| `plot.getgamma2cont()` | Plot method for `getgamma2cont` objects |
-
-### Distribution and Utility Functions
-
-| Function | Description |
-|---|---|
-| `pbetadiff()` | CDF for the difference of two independent Beta distributions |
-| `pbetabinomdiff()` | Beta-binomial posterior predictive probability |
-| `ptdiff_NI()` | CDF for the difference of two t-distributions via numerical integration |
-| `ptdiff_MC()` | CDF for the difference of two t-distributions via Monte Carlo simulation |
-| `ptdiff_MM()` | CDF for the difference of two t-distributions via Moment-Matching approximation |
-| `rdirichlet()` | Random sampler for the Dirichlet distribution |
-| `getjointbin()` | Joint binary probability from marginals and correlation |
-| `allmultinom()` | Enumerate all multinomial outcome combinations |
-
-## Study Designs
-
-### Controlled Design
-Standard randomised controlled trials with concurrent treatment and control groups.
-
-### Uncontrolled Design
-Single-arm studies using a hypothetical control distribution specified through prior parameters or a variance scaling factor.
-
-### External Design
-Incorporates historical or external control and/or treatment data through power priors using exact conjugate representations, enabling efficient Bayesian computation without MCMC sampling.
-
-## Statistical Methods for Continuous Endpoints
-
-For single continuous endpoints, three methods are available for computing the CDF of the difference between two independent t-distributions:
-
-- **NI** (Numerical Integration): Exact computation via adaptive quadrature (`stats::integrate`)
-- **MC** (Monte Carlo): Simulation-based estimation; supports vectorised batch processing
-- **MM** (Moment-Matching): Closed-form approximation by matching the first two even moments of the difference distribution to a single t-distribution; fully vectorised and recommended for large-scale simulation studies
-
-For two continuous endpoints, MC and MM methods are available for computing joint rectangular region probabilities under a bivariate t-distribution approximation.
-
-## Optimal Threshold Search
-
-The `getgamma` family of functions finds optimal Go threshold $\gamma_go$ and NoGo threshold $\gamma_nogo$ by grid search, given user-specified target operating characteristics (e.g., Pr(Go) and Pr(NoGo) under specified true parameter scenarios). The search follows a two-stage precompute-then-sweep strategy for computational efficiency.
+`plot()` draws the operating characteristics, the calibration curves and
+the decision boundaries computed by `qdm_boundary()`.
 
 ## Documentation
 
-### Vignettes
+The vignettes describe the models and the functions with examples:
 
-The package includes detailed vignettes with practical examples:
+- [Overview of
+  BayesianQDM](https://gosukehommaEX.github.io/BayesianQDM/articles/overview.html)
+- [Single binary
+  endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/single-binary.html)
+- [Single continuous
+  endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/single-continuous.html)
+- [Two binary
+  endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/two-binary.html)
+- [Two continuous
+  endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/two-continuous.html)
+- [Time-to-event
+  endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/time-to-event.html)
+- [Migrating from version
+  0.1.0](https://gosukehommaEX.github.io/BayesianQDM/articles/migration.html)
 
-**Getting Started**
-- [Overview of BayesianQDM](https://gosukehommaEX.github.io/BayesianQDM/articles/overview.html) - Framework overview and key concepts
+After installation, `vignette(package = "BayesianQDM")` lists them. The
+[package website](https://gosukehommaEX.github.io/BayesianQDM/) also has
+the function reference.
 
-**Single Endpoint Analysis**
-- [Single Binary Endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/single-binary.html) - Binary endpoint analysis with Go/NoGo/Gray decisions
-- [Single Continuous Endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/single-continuous.html) - Continuous endpoint analysis with multiple computation methods
+Version 1.0.0 is a redesign of version 0.1.0 and is not backward
+compatible. The
+[NEWS](https://gosukehommaEX.github.io/BayesianQDM/news/index.html) file
+lists the changes, including corrections of formulas and numerical
+methods.
 
-**Two Endpoint Analysis**
-- [Two Binary Endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/two-binary.html) - Joint analysis of two binary endpoints
-- [Two Continuous Endpoints](https://gosukehommaEX.github.io/BayesianQDM/articles/two-continuous.html) - Joint analysis of two continuous endpoints
-
-Access vignettes locally after installation:
-
-```r
-vignette(package = "BayesianQDM")
-vignette("overview", package = "BayesianQDM")
-vignette("single-binary", package = "BayesianQDM")
-vignette("single-continuous", package = "BayesianQDM")
-vignette("two-binary", package = "BayesianQDM")
-vignette("two-continuous", package = "BayesianQDM")
-```
-
-### Package Website
-
-Visit the [pkgdown website](https://gosukehommaEX.github.io/BayesianQDM/) for interactive documentation and the full function reference.
+The scripts in `inst/validation/` compare the package with published and
+submitted results; `inst/validation/results/summary.md` reports the
+comparisons.
 
 ## Citation
 
-To cite BayesianQDM in publications, please use:
+For the framework, please cite
 
-```
-Homma, G., Yamaguchi, Y. (2025). BayesianQDM: Bayesian Quantitative
-Decision-Making Framework for Binary and Continuous Endpoints.
-R package version 0.1.0.
-```
+> Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
+> decision-making framework in cell and gene therapy development for
+> rare diseases. *Journal of Biopharmaceutical Statistics*.
+> <https://doi.org/10.1080/10543406.2026.2655410>
+
+and for the package
+
+> Homma, G. and Yamaguchi, Y. (2026). BayesianQDM: Bayesian Quantitative
+> Decision-Making Framework for Binary, Continuous and Time-to-Event
+> Endpoints. R package version 1.0.0.
 
 ## License
 
-This package is licensed under GPL (>= 2).
+GPL (\>= 2)
 
 ## Authors
 
 - Gosuke Homma (maintainer)
 - Yusuke Yamaguchi
 
-## Issues and Contributions
+## Issues
 
-To report bugs or request features, please visit our [GitHub repository](https://github.com/gosukehommaEX/BayesianQDM/issues).
+Please report bugs and requests on the [GitHub issue
+tracker](https://github.com/gosukehommaEX/BayesianQDM/issues).

@@ -47,15 +47,20 @@ oc_sample_continuous2 <- function(design, scenarios, nsim) {
       post_c <- control_posterior_continuous2(design, post_t)
     }
     dist_t <- mean_dist_continuous2(post_t, crit$type, crit$m_t)
-    dist_c <- mean_dist_continuous2(post_c, crit$type, crit$m_c)
+    dist_c <- if (is.null(post_c)) {
+      NULL
+    } else {
+      mean_dist_continuous2(post_c, crit$type, crit$m_c)
+    }
     p[(j - 1L) * nsim + seq_len(nsim), ] <- region_prob_continuous2(
       crit, dist_t, dist_c, c(sets$go, sets$nogo), design$method,
-      design$nMC
+      design$nMC, fixed = design$fixed_c
     )
   }
   s <- split_sets(p, n_go, dim = c(nsim, n_scen))
   list(p_go = s$go, p_nogo = s$nogo, per_scenario = TRUE,
        weights = matrix(1 / nsim, nsim, n_scen),
        method = sprintf("simulation of %d studies; probabilities by %s",
-                        nsim, method_label(design$method, design$nMC)))
+                        nsim, method_label(design$method, design$nMC,
+                                           design$control == "fixed")))
 }

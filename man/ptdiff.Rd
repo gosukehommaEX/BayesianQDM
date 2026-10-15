@@ -60,8 +60,9 @@ very different scales are handled. The absolute error is below
 \eqn{10^{-9}} in the tests, which include scale ratios from
 \eqn{10^{-9}} to \eqn{10^3} and degrees of freedom from 0.5 to
 \code{Inf}.}
-\item{\code{"MM"}}{The moment-matching approximation of Yamaguchi et al.
-(submitted, Theorem 1), which replaces the difference by a single t
+\item{\code{"MM"}}{The moment-matching approximation of Yamaguchi,
+Homma, Takeda and Maruo (submitted, Theorem 1), which replaces the
+difference by a single t
 distribution with matched second and fourth moments. It requires
 \eqn{\nu_t > 4} and \eqn{\nu_c > 4}, is evaluated in closed form, and is
 the fastest method.}
@@ -78,11 +79,17 @@ ptdiff(1, mu_t = 3, scale_t = 1, df_t = 15, mu_c = 1, scale_c = 1,
 ptdiff(1, mu_t = 3, scale_t = 1, df_t = 15, mu_c = 1, scale_c = 1,
        df_c = 15, method = "MM", lower.tail = FALSE)
 }
+\references{
+Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
+Moment-matching approximation for t-differences in clinical trials with
+continuous endpoints.
+}
 \seealso{
 Other distributions:
 \code{\link[=cellprob_binary2]{cellprob_binary2()}},
 \code{\link[=pbetabinomdiff]{pbetabinomdiff()}},
 \code{\link[=pbetadiff]{pbetadiff()}},
+\code{\link[=psurvdiff]{psurvdiff()}},
 \code{\link[=rdirichlet]{rdirichlet()}}
 }
 \concept{distributions}

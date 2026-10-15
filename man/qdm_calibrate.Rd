@@ -17,8 +17,8 @@ qdm_calibrate(
 }
 \arguments{
 \item{design}{A design created by \code{\link{design_binary}},
-\code{\link{design_continuous}}, \code{\link{design_binary2}} or
-\code{\link{design_continuous2}}. Its
+\code{\link{design_continuous}}, \code{\link{design_binary2}},
+\code{\link{design_continuous2}} or \code{\link{design_tte}}. Its
 thresholds are replaced by the calibrated ones. For two endpoints with a
 marginal rule (\code{rule = "and"} or \code{"or"}), the same threshold is
 used for both endpoints.}
@@ -98,6 +98,7 @@ cal$design
 }
 \seealso{
 Other operations:
+\code{\link[=qdm_boundary]{qdm_boundary()}},
 \code{\link[=qdm_decide]{qdm_decide()}},
 \code{\link[=qdm_oc]{qdm_oc()}}
 }

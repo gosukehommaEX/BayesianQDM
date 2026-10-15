@@ -8,8 +8,8 @@ qdm_oc(design, scenarios, nsim = 10000L, seed = NULL)
 }
 \arguments{
 \item{design}{A design created by \code{\link{design_binary}},
-\code{\link{design_continuous}}, \code{\link{design_binary2}} or
-\code{\link{design_continuous2}}.}
+\code{\link{design_continuous}}, \code{\link{design_binary2}},
+\code{\link{design_continuous2}} or \code{\link{design_tte}}.}
 
 \item{scenarios}{A data frame with one row per scenario. For a binary
 endpoint the columns \code{pi_t} and \code{pi_c} give the true response
@@ -24,6 +24,8 @@ For two continuous endpoints the columns \code{mu_t1}, \code{mu_t2},
 \code{sd_c1}, \code{sd_c2} and \code{rho_c} give the true means,
 standard deviations and correlation of the two endpoints in each group
 (the correlation strictly between -1 and 1).
+For a time-to-event endpoint the columns \code{median_t} and
+\code{median_c} give the true median survival times (positive).
 The columns of the control group are not needed for a design without a
 concurrent control group. Other columns, such as labels, are kept in the
 result.}
@@ -61,7 +63,10 @@ probabilities have a simulation standard error of at most
 \eqn{0.5 / \sqrt{nsim}} (0.005 for the default \code{nsim}). For each
 simulated study, the probabilities of the Go and NoGo regions are computed
 by the method of the design (see \code{\link{design_continuous}}), of which
-\code{method = "MM"} is the fastest.
+\code{method = "MM"} is the fastest. To explore many scenarios or designs,
+\code{method = "MM"} or a smaller \code{nsim} gives results quickly; the
+chosen design can then be checked with \code{method = "NI"} and the
+default \code{nsim}.
 
 For two binary endpoints, all outcomes are enumerated (Yamaguchi et al.,
 submitted, equation A.5) or \code{nsim} studies are simulated, as specified
@@ -79,6 +84,15 @@ factor of the covariance matrix of the scenario, \eqn{z} has two
 independent standard normal elements and \eqn{A} is the Bartlett factor
 of a Wishart distribution with \eqn{n - 1} degrees of freedom. The same
 random numbers are used for all scenarios.
+
+For a time-to-event endpoint, \code{nsim} studies are simulated under each
+scenario as specified by the conduct of the design (enrollment, dropout
+and analysis time; see \code{\link{conduct_tte}}), with exponential event
+times whose hazard is \eqn{\log(2) / M} for the median survival time
+\eqn{M} of the scenario. The same random numbers are used for all
+scenarios. With a predictive criterion, every simulated study needs
+\code{nMC} simulated future studies (see \code{\link{design_tte}}), so
+the computing time grows with \code{nsim} times \code{nMC}.
 
 The decision for each outcome is made as in \code{\link{qdm_decide}}. A
 warning is given when Miss decisions (both criteria met) have positive
@@ -131,9 +145,14 @@ Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
 decision-making framework in cell and gene therapy development for rare
 diseases. \emph{Journal of Biopharmaceutical Statistics}.
 \doi{10.1080/10543406.2026.2655410}
+
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.
 }
 \seealso{
 Other operations:
+\code{\link[=qdm_boundary]{qdm_boundary()}},
 \code{\link[=qdm_calibrate]{qdm_calibrate()}},
 \code{\link[=qdm_decide]{qdm_decide()}}
 }

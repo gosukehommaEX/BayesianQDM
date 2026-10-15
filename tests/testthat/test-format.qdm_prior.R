@@ -16,3 +16,7 @@ test_that("format.qdm_prior() honours digits and rejects unknown classes", {
   fake <- structure(list(), class = c("qdm_prior_other", "qdm_prior"))
   expect_error(format(fake), "Unknown prior class.")
 })
+
+test_that("format.qdm_prior() describes the Gamma prior", {
+  expect_identical(format(prior_gamma(0.1, 1)), "Gamma(shape = 0.1, rate = 1)")
+})

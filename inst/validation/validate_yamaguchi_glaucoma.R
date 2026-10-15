@@ -17,7 +17,7 @@ validate_yamaguchi_glaucoma <- function() {
                              method = method)
     res <- qdm_decide(des, data_continuous(36, -5.2, sqrt(15.62)),
                       data_continuous(31, -2.7, sqrt(13.28)))
-    study <- "Yamaguchi et al. (submitted), Section 5.2"
+    study <- "Yamaguchi, Homma, Takeda and Maruo (submitted), Section 5.2"
     rows <- c(rows, list(
       number_row(study, "P(Delta < 0 | data)", "glaucoma example", method,
                  0.9949, 1 - res$prob_go, 4),

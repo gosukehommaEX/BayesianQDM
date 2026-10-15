@@ -6,14 +6,15 @@
 #' parameters given the external data; for a hypothetical control, the
 #' pseudo-parameters \eqn{(\mu_{0c}, \kappa_{nt}, \nu_{nt}, r \Lambda_{nt})}
 #' from the posterior parameters of the treatment group (Yamaguchi et al.,
-#' submitted, Section A.2.6).
+#' submitted, Section A.2.6); for a fixed control, \code{NULL}.
 #'
 #' @param design An object of class \code{"qdm_design_continuous2"}.
 #' @param post_t Posterior parameters of the treatment group (see
 #'   \code{posterior_continuous2()}).
 #' @param n,mean,cov Current control data (concurrent control only).
 #'
-#' @return A list as returned by \code{posterior_continuous2()}.
+#' @return A list as returned by \code{posterior_continuous2()}, or
+#'   \code{NULL} for a fixed control.
 #' @noRd
 control_posterior_continuous2 <- function(design, post_t, n = 0L,
                                           mean = c(0, 0),
@@ -29,6 +30,7 @@ control_posterior_continuous2 <- function(design, post_t, n = 0L,
                   byrow = TRUE),
       kappa = post_t$kappa, nu = post_t$nu,
       Lambda = design$hypothetical_c$r * post_t$Lambda
-    )
+    ),
+    fixed = NULL
   )
 }

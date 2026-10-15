@@ -14,18 +14,19 @@
 #' which are used only by \code{\link{qdm_oc}} and \code{\link{qdm_calibrate}}.
 #'
 #' @param design A design created by \code{\link{design_binary}},
-#'   \code{\link{design_continuous}}, \code{\link{design_binary2}} or
-#'   \code{\link{design_continuous2}}.
+#'   \code{\link{design_continuous}}, \code{\link{design_binary2}},
+#'   \code{\link{design_continuous2}} or \code{\link{design_tte}}.
 #' @param data_t Observed data of the treatment group, created by
 #'   \code{\link{data_binary}}, \code{\link{data_continuous}},
-#'   \code{\link{data_binary2}} or \code{\link{data_continuous2}}
-#'   (matching the endpoint of the design).
+#'   \code{\link{data_binary2}}, \code{\link{data_continuous2}} or
+#'   \code{\link{data_tte}} (matching the endpoint of the design).
 #' @param data_c Observed data of the concurrent control group, created by
 #'   the same function as \code{data_t}; \code{NULL} (the default) for a
 #'   design without a concurrent control group.
 #' @param seed Random seed for probabilities computed by Monte Carlo
-#'   simulation (a continuous design with \code{method = "MC"}, or posterior
-#'   probabilities for two binary endpoints), or \code{NULL} to use the
+#'   simulation (a continuous design with \code{method = "MC"}, posterior
+#'   probabilities for two binary endpoints, or posterior predictive
+#'   probabilities for a time-to-event endpoint), or \code{NULL} to use the
 #'   current random number stream. If given, the previous state of the random
 #'   number generator is restored on exit. Not used otherwise.
 #'
@@ -53,7 +54,11 @@
 #'       endpoints, the Normal-Inverse-Wishart parameters \code{mu1},
 #'       \code{mu2}, \code{kappa}, \code{nu} and the elements \code{L11},
 #'       \code{L12} and \code{L22} of \eqn{\Lambda}, so that the mean has the
-#'       distribution \eqn{t_{\nu - 1}(\mu, \Lambda / (\kappa (\nu - 1)))}.}
+#'       distribution \eqn{t_{\nu - 1}(\mu, \Lambda / (\kappa (\nu - 1)))}.
+#'       For a time-to-event endpoint, the shape and rate of the Gamma
+#'       distribution of the hazard. For a fixed control, \code{posterior_c}
+#'       is the fixed value (named \code{value}, or \code{value1} and
+#'       \code{value2} for two endpoints).}
 #'     \item{design, data_t, data_c}{The arguments.}
 #'   }
 #'
@@ -80,14 +85,16 @@
 qdm_decide <- function(design, data_t, data_c = NULL, seed = NULL) {
   check_design(design)
   if (!is.null(seed)) {
-    check_numeric(seed, "seed", integer = TRUE)
+    check_numeric(seed, "seed", lower = -.Machine$integer.max,
+                  upper = .Machine$integer.max, integer = TRUE)
   }
   res <- with_seed(seed, switch(
     design$endpoint,
     binary = decide_binary(design, data_t, data_c),
     continuous = decide_continuous(design, data_t, data_c),
     binary2 = decide_binary2(design, data_t, data_c),
-    continuous2 = decide_continuous2(design, data_t, data_c)
+    continuous2 = decide_continuous2(design, data_t, data_c),
+    tte = decide_tte(design, data_t, data_c)
   ))
   crit <- design$criterion
   met_go <- meets_criterion(res$prob_go, crit$gamma_go, crit$rule)

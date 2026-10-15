@@ -64,5 +64,32 @@ test_that("design_binary() checks the combination of control arguments", {
                "When 'n_c' is 0, specify 'external_c'")
   expect_error(design_binary(10, 0, pr, pr, cr, external_c = ext,
                              hypothetical_c = hyp),
-               "specify only one of 'external_c' and 'hypothetical_c'.")
+               "specify only one of 'external_c', 'hypothetical_c' and")
+})
+
+test_that("design_binary() stores a fixed control", {
+  des <- ref_design("D8")
+  expect_identical(des$control, "fixed")
+  expect_identical(des$fixed_c, 0.2)
+  expect_null(des$prior_c)
+  expect_null(ref_design("D1")$fixed_c)
+})
+
+test_that("design_binary() checks the fixed control", {
+  pr <- prior_beta(1, 1)
+  cr <- crit_post()
+  expect_error(design_binary(10, 0, pr, pr, cr, fixed_c = 0.2),
+               "'prior_c' must be NULL for a fixed control")
+  expect_error(design_binary(10, 0, pr, criterion = cr),
+               "When 'n_c' is 0, specify 'external_c'")
+  expect_error(design_binary(10, 0, pr, criterion = cr, fixed_c = 1.5),
+               "'fixed_c' must be at least 0 and at most 1.")
+  expect_error(design_binary(10, 10, pr, pr, cr, fixed_c = 0.2),
+               "'fixed_c' can be used only when 'n_c' is 0.")
+  expect_error(design_binary(10, 0, pr, pr, cr,
+                             external_c = borrow(data_binary(20, 6), 0.5),
+                             fixed_c = 0.2),
+               "specify only one of")
+  expect_error(design_binary(10, 10, pr, criterion = cr),
+               "'prior_c' must be created by prior_beta().")
 })

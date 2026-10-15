@@ -61,3 +61,17 @@ test_that("design_continuous2() validates its arguments", {
   expect_s3_class(design_continuous2(6, 12, v, v, cr, method = "MC"),
                   "qdm_design_continuous2")
 })
+
+test_that("design_continuous2() stores and checks a fixed control", {
+  des <- ref_design_cont2("KF2")
+  expect_identical(des$control, "fixed")
+  expect_identical(des$fixed_c, c(1, 0.5))
+  expect_null(des$prior_c)
+  vague <- prior_vague()
+  expect_error(design_continuous2(10, 0, vague, vague, crit_cont2(),
+                                  fixed_c = c(0, 0)),
+               "'prior_c' must be NULL for a fixed control")
+  expect_error(design_continuous2(10, 0, vague, criterion = crit_cont2(),
+                                  fixed_c = 0),
+               "'fixed_c' must have length 2.")
+})

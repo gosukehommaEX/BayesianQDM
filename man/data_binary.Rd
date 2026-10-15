@@ -27,6 +27,7 @@ data_binary(n = 12, y = 7)
 Other data:
 \code{\link[=data_binary2]{data_binary2()}},
 \code{\link[=data_continuous]{data_continuous()}},
-\code{\link[=data_continuous2]{data_continuous2()}}
+\code{\link[=data_continuous2]{data_continuous2()}},
+\code{\link[=data_tte]{data_tte()}}
 }
 \concept{data}

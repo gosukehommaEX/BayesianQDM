@@ -64,7 +64,7 @@ is \eqn{\Pr(\tilde\theta > \theta_{NULL} \mid D) \ge \gamma_{go}} and the
 NoGo criterion is
 \eqn{\Pr(\tilde\theta \le \theta_{NULL} \mid D) \ge \gamma_{nogo}}. Because
 the two probabilities add up to 1, a Gray decision is possible only when
-\eqn{\gamma_{go} + \gamma_{nogo} > 1}, and Miss decisions occur when
+\eqn{\gamma_{go} + \gamma_{nogo} > 1}, and Miss decisions can occur only when
 \eqn{\gamma_{go} + \gamma_{nogo} \le 1}.
 
 For two endpoints, the null values divide the plane of
@@ -80,6 +80,11 @@ combined with AND or OR (equations 9 and 10).
 \examples{
 criterion_predictive(theta_null = 0, m_t = 50, gamma_go = 0.9,
                      gamma_nogo = 0.7)
+}
+\references{
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.
 }
 \seealso{
 Other criteria:

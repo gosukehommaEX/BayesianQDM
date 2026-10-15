@@ -10,8 +10,10 @@
 #'   probabilities of all regions, \code{R1} to \code{R9} or \code{R1} to
 #'   \code{R4}), \code{posterior_t} and \code{posterior_c} (named vectors of
 #'   the parameters \code{mu1}, \code{mu2}, \code{kappa}, \code{nu},
-#'   \code{L11}, \code{L12} and \code{L22}). With \code{method = "MC"}, all
-#'   probabilities are estimated from the same draws.
+#'   \code{L11}, \code{L12} and \code{L22}; for a fixed control,
+#'   \code{posterior_c} is the fixed values named \code{value1} and
+#'   \code{value2}). With \code{method = "MC"}, all probabilities are
+#'   estimated from the same draws.
 #' @noRd
 decide_continuous2 <- function(design, data_t, data_c) {
   if (!inherits(data_t, "qdm_data_continuous2")) {
@@ -33,18 +35,25 @@ decide_continuous2 <- function(design, data_t, data_c) {
     }
     post_c <- control_posterior_continuous2(design, post_t)
   }
-  check_df_mm(post_t$nu - 1, post_c$nu - 1, design$method,
-              "method = \"MC\"")
   crit <- design$criterion
+  dist_c <- NULL
+  if (!is.null(post_c)) {
+    check_df_mm(post_t$nu - 1, post_c$nu - 1, design$method,
+                "method = \"MC\"")
+    dist_c <- mean_dist_continuous2(post_c, crit$type, crit$m_c)
+  }
   n_regions <- if (crit$type == "posterior") 9L else 4L
   sets <- region_sets(crit)
   dist_t <- mean_dist_continuous2(post_t, crit$type, crit$m_t)
-  dist_c <- mean_dist_continuous2(post_c, crit$type, crit$m_c)
   p <- region_prob_continuous2(crit, dist_t, dist_c,
                                c(as.list(seq_len(n_regions)), sets$go,
-                                 sets$nogo), design$method, design$nMC)
+                                 sets$nogo), design$method, design$nMC,
+                               fixed = design$fixed_c)
   n_go <- length(sets$go)
   params <- function(post) {
+    if (is.null(post)) {
+      return(c(value1 = design$fixed_c[1L], value2 = design$fixed_c[2L]))
+    }
     c(mu1 = post$mu[1L, 1L], mu2 = post$mu[1L, 2L], kappa = post$kappa,
       nu = post$nu, post$Lambda[1L, ])
   }

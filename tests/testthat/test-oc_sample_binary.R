@@ -24,3 +24,14 @@ test_that("oc_sample_binary() uses a fixed control distribution without a concur
   expect_identical(dim(s$weights), c(13L, 1L))
   expect_equal(s$p_go[10], pbetadiff(0.2, 10, 4, 5, 9, lower.tail = FALSE))
 })
+
+test_that("oc_sample_binary() handles a fixed control", {
+  des <- ref_design("D8")
+  s <- oc_sample_binary(des, data.frame(pi_t = c(0.2, 0.6)))
+  expect_length(s$p_go, 21)
+  expect_identical(dim(s$weights), c(21L, 2L))
+  y <- 0:20
+  expect_equal(s$p_go, stats::pbeta(0.4, 1 + y, 21 - y, lower.tail = FALSE))
+  expect_equal(s$p_nogo, stats::pbeta(0.25, 1 + y, 21 - y))
+  expect_equal(s$weights[, 2], stats::dbinom(y, 20, 0.6))
+})

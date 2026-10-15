@@ -1,6 +1,7 @@
-# Validation against Yamaguchi, Homma, Takeda and Maruo (submitted), Table 3
-# (case study 1) and Supplemental Tables S1 and S2 (case study 3, with and
-# without external data): operating characteristics of two binary endpoints
+# Validation against Yamaguchi, Hu, Huang, Han, Homma and Wang (submitted),
+# Table 3 (case study 1) and Supplemental Tables S1 and S2 (case study 3,
+# with and without external data): operating characteristics of two binary
+# endpoints
 # with a posterior criterion on the joint regions, for three correlations
 # (rho_t = rho_c) and sixteen pairs of treatment effects. The published
 # values (four decimals; NE for scenarios that are not evaluable) are in

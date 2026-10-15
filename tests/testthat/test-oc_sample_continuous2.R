@@ -46,3 +46,24 @@ test_that("oc_sample_continuous2() handles marginal rules and no control", {
   expect_identical(dim(s6$p_go), c(5L, 1L))
   expect_match(s6$method, "Monte Carlo simulation \\(nMC = 300\\)")
 })
+
+test_that("oc_sample_continuous2() handles a fixed control", {
+  des <- ref_design_cont2("KF1")
+  sc <- scen_cont2("K4")
+  set.seed(7)
+  s <- oc_sample_continuous2(des, sc, 10L)
+  expect_identical(s$method, paste("simulation of 10 studies; probabilities",
+                                   "by exact computation (fixed control)"))
+  set.seed(7)
+  dt <- draws_continuous2(10L, 10)
+  one <- function(d) lapply(d, `[`, 3L)
+  st <- stats_continuous2(one(dt), 10, c(sc$mu_t1[2], sc$mu_t2[2]),
+                          c(sc$sd_t1[2], sc$sd_t2[2]), sc$rho_t[2])
+  res <- decide_continuous2(
+    des,
+    data_continuous2(10, st$mean[1L, ], matrix(st$cov[1L, c(1, 2, 2, 3)], 2)),
+    NULL
+  )
+  expect_equal(s$p_go[3L, 2L], res$prob_go, tolerance = 1e-12)
+  expect_equal(s$p_nogo[3L, 2L], res$prob_nogo, tolerance = 1e-12)
+})

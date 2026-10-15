@@ -42,3 +42,22 @@ test_that("decide_binary2() validates the data", {
                               data_binary2(c(1, 1, 1, 0))),
                "'data_c' must be NULL for a design without a concurrent")
 })
+
+test_that("decide_binary2() handles a fixed control", {
+  # Python_reference/ref_fixed_tte_qdm.py: exact predictive probabilities
+  # (BF1) and 2e7 Dirichlet draws (BF2)
+  res <- decide_binary2(ref_design_bin2("BF1"), data_binary2(c(1, 0, 1, 1)),
+                        NULL)
+  ref <- c(0.204310825893, 0.569126674107, 0.0222516741071, 0.204310825893)
+  expect_equal(unname(res$prob_regions), ref, tolerance = 1e-10)
+  expect_identical(res$posterior_c, c(value1 = 0.25, value2 = 0.5))
+  set.seed(1)
+  res2 <- decide_binary2(ref_design_bin2("BF2", nMC = 200000L),
+                         data_binary2(c(2, 1, 3, 4)), NULL)
+  ref2 <- c(0.396356, 0.285621, 0.052806, 0.094900, 0.114267, 0.028623,
+            0.008864, 0.012153, 0.006411)
+  se <- sqrt(ref2 * (1 - ref2) / 200000)
+  expect_true(all(abs(res2$prob_regions - ref2) <= 4.5 * se + 2e-4))
+  expect_equal(res2$prob_go, res2$prob_regions[[1]])
+  expect_equal(res2$prob_nogo, res2$prob_regions[[9]])
+})

@@ -62,6 +62,10 @@
 #' diseases. \emph{Journal of Biopharmaceutical Statistics}.
 #' \doi{10.1080/10543406.2026.2655410}
 #'
+#' Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+#' (submitted). Bivariate Bayesian quantitative decision-making for two
+#' endpoints in rare disease drug development.
+#'
 #' @family criteria
 #' @examples
 #' # One endpoint

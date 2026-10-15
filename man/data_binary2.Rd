@@ -33,6 +33,7 @@ data_binary2(c(4, 2, 3, 6))
 Other data:
 \code{\link[=data_binary]{data_binary()}},
 \code{\link[=data_continuous]{data_continuous()}},
-\code{\link[=data_continuous2]{data_continuous2()}}
+\code{\link[=data_continuous2]{data_continuous2()}},
+\code{\link[=data_tte]{data_tte()}}
 }
 \concept{data}

@@ -68,3 +68,33 @@ test_that("region_prob_binary2() estimates posterior probabilities", {
   expect_lt(abs(p[1L, 10] - exact1), 4.5 * sqrt(exact1 * (1 - exact1) / n_mc))
   expect_lt(abs(p[1L, 11] - exact2), 4.5 * sqrt(exact2 * (1 - exact2) / n_mc))
 })
+
+test_that("region_prob_binary2() handles a fixed control", {
+  # Python_reference/ref_fixed_tte_qdm.py (design BF1): exact enumeration of
+  # the future cell counts of the treatment group
+  cr <- criterion_predictive(c(0.1, 0), m_t = 4, gamma_go = 0.4,
+                             gamma_nogo = 0.3)
+  p <- region_prob_binary2(cr, matrix(c(1, 0, 1, 1) + 0.25, 1L), NULL, 1L,
+                           NULL, as.list(1:4), 10L, fixed = c(0.25, 0.5))
+  expect_equal(p[1L, ], c(0.204310825893, 0.569126674107, 0.0222516741071,
+                          0.204310825893), tolerance = 1e-10)
+  # Posterior probabilities from draws of the treatment distribution only:
+  # with fixed values 0, the regions are those of the treatment rates
+  set.seed(2)
+  cp <- criterion_posterior(c(0.5, 0.5), c(0.3, 0.3), 0.5, 0.5)
+  a <- matrix(c(2, 1, 3, 4) + 0.25, 1L)
+  p2 <- region_prob_binary2(cp, a, NULL, c(1L, 1L), NULL, as.list(1:9),
+                            20000L, fixed = c(0, 0))
+  # Both pairs use the same draws
+  expect_identical(p2[1L, ], p2[2L, ])
+  expect_equal(sum(p2[1L, ]), 1)
+  set.seed(3)
+  p3 <- region_prob_binary2(cp, a, NULL, 1L, NULL, list(1L), 20000L,
+                            fixed = c(0, 0))
+  set.seed(3)
+  g <- matrix(stats::rgamma(4 * 20000, rep(a[1L, ], 20000)), ncol = 4,
+              byrow = TRUE)
+  pi1 <- (g[, 3] + g[, 4]) / rowSums(g)
+  pi2 <- (g[, 2] + g[, 4]) / rowSums(g)
+  expect_equal(p3[1L, 1L], mean(pi1 > 0.5 & pi2 > 0.5))
+})

@@ -31,3 +31,17 @@ test_that("decide_continuous() checks the degrees of freedom for MM", {
                                  data_continuous(12, -12, 25)),
                "\\(here 4 and 11\\)")
 })
+
+test_that("decide_continuous() handles a fixed control", {
+  # Reference: Python_reference/ref_fixed_tte_qdm.py, design C7
+  res <- decide_continuous(ref_design_cont("C7"), ref_data_cont$C7$t, NULL)
+  expect_equal(res$posterior_t, c(mu = 25, kappa = 12, nu = 11, sigma = 20))
+  expect_identical(res$posterior_c, c(value = -10))
+  expect_equal(res$prob_go, 0.797515237746, tolerance = 1e-10)
+  expect_equal(res$prob_nogo, 0.00264736615439, tolerance = 1e-10)
+  # No check of the degrees of freedom for MM, which is not used
+  res_mm <- decide_continuous(ref_design_cont("C7", "MM"),
+                              data_continuous(3, 25, 20), NULL)
+  expect_equal(res_mm$prob_go, stats::pt(-5 / (20 / sqrt(3)), 2,
+                                         lower.tail = FALSE))
+})

@@ -172,6 +172,8 @@ test_that("qdm_oc() validates its arguments", {
                "'nsim' must be at least 1 and at most 2147483647.")
   expect_error(qdm_oc(des, scen_c, seed = 1.5),
                "'seed' must contain whole numbers only.")
+  expect_error(qdm_oc(des, scen_c, seed = 1e10),
+               "'seed' must be at least -2147483647 and at most 2147483647.")
 })
 
 test_that("qdm_oc() agrees with simulated trials", {
@@ -486,4 +488,83 @@ test_that("qdm_oc() simulates two continuous endpoints with Monte Carlo", {
   expect_true(all(abs(got - ref) <= 4.5 * se + 0.02))
   expect_match(attr(oc, "method"),
                "simulation of 400 studies; .*Monte Carlo simulation")
+})
+
+test_that("qdm_oc() matches the exact references with a fixed control", {
+  # References: Python_reference/ref_fixed_tte_qdm.py (enumeration of the
+  # outcomes)
+  oc <- qdm_oc(ref_design("D8"), scen_u)
+  expect_identical(attr(oc, "method"), "exact enumeration of the outcomes")
+  expect_equal(oc$Go, c(0.00259482740067, 0.244662796684, 0.872478753853,
+                        0.999436586302), tolerance = 1e-9)
+  expect_equal(oc$NoGo, c(0.411448861957, 0.01596116279, 4.7344970692e-05,
+                          7.9776710656e-10), tolerance = 1e-9)
+  expect_equal(oc$Miss, rep(0, 4L))
+  oc9 <- qdm_oc(ref_design("D9"), data.frame(pi_t = c(0.2, 0.4, 0.6)))
+  expect_equal(oc9$Go, c(0.1208738816, 0.6177193984, 0.9452381184),
+               tolerance = 1e-9)
+  expect_equal(oc9$NoGo, c(0.6777995264, 0.1672897536, 0.0122945536),
+               tolerance = 1e-9)
+  expect_equal(oc9$Gray, c(0.201326592, 0.214990848, 0.042467328),
+               tolerance = 1e-9)
+  sc <- data.frame(pi_t1 = c(0.3, 0.5, 0.7), pi_t2 = c(0.4, 0.6, 0.7),
+                   rho_t = c(0.2, 0, 0.3))
+  ocb <- qdm_oc(ref_design_bin2("BF1"), sc)
+  expect_equal(ocb$Go, c(0.0726080130921, 0.216, 0.579202246),
+               tolerance = 1e-9)
+  expect_equal(ocb$NoGo, c(0.721260675859, 0.338, 0.167444577),
+               tolerance = 1e-9)
+  expect_equal(ocb$Gray, c(0.206131311049, 0.446, 0.253353177),
+               tolerance = 1e-9)
+})
+
+test_that("qdm_oc() agrees with the exact references for a fixed continuous control", {
+  # References: Python_reference/ref_fixed_tte_qdm.py (noncentral t
+  # distributions)
+  nsim <- 20000L
+  tol <- function(p) 4.5 * sqrt(p * (1 - p) / nsim) + 0.002
+  oc7 <- qdm_oc(ref_design_cont("C7"), scen_cont_u, nsim = nsim, seed = 3)
+  ref_go <- c(0.000102665519772, 0.4, 0.999325919193)
+  ref_nogo <- c(0.63159677607, 0.000947098825199, 2.8762586985e-11)
+  expect_true(all(abs(oc7$Go - ref_go) <= tol(ref_go)))
+  expect_true(all(abs(oc7$NoGo - ref_nogo) <= tol(ref_nogo)))
+  expect_identical(attr(oc7, "method"),
+                   paste("simulation of 20000 studies; probabilities by",
+                         "exact computation (fixed control)"))
+  oc8 <- qdm_oc(ref_design_cont("C8"),
+                data.frame(mu_t = c(0, 5, 12), sd_t = c(12, 12, 15)),
+                nsim = nsim, seed = 4)
+  ref_go <- c(0.0124614836728, 0.26087426553, 0.875577271217)
+  ref_nogo <- c(0.903337893177, 0.378241335701, 0.0172420544481)
+  expect_true(all(abs(oc8$Go - ref_go) <= tol(ref_go)))
+  expect_true(all(abs(oc8$NoGo - ref_nogo) <= tol(ref_nogo)))
+})
+
+test_that("qdm_oc() simulates time-to-event designs", {
+  # Reference: Python_reference/ref_fixed_tte_qdm.py, design T1
+  nsim <- 20000L
+  tol <- function(p) 4.5 * sqrt(p * (1 - p) / nsim) + 0.002
+  oc <- qdm_oc(ref_design_tte("T1"), data.frame(median_t = c(6.3, 20)),
+               nsim = nsim, seed = 2)
+  expect_identical(names(oc), c("median_t", "Go", "NoGo", "Gray", "Miss"))
+  ref_go <- c(2.48918966507e-09, 0.899733183632)
+  ref_nogo <- c(0.205961280815, 2.15285582264e-09)
+  expect_true(all(abs(oc$Go - ref_go) <= tol(ref_go)))
+  expect_true(all(abs(oc$NoGo - ref_nogo) <= tol(ref_nogo)))
+  oc2 <- qdm_oc(ref_design_tte("T2"),
+                data.frame(median_t = c(6, 12), median_c = 6), nsim = 200,
+                seed = 1)
+  expect_identical(names(oc2), c("median_t", "median_c", "Go", "NoGo",
+                                 "Gray", "Miss"))
+  expect_identical(attr(oc2, "method"),
+                   paste("simulation of 200 studies; probabilities by",
+                         "numerical integration"))
+  expect_equal(oc2$Go + oc2$NoGo + oc2$Gray + oc2$Miss, c(1, 1))
+  expect_gt(oc2$Go[2L], oc2$Go[1L])
+  expect_error(qdm_oc(ref_design_tte("T2"), data.frame(median_t = 6),
+                      nsim = 10),
+               "'scenarios' must have the column\\(s\\) median_t, median_c.")
+  expect_error(qdm_oc(ref_design_tte("T1"), data.frame(median_t = 0),
+                      nsim = 10),
+               "'scenarios\\$median_t' must be greater than 0.")
 })

@@ -21,8 +21,8 @@
 #' given when they have positive probability.
 #'
 #' @param design A design created by \code{\link{design_binary}},
-#'   \code{\link{design_continuous}}, \code{\link{design_binary2}} or
-#'   \code{\link{design_continuous2}}. Its
+#'   \code{\link{design_continuous}}, \code{\link{design_binary2}},
+#'   \code{\link{design_continuous2}} or \code{\link{design_tte}}. Its
 #'   thresholds are replaced by the calibrated ones. For two endpoints with a
 #'   marginal rule (\code{rule = "and"} or \code{"or"}), the same threshold is
 #'   used for both endpoints.
@@ -92,7 +92,8 @@ qdm_calibrate <- function(design, scenario_go, scenario_nogo, target_go,
   check_numeric(nsim, "nsim", lower = 1, upper = .Machine$integer.max,
                 integer = TRUE)
   if (!is.null(seed)) {
-    check_numeric(seed, "seed", integer = TRUE)
+    check_numeric(seed, "seed", lower = -.Machine$integer.max,
+                  upper = .Machine$integer.max, integer = TRUE)
   }
   cols <- scenario_columns(design)$names
   scenarios <- rbind(scenario_go[, cols, drop = FALSE],

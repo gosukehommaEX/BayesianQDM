@@ -117,6 +117,9 @@ test_that("qdm_calibrate() validates its arguments", {
   expect_error(qdm_calibrate(des, a$scenario_go, a$scenario_nogo, 0.05, 0.2,
                              seed = "a"),
                "'seed' must be numeric.")
+  expect_error(qdm_calibrate(des, a$scenario_go, a$scenario_nogo, 0.05, 0.2,
+                             seed = 2^31),
+               "'seed' must be at least -2147483647 and at most 2147483647.")
   expect_error(qdm_calibrate(NULL, a$scenario_go, a$scenario_nogo, 0.05,
                              0.2),
                "'design' must be created by")
@@ -237,4 +240,54 @@ test_that("qdm_calibrate() matches the reference curves of design K1", {
   expect_lte(cal$prob_go, 0.05 + 1e-12)
   expect_lte(cal$prob_nogo, 0.2 + 1e-12)
   expect_s3_class(cal$design, "qdm_design_continuous2")
+})
+
+test_that("qdm_calibrate() handles a fixed control", {
+  # Probability that the Go criterion of design D8 is met under pi_t = 0.2
+  # and that the NoGo criterion is met under pi_t = 0.6, from the Beta
+  # posterior probabilities and binomial weights of all outcomes; at
+  # gamma = 0.8 they are the exact references of
+  # Python_reference/ref_fixed_tte_qdm.py
+  grid <- seq(0.05, 0.95, by = 0.05)
+  cal <- qdm_calibrate(ref_design("D8"), data.frame(pi_t = 0.2),
+                       data.frame(pi_t = 0.6), target_go = 0.05,
+                       target_nogo = 0.01, grid = grid)
+  y <- 0:20
+  p_go <- stats::pbeta(0.4, 1 + y, 21 - y, lower.tail = FALSE)
+  p_nogo <- stats::pbeta(0.25, 1 + y, 21 - y)
+  curve_go <- vapply(grid, function(g) {
+    sum(stats::dbinom(y, 20, 0.2)[meets_threshold(p_go, g)])
+  }, numeric(1))
+  curve_nogo <- vapply(grid, function(g) {
+    sum(stats::dbinom(y, 20, 0.6)[meets_threshold(p_nogo, g)])
+  }, numeric(1))
+  expect_equal(cal$curve$prob_go, curve_go, tolerance = 1e-12)
+  expect_equal(cal$curve$prob_nogo, curve_nogo, tolerance = 1e-12)
+  k <- which(abs(grid - 0.8) < 1e-12)
+  expect_equal(cal$curve$prob_go[k], 0.00259482740067, tolerance = 1e-9)
+  expect_equal(cal$curve$prob_nogo[k], 4.7344970692e-05, tolerance = 1e-9)
+  expect_equal(cal$gamma_go, grid[which(curve_go <= 0.05 + 1e-12)[1]])
+  expect_equal(cal$gamma_nogo, grid[which(curve_nogo <= 0.01 + 1e-12)[1]])
+  expect_identical(cal$design$fixed_c, 0.2)
+})
+
+test_that("qdm_calibrate() simulates time-to-event designs", {
+  # Reference: Python_reference/ref_fixed_tte_qdm.py, design T1 (Go
+  # criterion with gamma = 0.6 under a median of 12, NoGo criterion with
+  # gamma = 0.8 under a median of 9)
+  nsim <- 20000L
+  sc_go <- data.frame(median_t = 12)
+  sc_nogo <- data.frame(median_t = 9)
+  cal <- qdm_calibrate(ref_design_tte("T1"), sc_go, sc_nogo,
+                       target_go = 0.1, target_nogo = 0.01,
+                       grid = c(0.6, 0.8), nsim = nsim, seed = 9)
+  tol <- function(p) 4.5 * sqrt(p * (1 - p) / nsim) + 0.002
+  expect_lte(abs(cal$curve$prob_go[1L] - 0.0642164668685),
+             tol(0.0642164668685))
+  expect_lte(abs(cal$curve$prob_nogo[2L] - 0.00511165154121),
+             tol(0.00511165154121))
+  oc <- qdm_oc(cal$design, rbind(sc_go, sc_nogo), nsim = nsim, seed = 9)
+  expect_equal(cal$oc$Go, oc$Go)
+  expect_equal(cal$oc$NoGo, oc$NoGo)
+  expect_identical(cal$method, attr(oc, "method"))
 })

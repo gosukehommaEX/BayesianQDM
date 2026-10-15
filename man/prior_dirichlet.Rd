@@ -33,6 +33,7 @@ prior_dirichlet(rep(0.25, 4))
 \seealso{
 Other priors:
 \code{\link[=prior_beta]{prior_beta()}},
+\code{\link[=prior_gamma]{prior_gamma()}},
 \code{\link[=prior_niw]{prior_niw()}},
 \code{\link[=prior_nix]{prior_nix()}},
 \code{\link[=prior_vague]{prior_vague()}}

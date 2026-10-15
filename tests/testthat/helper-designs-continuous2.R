@@ -60,7 +60,19 @@ ref_design_cont2 <- function(name, method = "MM", nMC = 10000L) {
                             ),
                             hypothetical_c = hypothetical(mean = c(0, 0),
                                                           r = 2),
-                            method = method, nMC = nMC)
+                            method = method, nMC = nMC),
+    # Fixed control (Python_reference/ref_fixed_tte_qdm.py), posterior
+    # criterion
+    KF1 = design_continuous2(10, 0, vague, criterion = crit_cont2(),
+                             fixed_c = c(-10, -1), method = method,
+                             nMC = nMC),
+    # Fixed control, predictive criterion, 2 degrees of freedom
+    KF2 = design_continuous2(4, 0, vague,
+                             criterion = criterion_predictive(
+                               c(0, 0), m_t = 20, gamma_go = 0.5,
+                               gamma_nogo = 0.2
+                             ),
+                             fixed_c = c(1, 0.5), method = method, nMC = nMC)
   )
 }
 
@@ -74,7 +86,12 @@ ref_data_cont2 <- list(
             c = data_continuous2(12, c(-0.8, -1.2), cov2(4.5, 3.2, 0.1))),
   K4 = list(t = data_continuous2(15, c(4, 1.5), cov2(30, 3, 0.5)), c = NULL),
   K5 = list(t = data_continuous2(12, c(3, 1), cov2(75, 5.5, 0.4)), c = NULL),
-  K6 = list(t = data_continuous2(15, c(7, 2), cov2(10, 2, -0.3)), c = NULL)
+  K6 = list(t = data_continuous2(15, c(7, 2), cov2(10, 2, -0.3)), c = NULL),
+  KF1 = list(t = data_continuous2(10, c(5, 2),
+                                  matrix(c(6400, 190, 190, 36), 2L)),
+             c = NULL),
+  KF2 = list(t = data_continuous2(4, c(2, 1), matrix(c(4, 1, 1, 2), 2L)),
+             c = NULL)
 )
 
 # Scenarios of the operating characteristics (SCEN of the Python reference)

@@ -108,3 +108,27 @@ test_that("design_continuous() checks the degrees of freedom for MM", {
   expect_identical(design_continuous(2, 2, vague, vague, crit_cont())$n_t,
                    2L)
 })
+
+test_that("design_continuous() stores a fixed control", {
+  des <- ref_design_cont("C7")
+  expect_identical(des$control, "fixed")
+  expect_identical(des$fixed_c, -10)
+  expect_null(des$prior_c)
+  # The degrees of freedom are not checked for MM, which is not used
+  expect_identical(design_continuous(3, 0, prior_vague(),
+                                     criterion = crit_cont(), fixed_c = 0,
+                                     method = "MM")$control, "fixed")
+})
+
+test_that("design_continuous() checks the fixed control", {
+  vague <- prior_vague()
+  expect_error(design_continuous(12, 0, vague, vague, crit_cont(),
+                                 fixed_c = 0),
+               "'prior_c' must be NULL for a fixed control")
+  expect_error(design_continuous(12, 0, vague, criterion = crit_cont(),
+                                 fixed_c = c(0, 1)),
+               "'fixed_c' must have length 1.")
+  expect_error(design_continuous(12, 12, vague, vague, crit_cont(),
+                                 fixed_c = 0),
+               "'fixed_c' can be used only when 'n_c' is 0.")
+})

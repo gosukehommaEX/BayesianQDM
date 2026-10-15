@@ -21,7 +21,7 @@ test_that("hypothetical() rejects incomplete or conflicting input", {
                "Specify either 'data'")
   expect_error(hypothetical(mean = 1), "Both 'mean' and 'r' must be")
   expect_error(hypothetical(data = data_continuous(10, 0, 1)),
-               "created by data_binary\\(\\) or data_binary2\\(\\)")
+               "created by data_binary\\(\\), data_binary2\\(\\) or data_tte")
   expect_error(hypothetical(mean = 1:3, r = 1), "'mean' must have length 1")
   expect_error(hypothetical(mean = 1, r = 0), "'r' must be greater than 0.")
 })
@@ -32,4 +32,11 @@ test_that("hypothetical() accepts two binary endpoints and checks 'r' alone", {
   expect_error(hypothetical(r = 1), "Both 'mean' and 'r' must be")
   expect_error(hypothetical(mean = NA_real_, r = 1),
                "'mean' must not contain missing")
+})
+
+test_that("hypothetical() accepts time-to-event data", {
+  d <- data_tte(8, 60)
+  h <- hypothetical(data = d)
+  expect_identical(h$type, "data")
+  expect_identical(h$data, d)
 })

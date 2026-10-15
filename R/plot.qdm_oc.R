@@ -2,11 +2,18 @@
 #'
 #' Draws the probabilities of Go, NoGo and Gray decisions (and Miss decisions
 #' if they have positive probability) against the true treatment effect of
-#' the scenarios. For a design without a concurrent control group, the
-#' horizontal axis is the true response rate (binary endpoint) or mean
-#' (continuous endpoint) of the treatment group, and the thresholds of the
-#' criterion are shifted by the mean (binary) or location (continuous) of the
-#' distribution of the control group.
+#' the scenarios. For a time-to-event endpoint, the effect is the difference
+#' of the milestone survival probabilities \eqn{\exp(-\log(2) t_0 / m)}
+#' given by the median survival times \eqn{m} of the scenarios. For a design
+#' without a concurrent control group, the horizontal axis is the true
+#' response rate (binary endpoint), mean (continuous endpoint) or milestone
+#' survival probability (time-to-event endpoint) of the treatment group, and
+#' the thresholds of the criterion are shifted by the fixed control value, or
+#' otherwise by the mean (binary and time-to-event) or location (continuous)
+#' of the distribution of the control group. The scenarios must have
+#' distinct values on the horizontal axis, so scenarios with the same effect
+#' (for example, with several standard deviations or control parameters) are
+#' plotted separately.
 #'
 #' For two endpoints, the plot has one heat map per decision, with the true
 #' treatment effects of the two endpoints (or the true parameters of the
@@ -40,6 +47,11 @@ plot.qdm_oc <- function(x, ...) {
     return(plot_oc_two(x, design))
   }
   axis <- oc_axis(design, x)
+  if (anyDuplicated(round(axis$x, 10)) > 0L) {
+    stop(paste("The scenarios must have distinct values on the horizontal",
+               "axis; plot scenarios with the same value separately."),
+         call. = FALSE)
+  }
   decisions <- c("Go", "NoGo", "Gray", "Miss")
   if (all(x$Miss <= 0)) {
     decisions <- decisions[1:3]

@@ -16,3 +16,8 @@ test_that("format.qdm_data() honours digits and rejects unknown classes", {
   fake <- structure(list(), class = c("qdm_data_other", "qdm_data"))
   expect_error(format(fake), "Unknown data class.")
 })
+
+test_that("format.qdm_data() describes time-to-event data", {
+  expect_identical(format(data_tte(5, 40.25)),
+                   "time-to-event, events = 5, exposure = 40.25")
+})

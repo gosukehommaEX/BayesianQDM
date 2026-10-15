@@ -8,7 +8,9 @@
 #'
 #' @return A list with elements \code{prob_go}, \code{prob_nogo},
 #'   \code{posterior_t} and \code{posterior_c} (named vectors of the
-#'   parameters \code{mu}, \code{kappa}, \code{nu} and \code{sigma}).
+#'   parameters \code{mu}, \code{kappa}, \code{nu} and \code{sigma}; for a
+#'   fixed control, \code{posterior_c} is the fixed value named
+#'   \code{value}).
 #' @noRd
 decide_continuous <- function(design, data_t, data_c) {
   if (!inherits(data_t, "qdm_data_continuous")) {
@@ -30,10 +32,16 @@ decide_continuous <- function(design, data_t, data_c) {
     }
     post_c <- control_posterior_continuous(design, post_t)
   }
-  check_df_mm(post_t$nu, post_c$nu, design$method)
+  if (!is.null(post_c)) {
+    check_df_mm(post_t$nu, post_c$nu, design$method)
+  }
   p <- region_prob_continuous(design$criterion, post_t, post_c,
-                              design$method, design$nMC)
+                              design$method, design$nMC,
+                              fixed = design$fixed_c)
   params <- function(post) {
+    if (is.null(post)) {
+      return(c(value = design$fixed_c))
+    }
     c(mu = post$mu, kappa = post$kappa, nu = post$nu,
       sigma = sqrt(post$sigma2))
   }

@@ -73,3 +73,29 @@ test_that("format.qdm_decision() describes two continuous endpoints", {
   expect_match(out[7], paste("  Control:   mean ~ t(df = 13, location =",
                              "(-10, -1), scale = ("), fixed = TRUE)
 })
+
+test_that("format.qdm_decision() describes a fixed control", {
+  res <- qdm_decide(ref_design("D8"), data_binary(20, 11))
+  expect_identical(
+    format(res),
+    c("Decision: Go",
+      "  Go:   P(theta > 0.2 | data) = 0.9151 (threshold 0.8, met)",
+      "  NoGo: P(theta <= 0.05 | data) = 0.001687 (threshold 0.8, not met)",
+      "Posterior distributions",
+      "  Treatment: Beta(a = 12, b = 10)",
+      "  Control:   fixed value 0.2")
+  )
+})
+
+test_that("format.qdm_decision() describes a time-to-event decision", {
+  res <- qdm_decide(ref_design_tte("T1"), ref_data_tte$T1$t)
+  expect_identical(
+    format(res),
+    c("Decision: Go",
+      "  Go:   P(theta > 0.15 | data) = 0.6863 (threshold 0.6, met)",
+      "  NoGo: P(theta <= 0 | data) = 0.001061 (threshold 0.8, not met)",
+      "Posterior distributions",
+      "  Treatment: hazard ~ Gamma(shape = 6.1, rate = 151)",
+      "  Control:   fixed value 0.72")
+  )
+})

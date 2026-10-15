@@ -55,6 +55,7 @@ pbetadiff(0.1, a_t = 7.5, b_t = 5.5, a_c = 4.5, b_c = 8.5,
 Other distributions:
 \code{\link[=cellprob_binary2]{cellprob_binary2()}},
 \code{\link[=pbetabinomdiff]{pbetabinomdiff()}},
+\code{\link[=psurvdiff]{psurvdiff()}},
 \code{\link[=ptdiff]{ptdiff()}},
 \code{\link[=rdirichlet]{rdirichlet()}}
 }

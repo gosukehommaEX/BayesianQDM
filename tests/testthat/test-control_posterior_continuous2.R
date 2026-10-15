@@ -52,3 +52,7 @@ test_that("control_posterior_continuous2() covers the three control forms", {
   expect_equal(pc$mu, rbind(c(-10, -1), c(-10, -1)))
   expect_equal(pc$Lambda, 1.5 * pt$Lambda)
 })
+
+test_that("control_posterior_continuous2() returns NULL for a fixed control", {
+  expect_null(control_posterior_continuous2(ref_design_cont2("KF1"), list()))
+})

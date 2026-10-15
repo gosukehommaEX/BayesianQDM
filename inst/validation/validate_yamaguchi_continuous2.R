@@ -1,6 +1,6 @@
-# Validation against Yamaguchi, Homma, Takeda and Maruo (submitted), Table 4
-# (case study 2, posterior criterion) and Supplemental Table S3 (case study
-# 4, predictive criterion): operating characteristics of two continuous
+# Validation against Yamaguchi, Hu, Huang, Han, Homma and Wang (submitted),
+# Table 4 (case study 2, posterior criterion) and Supplemental Table S3 (case
+# study 4, predictive criterion): operating characteristics of two continuous
 # endpoints for three correlations (rho_t = rho_c) and sixteen pairs of
 # treatment effects. The published values (four decimals) are in
 # bivariate_continuous2_tables.csv, extracted from the article and its

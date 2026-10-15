@@ -69,3 +69,21 @@ test_that("oc_sample_continuous() simulates the sufficient statistics", {
   expect_equal(s3$p_go[5, 1], qdm_decide(des3, d_t)$prob_go,
                tolerance = 1e-12)
 })
+
+test_that("oc_sample_continuous() handles a fixed control", {
+  nsim <- 10L
+  des <- ref_design_cont("C7")
+  set.seed(5)
+  s <- oc_sample_continuous(des, scen_cont_u, nsim)
+  set.seed(5)
+  z_t <- rnorm(nsim)
+  x_t <- rchisq(nsim, 11)
+  ybar <- 20 + 20 * z_t / sqrt(12)
+  sd <- 20 * sqrt(x_t / 11)
+  expect_equal(s$p_go[, 2], stats::pt((20 - ybar) / (sd / sqrt(12)), 11,
+                                      lower.tail = FALSE), tolerance = 1e-12)
+  expect_equal(s$p_nogo[, 2], stats::pt((5 - ybar) / (sd / sqrt(12)), 11),
+               tolerance = 1e-12)
+  expect_identical(s$method, paste("simulation of 10 studies; probabilities",
+                                   "by exact computation (fixed control)"))
+})

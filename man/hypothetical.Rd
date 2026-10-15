@@ -7,8 +7,9 @@
 hypothetical(data = NULL, mean = NULL, r = NULL)
 }
 \arguments{
-\item{data}{Hypothetical control data created by \code{\link{data_binary}}
-or \code{\link{data_binary2}} (binary endpoints).}
+\item{data}{Hypothetical control data created by
+\code{\link{data_binary}}, \code{\link{data_binary2}} (binary
+endpoints) or \code{\link{data_tte}} (time-to-event endpoint).}
 
 \item{mean}{Location of the hypothetical control mean, a number for one
 continuous endpoint or a numeric vector of length 2 for two continuous
@@ -27,10 +28,12 @@ Specifies the distribution of a hypothetical control group, used when the
 proof-of-concept study has no concurrent control group (Kang et al., 2026).
 }
 \details{
-For binary endpoints, give \code{data}: the hypothetical control data are
-combined with the prior of the control group, for example
-\eqn{\pi_c \sim \textrm{Beta}(a_c + y, b_c + n - y)} for one binary
-endpoint. For continuous endpoints, give \code{mean} and \code{r}: the
+For binary and time-to-event endpoints, give \code{data}: the
+hypothetical control data are combined with the prior of the control
+group, for example \eqn{\pi_c \sim \textrm{Beta}(a_c + y, b_c + n - y)}
+for one binary endpoint, or a Gamma distribution of the hazard with shape
+\eqn{a_c + d} and rate \eqn{b_c + E} for \eqn{d} events in the total
+observed time \eqn{E}. For continuous endpoints, give \code{mean} and \code{r}: the
 control mean has the same t distribution as the posterior distribution of
 the treatment mean, with location \code{mean} and squared scale multiplied
 by \code{r}, that is
@@ -42,6 +45,9 @@ hypothetical(data = data_binary(n = 15, y = 5))
 
 # Continuous endpoint: control mean located at 1 with the same scale
 hypothetical(mean = 1, r = 1)
+
+# Time-to-event endpoint: 8 events in a total observed time of 60
+hypothetical(data = data_tte(events = 8, exposure = 60))
 }
 \references{
 Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative

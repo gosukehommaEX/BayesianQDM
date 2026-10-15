@@ -51,9 +51,15 @@ oc_sample_binary2 <- function(design, scenarios, nsim) {
   } else {
     "predictive probabilities computed exactly"
   }
-  fixed_c <- posterior_binary2(design$prior_c, c(0, 0, 0, 0),
-                               external = design$external_c,
-                               hypothetical = design$hypothetical_c)
+  # Distribution of the control group without a concurrent control (NULL for
+  # a fixed control)
+  alpha_nc <- if (concurrent || design$control == "fixed") {
+    NULL
+  } else {
+    posterior_binary2(design$prior_c, c(0, 0, 0, 0),
+                      external = design$external_c,
+                      hypothetical = design$hypothetical_c)
+  }
   if (design$enumerate) {
     n_pairs <- choose(design$n_t + 3, 3) *
       (if (concurrent) choose(design$n_c + 3, 3) else 1)
@@ -75,18 +81,19 @@ oc_sample_binary2 <- function(design, scenarios, nsim) {
         dmultinom_counts(x_c, cells_c[s, ])
       }, numeric(nrow(x_c)))
     } else {
-      alpha_c <- fixed_c
+      alpha_c <- alpha_nc
       w_c <- matrix(1, 1L, n_scen)
     }
     w_t <- matrix(w_t, ncol = n_scen)
     w_c <- matrix(w_c, ncol = n_scen)
     w_t[, bad] <- NA_real_
     n_t <- nrow(alpha_t)
-    n_c <- nrow(alpha_c)
+    n_c <- if (is.null(alpha_c)) 1L else nrow(alpha_c)
     p <- region_prob_binary2(crit, alpha_t, alpha_c,
                              rep(seq_len(n_t), times = n_c),
                              rep(seq_len(n_c), each = n_t),
-                             c(sets$go, sets$nogo), design$nMC)
+                             c(sets$go, sets$nogo), design$nMC,
+                             fixed = design$fixed_c)
     s <- split_sets(p, n_go, dim = c(n_t, n_c))
     return(list(p_go = s$go, p_nogo = s$nogo, per_scenario = FALSE,
                 weights_t = w_t, weights_c = w_c,
@@ -128,10 +135,11 @@ oc_sample_binary2 <- function(design, scenarios, nsim) {
                       sim_c[ok, , drop = FALSE][first_c, , drop = FALSE],
                       design$external_c)
   } else {
-    fixed_c
+    alpha_nc
   }
   p <- region_prob_binary2(crit, alpha_t, alpha_c, pair[, 1L], pair[, 2L],
-                           c(sets$go, sets$nogo), design$nMC)
+                           c(sets$go, sets$nogo), design$nMC,
+                           fixed = design$fixed_c)
   idx <- match(paste(it, ic), paste(pair[, 1L], pair[, 2L]))
   full <- matrix(NA_real_, nsim * n_scen, ncol(p))
   full[ok, ] <- p[idx, , drop = FALSE]

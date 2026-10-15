@@ -32,7 +32,10 @@ scenario_columns <- function(design) {
                        lower_open = rep(c(FALSE, FALSE, TRUE, TRUE, TRUE),
                                         2L),
                        upper_open = rep(c(FALSE, FALSE, FALSE, FALSE, TRUE),
-                                        2L))
+                                        2L)),
+    tte = list(names = c("median_t", "median_c"), lower = c(0, 0),
+               upper = c(Inf, Inf), lower_open = c(TRUE, TRUE),
+               upper_open = c(FALSE, FALSE))
   )
   # Columns of the treatment group come first; those of the control group
   # are required only with a concurrent control group

@@ -1,6 +1,7 @@
 # References: Python_reference/ref_continuous2_qdm.py, section C (moment
-# matching: Theorem 3 of the Moment_matching article with rectangle
-# probabilities of the bivariate t distribution by adaptive quadrature;
+# matching: Theorem 3 of Yamaguchi, Homma, Takeda and Maruo (submitted) with
+# rectangle probabilities of the bivariate t distribution by adaptive
+# quadrature;
 # exact probabilities by Monte Carlo simulation with 2e7 draws). Regions
 # R1 to R9 of the nine-region grid; the predictive designs K3 and K6 use
 # R1, R3, R7 and R9.
@@ -130,4 +131,22 @@ test_that("region_prob_continuous2() estimates probabilities by Monte Carlo", {
     expect_true(all(abs(p - ref) <= 4.5 * se + 1e-12), info = name)
     expect_equal(sum(p), 1, tolerance = 1e-12)
   }
+})
+
+test_that("region_prob_continuous2() is exact for a fixed control", {
+  # Python_reference/ref_fixed_tte_qdm.py, design KF1: the treatment mean has
+  # the distribution t_8((5, 2), 9 S / 80); the control is fixed at (-10, -1)
+  crit <- ref_design_cont2("KF1")$criterion
+  S <- c(6400, 190, 36)
+  dt <- list(loc = matrix(c(5, 2), 1L), scale = matrix(9 * S / 80, 1L),
+             df = 8)
+  ref <- c(0.448613893688, 0.0645842074429, 0.0583932223851, 0.04589185081,
+           0.0113918100151, 0.0115909475048, 0.189182932775,
+           0.0656248379891, 0.104726297391)
+  p <- region_prob_continuous2(crit, dt, NULL, as.list(1:9), "MM",
+                               fixed = c(-10, -1))
+  expect_equal(p[1L, ], ref, tolerance = 1e-9)
+  # The method is not used
+  expect_identical(region_prob_continuous2(crit, dt, NULL, as.list(1:9),
+                                           "MC", 10L, fixed = c(-10, -1)), p)
 })

@@ -25,6 +25,7 @@ prior_vague()
 Other priors:
 \code{\link[=prior_beta]{prior_beta()}},
 \code{\link[=prior_dirichlet]{prior_dirichlet()}},
+\code{\link[=prior_gamma]{prior_gamma()}},
 \code{\link[=prior_niw]{prior_niw()}},
 \code{\link[=prior_nix]{prior_nix()}}
 }

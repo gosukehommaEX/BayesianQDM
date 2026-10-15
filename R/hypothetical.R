@@ -3,17 +3,20 @@
 #' Specifies the distribution of a hypothetical control group, used when the
 #' proof-of-concept study has no concurrent control group (Kang et al., 2026).
 #'
-#' For binary endpoints, give \code{data}: the hypothetical control data are
-#' combined with the prior of the control group, for example
-#' \eqn{\pi_c \sim \textrm{Beta}(a_c + y, b_c + n - y)} for one binary
-#' endpoint. For continuous endpoints, give \code{mean} and \code{r}: the
+#' For binary and time-to-event endpoints, give \code{data}: the
+#' hypothetical control data are combined with the prior of the control
+#' group, for example \eqn{\pi_c \sim \textrm{Beta}(a_c + y, b_c + n - y)}
+#' for one binary endpoint, or a Gamma distribution of the hazard with shape
+#' \eqn{a_c + d} and rate \eqn{b_c + E} for \eqn{d} events in the total
+#' observed time \eqn{E}. For continuous endpoints, give \code{mean} and \code{r}: the
 #' control mean has the same t distribution as the posterior distribution of
 #' the treatment mean, with location \code{mean} and squared scale multiplied
 #' by \code{r}, that is
 #' \eqn{\mu_c \sim t_{\nu_{nt}}(\mu_{0c}, r \sigma_{nt}^2 / \kappa_{nt})}.
 #'
-#' @param data Hypothetical control data created by \code{\link{data_binary}}
-#'   or \code{\link{data_binary2}} (binary endpoints).
+#' @param data Hypothetical control data created by
+#'   \code{\link{data_binary}}, \code{\link{data_binary2}} (binary
+#'   endpoints) or \code{\link{data_tte}} (time-to-event endpoint).
 #' @param mean Location of the hypothetical control mean, a number for one
 #'   continuous endpoint or a numeric vector of length 2 for two continuous
 #'   endpoints.
@@ -36,18 +39,23 @@
 #'
 #' # Continuous endpoint: control mean located at 1 with the same scale
 #' hypothetical(mean = 1, r = 1)
+#'
+#' # Time-to-event endpoint: 8 events in a total observed time of 60
+#' hypothetical(data = data_tte(events = 8, exposure = 60))
 #' @export
 hypothetical <- function(data = NULL, mean = NULL, r = NULL) {
   has_data <- !is.null(data)
   has_location <- !is.null(mean) || !is.null(r)
   if (has_data == has_location) {
-    stop(paste("Specify either 'data' (binary endpoints) or both 'mean' and",
-               "'r' (continuous endpoints)."), call. = FALSE)
+    stop(paste("Specify either 'data' (binary and time-to-event endpoints)",
+               "or both 'mean' and 'r' (continuous endpoints)."),
+         call. = FALSE)
   }
   if (has_data) {
-    if (!inherits(data, c("qdm_data_binary", "qdm_data_binary2"))) {
-      stop("'data' must be created by data_binary() or data_binary2().",
-           call. = FALSE)
+    if (!inherits(data, c("qdm_data_binary", "qdm_data_binary2",
+                          "qdm_data_tte"))) {
+      stop(paste("'data' must be created by data_binary(), data_binary2()",
+                 "or data_tte()."), call. = FALSE)
     }
     out <- list(type = "data", data = data, mean = NULL, r = NULL)
   } else {

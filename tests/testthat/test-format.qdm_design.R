@@ -97,3 +97,42 @@ test_that("format.qdm_design() describes designs with two continuous endpoints",
   expect_identical(f4[length(f4)],
                    "Probabilities: Monte Carlo simulation (nMC = 2000)")
 })
+
+test_that("format.qdm_design() describes a fixed control", {
+  f8 <- format(ref_design("D8"))
+  expect_identical(f8[3], "  Control: fixed value 0.2")
+  f7 <- format(ref_design_cont("C7"))
+  expect_identical(f7[3], "  Control: fixed value -10")
+  expect_identical(f7[length(f7)],
+                   "Probabilities: exact computation (fixed control)")
+  fk <- format(ref_design_cont2("KF1"))
+  expect_identical(fk[3], "  Control: fixed value (-10, -1)")
+  fb <- format(ref_design_bin2("BF1"))
+  expect_identical(fb[3], "  Control: fixed value (0.25, 0.50)")
+})
+
+test_that("format.qdm_design() describes time-to-event designs", {
+  f1 <- format(ref_design_tte("T1"))
+  expect_identical(
+    f1,
+    c("Design: one time-to-event endpoint (milestone survival at t = 3)",
+      "  Treatment: n = 30, prior Gamma(shape = 0.1, rate = 1)",
+      "  Control: fixed value 0.72",
+      "Posterior probability criterion",
+      "  Go:   P(theta > 0.15 | data) >= 0.6",
+      "  NoGo: P(theta <= 0 | data) >= 0.8",
+      "Probabilities: exact computation (fixed control)",
+      "Conduct of the study (operating characteristics):",
+      "  Enrollment: uniform from 0 to 1",
+      "  Dropout: none",
+      "  Analysis: at time 1e+06")
+  )
+  f4 <- format(ref_design_tte("T4", nMC = 500L))
+  expect_identical(f4[length(f4) - 3L], "Conduct of the future study:")
+  expect_identical(f4[7], "Probabilities: simulation of future studies (nMC = 500)")
+  f6 <- format(ref_design_tte("T6"))
+  expect_identical(f6[3], "    External data: time-to-event, events = 4, exposure = 30, a0 = 0.5")
+  des <- ref_design_tte("T2")
+  des$conduct <- NULL
+  expect_false(any(grepl("Conduct", format(des))))
+})

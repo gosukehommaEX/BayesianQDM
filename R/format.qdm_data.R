@@ -26,6 +26,8 @@ format.qdm_data <- function(x, digits = 4L, ...) {
       format_num(x$cov[1L, ], digits),
       format_num(x$cov[2L, ], digits)
     ),
+    qdm_data_tte = sprintf("time-to-event, events = %d, exposure = %s",
+                           x$events, format(x$exposure, digits = digits)),
     stop("Unknown data class.", call. = FALSE)
   )
 }

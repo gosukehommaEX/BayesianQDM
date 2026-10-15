@@ -18,6 +18,10 @@
 // classified for the whole block, so that its counts stay in local variables;
 // the draws and the counts are the same as when the pairs are classified
 // after each iteration.
+//
+// With a fixed control (no control distributions), the marginal response
+// rates of the control group are the fixed values, and only the treatment
+// distributions are drawn.
 
 #include <Rcpp.h>
 
@@ -53,6 +57,8 @@ inline int band(double theta, double tv, double mav) {
 // tv, mav: thresholds of the two endpoints.
 // masks: one integer per union of regions; bit r (0 to 8) is set if region
 //   r + 1 belongs to the union.
+// value_c: marginal response rates of a fixed control, used when alpha_c has
+//   no rows (pair_c is then not used).
 // Returns the estimated probabilities, one row per pair and one column per
 // union.
 // [[Rcpp::export]]
@@ -63,9 +69,13 @@ Rcpp::NumericMatrix cpp_post_regions_binary2(Rcpp::NumericMatrix alpha_t,
                                              Rcpp::NumericVector tv,
                                              Rcpp::NumericVector mav,
                                              Rcpp::IntegerVector masks,
-                                             int nMC) {
+                                             int nMC,
+                                             Rcpp::NumericVector value_c) {
   const int n_t = alpha_t.nrow();
   const int n_c = alpha_c.nrow();
+  const bool fixed = n_c == 0;
+  const double vc1 = fixed ? value_c[0] : 0.0;
+  const double vc2 = fixed ? value_c[1] : 0.0;
   const int n_pair = static_cast<int>(pair_t.size());
   const int n_mask = static_cast<int>(masks.size());
   // Parameters stored row by row for fast access
@@ -119,11 +129,18 @@ Rcpp::NumericMatrix cpp_post_regions_binary2(Rcpp::NumericMatrix alpha_t,
     }
     for (int p = 0; p < n_pair; ++p) {
       const std::size_t i = static_cast<std::size_t>(pair_t[p]) * block;
-      const std::size_t j = static_cast<std::size_t>(pair_c[p]) * block;
       int hist[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-      for (int b = 0; b < nb; ++b) {
-        ++hist[3 * band(pt1[i + b] - pc1[j + b], tv1, mav1) +
-               band(pt2[i + b] - pc2[j + b], tv2, mav2)];
+      if (fixed) {
+        for (int b = 0; b < nb; ++b) {
+          ++hist[3 * band(pt1[i + b] - vc1, tv1, mav1) +
+                 band(pt2[i + b] - vc2, tv2, mav2)];
+        }
+      } else {
+        const std::size_t j = static_cast<std::size_t>(pair_c[p]) * block;
+        for (int b = 0; b < nb; ++b) {
+          ++hist[3 * band(pt1[i + b] - pc1[j + b], tv1, mav1) +
+                 band(pt2[i + b] - pc2[j + b], tv2, mav2)];
+        }
       }
       int *cnt = &count[static_cast<std::size_t>(p) * n_mask];
       for (int r = 0; r < 9; ++r) {

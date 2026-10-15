@@ -1,17 +1,54 @@
-# BayesianQDM (development version)
+# BayesianQDM 1.0.0
 
-This version is a complete redesign of the package towards version 1.0.0.
-The functions of version 0.1.0 are being replaced by a new interface in which
-a trial is described by small specification objects. A table of
-correspondence between the old and new functions will be added before the
-release.
+This version is a redesign of the package and is not backward compatible with
+version 0.1.0. A study is described by small specification objects (priors,
+data, external data, hypothetical controls and decision criteria) that are
+combined into a design, and three functions work with any design:
+`qdm_decide()`, `qdm_oc()` and `qdm_calibrate()`. `qdm_boundary()` shows the
+decision boundaries of a design. Formulas and numerical
+methods that were wrong in version 0.1.0 have been corrected (see below), so
+some results differ from those of version 0.1.0. `vignette("migration")`
+shows how to translate code written for version 0.1.0.
+
+## Correspondence with version 0.1.0
+
+| Version 0.1.0 | Version 1.0.0 |
+|---|---|
+| `pbayespostpred1bin()`, `pbayespostpred1cont()`, `pbayespostpred2bin()`, `pbayespostpred2cont()` | `qdm_decide()` with a design and observed data |
+| `pbayesdecisionprob1bin()`, `pbayesdecisionprob1cont()`, `pbayesdecisionprob2bin()`, `pbayesdecisionprob2cont()` | `qdm_oc()` |
+| `getgamma1bin()`, `getgamma1cont()`, `getgamma2bin()`, `getgamma2cont()` | `qdm_calibrate()` |
+| Arguments `prob`, `design`, `prior`, `CalcMethod`, `theta_*`, `gamma_*`, `a_*`, `b_*`, `kappa0_*` and similar | Arguments of `criterion_*()`, `prior_*()` and `design_*()` |
+| Arguments `ne_*`, `ye_*`, `alpha0e_*`, `bar_ye_*`, `se_*` | `borrow(data_*(...), a0)` |
+| Arguments `z`, `z00` to `z11`, `mu0_c`, `r` | `hypothetical()` |
+| `ptdiff_NI()`, `ptdiff_MC()`, `ptdiff_MM()` | `ptdiff()` with `method = "NI"`, `"MC"` or `"MM"` |
+| `pbetadiff()`, `pbetabinomdiff()` | Same names, with the arguments ordered by group |
+| `getjointbin()` | `cellprob_binary2()` |
+| `allmultinom()` | Internal function |
+| `rdirichlet()` | Same name |
+| `print()` and `plot()` methods for eight classes | Methods for `qdm_decision`, `qdm_oc`, `qdm_calibration`, `qdm_boundary`, `qdm_design` and the specification objects |
+
+## Documentation, validation and computation
+
+* Seven vignettes: an overview, one for each type of endpoint, and a guide
+  to migrating from version 0.1.0.
+* `inst/validation/` contains scripts that compare the package with
+  published and submitted results (Kang et al., 2026; Huang et al.,
+  submitted; Yamaguchi, Homma, Takeda and Maruo, submitted; Yamaguchi et
+  al., submitted), and
+  `inst/validation/results/summary.md` reports the comparisons, with a
+  registered reason for every difference beyond rounding, including the
+  results that are not reproduced.
+* The numerical integration and the Monte Carlo loops are written in C++
+  with Rcpp.
 
 ## Specification functions
 
-* Priors: `prior_beta()`, `prior_dirichlet()`, `prior_nix()`, `prior_niw()`
-  and `prior_vague()`.
-* Data summaries: `data_binary()`, `data_continuous()`, `data_binary2()` and
-  `data_continuous2()`.
+* Priors: `prior_beta()`, `prior_dirichlet()`, `prior_nix()`, `prior_niw()`,
+  `prior_gamma()` and `prior_vague()`.
+* Data summaries: `data_binary()`, `data_continuous()`, `data_binary2()`,
+  `data_continuous2()` and `data_tte()`.
+* Conduct of a study with a time-to-event endpoint (enrollment, dropout and
+  time of the analysis): `conduct_tte()`.
 * External data with a power prior weight from 0 to 1: `borrow()`.
 * Hypothetical control for uncontrolled studies: `hypothetical()`.
 * Decision criteria: `criterion_posterior()` and `criterion_predictive()`.
@@ -37,8 +74,9 @@ release.
 * `qdm_calibrate()` chooses `gamma_go` and `gamma_nogo` as the smallest grid
   values for which the probabilities that the Go criterion is met under one
   scenario and that the NoGo criterion is met under another are at most
-  their targets, and returns the design with these thresholds and its
-  decision probabilities.
+  their targets (version 0.1.0 required them to be less than the targets),
+  and returns the design with these thresholds and its decision
+  probabilities.
 * `print()` methods for designs, decisions, operating characteristics and
   calibrations, and `plot()` methods (ggplot2) for operating characteristics
   and calibrations. Without a concurrent control group, the thresholds in
@@ -152,6 +190,62 @@ release.
   (Bartlett decomposition of the Wishart distribution) of `nsim` studies
   with the same random numbers for all scenarios.
 
+## Fixed control
+
+* All design functions have the argument `fixed_c` for a single-arm study
+  compared with a known value of the control parameter (a response rate, a
+  mean, or a milestone survival probability; one value per endpoint for two
+  endpoints). It requires `n_c = 0` and `prior_c = NULL`. The effect is the
+  treatment parameter minus the fixed value, so the probabilities depend
+  only on the posterior distribution of the treatment group: Beta
+  probabilities (one binary endpoint), t probabilities (one continuous
+  endpoint), probabilities of the bivariate t distribution by numerical
+  integration for any degrees of freedom (two continuous endpoints), Monte
+  Carlo draws from the Dirichlet posterior (posterior probabilities for two
+  binary endpoints), Gamma probabilities (posterior probabilities for a
+  time-to-event endpoint), and exact predictive probabilities for binary
+  endpoints, in which a future proportion equal to the fixed value plus the
+  null value is not counted as larger. The argument `method` is not used
+  for continuous endpoints.
+* Without a concurrent control group, the thresholds in the plot of
+  operating characteristics are shifted by the fixed value.
+
+## Designs and operations: one time-to-event endpoint
+
+* `design_tte()` specifies a study with one time-to-event endpoint evaluated
+  by the survival probability at a milestone time: exponential event times
+  with Gamma priors on the hazards (`prior_gamma()`), data summarized by the
+  number of events and the total observed time (`data_tte()`), external
+  data for either group through a power prior, and a concurrent,
+  external-only, hypothetical or fixed control group. The effect is the
+  difference of the milestone survival probabilities.
+* Posterior probabilities are computed by numerical integration over the
+  control hazard (`psurvdiff()`), or exactly for a fixed control.
+  Posterior predictive probabilities are estimated by simulating `nMC`
+  future studies conducted as specified by `conduct_future`, with hazards
+  drawn from the posterior distributions; the milestone survival of each
+  group in the future study is estimated at the posterior mean of the
+  hazard given the future data and the prior of the group.
+* `qdm_oc()` and `qdm_calibrate()` simulate `nsim` studies with piecewise
+  uniform enrollment, piecewise exponential dropout and an analysis at a
+  calendar time or at a given number of events among all subjects of the
+  study (`conduct_tte()`), under scenarios given by the median survival
+  times (`median_t`, `median_c`), with the same random numbers for all
+  scenarios.
+
+## Decision boundaries
+
+* `qdm_boundary()` computes the decision for each point of a grid of
+  possible observed data of the treatment group, and its `plot()` method
+  draws the regions of the data that lead to Go, NoGo, Gray and Miss
+  decisions: the numbers of responders of the two groups (one binary
+  endpoint with a concurrent control group) or the number of responders and
+  the sample size (without one), the observed mean (or difference in means)
+  and the standard deviation or sample size (one continuous endpoint), the
+  observed means (or differences in means) of the two endpoints (two
+  continuous endpoints), and the number of events and the total observed
+  time (time-to-event endpoint). Two binary endpoints are not supported.
+
 ## Distribution functions
 
 * `pbetadiff()` has the argument order `(q, a_t, b_t, a_c, b_c)`. The range
@@ -174,6 +268,12 @@ release.
   `Inf` are handled.
 * `rdirichlet()` always returns a matrix.
 * `cellprob_binary2()` replaces `getjointbin()`.
+* `psurvdiff()` computes the distribution function of the difference of two
+  milestone survival probabilities with Gamma distributed exponential
+  hazards, by adaptive quadrature in C++ over the hazard of one group, with
+  the range split at quantiles of both hazards and a change of variables
+  near 0 when a shape parameter is below 1. Each tail is computed directly,
+  so both are accurate near 0.
 
 # BayesianQDM 0.1.0
 

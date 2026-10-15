@@ -1,0 +1,214 @@
+---
+title: "Two continuous endpoints"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Two continuous endpoints}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+This vignette describes the analysis of a proof-of-concept (PoC) study with
+two continuous endpoints (Yamaguchi et al., submitted).
+`vignette("two-binary")` describes the regions and the criteria for two
+endpoints, which are the same here.
+
+## Model
+
+In group $k$ ($k = t, c$), the responses of a subject on the two endpoints
+have a bivariate normal distribution $N_2(\mu_k, \Sigma_k)$, and the data
+are summarized by the number of subjects, the vector of sample means and
+the sample covariance matrix (`data_continuous2()`). With the
+Normal-Inverse-Wishart prior (`prior_niw()`),
+$$\mu_k \mid \Sigma_k \sim N_2(\mu_0, \Sigma_k / \kappa_0), \qquad
+\Sigma_k \sim \textrm{Inv-Wishart}(\nu_0, \Lambda_0),$$
+the posterior distribution has the same form with parameters
+$(\mu_n, \kappa_n, \nu_n, \Lambda_n)$, and the mean has the bivariate t
+distribution with $\nu_n - 1$ degrees of freedom, location $\mu_n$ and scale
+matrix $\Lambda_n / \{\kappa_n (\nu_n - 1)\}$. With the vague prior
+$p(\mu, \Sigma) \propto |\Sigma|^{-3/2}$ (`prior_vague()`), the posterior
+distribution of the mean is $t_{n - 2}(\bar y, S / \{n (n - 2)\})$, where
+$S$ is $n - 1$ times the sample covariance matrix.
+
+For the predictive criterion, the mean of $m$ future subjects has the same
+distribution with the scale matrix
+$(1 / \kappa_n + 1 / m) \Lambda_n / (\nu_n - 1)$. Version 0.1.0 of the
+package and Yamaguchi et al. (submitted) used
+$(1 + \kappa_n) \Lambda_n / \{\kappa_n (\nu_n - 1) m\}$, which treats the
+future subjects as independent draws from the predictive distribution of one
+subject.
+
+The treatment effects are $\theta_j = \mu_{tj} - \mu_{cj}$ ($j = 1, 2$), and
+the probabilities of the regions are computed by one of two methods
+(argument `method` of `design_continuous2()`):
+
+- `"MM"` (the default): the difference of the two bivariate t
+  distributions is approximated by a bivariate t distribution with matched
+  moments (Yamaguchi, Homma, Takeda and Maruo, submitted, Theorem 3), whose
+  rectangle probabilities are computed by numerical integration for real
+  degrees of freedom; it requires more than 4 degrees of freedom in both
+  groups;
+- `"MC"`: Monte Carlo simulation with `nMC` draws from each distribution.
+
+## Decision for observed data
+
+The second case study of Yamaguchi et al. (submitted) has 30 subjects per
+group, Normal-Inverse-Wishart priors, $\theta_{TV} = (10, 2)$ and
+$\theta_{MAV} = (5, 1)$. Here the thresholds are
+$\gamma_{go} = \gamma_{nogo} = 0.6$ (the article calibrates its own
+thresholds):
+
+```{r design}
+L0 <- matrix(c(80^2, 15, 15, 6^2), 2, 2)
+crit <- criterion_posterior(theta_tv = c(10, 2), theta_mav = c(5, 1),
+                            gamma_go = 0.6, gamma_nogo = 0.6)
+des <- design_continuous2(
+  n_t = 30, n_c = 30,
+  prior_t = prior_niw(mu0 = c(0, 1), kappa0 = 0.1, nu0 = 4, Lambda0 = L0),
+  prior_c = prior_niw(mu0 = c(-10, -1), kappa0 = 0.1, nu0 = 4,
+                      Lambda0 = L0),
+  criterion = crit
+)
+data_t <- data_continuous2(30, mean = c(12, 3),
+                           cov = matrix(c(6400, 190, 190, 36), 2, 2))
+data_c <- data_continuous2(30, mean = c(-10, -1),
+                           cov = matrix(c(5600, 150, 150, 42), 2, 2))
+dec <- qdm_decide(des, data_t = data_t, data_c = data_c)
+dec
+```
+
+The decision is `r dec$decision`. Monte Carlo simulation gives similar
+probabilities of the regions:
+
+```{r mc}
+des_mc <- design_continuous2(
+  n_t = 30, n_c = 30,
+  prior_t = prior_niw(mu0 = c(0, 1), kappa0 = 0.1, nu0 = 4, Lambda0 = L0),
+  prior_c = prior_niw(mu0 = c(-10, -1), kappa0 = 0.1, nu0 = 4,
+                      Lambda0 = L0),
+  criterion = crit, method = "MC", nMC = 10000
+)
+dec_mc <- qdm_decide(des_mc, data_t = data_t, data_c = data_c, seed = 1)
+rbind(MM = dec$prob_regions, MC = dec_mc$prob_regions)
+```
+
+## Hypothetical control
+
+For a study without a concurrent control group, `hypothetical(mean, r)`
+gives the control mean the distribution of the treatment mean with location
+`mean` and the scale matrix multiplied by `r`. The prior of the control
+group is then not used and is left `NULL`:
+
+```{r hypothetical}
+des_hyp <- design_continuous2(
+  n_t = 30, n_c = 0,
+  prior_t = prior_niw(mu0 = c(0, 1), kappa0 = 0.1, nu0 = 4, Lambda0 = L0),
+  criterion = crit,
+  hypothetical_c = hypothetical(mean = c(-10, -1), r = 1)
+)
+dec_hyp <- qdm_decide(des_hyp, data_t = data_t)
+dec_hyp
+```
+
+## Fixed control
+
+With `fixed_c`, the control means are known values, for example the means of
+the standard of care reported in the literature. The probabilities of the
+regions are then those of the bivariate t distribution of the treatment
+mean, which are computed by numerical integration for any degrees of
+freedom, so `method` is not used:
+
+```{r fixed}
+des_fix <- design_continuous2(
+  n_t = 30, n_c = 0,
+  prior_t = prior_niw(mu0 = c(0, 1), kappa0 = 0.1, nu0 = 4, Lambda0 = L0),
+  criterion = crit, fixed_c = c(-10, -1)
+)
+dec_fix <- qdm_decide(des_fix, data_t = data_t)
+dec_fix
+```
+
+The control means are not uncertain, so the probability of the Go region is
+`r format(dec_fix$prob_go, digits = 3)`, compared with
+`r format(dec_hyp$prob_go, digits = 3)` for the hypothetical control with
+the same location.
+
+## Operating characteristics
+
+`qdm_oc()` simulates the sample means and the matrix of sums of squares and
+cross-products of `nsim` studies under each scenario, with the same random
+numbers for all scenarios. A scenario gives the means, standard deviations
+and correlation of the two endpoints in each group. To keep this vignette
+quick, 1000 studies are simulated per scenario (the default is 10000):
+
+```{r oc}
+effects <- expand.grid(theta1 = c(0, 10, 20), theta2 = c(0, 2, 4))
+scen <- data.frame(mu_t1 = -10 + effects$theta1,
+                   mu_t2 = -1 + effects$theta2, sd_t1 = 80, sd_t2 = 6,
+                   rho_t = 0.3, mu_c1 = -10, mu_c2 = -1, sd_c1 = 80,
+                   sd_c2 = 6, rho_c = 0.3)
+oc <- qdm_oc(des, scen, nsim = 1000, seed = 1)
+oc
+plot(oc)
+```
+
+The simulation standard error of the probabilities is at most
+$0.5 / \sqrt{nsim}$, `r format(0.5 / sqrt(1000), digits = 2)` for 1000
+studies. The moment-matching approximation is much faster than Monte Carlo
+estimation of the region probabilities, whose computing time is
+proportional to `nMC` for every simulated study.
+
+## Decision boundary
+
+`qdm_boundary()` gives the decision on a grid of observed treatment means of
+the two endpoints, for a given sample covariance matrix, and its plot shows
+which means lead to Go, NoGo and Gray decisions. With a concurrent control
+group, the observed control data are given by `data_c`, and the axes are the
+observed differences in means:
+
+```{r boundary}
+b <- qdm_boundary(des, mean_t = list(seq(-30, 50, by = 2),
+                                     seq(-3, 7, by = 0.25)),
+                  cov_t = data_t$cov, data_c = data_c)
+plot(b)
+```
+
+## Calibration of the thresholds
+
+The thresholds are calibrated so that the Go criterion is met with
+probability at most 0.1 when neither endpoint is improved, and the NoGo
+criterion with probability at most 0.2 when the effects are 20 and 4:
+
+```{r calibrate}
+cal <- qdm_calibrate(des, scenario_go = scen[1, ], scenario_nogo = scen[9, ],
+                     target_go = 0.1, target_nogo = 0.2, nsim = 1000,
+                     seed = 1)
+cal
+plot(cal)
+```
+
+The calibrated thresholds add up to `r cal$gamma_go + cal$gamma_nogo`. When
+the sum is 1 or less, a Go and a NoGo criterion can be met together (a Miss
+decision); here Miss decisions have probability up to
+`r format(max(cal$oc$Miss), digits = 2)` under the two scenarios, which the
+warning reports. Larger thresholds also meet the targets, with more Gray
+decisions: the design with $\gamma_{go} = \gamma_{nogo} = 0.6$ used above
+meets the Go criterion with probability `r format(oc$Go[1], digits = 2)`
+when neither endpoint is improved and the NoGo criterion with probability
+`r format(oc$NoGo[9], digits = 2)` when the effects are 20 and 4, and Miss
+decisions are impossible because the thresholds add up to more than 1.
+
+## References
+
+Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
+Moment-matching approximation for t-differences in clinical trials with
+continuous endpoints.
+
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.

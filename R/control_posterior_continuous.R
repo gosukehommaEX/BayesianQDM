@@ -14,6 +14,7 @@
 #' parameters the posterior predictive distribution of the mean of \eqn{m_c}
 #' future control subjects is
 #' \eqn{t_{\nu_{nt}}(\mu_{0c}, r \sigma_{nt}^2 (1 / \kappa_{nt} + 1 / m_c))}.
+#' For a fixed control there is no distribution and \code{NULL} is returned.
 #'
 #' @param design An object of class \code{"qdm_design_continuous"}.
 #' @param post_t Posterior parameters of the treatment group, as returned by
@@ -21,7 +22,7 @@
 #' @param n,mean,sd Current control data (concurrent control only).
 #'
 #' @return A list with elements \code{mu}, \code{kappa}, \code{nu} and
-#'   \code{sigma2}.
+#'   \code{sigma2}, or \code{NULL} for a fixed control.
 #' @noRd
 control_posterior_continuous <- function(design, post_t, n = 0L, mean = 0,
                                          sd = 0) {
@@ -33,6 +34,7 @@ control_posterior_continuous <- function(design, post_t, n = 0L, mean = 0,
                                     external = design$external_c),
     hypothetical = list(mu = design$hypothetical_c$mean,
                         kappa = post_t$kappa, nu = post_t$nu,
-                        sigma2 = design$hypothetical_c$r * post_t$sigma2)
+                        sigma2 = design$hypothetical_c$r * post_t$sigma2),
+    fixed = NULL
   )
 }

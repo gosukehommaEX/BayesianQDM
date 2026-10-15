@@ -31,3 +31,17 @@ test_that("format_posterior() gives the t distribution of two means", {
                    paste("mean ~ t(df = 10, location = (1, -2),",
                          "scale = (2.0, 0.5; 0.5, 1.0))"))
 })
+
+test_that("format_posterior() gives the Gamma distribution of a hazard", {
+  expect_identical(format_posterior(ref_design_tte("T2"),
+                                    c(shape = 5.1, rate = 41)),
+                   "hazard ~ Gamma(shape = 5.1, rate = 41)")
+})
+
+test_that("format_posterior() gives fixed control values", {
+  expect_identical(format_posterior(ref_design("D8"), c(value = 0.2)),
+                   "fixed value 0.2")
+  expect_identical(format_posterior(ref_design_cont2("KF1"),
+                                    c(value1 = -10, value2 = -1)),
+                   "fixed values (-10, -1)")
+})

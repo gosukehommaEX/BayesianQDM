@@ -19,6 +19,10 @@
 //   Gauss-Legendre quadrature (see bvt_cdf());
 // - Monte Carlo simulation: nMC draws from each distribution, independently
 //   for each pair.
+// For a fixed control (a control scale matrix of zeros), theta has the
+// bivariate t distribution of the treatment mean shifted by the fixed
+// values, and the moment-matching function computes the exact probabilities
+// from its distribution function.
 
 #include <Rcpp.h>
 
@@ -82,34 +86,50 @@ const double kGLw[24] = {
 
 const double kHalfPi = 1.5707963267948966;
 
+// Integrand of bvt_cdf() at phi: density of X at u = tan(phi) times
+// d u / d phi times the conditional distribution function of Y at k.
+double bvt_integrand(double phi, double k, double rho, double nu, double s) {
+  const double u = std::tan(phi);
+  const double c = std::cos(phi);
+  const double scale = s * std::sqrt(nu + u * u);
+  const double num = k - rho * u;
+  double cond;
+  if (scale > 0.0) {
+    cond = R::pt(num / scale, nu + 1.0, 1, 0);
+  } else {
+    // # nocov start
+    // Degenerate distribution (|rho| = 1): not reached for positive
+    // definite scale matrices
+    cond = num > 0.0 ? 1.0 : 0.0;
+    // # nocov end
+  }
+  return R::dt(u, nu, 0) / (c * c) * cond;
+}
+
 // Integral over phi in (a, b) of the integrand of bvt_cdf() with the
-// 48-point Gauss-Legendre rule.
-double bvt_piece(double a, double b, double k, double rho, double nu) {
-  const double half = 0.5 * (b - a);
-  const double mid = 0.5 * (b + a);
+// 48-point Gauss-Legendre rule. With graded = true, the variable is
+// phi = a + (b - a) t^4 with t in (0, 1): near phi = -pi / 2 the integrand
+// behaves like (phi + pi / 2)^(nu - 1), whose fractional powers for small
+// nu are integrated inaccurately in phi, and t^(4 nu - 1) is smooth enough.
+double bvt_piece(double a, double b, double k, double rho, double nu,
+                 bool graded = false) {
   const double s = std::sqrt((1.0 - rho * rho) / (nu + 1.0));
   double total = 0.0;
   for (int i = 0; i < 24; ++i) {
     for (int sign = -1; sign <= 1; sign += 2) {
-      const double phi = mid + sign * half * kGLx[i];
-      const double u = std::tan(phi);
-      const double c = std::cos(phi);
-      const double scale = s * std::sqrt(nu + u * u);
-      const double num = k - rho * u;
-      double cond;
-      if (scale > 0.0) {
-        cond = R::pt(num / scale, nu + 1.0, 1, 0);
+      if (graded) {
+        const double t = 0.5 + 0.5 * sign * kGLx[i];
+        const double t3 = t * t * t;
+        total += kGLw[i] * 4.0 * t3 *
+          bvt_integrand(a + (b - a) * t3 * t, k, rho, nu, s);
       } else {
-        // # nocov start
-        // Degenerate distribution (|rho| = 1): not reached for positive
-        // definite scale matrices
-        cond = num > 0.0 ? 1.0 : 0.0;
-        // # nocov end
+        total += kGLw[i] *
+          bvt_integrand(0.5 * (b + a) + sign * 0.5 * (b - a) * kGLx[i], k,
+                        rho, nu, s);
       }
-      total += kGLw[i] * R::dt(u, nu, 0) / (c * c) * cond;
     }
   }
-  return half * total;
+  return 0.5 * (b - a) * total;
 }
 
 // P(X <= h, Y <= k) for the standard bivariate t distribution with
@@ -123,7 +143,9 @@ double bvt_piece(double a, double b, double k, double rho, double nu) {
 // Gauss-Legendre rule (error below 1e-10 for nu > 4 and |rho| <= 0.99; the
 // error grows to about 1e-8 at |rho| = 0.999 and 1e-6 at |rho| = 0.9999,
 // where the conditional distribution function changes within a narrow
-// range of u).
+// range of u). For nu <= 4 (a fixed control with few degrees of freedom),
+// the part that starts at -pi / 2 is integrated in a graded variable (see
+// bvt_piece()).
 double bvt_cdf(double h, double k, double rho, double nu) {
   const double lo = -kHalfPi;
   const double hi = std::atan(h);
@@ -144,7 +166,8 @@ double bvt_cdf(double h, double k, double rho, double nu) {
   double total = 0.0;
   for (int i = 0; i + 1 < n_cut; ++i) {
     if (cuts[i + 1] > cuts[i]) {
-      total += bvt_piece(cuts[i], cuts[i + 1], k, rho, nu);
+      total += bvt_piece(cuts[i], cuts[i + 1], k, rho, nu,
+                         i == 0 && nu <= 4.0);
     }
   }
   return total;
@@ -173,6 +196,56 @@ void mask_coefficients(int mask, double coef[4][4]) {
   }
 }
 
+// Moment matching (Yamaguchi, Homma, Takeda and Maruo, submitted, Theorem 3
+// with dimension 2): the difference of independent bivariate t variables
+// with n1 and n2 degrees of freedom and scale matrices v1 and v2 (elements
+// V11, V12, V22) is approximated by a bivariate t distribution with nu
+// degrees of freedom, standard deviations sd1 and sd2 of the scaled
+// variables and correlation rho.
+void moment_match(double n1, double n2, const double v1[3],
+                  const double v2[3], double &nu, double &sd1, double &sd2,
+                  double &rho) {
+  const double b1 = n1 / (n1 - 2.0);
+  const double b2 = n2 / (n2 - 2.0);
+  const double s11 = b1 * v1[0] + b2 * v2[0];
+  const double s12 = b1 * v1[1] + b2 * v2[1];
+  const double s22 = b1 * v1[2] + b2 * v2[2];
+  const double det = s11 * s22 - s12 * s12;
+  // A = inverse of the summed covariance matrix
+  const double a11 = s22 / det;
+  const double a12 = -s12 / det;
+  const double a22 = s11 / det;
+  // P = A V1 and Q = A V2 (2 x 2, not symmetric)
+  const double p11 = a11 * v1[0] + a12 * v1[1];
+  const double p12 = a11 * v1[1] + a12 * v1[2];
+  const double p21 = a12 * v1[0] + a22 * v1[1];
+  const double p22 = a12 * v1[1] + a22 * v1[2];
+  const double q11 = a11 * v2[0] + a12 * v2[1];
+  const double q12 = a11 * v2[1] + a12 * v2[2];
+  const double q21 = a12 * v2[0] + a22 * v2[1];
+  const double q22 = a12 * v2[1] + a22 * v2[2];
+  const double t1 = p11 + p22;
+  const double t2 = q11 + q22;
+  const double t11 = p11 * p11 + 2.0 * p12 * p21 + p22 * p22;
+  const double t22 = q11 * q11 + 2.0 * q12 * q21 + q22 * q22;
+  const double t12 = p11 * q11 + p12 * q21 + p21 * q12 + p22 * q22;
+  const double qm =
+    (n1 * n1 / ((n1 - 2.0) * (n1 - 4.0)) * (t1 * t1 + 2.0 * t11) +
+     n2 * n2 / ((n2 - 2.0) * (n2 - 4.0)) * (t2 * t2 + 2.0 * t22) +
+     2.0 * n1 * n2 / ((n1 - 2.0) * (n2 - 2.0)) * (t1 * t2 + 2.0 * t12)) /
+    8.0;
+  // qm > 1 for finite degrees of freedom; very large degrees of freedom
+  // are capped (the distribution is then normal to double precision)
+  nu = 1e10;
+  if (qm > 1.0) {
+    nu = std::min((2.0 - 4.0 * qm) / (1.0 - qm), 1e10);
+  }
+  const double f = (nu - 2.0) / nu;
+  sd1 = std::sqrt(s11 * f);
+  sd2 = std::sqrt(s22 * f);
+  rho = s12 / std::sqrt(s11 * s22);
+}
+
 }  // namespace
 
 // loc_t, loc_c: locations (one row per pair, two columns).
@@ -181,7 +254,10 @@ void mask_coefficients(int mask, double coef[4][4]) {
 // tv, mav: the thresholds TV and MAV of the two endpoints.
 // masks: one integer per union of regions (bit r: region r + 1).
 // Returns the probabilities of the unions by moment matching, one row per
-// pair and one column per union.
+// pair and one column per union. A row of scale_c with all elements 0 is a
+// fixed control at loc_c: theta then has the bivariate t distribution of the
+// treatment mean shifted by loc_c, the probabilities are exact, df_c is not
+// used and df_t only needs to be positive.
 // [[Rcpp::export]]
 Rcpp::NumericMatrix cpp_regions_continuous2_mm(Rcpp::NumericMatrix loc_t,
                                                Rcpp::NumericMatrix scale_t,
@@ -214,50 +290,22 @@ Rcpp::NumericMatrix cpp_regions_continuous2_mm(Rcpp::NumericMatrix loc_t,
   const bool same_y = tv[1] == mav[1];
   Rcpp::NumericMatrix out(n, n_mask);
   for (int p = 0; p < n; ++p) {
-    // Moment matching (Theorem 3 with dimension 2)
-    const double n1 = df_t[p];
-    const double n2 = df_c[p];
-    const double b1 = n1 / (n1 - 2.0);
-    const double b2 = n2 / (n2 - 2.0);
     const double v1[3] = {scale_t(p, 0), scale_t(p, 1), scale_t(p, 2)};
     const double v2[3] = {scale_c(p, 0), scale_c(p, 1), scale_c(p, 2)};
-    const double s11 = b1 * v1[0] + b2 * v2[0];
-    const double s12 = b1 * v1[1] + b2 * v2[1];
-    const double s22 = b1 * v1[2] + b2 * v2[2];
-    const double det = s11 * s22 - s12 * s12;
-    // A = inverse of the summed covariance matrix
-    const double a11 = s22 / det;
-    const double a12 = -s12 / det;
-    const double a22 = s11 / det;
-    // P = A V1 and Q = A V2 (2 x 2, not symmetric)
-    const double p11 = a11 * v1[0] + a12 * v1[1];
-    const double p12 = a11 * v1[1] + a12 * v1[2];
-    const double p21 = a12 * v1[0] + a22 * v1[1];
-    const double p22 = a12 * v1[1] + a22 * v1[2];
-    const double q11 = a11 * v2[0] + a12 * v2[1];
-    const double q12 = a11 * v2[1] + a12 * v2[2];
-    const double q21 = a12 * v2[0] + a22 * v2[1];
-    const double q22 = a12 * v2[1] + a22 * v2[2];
-    const double t1 = p11 + p22;
-    const double t2 = q11 + q22;
-    const double t11 = p11 * p11 + 2.0 * p12 * p21 + p22 * p22;
-    const double t22 = q11 * q11 + 2.0 * q12 * q21 + q22 * q22;
-    const double t12 = p11 * q11 + p12 * q21 + p21 * q12 + p22 * q22;
-    const double qm =
-      (n1 * n1 / ((n1 - 2.0) * (n1 - 4.0)) * (t1 * t1 + 2.0 * t11) +
-       n2 * n2 / ((n2 - 2.0) * (n2 - 4.0)) * (t2 * t2 + 2.0 * t22) +
-       2.0 * n1 * n2 / ((n1 - 2.0) * (n2 - 2.0)) * (t1 * t2 + 2.0 * t12)) /
-      8.0;
-    // qm > 1 for finite degrees of freedom; very large degrees of freedom
-    // are capped (the distribution is then normal to double precision)
-    double nu = 1e10;
-    if (qm > 1.0) {
-      nu = std::min((2.0 - 4.0 * qm) / (1.0 - qm), 1e10);
+    double nu;
+    double sd1;
+    double sd2;
+    double rho;
+    if (v2[0] == 0.0 && v2[1] == 0.0 && v2[2] == 0.0) {
+      // Fixed control: theta has the bivariate t distribution of the
+      // treatment mean, so the probabilities are exact
+      nu = df_t[p];
+      sd1 = std::sqrt(v1[0]);
+      sd2 = std::sqrt(v1[2]);
+      rho = v1[1] / (sd1 * sd2);
+    } else {
+      moment_match(df_t[p], df_c[p], v1, v2, nu, sd1, sd2, rho);
     }
-    const double f = (nu - 2.0) / nu;
-    const double sd1 = std::sqrt(s11 * f);
-    const double sd2 = std::sqrt(s22 * f);
-    double rho = s12 / std::sqrt(s11 * s22);
     rho = std::max(-1.0, std::min(1.0, rho));
     const double d1 = loc_t(p, 0) - loc_c(p, 0);
     const double d2 = loc_t(p, 1) - loc_c(p, 1);

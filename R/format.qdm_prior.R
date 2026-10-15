@@ -32,6 +32,9 @@ format.qdm_prior <- function(x, digits = 4L, ...) {
       format_num(x$Lambda0[2L, ], digits)
     ),
     qdm_prior_vague = "Vague",
+    qdm_prior_gamma = sprintf("Gamma(shape = %s, rate = %s)",
+                              format(x$shape, digits = digits),
+                              format(x$rate, digits = digits)),
     stop("Unknown prior class.", call. = FALSE)
   )
 }

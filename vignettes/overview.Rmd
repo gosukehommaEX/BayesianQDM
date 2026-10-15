@@ -1,0 +1,225 @@
+---
+title: "Overview of BayesianQDM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Overview of BayesianQDM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+## Decisions in a proof-of-concept study
+
+BayesianQDM implements the Bayesian quantitative decision-making framework
+of Kang, Yamaguchi and Han (2026) for proof-of-concept (PoC) studies. The
+data of a PoC study lead to one of three decisions: Go (proceed to the next
+phase of development), NoGo (stop the development) or Gray (the evidence is
+not sufficient for either decision).
+
+Let $\theta$ be the treatment effect, the difference between the treatment
+and control groups in the response rate (binary endpoint), the mean
+(continuous endpoint) or the survival probability at a milestone time
+(time-to-event endpoint). The decision criteria use two values of the effect
+chosen by the study team: the target value $\theta_{TV}$, an effect worth
+pursuing, and the minimum acceptable value $\theta_{MAV} < \theta_{TV}$,
+below which the treatment is not of interest. Given the PoC data $D$, the
+criteria based on the posterior probability are
+
+- Go criterion: $\Pr(\theta > \theta_{TV} \mid D) \ge \gamma_{go}$,
+- NoGo criterion: $\Pr(\theta \le \theta_{MAV} \mid D) \ge \gamma_{nogo}$.
+
+The decision is Go if only the Go criterion is met, NoGo if only the NoGo
+criterion is met, and Gray if neither is met. If both are met, which for one
+endpoint is possible only when $\gamma_{go} + \gamma_{nogo} \le 1$, the
+decision is called Miss; the package reports Miss decisions separately and
+warns when they have positive probability.
+
+Kang et al. (2026) write the NoGo criterion as
+$\Pr(\theta > \theta_{MAV} \mid D) \le \gamma_2$. This is the same criterion
+with $\gamma_{nogo} = 1 - \gamma_2$, so a threshold $\gamma_2 = 0.2$ of the
+article corresponds to `gamma_nogo = 0.8`.
+
+The criteria can instead be based on the posterior predictive probability of
+the effect $\tilde\theta$ that will be observed in a future study with $m_t$
+and $m_c$ subjects. With a null value $\theta_{NULL}$, the Go criterion is
+$\Pr(\tilde\theta > \theta_{NULL} \mid D) \ge \gamma_{go}$ and the NoGo
+criterion is $\Pr(\tilde\theta \le \theta_{NULL} \mid D) \ge \gamma_{nogo}$.
+
+For two endpoints, the target values and minimum acceptable values divide
+the plane of $(\theta_1, \theta_2)$ into nine regions, and the criteria are
+based on the probabilities of unions of regions or on each endpoint
+separately (see `vignette("two-binary")` and `vignette("two-continuous")`).
+
+## Specifying a study
+
+A study is described by small specification objects, which are combined into
+a design.
+
+| Function | Specifies |
+|---|---|
+| `prior_beta()`, `prior_nix()`, `prior_dirichlet()`, `prior_niw()`, `prior_gamma()`, `prior_vague()` | Prior distribution of one group |
+| `data_binary()`, `data_continuous()`, `data_binary2()`, `data_continuous2()`, `data_tte()` | Summary of the data of one group |
+| `borrow()` | External data and the weight $a_0$ of the power prior |
+| `hypothetical()` | Hypothetical control for a study without a concurrent control group |
+| `criterion_posterior()`, `criterion_predictive()` | Decision criterion |
+| `conduct_tte()` | Enrollment, dropout and time of the analysis of a study with a time-to-event endpoint |
+| `design_binary()`, `design_continuous()`, `design_binary2()`, `design_continuous2()`, `design_tte()` | Design of the study |
+
+The control group of a design takes one of four forms: a concurrent control
+group (`n_c` of at least 1 for binary and time-to-event endpoints, 2 for one
+continuous endpoint and 3 for two continuous endpoints), external control
+data only (`n_c = 0` and `external_c`), a hypothetical control (`n_c = 0`
+and `hypothetical_c`), or a fixed control (`n_c = 0` and `fixed_c`), a known
+value of the control parameter as in a single-arm study compared with a
+benchmark.
+External data can also be borrowed for the treatment group (`external_t`).
+
+Four functions work with the designs.
+
+| Function | Computes |
+|---|---|
+| `qdm_decide()` | The probabilities of the Go and NoGo regions and the decision for observed data |
+| `qdm_oc()` | The operating characteristics: the probabilities of Go, NoGo, Gray and Miss decisions under scenarios for the true parameters |
+| `qdm_calibrate()` | The thresholds $\gamma_{go}$ and $\gamma_{nogo}$ that control the probabilities of a false Go and a false NoGo decision |
+| `qdm_boundary()` | The decision for each point of a grid of possible observed data, which shows the decision boundaries (not available for two binary endpoints) |
+
+## A first example
+
+Consider a PoC study with one binary endpoint, 12 subjects in each group and
+Jeffreys priors $\textrm{Beta}(0.5, 0.5)$. The team chooses
+$\theta_{TV} = 0.2$, $\theta_{MAV} = 0.1$, $\gamma_{go} = 0.5$ and
+$\gamma_{nogo} = 0.8$.
+
+```{r design}
+des <- design_binary(
+  n_t = 12, n_c = 12,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                  gamma_go = 0.5, gamma_nogo = 0.8)
+)
+des
+```
+
+If 9 of 12 subjects respond in the treatment group and 4 of 12 in the control
+group, the decision is:
+
+```{r decide}
+dec <- qdm_decide(des, data_t = data_binary(12, 9),
+                  data_c = data_binary(12, 4))
+dec
+```
+
+The posterior probability that the effect exceeds the target value is
+`r format(dec$prob_go, digits = 3)`, and the decision is
+`r dec$decision`.
+
+The operating characteristics show how often the design leads to each
+decision. For a binary endpoint all outcomes of the study are enumerated, so
+the probabilities are exact.
+
+```{r oc}
+oc <- qdm_oc(des, data.frame(pi_t = seq(0.3, 0.7, by = 0.05), pi_c = 0.3))
+oc
+plot(oc)
+```
+
+When the treatment has no effect ($\pi_t = \pi_c = 0.3$), the probability of
+a Go decision is `r format(oc$Go[1], digits = 3)`. The thresholds can be
+calibrated so that the probability of meeting the Go criterion is at most
+0.05 under no effect, and the probability of meeting the NoGo criterion is at
+most 0.2 when the effect is 0.3:
+
+```{r calibrate}
+cal <- qdm_calibrate(des,
+                     scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
+                     scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
+                     target_go = 0.05, target_nogo = 0.2)
+cal
+plot(cal)
+```
+
+The calibrated thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
+$\gamma_{nogo} =$ `r cal$gamma_nogo`, and `cal$design` is the design with
+these thresholds, which can be passed to `qdm_decide()` and `qdm_oc()`.
+
+## Endpoints and computation
+
+| Endpoints | Design | Model | Probabilities of the regions | Operating characteristics |
+|---|---|---|---|---|
+| One binary | `design_binary()` | Beta-binomial | Numerical integration (posterior), exact sum (predictive) | Exact enumeration |
+| One continuous | `design_continuous()` | Normal-Inverse-chi-squared or vague | Numerical integration (`"NI"`), moment matching (`"MM"`) or Monte Carlo (`"MC"`) | Simulation of `nsim` studies |
+| Two binary | `design_binary2()` | Dirichlet-multinomial | Monte Carlo with `nMC` draws (posterior), exact sum (predictive) | Exact enumeration or simulation |
+| Two continuous | `design_continuous2()` | Normal-Inverse-Wishart or vague | Moment matching (`"MM"`) or Monte Carlo (`"MC"`) | Simulation of `nsim` studies |
+| One time-to-event | `design_tte()` | Exponential with Gamma prior | Numerical integration (posterior), simulation of `nMC` future studies (predictive) | Simulation of `nsim` studies |
+
+The posterior distributions have closed forms, including those with external
+data borrowed through a power prior, so Markov chain Monte Carlo sampling is
+not needed. With a fixed control, the probabilities depend only on the
+posterior distribution of the treatment group and are computed from closed
+forms or by numerical integration, except for the posterior probabilities of
+two binary endpoints and the predictive probabilities of a time-to-event
+endpoint, which are Monte Carlo estimates. For one continuous endpoint, numerical integration is exact up
+to a small numerical error; the moment-matching approximation is faster by
+about two orders of magnitude and is suited to exploring designs, and the
+chosen design can then be checked with numerical integration. For two
+continuous endpoints, the moment-matching approximation can be checked with
+Monte Carlo estimates. The computing time of
+Monte Carlo estimates is proportional to the number of draws, and that of
+simulated operating characteristics to `nsim`.
+
+## Random numbers
+
+`qdm_decide()`, `qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` have a
+`seed` argument for
+the random numbers they use (simulated studies and Monte Carlo estimates of
+probabilities). With `seed = NULL` (the default) they use the current random
+number stream, so `set.seed()` makes the results reproducible. With a given
+seed, the computation uses that seed and the previous state of the random
+number generator is restored on exit. `ptdiff()` with `method = "MC"` and
+`rdirichlet()` always use the current random number stream.
+
+## Validation
+
+The scripts in the folder `validation` of the installed package compare
+BayesianQDM with published and submitted results (Kang et al., 2026; Huang
+et al., submitted; Yamaguchi, Homma, Takeda and Maruo, submitted; Yamaguchi
+et al., submitted). The file
+`results/summary.md` in that folder reports the comparisons, with a
+registered reason for every difference beyond rounding:
+
+```{r validation, eval = FALSE}
+system.file("validation", "results", "summary.md", package = "BayesianQDM")
+```
+
+## Further reading
+
+- `vignette("single-binary")`: one binary endpoint.
+- `vignette("single-continuous")`: one continuous endpoint.
+- `vignette("two-binary")`: two binary endpoints.
+- `vignette("two-continuous")`: two continuous endpoints.
+- `vignette("time-to-event")`: one time-to-event endpoint.
+- `vignette("migration")`: translating code written for version 0.1.0.
+
+## References
+
+Huang, Y., Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
+Conjugate representation of power priors for efficient Bayesian analysis of
+normal data.
+
+Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
+decision-making framework in cell and gene therapy development for rare
+diseases. *Journal of Biopharmaceutical Statistics*.
+<https://doi.org/10.1080/10543406.2026.2655410>
+
+Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
+Moment-matching approximation for t-differences in clinical trials with
+continuous endpoints.
+
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.

@@ -8,7 +8,10 @@
 #' distribution of the mean of \eqn{m} future subjects is
 #' \eqn{t_{\nu}(\mu, \sigma^2 (1 / \kappa + 1 / m))}. With
 #' \code{method = "MC"}, both probabilities are estimated from the same draws,
-#' so that they add up to 1 for the predictive criterion.
+#' so that they add up to 1 for the predictive criterion. For a fixed control
+#' mean, the probabilities are computed exactly from the t distribution of
+#' the treatment mean (\code{post_c}, \code{method} and \code{nMC} are not
+#' used).
 #'
 #' @param criterion An object of class \code{"qdm_criterion"} for one
 #'   endpoint.
@@ -16,21 +19,32 @@
 #'   \code{nu} and \code{sigma2}.
 #' @param method One of \code{"NI"}, \code{"MM"} or \code{"MC"}.
 #' @param nMC Number of Monte Carlo draws for \code{method = "MC"}.
+#' @param fixed Fixed control mean, or \code{NULL}.
 #'
 #' @return A list with numeric vectors \code{go} and \code{nogo}.
 #' @noRd
 region_prob_continuous <- function(criterion, post_t, post_c, method,
-                                   nMC = 10000L) {
+                                   nMC = 10000L, fixed = NULL) {
   if (criterion$type == "posterior") {
     scale_t <- sqrt(post_t$sigma2 / post_t$kappa)
-    scale_c <- sqrt(post_c$sigma2 / post_c$kappa)
     q_go <- criterion$theta_tv
     q_nogo <- criterion$theta_mav
   } else {
     scale_t <- sqrt(post_t$sigma2 * (1 / post_t$kappa + 1 / criterion$m_t))
-    scale_c <- sqrt(post_c$sigma2 * (1 / post_c$kappa + 1 / criterion$m_c))
     q_go <- criterion$theta_null
     q_nogo <- criterion$theta_null
+  }
+  if (!is.null(fixed)) {
+    # mean_t - fixed > q if and only if mean_t > q + fixed
+    go <- stats::pt((q_go + fixed - post_t$mu) / scale_t, post_t$nu,
+                    lower.tail = FALSE)
+    nogo <- stats::pt((q_nogo + fixed - post_t$mu) / scale_t, post_t$nu)
+    return(list(go = go, nogo = nogo))
+  }
+  scale_c <- if (criterion$type == "posterior") {
+    sqrt(post_c$sigma2 / post_c$kappa)
+  } else {
+    sqrt(post_c$sigma2 * (1 / post_c$kappa + 1 / criterion$m_c))
   }
   if (method == "MC") {
     a <- recycle_common(list(q_go = q_go, q_nogo = q_nogo, mu_t = post_t$mu,

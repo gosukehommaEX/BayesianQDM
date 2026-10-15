@@ -5,6 +5,9 @@
 #' objects (priors, data, external data with power priors, hypothetical
 #' controls and decision criteria), and the decision rule is evaluated for
 #' observed data or for its operating characteristics.
+#' \code{vignette("overview", package = "BayesianQDM")} introduces the
+#' package, and \code{vignette("migration", package = "BayesianQDM")} shows
+#' how to translate code written for version 0.1.0.
 #'
 #' @keywords internal
 #' @useDynLib BayesianQDM, .registration = TRUE

@@ -34,12 +34,15 @@ oc_sample_binary <- function(design, scenarios) {
     p <- region_prob_binary(design$criterion, post_t$a[i_t], post_t$b[i_t],
                             post_c$a[i_c], post_c$b[i_c])
   } else {
-    post_c <- posterior_binary(design$prior_c, 0, 0,
-                               external = design$external_c,
-                               hypothetical = design$hypothetical_c)
+    post_c <- if (design$control == "fixed") {
+      NULL
+    } else {
+      posterior_binary(design$prior_c, 0, 0, external = design$external_c,
+                       hypothetical = design$hypothetical_c)
+    }
     weights <- w_t
     p <- region_prob_binary(design$criterion, post_t$a, post_t$b, post_c$a,
-                            post_c$b)
+                            post_c$b, fixed = design$fixed_c)
   }
   list(p_go = p$go, p_nogo = p$nogo, per_scenario = FALSE,
        weights = weights, method = "exact enumeration of the outcomes")

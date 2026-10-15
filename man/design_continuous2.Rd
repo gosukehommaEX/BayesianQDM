@@ -13,6 +13,7 @@ design_continuous2(
   external_t = NULL,
   external_c = NULL,
   hypothetical_c = NULL,
+  fixed_c = NULL,
   method = c("MM", "MC"),
   nMC = 10000L
 )
@@ -26,7 +27,8 @@ whole number of at least 3.}
 
 \item{prior_t, prior_c}{Prior distributions of the treatment and control
 groups, created by \code{\link{prior_niw}} or \code{\link{prior_vague}}.
-For a hypothetical control, \code{prior_c} must be \code{NULL}.}
+For a hypothetical or fixed control, \code{prior_c} must be \code{NULL}
+(the default).}
 
 \item{criterion}{Decision criterion for two endpoints, created by
 \code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.}
@@ -39,6 +41,9 @@ groups, created by \code{\link{borrow}} with
 \code{\link{hypothetical}} with \code{mean} of length 2 and \code{r},
 or \code{NULL}. It can be used only when \code{n_c = 0}.}
 
+\item{fixed_c}{Fixed control means of endpoints 1 and 2, a numeric vector
+of length 2, or \code{NULL}. It can be used only when \code{n_c = 0}.}
+
 \item{method}{Method used to compute the probabilities: \code{"MM"}
 (default) or \code{"MC"}.}
 
@@ -47,8 +52,8 @@ or \code{NULL}. It can be used only when \code{n_c = 0}.}
 \value{
 An object of class \code{c("qdm_design_continuous2",
   "qdm_design")}, a list with the arguments and the element
-\code{control} (\code{"concurrent"}, \code{"external"} or
-\code{"hypothetical"}).
+\code{control} (\code{"concurrent"}, \code{"external"},
+\code{"hypothetical"} or \code{"fixed"}).
 }
 \description{
 Specifies a proof-of-concept study with two continuous endpoints: the
@@ -72,7 +77,8 @@ data and then with the current data. The vague prior corresponds to
 posterior distribution of the mean is
 \eqn{t_{n - 2}(\bar y, S / (n (n - 2)))} without external data, where
 \eqn{S} is the matrix of sums of squares and cross-products, \eqn{n - 1}
-times the sample covariance matrix (article, equation A.9).
+times the sample covariance matrix (Yamaguchi et al., submitted,
+equation A.9).
 
 The treatment effects are the differences of the means,
 \eqn{\theta_k = \mu_{tk} - \mu_{ck}}. The mean of each group has a
@@ -82,26 +88,37 @@ location \eqn{\mu_n} and scale matrix
 the mean of \eqn{m} future subjects has the same distribution with the
 scale matrix \eqn{(1 / \kappa_n + 1 / m) \Lambda_n / (\nu_n - 1)},
 because the future subjects share the same mean and covariance matrix
-(version 0.1.0 and the article used the scale matrix
+(version 0.1.0 and Yamaguchi et al. used the scale matrix
 \eqn{(1 + \kappa_n) \Lambda_n / (\kappa_n (\nu_n - 1) m)}, which treats
 them as independent draws from the predictive distribution of one
 subject). A hypothetical control (\code{hypothetical(mean = c(m1, m2),
 r = r)}) gives the control mean the distribution of the treatment mean
 with location \code{mean} and the scale matrix multiplied by \code{r}
-(article, Section A.2.6, with the hyperparameters of the treatment group).
+(Yamaguchi et al., Section A.2.6, with the hyperparameters of the
+treatment group). With external control data only (\code{n_c = 0} and
+\code{external_c}) and the vague prior, \eqn{a_0 n_e} must be greater
+than 2. A fixed control (\code{n_c = 0} and \code{fixed_c}, the known
+control means of the two endpoints) shifts the distribution of the
+treatment mean, so the effect has a bivariate t distribution and the
+probabilities of the regions are computed exactly from its distribution
+function; \code{method}, \code{nMC} and \code{m_c} are then not used,
+and \code{prior_c} must be \code{NULL}.
 
 The probabilities of the regions are computed by one of two methods:
 \describe{
 \item{\code{"MM"}}{moment-matching approximation: the effect is
 approximated by a bivariate t distribution with the same mean,
-covariance matrix and radial fourth moment (Yamaguchi et al.,
-submitted, Moment_matching article, Theorem 3), whose rectangle
+covariance matrix and radial fourth moment (Yamaguchi, Homma, Takeda
+and Maruo, submitted, Theorem 3), whose rectangle
 probabilities are computed by numerical integration for real degrees
 of freedom. It requires more than 4 degrees of freedom for both
 groups and is the fastest method.}
 \item{\code{"MC"}}{Monte Carlo simulation with \code{nMC} draws from
 each distribution; the probabilities of all regions are estimated
-from the same draws.}
+from the same draws. The computing time is proportional to
+\code{nMC}, so \code{"MM"} is much faster for operating
+characteristics, which need the probabilities for many simulated
+studies.}
 }
 
 The operating characteristics are computed by simulating the sample means
@@ -128,18 +145,19 @@ qdm_decide(des,
                                      matrix(c(5600, 150, 150, 42), 2, 2)))
 }
 \references{
-Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted). Bivariate
-Bayesian quantitative decision-making for two endpoints in rare disease
-drug development.
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.
 
 Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
-Moment-matching approximation for difference of non-standardized
-t-distributed variables.
+Moment-matching approximation for t-differences in clinical trials with
+continuous endpoints.
 }
 \seealso{
 Other designs:
 \code{\link[=design_binary]{design_binary()}},
 \code{\link[=design_binary2]{design_binary2()}},
-\code{\link[=design_continuous]{design_continuous()}}
+\code{\link[=design_continuous]{design_continuous()}},
+\code{\link[=design_tte]{design_tte()}}
 }
 \concept{designs}

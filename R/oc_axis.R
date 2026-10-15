@@ -3,9 +3,12 @@
 #' For a design with a concurrent control group, the axis is the true
 #' treatment effect of each scenario and the thresholds of the criterion are
 #' drawn at their values. Otherwise the axis is the true parameter of the
-#' treatment group, and the thresholds are shifted by the mean (binary
-#' endpoint) or the location (continuous endpoint) of the distribution of the
-#' control group.
+#' treatment group, and the thresholds are shifted by the fixed control value,
+#' or by the mean (binary and time-to-event endpoints) or the location
+#' (continuous endpoint) of the distribution of the control group. For a
+#' time-to-event endpoint the parameter is the milestone survival
+#' probability \eqn{\exp(-\log(2) t_0 / M)} for the median survival time
+#' \eqn{M} of the scenario.
 #'
 #' @param design An object of class \code{"qdm_design"}.
 #' @param x The scenarios (a data frame).
@@ -23,23 +26,30 @@ oc_axis <- function(design, x) {
     lines <- crit$theta_null
     labels <- "theta[NULL]"
   }
-  binary <- design$endpoint == "binary"
-  if (design$control == "concurrent") {
-    if (binary) {
-      return(list(x = x$pi_t - x$pi_c,
+  par <- switch(
+    design$endpoint,
+    binary = list(t = x$pi_t, c = x$pi_c,
                   xlab = expression(theta == pi[t] - pi[c]),
-                  lines = lines, labels = labels, caption = NULL))
-    }
-    return(list(x = x$mu_t - x$mu_c,
-                xlab = expression(theta == mu[t] - mu[c]),
-                lines = lines, labels = labels, caption = NULL))
+                  xlab_t = expression(pi[t]), center = "mean"),
+    continuous = list(t = x$mu_t, c = x$mu_c,
+                      xlab = expression(theta == mu[t] - mu[c]),
+                      xlab_t = expression(mu[t]), center = "location"),
+    tte = list(t = exp(-log(2) * design$milestone / x$median_t),
+               c = exp(-log(2) * design$milestone / x$median_c),
+               xlab = expression(theta == S[t](t[0]) - S[c](t[0])),
+               xlab_t = expression(S[t](t[0])), center = "mean")
+  )
+  if (design$control == "concurrent") {
+    return(list(x = par$t - par$c, xlab = par$xlab, lines = lines,
+                labels = labels, caption = NULL))
   }
   center <- control_location(design)
-  list(x = if (binary) x$pi_t else x$mu_t,
-       xlab = if (binary) expression(pi[t]) else expression(mu[t]),
-       lines = center + lines, labels = labels,
-       caption = sprintf(paste("Thresholds shifted by the %s of the",
-                               "control distribution (%s)"),
-                         if (binary) "mean" else "location",
+  what <- if (design$control == "fixed") {
+    "fixed control value"
+  } else {
+    paste(par$center, "of the control distribution")
+  }
+  list(x = par$t, xlab = par$xlab_t, lines = center + lines, labels = labels,
+       caption = sprintf("Thresholds shifted by the %s (%s)", what,
                          format_num(center, 3L)))
 }

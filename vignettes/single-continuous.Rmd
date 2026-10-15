@@ -1,0 +1,275 @@
+---
+title: "Single continuous endpoint"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Single continuous endpoint}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+This vignette describes the analysis of a proof-of-concept (PoC) study with
+one normally distributed endpoint. `vignette("overview")` introduces the
+decision criteria.
+
+## Model
+
+In group $k$ ($k = t, c$), the outcomes follow $N(\mu_k, \sigma_k^2)$, and
+the data are summarized by the number of subjects $n_k$, the sample mean
+$\bar y_k$ and the sample standard deviation $s_k$ (`data_continuous()`).
+The treatment effect is $\theta = \mu_t - \mu_c$.
+
+With the Normal-Inverse-chi-squared prior (`prior_nix()`),
+$$\mu_k \mid \sigma_k^2 \sim N(\mu_0, \sigma_k^2 / \kappa_0), \qquad
+\sigma_k^2 \sim \textrm{Inv-}\chi^2(\nu_0, \sigma_0^2),$$
+the posterior distribution has the same form with parameters
+$\kappa_n = \kappa_0 + n$, $\mu_n = (\kappa_0 \mu_0 + n \bar y) / \kappa_n$,
+$\nu_n = \nu_0 + n$ and
+$\nu_n \sigma_n^2 = \nu_0 \sigma_0^2 + (n - 1) s^2 +
+\kappa_0 n (\bar y - \mu_0)^2 / \kappa_n$, and the posterior distribution of
+the mean is the t distribution $t_{\nu_n}(\mu_n, \sigma_n^2 / \kappa_n)$.
+With the vague prior $p(\mu, \sigma^2) \propto \sigma^{-2}$
+(`prior_vague()`), it is $t_{n - 1}(\bar y, s^2 / n)$.
+
+For the predictive criterion, the mean of $m$ future subjects of a group has
+the posterior predictive distribution
+$$t_{\nu_n}\left(\mu_n, \; \sigma_n^2 \left(\frac{1}{\kappa_n} +
+\frac{1}{m}\right)\right).$$
+Version 0.1.0 of the package used the squared scale
+$\sigma_n^2 (1 + 1 / \kappa_n) / m$, which treats the $m$ future subjects as
+independent draws from the predictive distribution of one subject and
+understates the uncertainty.
+
+The posterior and predictive probabilities of the Go and NoGo regions are
+probabilities of the difference of two t variables, computed by `ptdiff()`
+with one of three methods (argument `method` of `design_continuous()`):
+
+- `"NI"` (the default): numerical integration over the whole real line,
+  exact up to a small numerical error;
+- `"MM"`: the moment-matching approximation of the difference by a single t
+  distribution (Yamaguchi, Homma, Takeda and Maruo, submitted), which
+  requires more than 4
+  degrees of freedom in both groups;
+- `"MC"`: Monte Carlo simulation with `nMC` draws.
+
+## Decision for observed data
+
+A study with 12 subjects in each group and vague priors, with
+$\theta_{TV} = 15$ and $\theta_{MAV} = 5$:
+
+```{r design}
+crit <- criterion_posterior(theta_tv = 15, theta_mav = 5,
+                            gamma_go = 0.6, gamma_nogo = 0.7)
+des <- design_continuous(n_t = 12, n_c = 12, prior_t = prior_vague(),
+                         prior_c = prior_vague(), criterion = crit)
+dec <- qdm_decide(des, data_t = data_continuous(n = 12, mean = 22, sd = 25),
+                  data_c = data_continuous(n = 12, mean = 2, sd = 25))
+dec
+```
+
+The posterior distribution of each mean is $t_{11}(\bar y, s^2 / 12)$. The
+three methods of `ptdiff()` give similar probabilities of the Go region:
+
+```{r methods}
+post_t <- dec$posterior_t
+post_c <- dec$posterior_c
+scale_t <- post_t[["sigma"]] / sqrt(post_t[["kappa"]])
+scale_c <- post_c[["sigma"]] / sqrt(post_c[["kappa"]])
+set.seed(1)
+sapply(c("NI", "MM", "MC"), function(m) {
+  ptdiff(15, mu_t = post_t[["mu"]], scale_t = scale_t, df_t = post_t[["nu"]],
+         mu_c = post_c[["mu"]], scale_c = scale_c, df_c = post_c[["nu"]],
+         method = m, lower.tail = FALSE)
+})
+```
+
+## Prior distributions and external data
+
+An informative Normal-Inverse-chi-squared prior is given by its parameters;
+for example, a control prior centered at 0 with the weight of 2 subjects for
+the mean and 4 degrees of freedom for the variance:
+
+```{r nix}
+des_nix <- design_continuous(
+  n_t = 12, n_c = 12, prior_t = prior_vague(),
+  prior_c = prior_nix(mu0 = 0, kappa0 = 2, nu0 = 4, sigma0 = 25),
+  criterion = crit
+)
+qdm_decide(des_nix, data_t = data_continuous(12, 22, 25),
+           data_c = data_continuous(12, 2, 25))$posterior_c
+```
+
+External data enter through a power prior with weight $a_0$: data with $n_e$
+subjects, mean $\bar y_e$ and standard deviation $s_e$ act as $a_0 n_e$
+subjects with the same mean and the sum of squares
+$a_0 (n_e - 1) s_e^2$, which keeps the posterior distribution in closed form
+(Huang et al., submitted). With the vague prior, the posterior distribution
+of the mean then has $a_0 n_e + n - 1$ degrees of freedom. Borrowing half of
+30 external control subjects:
+
+```{r external}
+des_ext <- design_continuous(
+  n_t = 12, n_c = 12, prior_t = prior_vague(), prior_c = prior_vague(),
+  criterion = crit,
+  external_c = borrow(data_continuous(n = 30, mean = 0, sd = 25), a0 = 0.5)
+)
+dec_ext <- qdm_decide(des_ext, data_t = data_continuous(12, 22, 25),
+                      data_c = data_continuous(12, 2, 25))
+dec_ext$posterior_c
+```
+
+The control mean now has `r dec_ext$posterior_c[["nu"]]` degrees of freedom
+($0.5 \times 30 + 12 - 1$), and the probability of the Go region is
+`r format(dec_ext$prob_go, digits = 3)` (without the external data,
+`r format(dec$prob_go, digits = 3)`).
+
+## Hypothetical control
+
+For an uncontrolled study, Kang, Yamaguchi and Han (2026, Section 4.2.4)
+give the control mean the same t distribution as the posterior distribution
+of the treatment mean, with location $\mu_{0c}$ and the squared scale
+multiplied by $r$:
+$$\mu_c \sim t_{\nu_{nt}}(\mu_{0c}, \; r \sigma_{nt}^2 / \kappa_{nt}).$$
+The prior of the control group is then not used and is left `NULL`:
+
+```{r hypothetical}
+des_hyp <- design_continuous(
+  n_t = 12, n_c = 0, prior_t = prior_vague(), criterion = crit,
+  hypothetical_c = hypothetical(mean = 0, r = 1)
+)
+qdm_decide(des_hyp, data_t = data_continuous(12, 22, 25))
+```
+
+## Fixed control
+
+With `fixed_c`, the control mean is a known value $\mu_{c0}$, for example
+the mean of the standard of care reported in the literature. The effect is
+$\theta = \mu_t - \mu_{c0}$, its probabilities are those of the t
+distribution of the treatment mean, and `prior_c` and `method` are not
+used. With the vague prior and a benchmark of $-10$:
+
+```{r fixed}
+des_fix <- design_continuous(n_t = 12, n_c = 0, prior_t = prior_vague(),
+                             criterion = crit, fixed_c = -10)
+dec_fix <- qdm_decide(des_fix, data_t = data_continuous(12, 22, 25))
+dec_fix
+pt((22 - (-10 + 15)) / (25 / sqrt(12)), df = 11)
+```
+
+For the predictive criterion, the mean of the $m_t$ future subjects has the
+predictive t distribution given above, and the future effect is that mean
+minus $\mu_{c0}$.
+
+## Predictive criterion
+
+With 50 subjects per group in a future study and $\theta_{NULL} = 0$:
+
+```{r predictive}
+des_pred <- design_continuous(
+  n_t = 12, n_c = 12, prior_t = prior_vague(), prior_c = prior_vague(),
+  criterion = criterion_predictive(theta_null = 0, m_t = 50,
+                                   gamma_go = 0.9, gamma_nogo = 0.7)
+)
+qdm_decide(des_pred, data_t = data_continuous(12, 22, 25),
+           data_c = data_continuous(12, 2, 25))
+```
+
+## Operating characteristics
+
+`qdm_oc()` simulates `nsim` studies under each scenario. Only the sufficient
+statistics are simulated, $\bar y = \mu + \sigma Z / \sqrt{n}$ and
+$s = \sigma \sqrt{X / (n - 1)}$ with $Z \sim N(0, 1)$ and
+$X \sim \chi^2_{n - 1}$, and the same random numbers are used for all
+scenarios. The moment-matching approximation is much faster than numerical
+integration and is convenient for exploring designs:
+
+```{r oc}
+des_mm <- design_continuous(n_t = 12, n_c = 12, prior_t = prior_vague(),
+                            prior_c = prior_vague(), criterion = crit,
+                            method = "MM")
+scen <- data.frame(mu_t = seq(0, 40, by = 5), sd_t = 25, mu_c = 0, sd_c = 25)
+oc <- qdm_oc(des_mm, scen, seed = 1)
+oc
+plot(oc)
+```
+
+The chosen design can be checked with numerical integration. To keep this
+vignette quick, only three scenarios and 1000 simulated studies are used
+here; with the same seed, both methods are applied to the same simulated
+studies:
+
+```{r oc-ni}
+scen3 <- scen[c(1, 3, 5), ]
+oc_ni <- qdm_oc(des, scen3, nsim = 1000, seed = 1)
+oc_mm <- qdm_oc(des_mm, scen3, nsim = 1000, seed = 1)
+data.frame(mu_t = scen3$mu_t, Go_NI = oc_ni$Go, Go_MM = oc_mm$Go,
+           NoGo_NI = oc_ni$NoGo, NoGo_MM = oc_mm$NoGo)
+```
+
+The simulation standard error of the probabilities is at most
+$0.5 / \sqrt{nsim}$, `r format(0.5 / sqrt(10000), digits = 2)` for the
+default `nsim = 10000`.
+
+## Decision boundary
+
+`qdm_boundary()` gives the decision on a grid of observed treatment means
+and standard deviations (or sample sizes), and its plot shows which data
+lead to Go, NoGo and Gray decisions. With a concurrent control group, the
+observed control data are given by `data_c`, and the vertical axis is the
+observed difference in means:
+
+```{r boundary}
+b <- qdm_boundary(des_mm, mean_t = seq(-10, 50, by = 1),
+                  sd_t = seq(10, 40, by = 1),
+                  data_c = data_continuous(12, 2, 25))
+plot(b)
+```
+
+A larger standard deviation needs a larger observed difference for a Go
+decision. For the design with a fixed control, the boundary can be drawn
+against the sample size instead:
+
+```{r boundary-fixed}
+plot(qdm_boundary(des_fix, n_t = 6:40, mean_t = seq(-10, 40, by = 0.5),
+                  sd_t = 25))
+```
+
+## Calibration of the thresholds
+
+The thresholds are calibrated so that the Go criterion is met with
+probability at most 0.05 when the treatment has no effect, and the NoGo
+criterion with probability at most 0.2 when the effect is 20:
+
+```{r calibrate}
+cal <- qdm_calibrate(
+  des_mm,
+  scenario_go = data.frame(mu_t = 0, sd_t = 25, mu_c = 0, sd_c = 25),
+  scenario_nogo = data.frame(mu_t = 20, sd_t = 25, mu_c = 0, sd_c = 25),
+  target_go = 0.05, target_nogo = 0.2, seed = 1
+)
+cal
+plot(cal)
+```
+
+The chosen thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
+$\gamma_{nogo} =$ `r cal$gamma_nogo`.
+
+## References
+
+Huang, Y., Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
+Conjugate representation of power priors for efficient Bayesian analysis of
+normal data.
+
+Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
+decision-making framework in cell and gene therapy development for rare
+diseases. *Journal of Biopharmaceutical Statistics*.
+<https://doi.org/10.1080/10543406.2026.2655410>
+
+Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
+Moment-matching approximation for t-differences in clinical trials with
+continuous endpoints.

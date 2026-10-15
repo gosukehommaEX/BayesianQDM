@@ -1,54 +1,33 @@
-# CRAN Submission Comments
+## Submission
 
-## Test Environments
+This is a major update of BayesianQDM from version 0.1.0 to 1.0.0. The
+interface has been redesigned and is not backward compatible: a study is
+specified by small objects combined into a design, and three functions
+compute the decision for observed data, the operating characteristics and
+calibrated decision thresholds for any design. Formulas and numerical methods
+that were wrong in version 0.1.0 have been corrected. NEWS.md lists the
+changes and the correspondence between the old and new functions, and a new
+vignette explains the migration. Version 1.0.0 also adds a time-to-event
+endpoint, single-arm designs compared with a fixed control value, and
+decision boundaries over possible observed data.
 
-* local R installation, R 4.5.1
-* ubuntu-latest (on GitHub Actions), R-release
-* windows-latest (on GitHub Actions), R-release
-* macOS-latest (on GitHub Actions), R-release
-* ubuntu-latest (on GitHub Actions), R-devel
+## Test environments
+
+* Local: Windows 11, R 4.6.0
+* GitHub Actions: ubuntu-latest (R-devel, R-release and R-oldrel-1),
+  windows-latest (R-release) and macos-latest (R-release)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-* checking for future file timestamps ... NOTE
-  unable to verify current time
-  This is a transient network issue in the check environment and is not
-  related to the package itself.
+## Reverse dependencies
 
-## Package Summary
-
-BayesianQDM provides a comprehensive Bayesian quantitative decision-making framework
-for clinical trials, supporting both single and two-endpoint analyses for binary and
-continuous outcomes. The package implements Go/NoGo/Gray decision criteria using
-posterior probabilities and posterior predictive probabilities under conjugate Bayesian
-models, with support for controlled, uncontrolled, and external designs.
-The package also provides grid-search functions to find optimal Go and NoGo thresholds
-that satisfy user-specified operating characteristic criteria for all supported
-endpoint types and study designs. S3 print() and plot() methods are provided for all
-four decision probability classes, enabling formatted display and visualisation of
-operating characteristics across treatment scenarios.
-
-## Dependencies
-
-* Imports: ggplot2 (>= 3.4.0), gridExtra, mvtnorm, stats
-* Suggests: testthat (>= 3.0.0), knitr, rmarkdown, dplyr, tidyr, purrr
-* All dependencies are well-established CRAN packages
+There are no reverse dependencies on CRAN.
 
 ## Notes
 
-* No MCMC sampling is used; all computations rely on exact conjugate posterior
-  representations or closed-form approximations, keeping run times short
-* Monte Carlo functions have an adjustable iteration count (`nMC`) to balance
-  speed and precision; default values are set conservatively for CRAN checks
-* All examples in the documentation are designed to complete within a few seconds
-
-## Resubmission
-
-This is a resubmission following reviewer feedback. The following changes were made:
-
-* Expanded the MCMC acronym to "Markov chain Monte Carlo (MCMC)" in DESCRIPTION.
-* Added a reference to Kang, Yamaguchi, and Han (2026) in DESCRIPTION.
-* Replaced `\dontrun{}` with `\donttest{}` in examples for `getgamma2bin()` and
-  `getgamma2cont()`.
+* The heavy computations (numerical integration and Monte Carlo loops) are
+  written in C++ with Rcpp.
+* The examples, tests and vignettes use small numbers of simulated studies
+  and Monte Carlo draws; the tests take less than a minute in R CMD check.

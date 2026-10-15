@@ -31,6 +31,7 @@ data_continuous2(n = 12, mean = c(3.2, 1.5),
 Other data:
 \code{\link[=data_binary]{data_binary()}},
 \code{\link[=data_binary2]{data_binary2()}},
-\code{\link[=data_continuous]{data_continuous()}}
+\code{\link[=data_continuous]{data_continuous()}},
+\code{\link[=data_tte]{data_tte()}}
 }
 \concept{data}

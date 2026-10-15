@@ -2,9 +2,9 @@
 #'
 #' Dispatches to the function for the endpoint of the design. For one binary
 #' endpoint all outcomes are enumerated and \code{nsim} is not used; for
-#' continuous endpoints \code{nsim} studies are simulated; for two binary
-#' endpoints the outcomes are enumerated or simulated as specified by the
-#' design.
+#' continuous and time-to-event endpoints \code{nsim} studies are simulated;
+#' for two binary endpoints the outcomes are enumerated or simulated as
+#' specified by the design.
 #'
 #' @param design An object of class \code{"qdm_design"}.
 #' @param scenarios Data frame of scenarios (checked).
@@ -22,5 +22,6 @@ oc_sample <- function(design, scenarios, nsim) {
          binary = oc_sample_binary(design, scenarios),
          continuous = oc_sample_continuous(design, scenarios, nsim),
          binary2 = oc_sample_binary2(design, scenarios, nsim),
-         continuous2 = oc_sample_continuous2(design, scenarios, nsim))
+         continuous2 = oc_sample_continuous2(design, scenarios, nsim),
+         tte = oc_sample_tte(design, scenarios, nsim))
 }

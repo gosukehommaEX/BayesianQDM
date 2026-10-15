@@ -8,11 +8,12 @@ design_binary2(
   n_t,
   n_c,
   prior_t,
-  prior_c,
+  prior_c = NULL,
   criterion,
   external_t = NULL,
   external_c = NULL,
   hypothetical_c = NULL,
+  fixed_c = NULL,
   nMC = 10000L,
   enumerate = TRUE
 )
@@ -26,7 +27,8 @@ number of at least 0).}
 
 \item{prior_t, prior_c}{Dirichlet prior distributions of the four cell
 probabilities of the treatment and control groups, created by
-\code{\link{prior_dirichlet}}.}
+\code{\link{prior_dirichlet}}. \code{prior_c} must be \code{NULL} (the
+default) for a fixed control and is required otherwise.}
 
 \item{criterion}{Decision criterion for two endpoints, created by
 \code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.}
@@ -39,6 +41,10 @@ groups, created by \code{\link{borrow}} with
 \code{\link{hypothetical}} with \code{\link{data_binary2}}, or
 \code{NULL}. It can be used only when \code{n_c = 0}.}
 
+\item{fixed_c}{Fixed control response rates of endpoints 1 and 2, a numeric
+vector of length 2 with values from 0 to 1, or \code{NULL}. It can be
+used only when \code{n_c = 0}.}
+
 \item{nMC}{Number of Monte Carlo draws for posterior probabilities.}
 
 \item{enumerate}{Logical; if \code{TRUE} (the default), the operating
@@ -48,7 +54,8 @@ simulation.}
 \value{
 An object of class \code{c("qdm_design_binary2", "qdm_design")},
 a list with the arguments and the element \code{control}
-(\code{"concurrent"}, \code{"external"} or \code{"hypothetical"}).
+(\code{"concurrent"}, \code{"external"}, \code{"hypothetical"} or
+\code{"fixed"}).
 }
 \description{
 Specifies a proof-of-concept study with two binary endpoints: the sample
@@ -66,14 +73,21 @@ are the differences of the marginal response rates,
 \eqn{\theta_k = \pi_{tk} - \pi_{ck}} with \eqn{\pi_1 = p_{10} + p_{11}} and
 \eqn{\pi_2 = p_{01} + p_{11}}. External data with counts \eqn{x_e} enter
 through a power prior with weight \eqn{a_0}, which adds \eqn{a_0 x_e} to the
-Dirichlet parameters. The control group takes one of three forms, as in
+Dirichlet parameters. The control group takes one of four forms, as in
 \code{\link{design_binary}}: a concurrent control group (\code{n_c} of at
 least 1), external control data only (\code{n_c = 0} and
-\code{external_c}), or a hypothetical control (\code{n_c = 0} and
+\code{external_c}), a hypothetical control (\code{n_c = 0} and
 \code{hypothetical_c} created from \code{\link{data_binary2}}, whose counts
 are added to \code{prior_c}; the hypothetical control distribution
 Dir(beta) of Yamaguchi et al., Appendix A.1.6, is obtained with
-\code{prior_c = prior_dirichlet(beta - counts)}).
+\code{prior_c = prior_dirichlet(beta - counts)}), or a fixed control
+(\code{n_c = 0} and \code{fixed_c}, the known response rates of the two
+endpoints in the control group; \code{prior_c} must then be \code{NULL}).
+With a fixed control, the posterior probabilities are estimated from draws
+of the treatment distribution only, and the future effects of the
+predictive criterion are \eqn{S_{tk} / m_t - \pi_{ck}} (a future effect
+that differs from the null value by less than \eqn{10^{-10}} is treated as
+equal to it; \code{m_c} is not used).
 
 The posterior probabilities of the regions (posterior criteria) are
 estimated by Monte Carlo simulation with \code{nMC} draws from the
@@ -110,14 +124,15 @@ qdm_decide(des, data_t = data_binary2(c(3, 2, 2, 3)),
            data_c = data_binary2(c(6, 2, 1, 1)), seed = 1)
 }
 \references{
-Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted). Bivariate
-Bayesian quantitative decision-making for two endpoints in rare disease
-drug development.
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.
 }
 \seealso{
 Other designs:
 \code{\link[=design_binary]{design_binary()}},
 \code{\link[=design_continuous]{design_continuous()}},
-\code{\link[=design_continuous2]{design_continuous2()}}
+\code{\link[=design_continuous2]{design_continuous2()}},
+\code{\link[=design_tte]{design_tte()}}
 }
 \concept{designs}

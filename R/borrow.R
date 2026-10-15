@@ -8,8 +8,8 @@
 #' no Markov chain Monte Carlo sampling is needed.
 #'
 #' @param data External data created by \code{\link{data_binary}},
-#'   \code{\link{data_continuous}}, \code{\link{data_binary2}} or
-#'   \code{\link{data_continuous2}}.
+#'   \code{\link{data_continuous}}, \code{\link{data_binary2}},
+#'   \code{\link{data_continuous2}} or \code{\link{data_tte}}.
 #' @param a0 Power prior weight, a number from 0 to 1.
 #'
 #' @return An object of class \code{"qdm_borrow"} with elements \code{data} and

@@ -26,7 +26,7 @@
 #' vague prior and external data, the posterior distribution of the mean has
 #' \eqn{a_0 n_e + n_k - 1} degrees of freedom.
 #'
-#' The control group takes one of three forms.
+#' The control group takes one of four forms.
 #' \describe{
 #'   \item{Concurrent control}{\code{n_c} is at least 2. External control
 #'     data can be added through \code{external_c}.}
@@ -41,6 +41,14 @@
 #'     \eqn{\mu_{0c}} and squared scale multiplied by \eqn{r}:
 #'     \eqn{\mu_c \sim t_{\nu_{nt}}(\mu_{0c}, r \sigma_{nt}^2 / \kappa_{nt})}.
 #'     \code{prior_c} is not used and must be \code{NULL}.}
+#'   \item{Fixed control}{\code{n_c = 0} and \code{fixed_c} is given: the
+#'     control mean is a known value \eqn{\mu_c}, as in a single-arm study
+#'     compared with a benchmark. The probabilities of the Go and NoGo regions
+#'     are computed exactly from the t distribution of the treatment mean
+#'     (posterior) or of the mean of \eqn{m_t} future subjects (posterior
+#'     predictive), shifted by \eqn{\mu_c}; \code{method}, \code{nMC} and
+#'     \code{m_c} are not used. \code{prior_c} is not used and must be
+#'     \code{NULL}.}
 #' }
 #'
 #' For the posterior predictive criterion (\code{\link{criterion_predictive}}),
@@ -63,7 +71,7 @@
 #' @param prior_t,prior_c Prior distributions of the mean and variance of the
 #'   treatment and control groups, created by \code{\link{prior_nix}} or
 #'   \code{\link{prior_vague}}. \code{prior_c} must be \code{NULL} (the
-#'   default) for a hypothetical control and is required otherwise.
+#'   default) for a hypothetical or fixed control and is required otherwise.
 #' @param criterion Decision criterion for one endpoint, created by
 #'   \code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.
 #' @param external_t,external_c External data of the treatment and control
@@ -72,16 +80,25 @@
 #' @param hypothetical_c Hypothetical control, created by
 #'   \code{\link{hypothetical}} with \code{mean} (of length 1) and \code{r},
 #'   or \code{NULL}. It can be used only when \code{n_c = 0}.
+#' @param fixed_c Fixed control mean, a number, or \code{NULL}. It can be used
+#'   only when \code{n_c = 0}.
 #' @param method Method used to compute the probabilities: \code{"NI"}
 #'   (numerical integration, the default), \code{"MM"} (moment-matching
 #'   approximation, which requires the distributions of both group means to
 #'   have more than 4 degrees of freedom) or \code{"MC"} (Monte Carlo
-#'   simulation). See \code{\link{ptdiff}}.
+#'   simulation). See \code{\link{ptdiff}}. Numerical integration is exact
+#'   up to a small numerical error but is the slowest of the deterministic
+#'   methods: for operating characteristics, which need the probabilities for
+#'   many simulated studies, \code{"MM"} is faster by about two orders of
+#'   magnitude and is suited to exploring designs, and \code{"NI"} can be
+#'   used to confirm the chosen design. The computing time of \code{"MC"} is
+#'   proportional to \code{nMC}.
 #' @param nMC Number of Monte Carlo draws for \code{method = "MC"}.
 #'
 #' @return An object of class \code{c("qdm_design_continuous", "qdm_design")},
 #'   a list with the arguments and the element \code{control}
-#'   (\code{"concurrent"}, \code{"external"} or \code{"hypothetical"}).
+#'   (\code{"concurrent"}, \code{"external"}, \code{"hypothetical"} or
+#'   \code{"fixed"}).
 #'
 #' @references
 #' Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
@@ -114,10 +131,18 @@
 #'   hypothetical_c = hypothetical(mean = -10, r = 1),
 #'   method = "MM"
 #' )
+#'
+#' # Single-arm study compared with a fixed control mean of -10
+#' design_continuous(
+#'   n_t = 12, n_c = 0, prior_t = prior_vague(),
+#'   criterion = criterion_posterior(theta_tv = 30, theta_mav = 15,
+#'                                   gamma_go = 0.6, gamma_nogo = 0.7),
+#'   fixed_c = -10
+#' )
 #' @export
 design_continuous <- function(n_t, n_c, prior_t, prior_c = NULL, criterion,
                               external_t = NULL, external_c = NULL,
-                              hypothetical_c = NULL,
+                              hypothetical_c = NULL, fixed_c = NULL,
                               method = c("NI", "MM", "MC"), nMC = 10000L) {
   check_numeric(n_t, "n_t", lower = 2, integer = TRUE)
   check_numeric(n_c, "n_c", lower = 0, integer = TRUE)
@@ -138,17 +163,10 @@ design_continuous <- function(n_t, n_c, prior_t, prior_c = NULL, criterion,
     stop(paste("'hypothetical_c' must be NULL or created by hypothetical()",
                "with 'mean' of length 1 and 'r'."), call. = FALSE)
   }
-  control <- control_form(n_c, external_c, hypothetical_c)
-  if (control == "hypothetical") {
-    if (!is.null(prior_c)) {
-      stop(paste("'prior_c' must be NULL for a hypothetical control, whose",
-                 "distribution is determined by 'hypothetical_c' and the",
-                 "posterior distribution of the treatment group."),
-           call. = FALSE)
-    }
-  } else {
-    check_prior_continuous(prior_c, "prior_c")
-  }
+  fixed_c <- check_fixed_c(fixed_c, 1L, probability = FALSE)
+  control <- control_form(n_c, external_c, hypothetical_c, fixed_c)
+  check_prior_control(prior_c, control, check_prior_continuous,
+                      unused = c("hypothetical", "fixed"))
   method <- match.arg(method)
   check_numeric(nMC, "nMC", lower = 1, upper = .Machine$integer.max,
                 integer = TRUE)
@@ -157,9 +175,14 @@ design_continuous <- function(n_t, n_c, prior_t, prior_c = NULL, criterion,
                         n_c = as.integer(round(n_c)), prior_t = prior_t,
                         prior_c = prior_c, criterion = criterion,
                         external_t = external_t, external_c = external_c,
-                        hypothetical_c = hypothetical_c, control = control,
-                        method = method, nMC = as.integer(round(nMC))),
+                        hypothetical_c = hypothetical_c, fixed_c = fixed_c,
+                        control = control, method = method,
+                        nMC = as.integer(round(nMC))),
                    class = c("qdm_design_continuous", "qdm_design"))
+  if (control == "fixed") {
+    # The probabilities are computed exactly, whatever the method
+    return(des)
+  }
   # Degrees of freedom of the distributions of the group means for the
   # sample sizes of the design (they do not depend on the data values)
   post_t <- posterior_continuous(prior_t, des$n_t, external = external_t)

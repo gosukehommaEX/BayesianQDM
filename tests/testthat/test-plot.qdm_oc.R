@@ -28,6 +28,17 @@ test_that("plot.qdm_oc() adds Miss decisions and shifted thresholds", {
   expect_equal(sort(unique(b3$data[[3]]$x)), scen_u$pi_t)
 })
 
+test_that("plot.qdm_oc() needs distinct values on the horizontal axis", {
+  # Two scenarios with the same effect (0.2) but different control rates
+  oc <- qdm_oc(ref_design("D1"), data.frame(pi_t = c(0.5, 0.6),
+                                            pi_c = c(0.3, 0.4)))
+  expect_error(plot(oc), "distinct values on the horizontal axis")
+  oc_cont <- qdm_oc(ref_design_cont("C1", "MM"),
+                    data.frame(mu_t = 20, sd_t = c(20, 30), mu_c = 0,
+                               sd_c = 25), nsim = 20, seed = 1)
+  expect_error(plot(oc_cont), "distinct values on the horizontal axis")
+})
+
 test_that("plot.qdm_oc() needs the design attribute", {
   oc <- qdm_oc(ref_design("D1"), scen_c)
   attr(oc, "design") <- NULL
@@ -101,4 +112,17 @@ test_that("plot.qdm_oc() draws heat maps for two continuous endpoints", {
   n_dec <- 3L + any(oc$Miss > 0)
   expect_identical(nrow(ggplot2::ggplot_build(p)$data[[1]]),
                    n_dec * nrow(sc))
+})
+
+test_that("plot.qdm_oc() draws fixed-control and time-to-event designs", {
+  oc <- qdm_oc(ref_design("D8"), scen_u)
+  b <- ggplot2::ggplot_build(plot(oc))
+  expect_equal(sort(unique(b$data[[1]]$xintercept)), c(0.25, 0.4))
+  expect_equal(sort(unique(b$data[[3]]$x)), scen_u$pi_t)
+  sc <- data.frame(median_t = c(6.3, 9, 12, 20))
+  oc_t <- qdm_oc(ref_design_tte("T1"), sc, nsim = 200, seed = 1)
+  b_t <- ggplot2::ggplot_build(plot(oc_t))
+  expect_equal(sort(unique(b_t$data[[1]]$xintercept)), c(0.72, 0.87))
+  expect_equal(sort(unique(b_t$data[[3]]$x)),
+               exp(-log(2) * 3 / sc$median_t))
 })

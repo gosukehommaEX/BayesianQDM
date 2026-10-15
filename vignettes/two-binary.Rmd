@@ -1,0 +1,233 @@
+---
+title: "Two binary endpoints"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Two binary endpoints}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+This vignette describes the analysis of a proof-of-concept (PoC) study with
+two binary endpoints (Yamaguchi et al., submitted).
+`vignette("overview")` introduces the decision criteria for one endpoint.
+
+## Model
+
+The responses of a subject on the two endpoints fall into one of four cells,
+`"00"`, `"01"`, `"10"` and `"11"`, where the first digit is the response on
+endpoint 1 and the second the response on endpoint 2. In group $k$, the
+counts $x_k$ of the four cells follow a multinomial distribution with cell
+probabilities $p_k = (p_{k,00}, p_{k,01}, p_{k,10}, p_{k,11})$, which have a
+Dirichlet prior distribution $\textrm{Dir}(\alpha_k)$ (`prior_dirichlet()`).
+The posterior distribution is $\textrm{Dir}(\alpha_k + x_k)$, and with
+external data $x_{e}$ borrowed with weight $a_0$ it is
+$\textrm{Dir}(\alpha_k + a_0 x_{e} + x_k)$.
+
+The response rates of the two endpoints are the margins
+$\pi_{k1} = p_{k,10} + p_{k,11}$ and $\pi_{k2} = p_{k,01} + p_{k,11}$, and
+the treatment effects are $\theta_j = \pi_{tj} - \pi_{cj}$ ($j = 1, 2$).
+
+## Regions and criteria
+
+The target values and minimum acceptable values divide the plane of
+$(\theta_1, \theta_2)$ into nine regions:
+
+```{r regions}
+qdm_regions("posterior")
+```
+
+With `rule = "joint"` (the default), the Go criterion is that the posterior
+probability of the union of `go_regions` is at least $\gamma_{go}$, and the
+NoGo criterion that the probability of the union of `nogo_regions` is at
+least $\gamma_{nogo}$. The defaults, region 1 for Go and region 9 for NoGo,
+require both effects to exceed their target values and both to be at most
+their minimum acceptable values. With `rule = "and"` or `rule = "or"`, the
+criteria are applied to each endpoint separately and combined with AND or
+OR.
+
+For the predictive criterion, the null values divide the plane of the
+future effects into four regions:
+
+```{r regions-pred}
+qdm_regions("predictive")
+```
+
+The posterior probabilities of the regions are estimated with `nMC` draws
+from the Dirichlet posterior distributions. The predictive probabilities are
+computed exactly from the joint distribution of the numbers of future
+responders on the two endpoints.
+
+## Decision for observed data
+
+The first case study of Yamaguchi et al. (submitted) has 10 subjects per
+group, $\textrm{Dir}(0.25, 0.25, 0.25, 0.25)$ priors,
+$\theta_{TV} = (0.15, 0.15)$ and $\theta_{MAV} = (0.10, 0.10)$. Here the
+thresholds are $\gamma_{go} = \gamma_{nogo} = 0.6$ (the article calibrates
+its own thresholds), and `nMC = 2000` keeps the computations quick:
+
+```{r design}
+prior <- prior_dirichlet(rep(0.25, 4))
+des <- design_binary2(
+  n_t = 10, n_c = 10, prior_t = prior, prior_c = prior,
+  criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+                                  theta_mav = c(0.10, 0.10),
+                                  gamma_go = 0.6, gamma_nogo = 0.6),
+  nMC = 2000
+)
+dec <- qdm_decide(des, data_t = data_binary2(c(3, 2, 2, 3)),
+                  data_c = data_binary2(c(6, 2, 1, 1)), seed = 1)
+dec
+```
+
+The posterior probability of region 1 is
+`r format(dec$prob_go, digits = 3)`, and the decision is `r dec$decision`.
+With `rule = "and"`, the Go criterion requires each endpoint to meet its
+threshold separately:
+
+```{r and}
+des_and <- design_binary2(
+  n_t = 10, n_c = 10, prior_t = prior, prior_c = prior,
+  criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+                                  theta_mav = c(0.10, 0.10),
+                                  gamma_go = 0.6, gamma_nogo = 0.6,
+                                  rule = "and"),
+  nMC = 2000
+)
+qdm_decide(des_and, data_t = data_binary2(c(3, 2, 2, 3)),
+           data_c = data_binary2(c(6, 2, 1, 1)), seed = 1)
+```
+
+For the predictive criterion with 30 future subjects per group:
+
+```{r predictive}
+des_pred <- design_binary2(
+  n_t = 10, n_c = 10, prior_t = prior, prior_c = prior,
+  criterion = criterion_predictive(theta_null = c(0, 0), m_t = 30,
+                                   gamma_go = 0.6, gamma_nogo = 0.6)
+)
+qdm_decide(des_pred, data_t = data_binary2(c(3, 2, 2, 3)),
+           data_c = data_binary2(c(6, 2, 1, 1)))
+```
+
+## External data and hypothetical controls
+
+External data of either group are given as cell counts and borrowed with a
+power prior weight:
+
+```{r external}
+des_ext <- design_binary2(
+  n_t = 10, n_c = 10, prior_t = prior, prior_c = prior,
+  criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+                                  theta_mav = c(0.10, 0.10),
+                                  gamma_go = 0.6, gamma_nogo = 0.6),
+  external_c = borrow(data_binary2(c(12, 3, 3, 2)), a0 = 0.5),
+  nMC = 2000
+)
+qdm_decide(des_ext, data_t = data_binary2(c(3, 2, 2, 3)),
+           data_c = data_binary2(c(6, 2, 1, 1)), seed = 1)$posterior_c
+```
+
+For a study without a concurrent control group, `hypothetical()` with cell
+counts adds the hypothetical control data to the prior of the control group:
+
+```{r hypothetical}
+des_hyp <- design_binary2(
+  n_t = 10, n_c = 0, prior_t = prior, prior_c = prior,
+  criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+                                  theta_mav = c(0.10, 0.10),
+                                  gamma_go = 0.6, gamma_nogo = 0.6),
+  hypothetical_c = hypothetical(data = data_binary2(c(6, 2, 1, 1))),
+  nMC = 2000
+)
+qdm_decide(des_hyp, data_t = data_binary2(c(3, 2, 2, 3)), seed = 1)
+```
+
+With `fixed_c`, the control response rates of the two endpoints are known
+values $(\pi_{c1,0}, \pi_{c2,0})$, for example those of the standard of care
+reported in the literature. The effects are then
+$\theta_j = \pi_{tj} - \pi_{cj,0}$, and `prior_c` must be `NULL`:
+
+```{r fixed}
+des_fix <- design_binary2(
+  n_t = 10, n_c = 0, prior_t = prior,
+  criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+                                  theta_mav = c(0.10, 0.10),
+                                  gamma_go = 0.6, gamma_nogo = 0.6),
+  fixed_c = c(0.2, 0.2), nMC = 2000
+)
+qdm_decide(des_fix, data_t = data_binary2(c(3, 2, 2, 3)), seed = 1)
+```
+
+## Operating characteristics
+
+A scenario gives the response rates of the two endpoints and their
+correlation in each group. `cellprob_binary2()` converts them into the cell
+probabilities; a correlation is feasible only if all four probabilities are
+non-negative.
+
+```{r cellprob}
+cellprob_binary2(pi1 = 0.35, pi2 = 0.35, rho = 0.3)
+```
+
+By default (`enumerate = TRUE`), `qdm_oc()` enumerates all outcomes of the
+study, `choose(n + 3, 3)` per group (`r choose(13, 3)` for 10 subjects), and
+computes the region probabilities once for every pair of treatment and
+control outcomes, with the same Monte Carlo draws for all pairs. The
+computing time is proportional to the number of pairs times `nMC`; for large
+sample sizes, `enumerate = FALSE` simulates `nsim` studies instead.
+
+```{r oc}
+effects <- expand.grid(theta1 = c(0, 0.15, 0.3), theta2 = c(0, 0.15, 0.3))
+scen <- data.frame(pi_t1 = 0.2 + effects$theta1,
+                   pi_t2 = 0.2 + effects$theta2, rho_t = 0.3,
+                   pi_c1 = 0.2, pi_c2 = 0.2, rho_c = 0.3)
+oc <- qdm_oc(des, scen, seed = 1)
+oc
+plot(oc)
+```
+
+A scenario whose correlation is outside the feasible range is not evaluable:
+its probabilities are `NA`, with a warning, and it is marked "NE" in the
+plot.
+
+The decision boundaries of `qdm_boundary()` (see `vignette("single-binary")`)
+are not available for two binary endpoints, because the decision depends on
+the four cell counts of the treatment group and cannot be shown on two axes.
+
+## Calibration of the thresholds
+
+With `rule = "joint"`, `qdm_calibrate()` chooses one threshold for the Go
+criterion and one for the NoGo criterion. Here the Go criterion should be
+met with probability at most 0.1 when neither endpoint is improved, and the
+NoGo criterion with probability at most 0.2 when both effects are 0.3:
+
+```{r calibrate}
+cal <- qdm_calibrate(des, scenario_go = scen[1, ], scenario_nogo = scen[9, ],
+                     target_go = 0.1, target_nogo = 0.2, seed = 1)
+cal
+plot(cal)
+```
+
+The calibrated thresholds add up to `r cal$gamma_go + cal$gamma_nogo`. When
+the sum is 1 or less, a Go and a NoGo criterion can be met together (a Miss
+decision); here Miss decisions have probability up to
+`r format(max(cal$oc$Miss), digits = 2)` under the two scenarios, which the
+warning reports. `qdm_calibrate()` chooses the smallest thresholds that meet
+the targets, and larger thresholds also meet them, with more Gray decisions.
+For example, the design with $\gamma_{go} = \gamma_{nogo} = 0.6$ used above
+meets the Go criterion with probability `r format(oc$Go[1], digits = 2)`
+when neither endpoint is improved and the NoGo criterion with probability
+`r format(oc$NoGo[9], digits = 2)` when both effects are 0.3, and Miss
+decisions are impossible because the thresholds add up to more than 1.
+
+## Reference
+
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.
