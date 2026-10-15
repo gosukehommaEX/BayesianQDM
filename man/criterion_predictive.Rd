@@ -12,7 +12,8 @@ criterion_predictive(
   gamma_nogo,
   go_regions = 1L,
   nogo_regions = 4L,
-  rule = c("joint", "and", "or")
+  rule = c("joint", "and", "or"),
+  direction = "greater"
 )
 }
 \arguments{
@@ -44,6 +45,10 @@ values.}
 of unions of regions), \code{"and"} or \code{"or"} (marginal
 probabilities of each endpoint, combined with AND or OR). Ignored for one
 endpoint.}
+
+\item{direction}{\code{"greater"} (the default) if larger treatment effects
+are favorable, or \code{"less"} if smaller effects are favorable. For
+two endpoints, a single value for both or one value per endpoint.}
 }
 \value{
 An object of class
@@ -55,7 +60,10 @@ probability of the treatment effect \eqn{\tilde\theta} that will be
 observed in a future study with \code{m_t} and \code{m_c} subjects in the
 treatment and control groups, given the proof-of-concept data \eqn{D}.
 The future effect is the difference between the future sample proportions
-(binary endpoints) or sample means (continuous endpoints).
+(binary endpoints) or sample means (continuous endpoints), or, for a
+time-to-event endpoint, the difference of the estimated milestone survival
+probabilities or the ratio of the estimated hazards (see
+\code{\link{design_tte}}).
 }
 \details{
 For one endpoint, the Go region is \eqn{\tilde\theta > \theta_{NULL}} and
@@ -67,6 +75,10 @@ the two probabilities add up to 1, a Gray decision is possible only when
 \eqn{\gamma_{go} + \gamma_{nogo} > 1}, and Miss decisions can occur only when
 \eqn{\gamma_{go} + \gamma_{nogo} \le 1}.
 
+With \code{direction = "less"}, for an endpoint on which smaller effects
+are favorable, the Go region is \eqn{\tilde\theta < \theta_{NULL}} and the
+NoGo region is \eqn{\tilde\theta \ge \theta_{NULL}}.
+
 For two endpoints, the null values divide the plane of
 \eqn{(\tilde\theta_1, \tilde\theta_2)} into four regions (see
 \code{\link{qdm_regions}}), and the criteria are based on the predictive
@@ -75,11 +87,17 @@ probabilities of the unions of \code{go_regions} and \code{nogo_regions}
 or \code{"or"}, they are based on the marginal predictive probabilities of
 each endpoint, \eqn{\Pr(\tilde\theta_k > \theta_{NULLk} \mid D)} for Go
 and \eqn{\Pr(\tilde\theta_k \le \theta_{NULLk} \mid D)} for NoGo,
-combined with AND or OR (equations 9 and 10).
+combined with AND or OR (equations 9 and 10). With two endpoints,
+\code{direction} can differ between the endpoints, and the regions are
+defined on the favorable side of each endpoint.
 }
 \examples{
 criterion_predictive(theta_null = 0, m_t = 50, gamma_go = 0.9,
                      gamma_nogo = 0.7)
+
+# Smaller effects are favorable
+criterion_predictive(theta_null = 0, m_t = 50, gamma_go = 0.9,
+                     gamma_nogo = 0.7, direction = "less")
 }
 \references{
 Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.

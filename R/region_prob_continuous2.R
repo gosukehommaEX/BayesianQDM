@@ -1,5 +1,11 @@
 #' Probabilities of unions of regions for two continuous endpoints
 #'
+#' For an endpoint with \code{direction = "less"}, the probabilities are
+#' those of the reflected problem (see \code{reflect_criterion()}): the
+#' locations of the means of that endpoint and its fixed control mean are
+#' negated, the covariance terms change sign when only one endpoint is
+#' reflected, and the thresholds of that endpoint are negated.
+#'
 #' @param criterion A criterion for two endpoints.
 #' @param dist_t,dist_c Distributions of the treatment and control means (see
 #'   \code{mean_dist_continuous2()}), with the same number of rows or one
@@ -22,6 +28,19 @@ region_prob_continuous2 <- function(criterion, dist_t, dist_c, sets, method,
     dist_c <- list(loc = matrix(fixed, 1L, 2L), scale = matrix(0, 1L, 3L),
                    df = 1)
     method <- "MM"
+  }
+  r <- reflect_criterion(criterion)
+  if (any(r$flip)) {
+    reflect <- function(d) {
+      d$loc[, r$flip] <- -d$loc[, r$flip]
+      if (xor(r$flip[1L], r$flip[2L])) {
+        d$scale[, 2L] <- -d$scale[, 2L]
+      }
+      d
+    }
+    dist_t <- reflect(dist_t)
+    dist_c <- reflect(dist_c)
+    criterion <- r$criterion
   }
   if (criterion$type == "posterior") {
     tv <- as.numeric(criterion$theta_tv)

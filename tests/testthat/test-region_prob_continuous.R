@@ -90,3 +90,47 @@ test_that("region_prob_continuous() uses the t distribution for a fixed control"
   expect_equal(q$go[2], stats::pt(5 / sqrt(144 * (1 / 15 + 1 / 30)), 14,
                                   lower.tail = FALSE))
 })
+
+test_that("region_prob_continuous() reverses the regions for direction = \"less\"", {
+  # With the thresholds exchanged, the Go region of direction = "less" is
+  # the NoGo region of the reference criterion and conversely (the
+  # distribution of the difference is continuous); references of design C1
+  pt <- post(c(18, 25), 12, 11, c(625, 400))
+  pc <- post(c(-12, -10), 12, 11, c(625, 600))
+  less <- criterion_posterior(15, 30, 0.6, 0.7, direction = "less")
+  ni <- region_prob_continuous(less, pt, pc, "NI")
+  expect_equal(ni$go, c(0.0878402872647, 0.0248900866027), tolerance = 1e-9)
+  expect_equal(ni$nogo, c(0.5, 0.697142834497), tolerance = 1e-9)
+  mm <- region_prob_continuous(less, pt, pc, "MM")
+  expect_equal(mm$go, c(0.0877885562533, 0.0249788420729), tolerance = 1e-9)
+  # Predictive criterion (design C5)
+  c5 <- region_prob_continuous(
+    criterion_predictive(10, m_t = 40, m_c = 30, gamma_go = 0.8,
+                         gamma_nogo = 0.7, direction = "less"),
+    post(18, 12, 11, 625), post(-12, 12, 11, 625), "NI"
+  )
+  expect_equal(c5$go, 0.0615069193852, tolerance = 1e-9)
+  expect_equal(c5$nogo, 0.938493080615, tolerance = 1e-9)
+  # Fixed control: the t distribution of the treatment mean
+  pf <- region_prob_continuous(less, post(18, 12, 11, 625), NULL, "NI",
+                               fixed = -10)
+  expect_equal(pf$go, stats::pt((5 - 18) / sqrt(625 / 12), 11),
+               tolerance = 1e-12)
+  expect_equal(pf$nogo, stats::pt((20 - 18) / sqrt(625 / 12), 11,
+                                  lower.tail = FALSE), tolerance = 1e-12)
+})
+
+test_that("region_prob_continuous() reflects the means for Monte Carlo", {
+  # The same draws as the reference criterion with negated locations and
+  # thresholds
+  pt <- post(c(18, 25), 12, 11, c(625, 400))
+  pc <- post(-12, 12, 11, 625)
+  less <- criterion_posterior(15, 30, 0.6, 0.7, direction = "less")
+  ref <- criterion_posterior(-15, -30, 0.6, 0.7)
+  set.seed(4)
+  a <- region_prob_continuous(less, pt, pc, "MC", nMC = 2000L)
+  set.seed(4)
+  b <- region_prob_continuous(ref, post(c(-18, -25), 12, 11, c(625, 400)),
+                              post(12, 12, 11, 625), "MC", nMC = 2000L)
+  expect_identical(a, b)
+})

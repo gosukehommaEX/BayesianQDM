@@ -31,7 +31,9 @@ For a hypothetical or fixed control, \code{prior_c} must be \code{NULL}
 (the default).}
 
 \item{criterion}{Decision criterion for two endpoints, created by
-\code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.}
+\code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.
+Its argument \code{direction} sets whether larger or smaller effects
+are favorable on each endpoint.}
 
 \item{external_t, external_c}{External data of the treatment and control
 groups, created by \code{\link{borrow}} with

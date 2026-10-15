@@ -4,10 +4,15 @@
 \alias{print.qdm_boundary}
 \title{Print a decision boundary}
 \usage{
-\method{print}{qdm_boundary}(x, ...)
+\method{print}{qdm_boundary}(x, digits = 4L, n = 20L, ...)
 }
 \arguments{
 \item{x}{An object of class \code{"qdm_boundary"}.}
+
+\item{digits}{Number of significant digits for observed means, milestone
+survival probabilities, effects and conditions.}
+
+\item{n}{Maximum number of conditions shown in each table.}
 
 \item{...}{Not used.}
 }
@@ -15,8 +20,16 @@
 \code{x}, invisibly.
 }
 \description{
-Prints the number of grid points with each decision and the first rows of
-the grid.
+Prints the decision intervals of \code{\link{qdm_boundary}} as up to
+three tables, each with one row per condition (for example, the number of
+control responders or the treatment group size) and one column per
+decision. The first table gives the range of the observed quantity
+(numbers of responders or events, or observed means), the second the
+corresponding observed response rates or milestone survival
+probabilities, and the last the observed treatment effects. For example,
+the entry \code{"10-20"} in the column \code{Go} means that 10 to 20
+responders lead to a Go decision. The object itself
+is a data frame with one row per interval (see \code{\link{qdm_boundary}}).
 }
 \examples{
 des <- design_binary(
@@ -25,5 +38,8 @@ des <- design_binary(
   criterion = criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
                                   gamma_go = 0.5, gamma_nogo = 0.8)
 )
-qdm_boundary(des)
+b <- qdm_boundary(des)
+print(b, n = 5)
+# The intervals as a data frame
+head(as.data.frame(b))
 }

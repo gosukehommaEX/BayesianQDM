@@ -49,12 +49,14 @@ decision criterion), which are combined into a design.
 | One continuous | `design_continuous()` | Normal-Inverse-chi-squared or vague | Numerical integration, moment matching or Monte Carlo |
 | Two binary | `design_binary2()` | Dirichlet-multinomial | Monte Carlo (posterior), exact sum (predictive) |
 | Two continuous | `design_continuous2()` | Normal-Inverse-Wishart or vague | Moment matching or Monte Carlo |
-| One time-to-event | `design_tte()` | Exponential with Gamma prior (milestone survival) | Numerical integration (posterior), simulation (predictive) |
+| One time-to-event | `design_tte()` | Exponential with Gamma prior (milestone survival or hazard ratio) | Numerical integration or F distribution (posterior), simulation (predictive) |
 
 The control group can be a concurrent control group, external control data
 only, a hypothetical control, or a fixed value of the control parameter (a
 single-arm study compared with a benchmark), and external data can be
-borrowed for either group.
+borrowed for either group. Larger effects are favorable by default; with
+`direction = "less"` in the criterion, smaller effects are favorable, for
+example for the rate of an adverse event or a hazard ratio.
 
 ## Installation
 
@@ -103,6 +105,14 @@ qdm_calibrate(des,
               scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
               scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
               target_go = 0.05, target_nogo = 0.2)
+```
+
+Numbers of responders in the treatment group that lead to each decision,
+for each number of responders in the control group, with the observed
+response rates and differences in response rates:
+
+```{r boundary}
+qdm_boundary(des)
 ```
 
 `plot()` draws the operating characteristics, the calibration curves and the

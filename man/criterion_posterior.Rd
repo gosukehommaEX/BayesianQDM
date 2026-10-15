@@ -11,7 +11,8 @@ criterion_posterior(
   gamma_nogo,
   go_regions = 1L,
   nogo_regions = 9L,
-  rule = c("joint", "and", "or")
+  rule = c("joint", "and", "or"),
+  direction = "greater"
 )
 }
 \arguments{
@@ -20,7 +21,8 @@ endpoint or a numeric vector of length 2 for two endpoints.}
 
 \item{theta_mav}{Minimum acceptable value (MAV) of the treatment effect, of
 the same length as \code{theta_tv}. Each element must be smaller than the
-corresponding element of \code{theta_tv}.}
+corresponding element of \code{theta_tv} (larger for
+\code{direction = "less"}).}
 
 \item{gamma_go}{Probability threshold for the Go criterion, strictly
 between 0 and 1. With \code{rule = "and"} or \code{"or"}, one threshold
@@ -31,17 +33,22 @@ between 0 and 1, given in the same way as \code{gamma_go}.}
 
 \item{go_regions}{Region numbers (from 1 to 9) forming the Go region for two
 endpoints with \code{rule = "joint"}. Ignored for one endpoint. The
-default, region 1, requires both effects to exceed their target values.}
+default, region 1, requires both effects to be beyond their target
+values in the favorable direction.}
 
 \item{nogo_regions}{Region numbers (from 1 to 9) forming the NoGo region for
 two endpoints with \code{rule = "joint"}. Ignored for one endpoint. The
 default, region 9, requires both effects to be at most their minimum
-acceptable values.}
+acceptable values (at least, for \code{direction = "less"}).}
 
 \item{rule}{For two endpoints, \code{"joint"} (the default; probabilities
 of unions of regions), \code{"and"} or \code{"or"} (marginal
 probabilities of each endpoint, combined with AND or OR). Ignored for one
 endpoint.}
+
+\item{direction}{\code{"greater"} (the default) if larger treatment effects
+are favorable, or \code{"less"} if smaller effects are favorable. For
+two endpoints, a single value for both or one value per endpoint.}
 }
 \value{
 An object of class
@@ -50,7 +57,8 @@ An object of class
 \description{
 Specifies a Go/NoGo decision criterion based on the posterior probability
 of the treatment effect \eqn{\theta} (the difference between the treatment
-and control groups) given the proof-of-concept data \eqn{D}.
+and control groups, or their hazard ratio for a time-to-event endpoint)
+given the proof-of-concept data \eqn{D}.
 }
 \details{
 For one endpoint, the Go region is \eqn{\theta > \theta_{TV}} and the NoGo
@@ -60,6 +68,16 @@ criterion is \eqn{\Pr(\theta \le \theta_{MAV} \mid D) \ge \gamma_{nogo}}.
 In the notation of Kang et al. (2026), where the NoGo criterion is
 \eqn{\Pr(\theta > \theta_{MAV} \mid D) \le \gamma_2}, this corresponds to
 \eqn{\gamma_{nogo} = 1 - \gamma_2}.
+
+By default, larger effects are favorable (\code{direction = "greater"},
+with \eqn{\theta_{TV} > \theta_{MAV}}), as for most efficacy endpoints.
+For an endpoint on which smaller effects are favorable, such as the rate
+of an adverse event or a hazard ratio, \code{direction = "less"} reverses
+the inequalities (with \eqn{\theta_{TV} < \theta_{MAV}}): the Go region
+is \eqn{\theta < \theta_{TV}}, the NoGo region is
+\eqn{\theta \ge \theta_{MAV}}, and the criteria are
+\eqn{\Pr(\theta < \theta_{TV} \mid D) \ge \gamma_{go}} and
+\eqn{\Pr(\theta \ge \theta_{MAV} \mid D) \ge \gamma_{nogo}}.
 
 For two endpoints, the target values and minimum acceptable values divide
 the plane of \eqn{(\theta_1, \theta_2)} into nine regions (see
@@ -75,6 +93,12 @@ probabilities of each endpoint (equations 4 and 5): the Go criterion is
 criterion is \eqn{\Pr(\theta_1 \le \theta_{MAV1} \mid D) \ge
 \gamma_{nogo1}} and (or)
 \eqn{\Pr(\theta_2 \le \theta_{MAV2} \mid D) \ge \gamma_{nogo2}}.
+
+With two endpoints, \code{direction} can differ between the endpoints,
+for example an efficacy endpoint (\code{"greater"}) and a safety endpoint
+(\code{"less"}). The regions are then defined on the favorable side of
+each endpoint: region 1 has both effects beyond their target values in
+the favorable direction (see \code{\link{qdm_regions}}).
 
 The decision is Go if only the Go criterion is met, NoGo if only the NoGo
 criterion is met, Gray if neither is met, and Miss if both are met. For one
@@ -92,6 +116,16 @@ criterion_posterior(theta_tv = c(0.2, 0.15), theta_mav = c(0.1, 0.05),
 # Two endpoints, marginal criteria combined with AND
 criterion_posterior(theta_tv = c(0.2, 0.15), theta_mav = c(0.1, 0.05),
                     gamma_go = c(0.6, 0.5), gamma_nogo = 0.7, rule = "and")
+
+# Rate of an adverse event: Go if it is likely to be reduced by more than
+# 0.1, NoGo if it is likely not to be reduced
+criterion_posterior(theta_tv = -0.1, theta_mav = 0, gamma_go = 0.6,
+                    gamma_nogo = 0.7, direction = "less")
+
+# Efficacy (larger is better) and safety (smaller is better) endpoints
+criterion_posterior(theta_tv = c(0.2, -0.1), theta_mav = c(0.1, 0),
+                    gamma_go = 0.5, gamma_nogo = 0.5,
+                    direction = c("greater", "less"))
 }
 \references{
 Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative

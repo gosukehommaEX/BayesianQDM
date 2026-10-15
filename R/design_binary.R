@@ -26,7 +26,8 @@
 #'     study compared with a benchmark. The posterior probabilities are
 #'     \eqn{\Pr(\pi_t > \theta_{TV} + \pi_c \mid D)} and
 #'     \eqn{\Pr(\pi_t \le \theta_{MAV} + \pi_c \mid D)}, computed from the
-#'     Beta posterior distribution of \eqn{\pi_t}. For the posterior
+#'     Beta posterior distribution of \eqn{\pi_t} (with the inequalities
+#'     reversed for \code{direction = "less"}). For the posterior
 #'     predictive criterion the future effect is \eqn{Y_t / m_t - \pi_c},
 #'     where \eqn{Y_t} follows the Beta-binomial posterior predictive
 #'     distribution (a future effect that differs from the null value by less
@@ -49,6 +50,8 @@
 #'   is required otherwise.
 #' @param criterion Decision criterion for one endpoint, created by
 #'   \code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.
+#'   Its argument \code{direction} sets whether larger or smaller effects
+#'   are favorable.
 #' @param external_t,external_c External data of the treatment and control
 #'   groups, created by \code{\link{borrow}} with \code{\link{data_binary}},
 #'   or \code{NULL} (no external data).

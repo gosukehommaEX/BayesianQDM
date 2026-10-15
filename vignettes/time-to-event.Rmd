@@ -15,8 +15,8 @@ library(BayesianQDM)
 
 This vignette describes the analysis of a proof-of-concept (PoC) study with
 one time-to-event endpoint, such as progression-free survival, evaluated by
-the survival probability at a milestone time. `vignette("overview")`
-introduces the decision criteria.
+the survival probability at a milestone time or by the hazard ratio.
+`vignette("overview")` introduces the decision criteria.
 
 ## Model
 
@@ -36,6 +36,14 @@ time $t_0$,
 $$\theta = S_t(t_0) - S_c(t_0), \qquad S_k(t_0) = \exp(-\lambda_k t_0).$$
 The posterior probability $\Pr(\theta > q \mid D)$ is computed by numerical
 integration over the control hazard (`psurvdiff()`).
+
+Alternatively, the effect is the hazard ratio $\theta = \lambda_t / \lambda_c$
+(`effect = "hazard_ratio"`; Huang et al., 2019). With the posterior shapes
+$a_k^* = a_k + d_k$ and rates $b_k^* = b_k + E_k$, its posterior
+distribution is a scaled F distribution,
+$$\frac{a_c^* b_t^*}{a_t^* b_c^*} \, \theta \mid D \sim
+F(2 a_t^*, 2 a_c^*),$$
+so its posterior probabilities are computed exactly (`phazardratio()`).
 
 External data with $d_e$ events and total observed time $E_e$ enter through
 a power prior with weight $a_0$, which adds $a_0 d_e$ to the shape and
@@ -193,16 +201,100 @@ $\gamma_{nogo} =$ `r cal$gamma_nogo`.
 
 ## Decision boundary
 
-`qdm_boundary()` gives the decision for each combination of the number of
-events and the total observed time of the treatment group. With a posterior
-criterion, it does not depend on the conduct of the study:
+`qdm_boundary()` gives, for each total observed time of the treatment group,
+the numbers of events that lead to Go, NoGo and Gray decisions, with the
+corresponding observed milestone survival probabilities
+$\exp(-t_0 d_t / E_t)$ and observed effects. With a posterior criterion, it
+does not depend on the conduct of the study:
 
 ```{r boundary}
-b <- qdm_boundary(des, exposure_t = seq(20, 400, by = 5))
-plot(b)
+b <- qdm_boundary(des, exposure_t = seq(100, 300, by = 50))
+b
 ```
 
 With a total observed time of 150 months, a Go decision needs at most
-`r max(b$events_t[b$exposure_t == 150 & b$decision == "Go"])` events. For a
-design with a concurrent control group, the observed control data are given
-by `data_c`.
+`r max(b$to[b$exposure_t == 150 & b$decision == "Go"])` events. The plot
+shows the regions of the decisions over many values of the total observed
+time:
+
+```{r boundary-plot}
+plot(qdm_boundary(des, exposure_t = seq(20, 400, by = 5)))
+```
+
+For a design with a concurrent control group, the observed control data are
+given by `data_c`.
+
+## Hazard ratio
+
+With `effect = "hazard_ratio"`, smaller effects are favorable, so the
+criterion is specified with `direction = "less"`: the Go region is
+$\theta < \theta_{TV}$ and the NoGo region is $\theta \ge \theta_{MAV}$,
+with $\theta_{TV} < \theta_{MAV}$. The example of Huang et al. (2019) is a
+randomized study with 112 subjects in the treatment group and 56 in the
+control group, uniform enrollment over 13 months, a control median
+survival time of 8.5 months, a loss-to-follow-up hazard of 0.003 per month,
+a target value of 0.67 and a minimum acceptable value of 0.8 for the hazard
+ratio, and an analysis at 127 events. Huang et al. (2019) use the minimum
+acceptable value in their Go rule, as a bound for the upper confidence
+limit of the hazard ratio. Here the decision is Go if the hazard ratio is
+below 0.67 with probability at least 0.5, and NoGo if it is at least 0.8
+with probability at least 0.6:
+
+```{r hr}
+crit_hr <- criterion_posterior(theta_tv = 0.67, theta_mav = 0.8,
+                               gamma_go = 0.5, gamma_nogo = 0.6,
+                               direction = "less")
+des_hr <- design_tte(
+  n_t = 112, n_c = 56, prior_t = prior_gamma(0.01, 0.01),
+  prior_c = prior_gamma(0.01, 0.01), criterion = crit_hr,
+  effect = "hazard_ratio",
+  conduct = conduct_tte(accrual_time = c(0, 13), dropout_hazard = 0.003,
+                        cut_events = 127)
+)
+dec_hr <- qdm_decide(des_hr, data_t = data_tte(75, 1100),
+                     data_c = data_tte(52, 420))
+dec_hr
+post_t <- dec_hr$posterior_t
+post_c <- dec_hr$posterior_c
+phazardratio(0.67, shape_t = post_t[["shape"]], rate_t = post_t[["rate"]],
+             shape_c = post_c[["shape"]], rate_c = post_c[["rate"]])
+```
+
+The argument `milestone` is not used and must not be given. Under the
+exponential model, the hazard ratio is
+the ratio of the median survival times of the control and treatment groups,
+which is the horizontal axis of the plot of operating characteristics:
+
+```{r hr-oc}
+oc_hr <- qdm_oc(des_hr, data.frame(median_t = 8.5 / c(0.5, 0.6, 0.7, 0.8, 1),
+                                   median_c = 8.5), seed = 1)
+oc_hr
+plot(oc_hr)
+```
+
+The probabilities of a Go decision are close to those of Table 1 of Huang
+et al. (2019), which are based on the normal approximation of the estimated
+log hazard ratio (0.946, 0.727, 0.406 and 0.170 for hazard ratios of 0.5,
+0.6, 0.7 and 0.8). The decision boundary gives the numbers of treatment
+events that lead to each decision for given total observed times of the
+treatment group and given control data (`data_c`), with the observed hazard
+ratios $(d_t / E_t) / (d_c / E_c)$:
+
+```{r hr-boundary}
+qdm_boundary(des_hr, exposure_t = seq(800, 1400, by = 200),
+             data_c = data_tte(52, 420))
+```
+
+For a single-arm study, `fixed_c` is the median survival time of the
+control, whose hazard is $\log 2$ divided by it. For the predictive
+criterion, the hazard of each group in the future study is estimated by
+$(a + \tilde d) / (b + \tilde E)$, the future effect is the ratio of the two
+estimates, and with `direction = "less"` the Go region is that it is below
+$\theta_{NULL}$.
+
+## Reference
+
+Huang, B., Talukder, E., Han, L. and Kuan, P.-F. (2019). Quantitative
+decision-making in randomized Phase II studies with a time-to-event
+endpoint. *Journal of Biopharmaceutical Statistics*, 29(1), 189--202.
+<https://doi.org/10.1080/10543406.2018.1489400>

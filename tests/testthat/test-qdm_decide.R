@@ -308,3 +308,27 @@ test_that("qdm_decide() decides for a time-to-event endpoint", {
   expect_identical(qdm_decide(ref_design_tte("T3"), ref_data_tte$T3$t,
                               seed = 8)$decision, "Go")
 })
+
+test_that("qdm_decide() handles endpoints on which smaller effects are favorable", {
+  # Rate of an adverse event in a single-arm study (fixed_c = 0, so the
+  # effect is the rate itself); Python_reference/ref_direction_qdm.py
+  des <- design_binary(20, 0, prior_beta(1, 1),
+                       criterion = criterion_posterior(0.1, 0.25, 0.8, 0.8,
+                                                       direction = "less"),
+                       fixed_c = 0)
+  d1 <- qdm_decide(des, data_binary(20, 1))
+  expect_equal(d1$prob_go, 0.635270036228292, tolerance = 1e-12)
+  expect_equal(d1$prob_nogo, 0.019027271633604, tolerance = 1e-12)
+  expect_identical(d1$decision, "Gray")
+  expect_identical(qdm_decide(des, data_binary(20, 0))$decision, "Go")
+  d4 <- qdm_decide(des, data_binary(20, 4))
+  expect_equal(c(d4$prob_go, d4$prob_nogo),
+               c(0.0521523780994506, 0.367420138813713), tolerance = 1e-12)
+  expect_identical(qdm_decide(des, data_binary(20, 7))$decision, "NoGo")
+  expect_match(format(d1)[2L], "P(theta < 0.1 | data) = 0.6353", fixed = TRUE)
+  # Hazard ratio with a concurrent control
+  dh <- qdm_decide(ref_design_hr("H1"), ref_data_hr$t, ref_data_hr$c)
+  expect_equal(c(dh$prob_go, dh$prob_nogo), unname(ref_prob_hr$H1),
+               tolerance = 1e-10)
+  expect_identical(dh$decision, "Go")
+})

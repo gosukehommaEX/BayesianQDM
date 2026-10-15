@@ -150,3 +150,46 @@ test_that("region_prob_continuous2() is exact for a fixed control", {
   expect_identical(region_prob_continuous2(crit, dt, NULL, as.list(1:9),
                                            "MC", 10L, fixed = c(-10, -1)), p)
 })
+
+test_that("region_prob_continuous2() reverses the regions of an endpoint for direction = \"less\"", {
+  # Fixed control (-10, -1) and the treatment mean t_10((18, 2.5), V):
+  # rectangle probabilities of the bivariate t distribution with the bins of
+  # endpoint 2 in the order theta2 < 3, 3 <= theta2 < 4.5, theta2 >= 4.5
+  # (Python_reference/ref_direction_qdm.py); the correlation of the
+  # reflected effects changes sign
+  cr <- criterion_posterior(c(30, 3), c(20, 4.5), 0.5, 0.5,
+                            direction = c("greater", "less"))
+  p <- region_prob_continuous2(cr, ref_dist_cont2$K1_t, NULL, as.list(1:9),
+                               "MM", fixed = c(-10, -1))
+  expect_equal(p[1L, ], c(0.1103181255109, 0.1740110163274, 0.1729264092054,
+                          0.07991475687238, 0.08387665920268,
+                          0.04444069154774, 0.1837655811718, 0.1062100595221,
+                          0.04453670063959), tolerance = 1e-8)
+  # Both endpoints reflected: the correlation keeps its sign
+  c2 <- criterion_posterior(c(-30, -3), c(-20, -2), 0.5, 0.5,
+                            direction = "less")
+  d_neg <- ref_dist_cont2$K1_t
+  d_neg$loc <- -d_neg$loc
+  p2 <- region_prob_continuous2(c2, d_neg, NULL, as.list(1:9), "MM",
+                                fixed = c(10, 1))
+  expect_equal(p2[1L, ], c(0.3469374255328, 0.06975982196782,
+                           0.04055830354305, 0.1283173507504,
+                           0.04721548914057, 0.03269926773182,
+                           0.1507467601617, 0.08446316795854,
+                           0.0993024132133), tolerance = 1e-8)
+  # Two groups (moment matching): the same as the reference direction with
+  # the reflected distributions
+  c3 <- criterion_posterior(c(30, 3), c(20, 4.5), 0.5, 0.5,
+                            direction = c("greater", "less"))
+  ref3 <- criterion_posterior(c(30, -3), c(20, -4.5), 0.5, 0.5)
+  refl <- function(d) {
+    d$loc[, 2L] <- -d$loc[, 2L]
+    d$scale[, 2L] <- -d$scale[, 2L]
+    d
+  }
+  a <- region_prob_continuous2(c3, ref_dist_cont2$K1_t, ref_dist_cont2$K1_c,
+                               as.list(1:9), "MM")
+  b <- region_prob_continuous2(ref3, refl(ref_dist_cont2$K1_t),
+                               refl(ref_dist_cont2$K1_c), as.list(1:9), "MM")
+  expect_identical(a, b)
+})

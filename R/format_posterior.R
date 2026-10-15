@@ -12,10 +12,15 @@
 #'   continuous endpoint, or \code{"Dirichlet(alpha = (2.25, 1.25, 3.25,
 #'   4.25))"} for two binary endpoints, or
 #'   \code{"hazard ~ Gamma(shape = 5.1, rate = 41)"} for a time-to-event
-#'   endpoint, or \code{"fixed value 0.2"} for a fixed control.
+#'   endpoint, or \code{"fixed value 0.2"} for a fixed control
+#'   (\code{"fixed median survival time 6"} for the hazard ratio).
 #' @noRd
 format_posterior <- function(design, post, digits = 4L) {
   if (startsWith(names(post)[1L], "value")) {
+    if (identical(design$effect, "hazard_ratio")) {
+      return(sprintf("fixed median survival time %s",
+                     format_num(post, digits)))
+    }
     return(if (length(post) == 1L) {
       sprintf("fixed value %s", format_num(post, digits))
     } else {

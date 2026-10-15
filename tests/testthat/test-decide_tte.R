@@ -24,3 +24,17 @@ test_that("decide_tte() validates the data", {
                           data_tte(5, 40)),
                "'data_c' must be NULL for a design without a concurrent")
 })
+
+test_that("decide_tte() matches the references for the hazard ratio", {
+  for (name in c("H1", "H2", "H3", "H4")) {
+    res <- decide_tte(ref_design_hr(name), ref_data_hr$t,
+                      if (name == "H1") ref_data_hr$c else NULL)
+    expect_equal(c(res$prob_go, res$prob_nogo), unname(ref_prob_hr[[name]]),
+                 tolerance = 1e-10, info = name)
+  }
+  res <- decide_tte(ref_design_hr("H4"), ref_data_hr$t, NULL)
+  expect_equal(res$posterior_t, c(shape = 15.1, rate = 241))
+  expect_equal(res$posterior_c, c(shape = 15.1, rate = 126))
+  expect_identical(decide_tte(ref_design_hr("H2"), ref_data_hr$t,
+                              NULL)$posterior_c, c(value = 6))
+})

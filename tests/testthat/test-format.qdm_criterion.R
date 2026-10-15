@@ -49,3 +49,30 @@ test_that("format.qdm_criterion() describes marginal rules", {
                      paste("  Go:   P(future theta1 > 0 | data) >= 0.6 or",
                            "P(future theta2 > 0.1 | data) >= 0.6")))
 })
+
+test_that("format.qdm_criterion() shows the direction of two endpoints", {
+  cr <- criterion_posterior(c(0.2, -0.1), c(0.1, 0), 0.5, 0.5,
+                            direction = c("greater", "less"))
+  expect_identical(format(cr)[4:5],
+                   c("  TV = (0.2, -0.1), MAV = (0.1, 0.0)",
+                     "  Favorable direction: theta1 greater, theta2 less"))
+  cp <- criterion_predictive(c(0, 0), m_t = 30, gamma_go = 0.6,
+                             gamma_nogo = 0.8, direction = "less")
+  expect_identical(format(cp)[5L],
+                   "  Favorable direction: theta1 less, theta2 less")
+  # Not shown when larger effects are favorable on both endpoints, nor for
+  # marginal rules, whose labels show the direction
+  expect_length(format(criterion_posterior(c(0.2, 0.1), c(0.1, 0), 0.5,
+                                           0.5)), 4L)
+  expect_length(format(criterion_posterior(c(0.2, -0.1), c(0.1, 0), 0.5,
+                                           0.5, rule = "and",
+                                           direction = c("greater",
+                                                         "less"))), 3L)
+})
+
+test_that("format.qdm_criterion() reverses the inequalities for one endpoint", {
+  cr <- criterion_posterior(-0.1, 0, 0.6, 0.7, direction = "less")
+  expect_identical(format(cr)[2:3],
+                   c("  Go:   P(theta < -0.1 | data) >= 0.6",
+                     "  NoGo: P(theta >= 0 | data) >= 0.7"))
+})

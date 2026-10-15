@@ -568,3 +568,58 @@ test_that("qdm_oc() simulates time-to-event designs", {
                       nsim = 10),
                "'scenarios\\$median_t' must be greater than 0.")
 })
+
+test_that("qdm_oc() mirrors the operating characteristics for direction = \"less\"", {
+  # With uniform priors, the Go region pi_t - pi_c < -0.2 of the response
+  # rates is the Go region pi_t - pi_c > 0.2 of the non-response rates, so
+  # the operating characteristics at (pi_t, pi_c) are those of the
+  # reference criterion at (1 - pi_t, 1 - pi_c); exact enumeration
+  unif <- prior_beta(1, 1)
+  less <- design_binary(12, 12, unif, unif,
+                        criterion_posterior(-0.2, -0.1, 0.5, 0.8,
+                                            direction = "less"))
+  sc <- data.frame(pi_t = c(0.2, 0.4, 0.6, 0.8), pi_c = 0.6)
+  a <- qdm_oc(less, sc)
+  b <- qdm_oc(ref_design("D1"), 1 - sc)
+  for (d in c("Go", "NoGo", "Gray", "Miss")) {
+    expect_equal(a[[d]], b[[d]], tolerance = 1e-10, info = d)
+  }
+  expect_gt(a$Go[1L], a$Go[4L])
+  # Predictive criterion: the strict inequality excludes the ties on both
+  # sides
+  lp <- design_binary(10, 10, unif, unif,
+                      criterion_predictive(-0.05, m_t = 30, m_c = 20,
+                                           gamma_go = 0.9, gamma_nogo = 0.7,
+                                           direction = "less"))
+  a2 <- qdm_oc(lp, sc)
+  b2 <- qdm_oc(ref_design("D5"), 1 - sc)
+  expect_equal(a2$Go, b2$Go, tolerance = 1e-10)
+  expect_equal(a2$NoGo, b2$NoGo, tolerance = 1e-10)
+  # Fixed control 0.2 becomes 0.8
+  lf <- design_binary(20, 0, unif,
+                      criterion = criterion_posterior(-0.2, -0.05, 0.8, 0.8,
+                                                      direction = "less"),
+                      fixed_c = 0.8)
+  a3 <- qdm_oc(lf, data.frame(pi_t = c(0.3, 0.5, 0.7)))
+  b3 <- qdm_oc(ref_design("D8"), data.frame(pi_t = c(0.7, 0.5, 0.3)))
+  expect_equal(a3$Go, b3$Go, tolerance = 1e-10)
+  expect_equal(a3$NoGo, b3$NoGo, tolerance = 1e-10)
+})
+
+test_that("qdm_oc() simulates designs with the hazard ratio", {
+  # Reference: Python_reference/ref_hazard_ratio.py, design H1
+  nsim <- 20000L
+  tol <- function(p) 4.5 * sqrt(p * (1 - p) / nsim) + 0.002
+  oc <- qdm_oc(ref_design_hr("H1"),
+               data.frame(median_t = c(6, 10), median_c = 6), nsim = nsim,
+               seed = 3)
+  ref_go <- c(0.0516426965407, 0.631775996499)
+  ref_nogo <- c(0.299591297106, 0.00667284840507)
+  expect_true(all(abs(oc$Go - ref_go) <= tol(ref_go)))
+  expect_true(all(abs(oc$NoGo - ref_nogo) <= tol(ref_nogo)))
+  # Without a concurrent control group, only median_t is needed
+  oc2 <- qdm_oc(ref_design_hr("H3"), data.frame(median_t = c(6, 12)),
+                nsim = 300, seed = 4)
+  expect_identical(names(oc2), c("median_t", "Go", "NoGo", "Gray", "Miss"))
+  expect_gt(oc2$Go[2L], oc2$Go[1L])
+})

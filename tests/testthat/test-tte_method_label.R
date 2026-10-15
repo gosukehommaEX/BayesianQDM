@@ -6,3 +6,12 @@ test_that("tte_method_label() describes the computation", {
   expect_identical(tte_method_label(ref_design_tte("T3", nMC = 400L)),
                    "simulation of future studies (nMC = 400)")
 })
+
+test_that("tte_method_label() describes the hazard ratio", {
+  expect_identical(tte_method_label(ref_design_hr("H1")),
+                   "exact computation (F distribution)")
+  expect_identical(tte_method_label(ref_design_hr("H2")),
+                   "exact computation (fixed control)")
+  expect_identical(tte_method_label(ref_design_hr("P2", nMC = 300L)),
+                   "simulation of future studies (nMC = 300)")
+})

@@ -21,21 +21,29 @@ format.qdm_design <- function(x, digits = 4L, ...) {
                      continuous = "one continuous endpoint",
                      binary2 = "two binary endpoints",
                      continuous2 = "two continuous endpoints",
-                     tte = sprintf(paste("one time-to-event endpoint",
-                                         "(milestone survival at t = %s)"),
-                                   format_num(x$milestone, digits)),
+                     tte = if (identical(x$effect, "hazard_ratio")) {
+                       "one time-to-event endpoint (hazard ratio)"
+                     } else {
+                       sprintf(paste("one time-to-event endpoint",
+                                     "(milestone survival at t = %s)"),
+                               format_num(x$milestone, digits))
+                     },
                      stop("Unknown design.", call. = FALSE))
+  fixed_value <- if (length(x$fixed_c) == 1L) {
+    format_num(x$fixed_c, digits)
+  } else {
+    sprintf("(%s)", format_num(x$fixed_c, digits))
+  }
+  fixed_label <- if (identical(x$effect, "hazard_ratio")) {
+    "fixed median survival time"
+  } else {
+    "fixed value"
+  }
   control <- switch(x$control,
                     concurrent = sprintf("concurrent, n = %d", x$n_c),
                     external = "external data only",
                     hypothetical = "hypothetical",
-                    fixed = sprintf("fixed value %s",
-                                    if (length(x$fixed_c) == 1L) {
-                                      format_num(x$fixed_c, digits)
-                                    } else {
-                                      sprintf("(%s)",
-                                              format_num(x$fixed_c, digits))
-                                    }))
+                    fixed = paste(fixed_label, fixed_value))
   out <- c(sprintf("Design: %s", endpoint),
            sprintf("  Treatment: n = %d, prior %s", x$n_t,
                    format(x$prior_t, digits = digits)))

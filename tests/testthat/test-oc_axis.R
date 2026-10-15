@@ -64,3 +64,24 @@ test_that("oc_axis() uses milestone survival for time-to-event designs", {
   ax5 <- oc_axis(ref_design_tte("T5"), sc[, 1, drop = FALSE])
   expect_match(ax5$caption, "shifted by the mean of the control distribution")
 })
+
+test_that("oc_axis() uses the hazard ratio", {
+  sc <- data.frame(median_t = c(6, 12), median_c = 6)
+  ax <- oc_axis(ref_design_hr("H1"), sc)
+  expect_equal(ax$x, c(1, 0.5))
+  expect_equal(ax$xlab, expression(theta == lambda[t] / lambda[c]))
+  expect_equal(ax$lines, c(1, 0.7))
+  expect_null(ax$caption)
+  # Fixed control median 6: the hazard ratio itself, thresholds not shifted
+  ax2 <- oc_axis(ref_design_hr("H2"), sc[, 1, drop = FALSE])
+  expect_equal(ax2$x, c(1, 0.5))
+  expect_equal(ax2$lines, c(1, 0.7))
+  expect_match(ax2$caption, "relative to the fixed control hazard \\(0.116\\)")
+  # Hypothetical control: relative to the mean control hazard 15.1 / 101
+  ax3 <- oc_axis(ref_design_hr("H3"), sc[, 1, drop = FALSE])
+  expect_equal(ax3$x, log(2) / c(6, 12) / (15.1 / 101))
+  expect_match(ax3$caption, "relative to the mean of the control hazard")
+  # Predictive criterion: the null value
+  ax4 <- oc_axis(ref_design_hr("P2", nMC = 100L), sc)
+  expect_equal(ax4$lines, 0.8)
+})

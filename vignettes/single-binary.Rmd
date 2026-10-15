@@ -205,29 +205,82 @@ plot(oc_hyp)
 
 ## Decision boundary
 
-`qdm_boundary()` gives the decision for every possible outcome of the study,
-and its plot shows which outcomes lead to Go, NoGo and Gray decisions.
-Unlike the operating characteristics, it does not depend on the true
-response rates. For the design with a concurrent control group, the axes are
-the numbers of responders of the two groups:
+`qdm_boundary()` shows how many responders lead to each decision. Unlike
+the operating characteristics, it does not depend on the true response
+rates. For the design with a concurrent control group, it gives the numbers
+of treatment responders that lead to Go, NoGo and Gray decisions for each
+number of control responders, together with the observed response rates of
+the treatment group and the observed differences in response rates:
 
 ```{r boundary}
-plot(qdm_boundary(des))
+b <- qdm_boundary(des)
+b
+plot(b)
 ```
+
+The plot shows the regions of the decisions with the boundary values
+written on them, and the axis on the right gives the observed response rate
+of the treatment group. With 3 control responders, a Go decision needs at
+least `r min(b$from[b$y_c == 3 & b$decision == "Go"])` treatment
+responders, an observed difference in response rates of
+`r format(min(b$effect_from[b$y_c == 3 & b$decision == "Go"]), digits = 3)`.
 
 Without a concurrent control group, the boundary is shown for several sample
 sizes of the treatment group, here from 10 to 40 subjects for the design
 with a fixed control:
 
 ```{r boundary-fixed}
-b_fix <- qdm_boundary(des_fix, n_t = 10:40)
+b_fix <- qdm_boundary(des_fix, n_t = seq(10, 40, by = 5))
+b_fix
 plot(b_fix)
 ```
 
 With 20 subjects, a Go decision needs at least
-`r min(b_fix$y_t[b_fix$n_t == 20 & b_fix$decision == "Go"])` responders, and
+`r min(b_fix$from[b_fix$n_t == 20 & b_fix$decision == "Go"])` responders, and
 the decision is NoGo with at most
-`r max(b_fix$y_t[b_fix$n_t == 20 & b_fix$decision == "NoGo"])` responders.
+`r max(b_fix$to[b_fix$n_t == 20 & b_fix$decision == "NoGo"])` responders.
+The data frame returned by `qdm_boundary()` has one row per decision
+interval, so such values can be extracted from its columns `from` and `to`.
+
+## Smaller effects as favorable
+
+For a safety endpoint, such as the occurrence of an adverse event, a
+smaller rate in the treatment group is favorable. With
+`direction = "less"` in the criterion, the Go region is
+$\theta < \theta_{TV}$ and the NoGo region is $\theta \ge \theta_{MAV}$,
+with $\theta_{TV} < \theta_{MAV}$. Here the decision is Go if the rate of
+the adverse event is likely to be reduced by more than 0.1, and NoGo if it
+is likely not to be reduced:
+
+```{r safety}
+crit_ae <- criterion_posterior(theta_tv = -0.1, theta_mav = 0,
+                               gamma_go = 0.6, gamma_nogo = 0.7,
+                               direction = "less")
+des_ae <- design_binary(n_t = 12, n_c = 12, prior_t = jeffreys,
+                        prior_c = jeffreys, criterion = crit_ae)
+dec_ae <- qdm_decide(des_ae, data_t = data_binary(12, 2),
+                     data_c = data_binary(12, 6))
+dec_ae
+post_t <- dec_ae$posterior_t
+post_c <- dec_ae$posterior_c
+pbetadiff(-0.1, a_t = post_t[["a"]], b_t = post_t[["b"]],
+          a_c = post_c[["a"]], b_c = post_c[["b"]])
+pbetadiff(0, a_t = post_t[["a"]], b_t = post_t[["b"]],
+          a_c = post_c[["a"]], b_c = post_c[["b"]], lower.tail = FALSE)
+```
+
+The probability of a Go decision now decreases with the true effect, and a
+Go decision needs few treatment subjects with the adverse event:
+
+```{r safety-oc}
+plot(qdm_oc(des_ae, data.frame(pi_t = seq(0.1, 0.6, by = 0.05),
+                               pi_c = 0.4)))
+qdm_boundary(des_ae)
+```
+
+For the predictive criterion with `direction = "less"`, the Go region is
+that the future effect is below $\theta_{NULL}$, and the NoGo region that
+it is at least $\theta_{NULL}$.
 
 ## Calibration of the thresholds
 

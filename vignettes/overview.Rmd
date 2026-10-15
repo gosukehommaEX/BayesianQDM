@@ -24,6 +24,7 @@ not sufficient for either decision).
 Let $\theta$ be the treatment effect, the difference between the treatment
 and control groups in the response rate (binary endpoint), the mean
 (continuous endpoint) or the survival probability at a milestone time
+(time-to-event endpoint), or the ratio of the hazards of the two groups
 (time-to-event endpoint). The decision criteria use two values of the effect
 chosen by the study team: the target value $\theta_{TV}$, an effect worth
 pursuing, and the minimum acceptable value $\theta_{MAV} < \theta_{TV}$,
@@ -43,6 +44,14 @@ Kang et al. (2026) write the NoGo criterion as
 $\Pr(\theta > \theta_{MAV} \mid D) \le \gamma_2$. This is the same criterion
 with $\gamma_{nogo} = 1 - \gamma_2$, so a threshold $\gamma_2 = 0.2$ of the
 article corresponds to `gamma_nogo = 0.8`.
+
+When smaller effects are favorable, as for the rate of an adverse event or
+a hazard ratio, `direction = "less"` in the criterion reverses the
+inequalities: the Go criterion is
+$\Pr(\theta < \theta_{TV} \mid D) \ge \gamma_{go}$ and the NoGo criterion
+is $\Pr(\theta \ge \theta_{MAV} \mid D) \ge \gamma_{nogo}$, with
+$\theta_{TV} < \theta_{MAV}$ (see `vignette("single-binary")` and
+`vignette("time-to-event")`).
 
 The criteria can instead be based on the posterior predictive probability of
 the effect $\tilde\theta$ that will be observed in a future study with $m_t$
@@ -86,7 +95,7 @@ Four functions work with the designs.
 | `qdm_decide()` | The probabilities of the Go and NoGo regions and the decision for observed data |
 | `qdm_oc()` | The operating characteristics: the probabilities of Go, NoGo, Gray and Miss decisions under scenarios for the true parameters |
 | `qdm_calibrate()` | The thresholds $\gamma_{go}$ and $\gamma_{nogo}$ that control the probabilities of a false Go and a false NoGo decision |
-| `qdm_boundary()` | The decision for each point of a grid of possible observed data, which shows the decision boundaries (not available for two binary endpoints) |
+| `qdm_boundary()` | The observed data that lead to each decision, for example the numbers of responders, with the observed rates and effects (not available for two binary endpoints) |
 
 ## A first example
 
@@ -147,6 +156,22 @@ The calibrated thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
 $\gamma_{nogo} =$ `r cal$gamma_nogo`, and `cal$design` is the design with
 these thresholds, which can be passed to `qdm_decide()` and `qdm_oc()`.
 
+`qdm_boundary()` shows which observed data lead to each decision. For each
+number of control responders, it gives the numbers of treatment responders
+that lead to Go, NoGo and Gray decisions, the corresponding observed
+response rates of the treatment group and the observed differences in
+response rates:
+
+```{r boundary}
+b <- qdm_boundary(des)
+b
+plot(b)
+```
+
+With 4 control responders, a Go decision needs at least
+`r min(b$from[b$y_c == 4 & b$decision == "Go"])` of the 12 treatment
+subjects to respond.
+
 ## Plots
 
 The `plot()` methods return ggplot2 objects. Depending on the plot, their
@@ -172,7 +197,7 @@ plot(oc, col_go = "darkgreen", col_nogo = "firebrick", linewidth = 0.7,
 | One continuous | `design_continuous()` | Normal-Inverse-chi-squared or vague | Numerical integration (`"NI"`), moment matching (`"MM"`) or Monte Carlo (`"MC"`) | Simulation of `nsim` studies |
 | Two binary | `design_binary2()` | Dirichlet-multinomial | Monte Carlo with `nMC` draws (posterior), exact sum (predictive) | Exact enumeration or simulation |
 | Two continuous | `design_continuous2()` | Normal-Inverse-Wishart or vague | Moment matching (`"MM"`) or Monte Carlo (`"MC"`) | Simulation of `nsim` studies |
-| One time-to-event | `design_tte()` | Exponential with Gamma prior | Numerical integration (posterior), simulation of `nMC` future studies (predictive) | Simulation of `nsim` studies |
+| One time-to-event | `design_tte()` | Exponential with Gamma prior (milestone survival or hazard ratio) | Numerical integration or F distribution (posterior), simulation of `nMC` future studies (predictive) | Simulation of `nsim` studies |
 
 The posterior distributions have closed forms, including those with external
 data borrowed through a power prior, so Markov chain Monte Carlo sampling is
@@ -203,9 +228,9 @@ number generator is restored on exit. `ptdiff()` with `method = "MC"` and
 ## Validation
 
 The scripts in the folder `validation` of the installed package compare
-BayesianQDM with published and submitted results (Kang et al., 2026; Huang
-et al., submitted; Yamaguchi, Homma, Takeda and Maruo, submitted; Yamaguchi
-et al., submitted). The file
+BayesianQDM with published and submitted results (Kang et al., 2026; Huang,
+Talukder, Han and Kuan, 2019; Huang et al., submitted; Yamaguchi, Homma,
+Takeda and Maruo, submitted; Yamaguchi et al., submitted). The file
 `results/summary.md` in that folder reports the comparisons, with a
 registered reason for every difference beyond rounding:
 
@@ -223,6 +248,11 @@ system.file("validation", "results", "summary.md", package = "BayesianQDM")
 - `vignette("migration")`: translating code written for version 0.1.0.
 
 ## References
+
+Huang, B., Talukder, E., Han, L. and Kuan, P.-F. (2019). Quantitative
+decision-making in randomized Phase II studies with a time-to-event
+endpoint. *Journal of Biopharmaceutical Statistics*, 29(1), 189--202.
+<https://doi.org/10.1080/10543406.2018.1489400>
 
 Huang, Y., Yamaguchi, Y., Homma, G., Takeda, K. and Maruo, K. (submitted).
 Conjugate representation of power priors for efficient Bayesian analysis of

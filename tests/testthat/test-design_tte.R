@@ -73,3 +73,42 @@ test_that("design_tte() checks the conduct of the future study", {
   expect_identical(des$conduct_future, co)
   expect_null(des$conduct)
 })
+
+test_that("design_tte() stores the effect measure", {
+  expect_identical(ref_design_tte("T1")$effect, "milestone")
+  des <- ref_design_hr("H1")
+  expect_identical(des$effect, "hazard_ratio")
+  expect_null(des$milestone)
+  expect_identical(ref_design_hr("H2")$fixed_c, 6)
+  expect_identical(ref_design_hr("H2")$control, "fixed")
+})
+
+test_that("design_tte() validates the arguments of the hazard ratio", {
+  g <- prior_gamma(0.1, 1)
+  cr <- crit_hr()
+  expect_error(design_tte(10, 10, g, g, cr),
+               "'milestone' must be given for effect = \"milestone\".",
+               fixed = TRUE)
+  expect_error(design_tte(10, 10, g, g, cr, milestone = 3,
+                          effect = "hazard_ratio"),
+               "'milestone' is not used for effect = \"hazard_ratio\".",
+               fixed = TRUE)
+  expect_error(design_tte(10, 10, g, g, crit_tte(), effect = "hazard_ratio"),
+               paste("The thresholds of the criterion must be positive",
+                     "hazard ratios for effect = \"hazard_ratio\"."),
+               fixed = TRUE)
+  expect_error(design_tte(10, 10, g, g,
+                          criterion_predictive(0, m_t = 10, gamma_go = 0.8,
+                                               gamma_nogo = 0.3),
+                          effect = "hazard_ratio"),
+               "must be positive hazard ratios")
+  expect_error(design_tte(10, 0, g, criterion = cr, effect = "hazard_ratio",
+                          fixed_c = 0),
+               "'fixed_c' must be greater than 0.")
+  expect_error(design_tte(10, 10, g, g, cr, effect = "ratio"),
+               "'arg' should be one of")
+  # A median survival time larger than 1 is accepted as a fixed control
+  expect_identical(design_tte(10, 0, g, criterion = cr,
+                              effect = "hazard_ratio",
+                              fixed_c = 8.5)$fixed_c, 8.5)
+})

@@ -1,9 +1,20 @@
 #' Print a decision boundary
 #'
-#' Prints the number of grid points with each decision and the first rows of
-#' the grid.
+#' Prints the decision intervals of \code{\link{qdm_boundary}} as up to
+#' three tables, each with one row per condition (for example, the number of
+#' control responders or the treatment group size) and one column per
+#' decision. The first table gives the range of the observed quantity
+#' (numbers of responders or events, or observed means), the second the
+#' corresponding observed response rates or milestone survival
+#' probabilities, and the last the observed treatment effects. For example,
+#' the entry \code{"10-20"} in the column \code{Go} means that 10 to 20
+#' responders lead to a Go decision. The object itself
+#' is a data frame with one row per interval (see \code{\link{qdm_boundary}}).
 #'
 #' @param x An object of class \code{"qdm_boundary"}.
+#' @param digits Number of significant digits for observed means, milestone
+#'   survival probabilities, effects and conditions.
+#' @param n Maximum number of conditions shown in each table.
 #' @param ... Not used.
 #'
 #' @return \code{x}, invisibly.
@@ -15,20 +26,19 @@
 #'   criterion = criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
 #'                                   gamma_go = 0.5, gamma_nogo = 0.8)
 #' )
-#' qdm_boundary(des)
+#' b <- qdm_boundary(des)
+#' print(b, n = 5)
+#' # The intervals as a data frame
+#' head(as.data.frame(b))
 #' @export
-print.qdm_boundary <- function(x, ...) {
-  counts <- table(x$decision)
-  cat(sprintf("Decision boundary on a grid of %d point%s (%s)\n", nrow(x),
-              if (nrow(x) == 1L) "" else "s",
-              paste(names(counts), counts, sep = ": ", collapse = ", ")))
-  df <- as.data.frame(x)
-  attr(df, "design") <- NULL
-  attr(df, "axes") <- NULL
-  print(df[seq_len(min(6L, nrow(df))), , drop = FALSE])
-  k <- nrow(df) - 6L
-  if (k > 0L) {
-    cat(sprintf("... %d more row%s\n", k, if (k == 1L) "" else "s"))
+print.qdm_boundary <- function(x, digits = 4L, n = 20L, ...) {
+  if (is.null(attr(x, "axes"))) {
+    # Attributes are lost when the rows are subset
+    print(as.data.frame(x))
+    return(invisible(x))
   }
+  check_numeric(digits, "digits", lower = 1, integer = TRUE)
+  check_numeric(n, "n", lower = 1, integer = TRUE)
+  cat(format(x, digits = digits, n = n), sep = "\n")
   invisible(x)
 }

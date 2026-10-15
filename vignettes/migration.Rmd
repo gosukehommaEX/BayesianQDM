@@ -51,7 +51,7 @@ the changes in the results. The code for version 0.1.0 is shown but not run.
 | `error_if_Miss`, `Gray_inc_Miss` | Removed; Miss decisions are reported in their own column |
 | `col_go`, `col_nogo`, `col_gray` and `base_size` of the `plot()` methods | Same names, with `col_miss`, `linewidth`, `point_size`, `label_size` and `legend_position` where they apply; `base_size` is 11 by default instead of 28 |
 | `title`, `xlab` and `ylab` of the `plot()` methods | `ggplot2::labs()` added to the plot |
-| `which` of the `plot()` methods for two endpoints | Removed; the plot has one panel per decision |
+| `which` of the `plot()` methods for two endpoints | One panel per decision by default; `overlay = TRUE` for `which = "overlay"` |
 
 The meaning of `gamma_nogo` is unchanged: the NoGo criterion is
 $\Pr(\theta \le \theta_{MAV} \mid D) \ge \gamma_{nogo}$.
@@ -212,11 +212,14 @@ corrected, so some results differ.
 - Probabilities are no longer set to 0 below `.Machine$double.eps^0.25`.
 - Miss decisions (both criteria met) are reported in their own column with a
   warning, instead of an error or being counted as Gray.
-- `qdm_decide()`, `qdm_oc()` and `qdm_calibrate()` have a `seed` argument and
-  restore the state of the random number generator when a seed is given.
+- `qdm_decide()`, `qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` have a
+  `seed` argument and restore the state of the random number generator when
+  a seed is given.
 
 Version 1.0.0 also has features without a counterpart in version 0.1.0: a
 fixed control (`fixed_c` of the design functions) for single-arm studies
-compared with a known value, one time-to-event endpoint (`design_tte()`,
-see `vignette("time-to-event")`) and decision boundaries
-(`qdm_boundary()`). `NEWS.md` lists all changes.
+compared with a known value, smaller effects as favorable (`direction`
+of the criterion functions), one time-to-event endpoint evaluated by the
+milestone survival or the hazard ratio (`design_tte()`, see
+`vignette("time-to-event")`) and decision boundaries (`qdm_boundary()`).
+`NEWS.md` lists all changes.

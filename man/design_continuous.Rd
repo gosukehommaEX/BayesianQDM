@@ -31,7 +31,9 @@ treatment and control groups, created by \code{\link{prior_nix}} or
 default) for a hypothetical or fixed control and is required otherwise.}
 
 \item{criterion}{Decision criterion for one endpoint, created by
-\code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.}
+\code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.
+Its argument \code{direction} sets whether larger or smaller effects
+are favorable.}
 
 \item{external_t, external_c}{External data of the treatment and control
 groups, created by \code{\link{borrow}} with

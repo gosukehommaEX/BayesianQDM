@@ -194,8 +194,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_pred_tte
-Rcpp::NumericVector cpp_pred_tte(Rcpp::NumericVector shape_t, Rcpp::NumericVector rate_t, Rcpp::NumericVector shape_c, Rcpp::NumericVector rate_c, double fixed_c, Rcpp::NumericVector prior_t, Rcpp::NumericVector prior_c, int m_t, int m_c, Rcpp::NumericVector acc_time, Rcpp::NumericVector acc_cum, Rcpp::NumericVector drop_start, Rcpp::NumericVector drop_hazard, double cut_time, int cut_events, double t0, double q, int nMC);
-RcppExport SEXP _BayesianQDM_cpp_pred_tte(SEXP shape_tSEXP, SEXP rate_tSEXP, SEXP shape_cSEXP, SEXP rate_cSEXP, SEXP fixed_cSEXP, SEXP prior_tSEXP, SEXP prior_cSEXP, SEXP m_tSEXP, SEXP m_cSEXP, SEXP acc_timeSEXP, SEXP acc_cumSEXP, SEXP drop_startSEXP, SEXP drop_hazardSEXP, SEXP cut_timeSEXP, SEXP cut_eventsSEXP, SEXP t0SEXP, SEXP qSEXP, SEXP nMCSEXP) {
+Rcpp::NumericVector cpp_pred_tte(Rcpp::NumericVector shape_t, Rcpp::NumericVector rate_t, Rcpp::NumericVector shape_c, Rcpp::NumericVector rate_c, double fixed_c, Rcpp::NumericVector prior_t, Rcpp::NumericVector prior_c, int m_t, int m_c, Rcpp::NumericVector acc_time, Rcpp::NumericVector acc_cum, Rcpp::NumericVector drop_start, Rcpp::NumericVector drop_hazard, double cut_time, int cut_events, double t0, double q, int nMC, int effect);
+RcppExport SEXP _BayesianQDM_cpp_pred_tte(SEXP shape_tSEXP, SEXP rate_tSEXP, SEXP shape_cSEXP, SEXP rate_cSEXP, SEXP fixed_cSEXP, SEXP prior_tSEXP, SEXP prior_cSEXP, SEXP m_tSEXP, SEXP m_cSEXP, SEXP acc_timeSEXP, SEXP acc_cumSEXP, SEXP drop_startSEXP, SEXP drop_hazardSEXP, SEXP cut_timeSEXP, SEXP cut_eventsSEXP, SEXP t0SEXP, SEXP qSEXP, SEXP nMCSEXP, SEXP effectSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -217,7 +217,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type t0(t0SEXP);
     Rcpp::traits::input_parameter< double >::type q(qSEXP);
     Rcpp::traits::input_parameter< int >::type nMC(nMCSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_pred_tte(shape_t, rate_t, shape_c, rate_c, fixed_c, prior_t, prior_c, m_t, m_c, acc_time, acc_cum, drop_start, drop_hazard, cut_time, cut_events, t0, q, nMC));
+    Rcpp::traits::input_parameter< int >::type effect(effectSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pred_tte(shape_t, rate_t, shape_c, rate_c, fixed_c, prior_t, prior_c, m_t, m_c, acc_time, acc_cum, drop_start, drop_hazard, cut_time, cut_events, t0, q, nMC, effect));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -233,7 +234,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianQDM_cpp_regions_continuous2_mm", (DL_FUNC) &_BayesianQDM_cpp_regions_continuous2_mm, 9},
     {"_BayesianQDM_cpp_regions_continuous2_mc", (DL_FUNC) &_BayesianQDM_cpp_regions_continuous2_mc, 10},
     {"_BayesianQDM_cpp_tte_oc_data", (DL_FUNC) &_BayesianQDM_cpp_tte_oc_data, 11},
-    {"_BayesianQDM_cpp_pred_tte", (DL_FUNC) &_BayesianQDM_cpp_pred_tte, 18},
+    {"_BayesianQDM_cpp_pred_tte", (DL_FUNC) &_BayesianQDM_cpp_pred_tte, 19},
     {NULL, NULL, 0}
 };
 

@@ -11,6 +11,8 @@ tte_method_label <- function(design) {
   }
   if (design$control == "fixed") {
     "exact computation (fixed control)"
+  } else if (identical(design$effect, "hazard_ratio")) {
+    "exact computation (F distribution)"
   } else {
     "numerical integration"
   }

@@ -5,7 +5,7 @@ version 0.1.0. A study is described by small specification objects (priors,
 data, external data, hypothetical controls and decision criteria) that are
 combined into a design, and three functions work with any design:
 `qdm_decide()`, `qdm_oc()` and `qdm_calibrate()`. `qdm_boundary()` shows the
-decision boundaries of a design. Formulas and numerical
+observed data that lead to each decision. Formulas and numerical
 methods that were wrong in version 0.1.0 have been corrected (see below), so
 some results differ from those of version 0.1.0. `vignette("migration")`
 shows how to translate code written for version 0.1.0.
@@ -32,9 +32,9 @@ shows how to translate code written for version 0.1.0.
 * Seven vignettes: an overview, one for each type of endpoint, and a guide
   to migrating from version 0.1.0.
 * `inst/validation/` contains scripts that compare the package with
-  published and submitted results (Kang et al., 2026; Huang et al.,
-  submitted; Yamaguchi, Homma, Takeda and Maruo, submitted; Yamaguchi et
-  al., submitted), and
+  published and submitted results (Kang et al., 2026; Huang, Talukder, Han
+  and Kuan, 2019; Huang et al., submitted; Yamaguchi, Homma, Takeda and
+  Maruo, submitted; Yamaguchi et al., submitted), and
   `inst/validation/results/summary.md` reports the comparisons, with a
   registered reason for every difference beyond rounding, including the
   results that are not reproduced.
@@ -55,6 +55,17 @@ shows how to translate code written for version 0.1.0.
   For all endpoints, the Go criterion is that the probability of the Go
   region is at least `gamma_go` and the NoGo criterion is that the
   probability of the NoGo region is at least `gamma_nogo`.
+* `criterion_posterior()` and `criterion_predictive()` have the argument
+  `direction`. With `direction = "greater"` (the default), larger effects
+  are favorable, as in version 0.1.0. With `direction = "less"`, smaller
+  effects are favorable, for example for the rate of an adverse event or a
+  hazard ratio: the Go region is that the effect is below `theta_tv` (or,
+  for the predictive criterion, that the future effect is below
+  `theta_null`), the NoGo region is that it is at least `theta_mav` (at
+  least `theta_null` for the predictive criterion), and
+  `theta_tv` must be smaller than `theta_mav`. For two endpoints, the
+  direction can be set for each endpoint, for example an efficacy endpoint
+  and a safety endpoint.
 * `qdm_regions()` shows the numbering of the regions for two endpoints.
 
 ## Designs and operations: one binary endpoint
@@ -194,9 +205,11 @@ shows how to translate code written for version 0.1.0.
 
 * All design functions have the argument `fixed_c` for a single-arm study
   compared with a known value of the control parameter (a response rate, a
-  mean, or a milestone survival probability; one value per endpoint for two
-  endpoints). It requires `n_c = 0` and `prior_c = NULL`. The effect is the
-  treatment parameter minus the fixed value, so the probabilities depend
+  mean, a milestone survival probability, or a median survival time for
+  the hazard ratio; one value per endpoint for two endpoints). It requires
+  `n_c = 0` and `prior_c = NULL`. The effect is the treatment parameter
+  minus the fixed value (for the hazard ratio, the treatment hazard divided
+  by the control hazard `log(2) / fixed_c`), so the probabilities depend
   only on the posterior distribution of the treatment group: Beta
   probabilities (one binary endpoint), t probabilities (one continuous
   endpoint), probabilities of the bivariate t distribution by numerical
@@ -213,12 +226,13 @@ shows how to translate code written for version 0.1.0.
 ## Designs and operations: one time-to-event endpoint
 
 * `design_tte()` specifies a study with one time-to-event endpoint evaluated
-  by the survival probability at a milestone time: exponential event times
-  with Gamma priors on the hazards (`prior_gamma()`), data summarized by the
-  number of events and the total observed time (`data_tte()`), external
-  data for either group through a power prior, and a concurrent,
-  external-only, hypothetical or fixed control group. The effect is the
-  difference of the milestone survival probabilities.
+  by the survival probability at a milestone time or by the hazard ratio
+  (see below): exponential event times with Gamma priors on the hazards
+  (`prior_gamma()`), data summarized by the number of events and the total
+  observed time (`data_tte()`), external data for either group through a
+  power prior, and a concurrent, external-only, hypothetical or fixed
+  control group. With the milestone survival, the effect is the difference
+  of the milestone survival probabilities.
 * Posterior probabilities are computed by numerical integration over the
   control hazard (`psurvdiff()`), or exactly for a fixed control.
   Posterior predictive probabilities are estimated by simulating `nMC`
@@ -232,19 +246,47 @@ shows how to translate code written for version 0.1.0.
   study (`conduct_tte()`), under scenarios given by the median survival
   times (`median_t`, `median_c`), with the same random numbers for all
   scenarios.
+* With `effect = "hazard_ratio"`, the effect is the hazard ratio
+  `lambda_t / lambda_c` (Huang, Talukder, Han and Kuan, 2019), usually with
+  `direction = "less"` in the criterion. The posterior distribution of the
+  hazard ratio is a scaled F distribution, so posterior probabilities are
+  exact (`phazardratio()`); a fixed control is given by its median survival
+  time. Posterior predictive probabilities compare the ratio of the
+  estimated hazards of the future study with `theta_null`.
+* `inst/validation/` reproduces the probabilities of a Go decision in
+  Table 1 of Huang et al. (2019) (a randomized study analyzed at a given
+  number of events) with the hazard ratio and the posterior criterion.
 
 ## Decision boundaries
 
-* `qdm_boundary()` computes the decision for each point of a grid of
-  possible observed data of the treatment group, and its `plot()` method
-  draws the regions of the data that lead to Go, NoGo, Gray and Miss
-  decisions: the numbers of responders of the two groups (one binary
-  endpoint with a concurrent control group) or the number of responders and
-  the sample size (without one), the observed mean (or difference in means)
-  and the standard deviation or sample size (one continuous endpoint), the
-  observed means (or differences in means) of the two endpoints (two
-  continuous endpoints), and the number of events and the total observed
-  time (time-to-event endpoint). Two binary endpoints are not supported.
+* `qdm_boundary()` returns the intervals of an observed quantity that lead
+  to Go, NoGo, Gray and Miss decisions, for each value of a second quantity:
+  the number of treatment responders for each number of control responders
+  (one binary endpoint with a concurrent control group) or for each sample
+  size (without one), the observed treatment mean for each standard
+  deviation or sample size (one continuous endpoint), the observed
+  treatment mean of endpoint 2 for each observed mean of endpoint 1 (two
+  continuous endpoints), and the number of events for each total observed
+  time (time-to-event endpoint). The intervals are also given as observed
+  response rates or milestone survival probabilities and as observed
+  treatment effects (differences from the control group or the fixed
+  control value, or observed hazard ratios). Two binary endpoints are not
+  supported.
+* For observed means, the ends of the intervals are located by bisection
+  between the values of a grid, so they are exact up to the accuracy of the
+  probabilities, provided that a criterion changes at most once between
+  neighboring grid values and not beyond the grid. Decisions that change
+  twice, as with conjugate priors far from the observed data, give several
+  intervals.
+* The `print()` method shows the intervals as tables with one row per
+  condition and one column per decision, for example the numbers of
+  responders out of 20 that lead to Go (`10-20`), the corresponding observed
+  response rates (`50.0% to 100.0%`) and the observed differences from a
+  fixed control rate of 0.2 (`0.3 to 0.8`). The `plot()` method draws the
+  regions of the decisions with the boundary values written on them
+  (`labels`, `label_size`), and for one binary endpoint with a concurrent
+  control group a secondary axis with the observed response rate of the
+  treatment group.
 
 ## Plots
 
@@ -257,13 +299,23 @@ shows how to translate code written for version 0.1.0.
   (`base_size`, 11 by default instead of 28 in version 0.1.0) and the
   position of the legend (`legend_position`). The plots of operating
   characteristics and calibrations also take the width of the lines
-  (`linewidth`), and the plot of operating characteristics the size of the
-  points (`point_size`) and of the text drawn in the plot (`label_size`).
+  (`linewidth`), and the plots of operating characteristics and decision
+  boundaries the size of the text drawn in the plot (`label_size`); the
+  plot of operating characteristics also takes the size of the points
+  (`point_size`).
   Other arguments are ignored with a warning.
 * The heat maps of two endpoints shade each panel from white (probability 0)
   to the color of its decision (probability 1); their colors are set by the
   color arguments. They have no legend, since each cell shows its
-  probability. Scenarios that are not evaluable are white and marked "NE".
+  probability (unless `cell_values = FALSE`). Scenarios that are not
+  evaluable are white and marked "NE".
+* `plot()` of operating characteristics for two endpoints has the argument
+  `overlay`, which replaces `which = "overlay"` of version 0.1.0. With
+  `overlay = TRUE`, a single heat map shows in each cell the decision with
+  the highest probability, shaded in five steps of that probability, with
+  legends for the decisions and the steps (Yamaguchi et al., submitted,
+  Figure 2). `cell_values = FALSE` leaves out the probabilities written in
+  the cells of either heat map.
 
 ## Distribution functions
 
@@ -293,6 +345,8 @@ shows how to translate code written for version 0.1.0.
   the range split at quantiles of both hazards and a change of variables
   near 0 when a shape parameter is below 1. Each tail is computed directly,
   so both are accurate near 0.
+* `phazardratio()` computes the distribution function of the ratio of two
+  Gamma distributed hazards from the F distribution.
 
 # BayesianQDM 0.1.0
 

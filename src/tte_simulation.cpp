@@ -216,17 +216,19 @@ Rcpp::NumericMatrix cpp_tte_oc_data(int nsim, int n_t, int n_c,
 // nMC future studies for each posterior distribution.
 // shape_t, rate_t: Gamma posterior distributions of the treatment hazard.
 // shape_c, rate_c: those of the control hazard (same length as shape_t), or
-//   empty vectors for a fixed control with milestone survival fixed_c (the
-//   future study then has no control group).
+//   empty vectors for a fixed control with milestone survival or hazard
+//   fixed_c (the future study then has no control group).
 // prior_t, prior_c: shapes and rates of the Gamma priors used to estimate
-//   the milestone survival in the future study.
+//   the hazards in the future study.
 // m_t, m_c: numbers of subjects of the future study; conduct as in
 //   cpp_tte_oc_data(); t0: milestone time.
+// effect: 0 for the difference of the milestone survival probabilities, 1
+//   for the hazard ratio (treatment over control).
 // In each simulation, the hazards are drawn from their posterior
-// distributions (treatment, then control), the future study is simulated,
-// and the milestone survival of each group is estimated by
-// exp(-t0 (a + d) / (b + R)) with the prior (a, b) and the future summary
-// (d, R).
+// distributions (treatment, then control) and the future study is
+// simulated. The hazard of each group is estimated by (a + d) / (b + R) with
+// the prior (a, b) and the future summary (d, R); the milestone survival is
+// estimated by exp(-t0 (a + d) / (b + R)).
 // [[Rcpp::export]]
 Rcpp::NumericVector cpp_pred_tte(Rcpp::NumericVector shape_t,
                                  Rcpp::NumericVector rate_t,
@@ -239,7 +241,7 @@ Rcpp::NumericVector cpp_pred_tte(Rcpp::NumericVector shape_t,
                                  Rcpp::NumericVector drop_start,
                                  Rcpp::NumericVector drop_hazard,
                                  double cut_time, int cut_events, double t0,
-                                 double q, int nMC) {
+                                 double q, int nMC, int effect) {
   const Conduct c = make_conduct(acc_time, acc_cum, drop_start, drop_hazard,
                                  cut_time, cut_events);
   const bool fixed = shape_c.size() == 0;
@@ -261,12 +263,20 @@ Rcpp::NumericVector cpp_pred_tte(Rcpp::NumericVector shape_t,
       draw_subjects(n, c, enroll, base, drop);
       summarize(m_t, n, enroll, base, drop, lam_t, lam_c, c, event_cal, work,
                 res);
-      const double est_t =
-        std::exp(-t0 * (prior_t[0] + res[0]) / (prior_t[1] + res[1]));
-      const double est_c = fixed ? fixed_c :
-        std::exp(-t0 * (prior_c[0] + res[2]) / (prior_c[1] + res[3]));
-      if (est_t - est_c > q) {
-        ++count;
+      const double haz_t = (prior_t[0] + res[0]) / (prior_t[1] + res[1]);
+      if (effect == 1) {
+        const double haz_c = fixed ? fixed_c :
+          (prior_c[0] + res[2]) / (prior_c[1] + res[3]);
+        if (haz_t / haz_c > q) {
+          ++count;
+        }
+      } else {
+        const double est_t = std::exp(-t0 * haz_t);
+        const double est_c = fixed ? fixed_c :
+          std::exp(-t0 * (prior_c[0] + res[2]) / (prior_c[1] + res[3]));
+        if (est_t - est_c > q) {
+          ++count;
+        }
       }
     }
     out[i] = static_cast<double>(count) / nMC;

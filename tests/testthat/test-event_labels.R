@@ -29,3 +29,22 @@ test_that("event_labels() gives one label per endpoint for marginal rules", {
                    c("P(future theta1 <= 0 | data)",
                      "P(future theta2 <= 0.1 | data)"))
 })
+
+test_that("event_labels() reverses the inequalities for direction = \"less\"", {
+  cr <- criterion_posterior(-0.1, 0, 0.6, 0.7, direction = "less")
+  expect_identical(event_labels(cr),
+                   list(go = "P(theta < -0.1 | data)",
+                        nogo = "P(theta >= 0 | data)"))
+  cp <- criterion_predictive(0.8, m_t = 10, gamma_go = 0.8, gamma_nogo = 0.3,
+                             direction = "less")
+  expect_identical(event_labels(cp),
+                   list(go = "P(future theta < 0.8 | data)",
+                        nogo = "P(future theta >= 0.8 | data)"))
+  c2 <- criterion_posterior(c(0.2, -0.1), c(0.1, 0), 0.5, 0.5, rule = "or",
+                            direction = c("greater", "less"))
+  expect_identical(event_labels(c2),
+                   list(go = c("P(theta1 > 0.2 | data)",
+                               "P(theta2 < -0.1 | data)"),
+                        nogo = c("P(theta1 <= 0.1 | data)",
+                                 "P(theta2 >= 0 | data)")))
+})
