@@ -1,0 +1,159 @@
+#' Operating characteristics of a design
+#'
+#' Computes the probabilities of Go, NoGo, Gray and Miss decisions of a design
+#' under scenarios for the true parameters.
+#'
+#' For a binary endpoint, all possible outcomes of the proof-of-concept study
+#' are enumerated and the probabilities are exact (Kang et al., 2026, Section
+#' 4.3); \code{nsim} and \code{seed} are not used.
+#'
+#' For a continuous endpoint, \code{nsim} studies are simulated under each
+#' scenario. Only the sufficient statistics are simulated: the sample mean
+#' \eqn{\bar y = \mu + \sigma Z / \sqrt{n}} and the sample standard deviation
+#' \eqn{s = \sigma \sqrt{X / (n - 1)}}, with \eqn{Z \sim N(0, 1)} and
+#' \eqn{X \sim \chi^2_{n - 1}}. The same random numbers are used for all
+#' scenarios, so the results change smoothly across scenarios. The
+#' probabilities have a simulation standard error of at most
+#' \eqn{0.5 / \sqrt{nsim}} (0.005 for the default \code{nsim}). For each
+#' simulated study, the probabilities of the Go and NoGo regions are computed
+#' by the method of the design (see \code{\link{design_continuous}}), of which
+#' \code{method = "MM"} is the fastest. To explore many scenarios or designs,
+#' \code{method = "MM"} or a smaller \code{nsim} gives results quickly; the
+#' chosen design can then be checked with \code{method = "NI"} and the
+#' default \code{nsim}.
+#'
+#' For two binary endpoints, all outcomes are enumerated (Yamaguchi et al.,
+#' submitted, equation A.5) or \code{nsim} studies are simulated, as specified
+#' by \code{enumerate} in \code{\link{design_binary2}}. The response rates
+#' and correlation of each group are converted to cell probabilities by
+#' \code{\link{cellprob_binary2}}; a scenario whose correlation is outside the
+#' feasible range for its response rates is not evaluable, and its
+#' probabilities are \code{NA} (with a warning).
+#'
+#' For two continuous endpoints, \code{nsim} studies are simulated under each
+#' scenario. Only the sufficient statistics are simulated: the sample means
+#' \eqn{\bar y = \mu + L z / \sqrt{n}} and the matrix of sums of squares and
+#' cross-products \eqn{S = L A A^T L^T}, where \eqn{L} is the Cholesky
+#' factor of the covariance matrix of the scenario, \eqn{z} has two
+#' independent standard normal elements and \eqn{A} is the Bartlett factor
+#' of a Wishart distribution with \eqn{n - 1} degrees of freedom. The same
+#' random numbers are used for all scenarios.
+#'
+#' For a time-to-event endpoint, \code{nsim} studies are simulated under each
+#' scenario as specified by the conduct of the design (enrollment, dropout
+#' and analysis time; see \code{\link{conduct_tte}}), with exponential event
+#' times whose hazard is \eqn{\log(2) / M} for the median survival time
+#' \eqn{M} of the scenario. The same random numbers are used for all
+#' scenarios. With a predictive criterion, every simulated study needs
+#' \code{nMC} simulated future studies (see \code{\link{design_tte}}), so
+#' the computing time grows with \code{nsim} times \code{nMC}.
+#'
+#' The decision for each outcome is made as in \code{\link{qdm_decide}}. A
+#' warning is given when Miss decisions (both criteria met) have positive
+#' probability in some scenario.
+#'
+#' @param design A design created by \code{\link{design_binary}},
+#'   \code{\link{design_continuous}}, \code{\link{design_binary2}},
+#'   \code{\link{design_continuous2}} or \code{\link{design_tte}}.
+#' @param scenarios A data frame with one row per scenario. For a binary
+#'   endpoint the columns \code{pi_t} and \code{pi_c} give the true response
+#'   rates of the treatment and control groups. For a continuous endpoint the
+#'   columns \code{mu_t}, \code{sd_t}, \code{mu_c} and \code{sd_c} give the
+#'   true means and standard deviations. For two binary endpoints the columns
+#'   \code{pi_t1}, \code{pi_t2}, \code{rho_t}, \code{pi_c1}, \code{pi_c2} and
+#'   \code{rho_c} give the true response rates of endpoints 1 and 2 (strictly
+#'   between 0 and 1) and the correlation of the two endpoints in each group.
+#'   For two continuous endpoints the columns \code{mu_t1}, \code{mu_t2},
+#'   \code{sd_t1}, \code{sd_t2}, \code{rho_t}, \code{mu_c1}, \code{mu_c2},
+#'   \code{sd_c1}, \code{sd_c2} and \code{rho_c} give the true means,
+#'   standard deviations and correlation of the two endpoints in each group
+#'   (the correlation strictly between -1 and 1).
+#'   For a time-to-event endpoint the columns \code{median_t} and
+#'   \code{median_c} give the true median survival times (positive).
+#'   The columns of the control group are not needed for a design without a
+#'   concurrent control group. Other columns, such as labels, are kept in the
+#'   result.
+#' @param nsim Number of simulated studies per scenario for designs whose
+#'   operating characteristics are computed by simulation.
+#' @param seed Random seed for the simulation and for Monte Carlo estimates
+#'   of probabilities, or \code{NULL} to use the current random number
+#'   stream. If given, the previous state of the random number generator is
+#'   restored on exit.
+#'
+#' @return An object of class \code{c("qdm_oc", "data.frame")}: the scenarios
+#'   with the columns \code{Go}, \code{NoGo}, \code{Gray} and \code{Miss}
+#'   added. The attributes \code{design} and \code{method} record the design
+#'   and the method of computation.
+#'
+#' @references
+#' Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
+#' decision-making framework in cell and gene therapy development for rare
+#' diseases. \emph{Journal of Biopharmaceutical Statistics}.
+#' \doi{10.1080/10543406.2026.2655410}
+#'
+#' Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+#' (submitted). Bivariate Bayesian quantitative decision-making for two
+#' endpoints in rare disease drug development.
+#'
+#' @family operations
+#' @examples
+#' des <- design_binary(
+#'   n_t = 12, n_c = 12,
+#'   prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+#'   criterion = criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+#'                                   gamma_go = 0.5, gamma_nogo = 0.8)
+#' )
+#' oc <- qdm_oc(des, data.frame(pi_t = seq(0.2, 0.8, by = 0.1), pi_c = 0.4))
+#' oc
+#' plot(oc)
+#'
+#' # Continuous endpoint (moment-matching approximation for speed)
+#' des2 <- design_continuous(
+#'   n_t = 12, n_c = 12,
+#'   prior_t = prior_vague(), prior_c = prior_vague(),
+#'   criterion = criterion_posterior(theta_tv = 30, theta_mav = 15,
+#'                                   gamma_go = 0.6, gamma_nogo = 0.7),
+#'   method = "MM"
+#' )
+#' oc2 <- qdm_oc(des2, data.frame(mu_t = seq(0, 50, by = 10), sd_t = 25,
+#'                                mu_c = 0, sd_c = 25),
+#'               nsim = 2000, seed = 1)
+#' oc2
+#'
+#' # Two binary endpoints (small nMC for speed)
+#' des3 <- design_binary2(
+#'   n_t = 6, n_c = 6,
+#'   prior_t = prior_dirichlet(rep(0.25, 4)),
+#'   prior_c = prior_dirichlet(rep(0.25, 4)),
+#'   criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+#'                                   theta_mav = c(0.10, 0.10),
+#'                                   gamma_go = 0.3, gamma_nogo = 0.4),
+#'   nMC = 2000
+#' )
+#' effects <- expand.grid(theta1 = c(0, 0.15, 0.3), theta2 = c(0, 0.15, 0.3))
+#' oc3 <- qdm_oc(des3, data.frame(pi_t1 = 0.2 + effects$theta1,
+#'                                pi_t2 = 0.2 + effects$theta2, rho_t = 0.3,
+#'                                pi_c1 = 0.2, pi_c2 = 0.2, rho_c = 0.3),
+#'               seed = 1)
+#' oc3
+#' plot(oc3)
+#' @export
+qdm_oc <- function(design, scenarios, nsim = 10000L, seed = NULL) {
+  check_design(design)
+  scenarios <- check_scenarios(design, scenarios)
+  check_numeric(nsim, "nsim", lower = 1, upper = .Machine$integer.max,
+                integer = TRUE)
+  if (!is.null(seed)) {
+    check_numeric(seed, "seed", lower = -.Machine$integer.max,
+                  upper = .Machine$integer.max, integer = TRUE)
+  }
+  sample <- with_seed(seed, oc_sample(design, scenarios, nsim))
+  probs <- oc_from_sample(sample, design$criterion$gamma_go,
+                          design$criterion$gamma_nogo,
+                          design$criterion$rule)
+  out <- cbind(scenarios, as.data.frame(probs))
+  rownames(out) <- NULL
+  warn_miss(out$Miss, design$criterion$rule)
+  structure(out, class = c("qdm_oc", "data.frame"), design = design,
+            method = sample$method)
+}

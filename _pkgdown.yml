@@ -18,95 +18,95 @@ template:
 home:
   title: BayesianQDM
   description: >
-    Bayesian Quantitative Decision-Making Framework for Binary and Continuous Endpoints.
+    Bayesian Quantitative Decision-Making Framework for Binary, Continuous and Time-to-Event Endpoints.
   logo: man/figures/logo.png
 
 reference:
-- title: Decision Probability Functions
-  desc: Go/NoGo/Gray decision probability calculation
+- title: Designs
+  desc: Specification of a proof-of-concept study
   contents:
-  - pbayesdecisionprob1bin
-  - pbayesdecisionprob1cont
-  - pbayesdecisionprob2bin
-  - pbayesdecisionprob2cont
+  - design_binary
+  - design_continuous
+  - design_binary2
+  - design_continuous2
+  - design_tte
+  - conduct_tte
 
-- title: Print Methods
-  desc: S3 print methods for decision probability objects
+- title: Operations
+  desc: Decision for observed data, operating characteristics, calibration of the thresholds and decision boundaries
   contents:
-  - print.pbayesdecisionprob1bin
-  - print.pbayesdecisionprob1cont
-  - print.pbayesdecisionprob2bin
-  - print.pbayesdecisionprob2cont
+  - qdm_decide
+  - qdm_oc
+  - qdm_calibrate
+  - qdm_boundary
 
-- title: Plot Methods
-  desc: S3 plot methods for decision probability and threshold search objects
+- title: Priors
+  desc: Prior distributions of each group
   contents:
-  - plot.pbayesdecisionprob1bin
-  - plot.pbayesdecisionprob1cont
-  - plot.pbayesdecisionprob2bin
-  - plot.pbayesdecisionprob2cont
-  - plot.getgamma1bin
-  - plot.getgamma1cont
-  - plot.getgamma2bin
-  - plot.getgamma2cont
+  - prior_beta
+  - prior_nix
+  - prior_dirichlet
+  - prior_niw
+  - prior_gamma
+  - prior_vague
 
-- title: Posterior and Predictive Probability Functions
-  desc: Posterior and posterior predictive probability calculation
+- title: Data, external data and hypothetical controls
+  desc: Summaries of the data of one group, external data borrowed through a power prior, and hypothetical controls
   contents:
-  - pbayespostpred1bin
-  - pbayespostpred1cont
-  - pbayespostpred2bin
-  - pbayespostpred2cont
+  - data_binary
+  - data_continuous
+  - data_binary2
+  - data_continuous2
+  - data_tte
+  - borrow
+  - hypothetical
 
-- title: Optimal Threshold Search Functions
-  desc: Grid-search functions for optimal Go/NoGo thresholds
+- title: Decision criteria
+  desc: Criteria based on posterior and posterior predictive probabilities
   contents:
-  - getgamma1bin
-  - getgamma1cont
-  - getgamma2bin
-  - getgamma2cont
+  - criterion_posterior
+  - criterion_predictive
+  - qdm_regions
 
-- title: Distribution Functions for Continuous Endpoints
-  desc: CDF for the difference of two t-distributions
-  contents:
-  - ptdiff_NI
-  - ptdiff_MC
-  - ptdiff_MM
-
-- title: Distribution Functions for Binary Endpoints
-  desc: CDF and related functions for Beta and Beta-binomial distributions
+- title: Distribution functions
+  desc: Distribution functions and random generation used by the decision criteria
   contents:
   - pbetadiff
   - pbetabinomdiff
-
-- title: Sampling Functions
-  desc: Random samplers for multivariate distributions
-  contents:
+  - ptdiff
+  - psurvdiff
+  - cellprob_binary2
   - rdirichlet
 
-- title: Utility Functions
-  desc: Supporting functions for joint probability and multinomial enumeration
+- title: Print, format and plot methods
   contents:
-  - getjointbin
-  - allmultinom
+  - starts_with("print.")
+  - starts_with("format.")
+  - starts_with("plot.")
 
 articles:
-- title: Getting Started
+- title: Getting started
   navbar: ~
   contents:
   - overview
 
-- title: Single Endpoint Analysis
-  navbar: Guides
+- title: One endpoint
+  navbar: One endpoint
   contents:
   - single-binary
   - single-continuous
+  - time-to-event
 
-- title: Two Endpoint Analysis
-  navbar: Guides
+- title: Two endpoints
+  navbar: Two endpoints
   contents:
   - two-binary
   - two-continuous
+
+- title: Version 0.1.0
+  navbar: Version 0.1.0
+  contents:
+  - migration
 
 navbar:
   structure:
@@ -119,12 +119,17 @@ navbar:
       - text: Overview of BayesianQDM
         href: articles/overview.html
       - text: -------
-      - text: Single Binary Endpoint
+      - text: Single binary endpoint
         href: articles/single-binary.html
-      - text: Single Continuous Endpoint
+      - text: Single continuous endpoint
         href: articles/single-continuous.html
+      - text: Time-to-event endpoint
+        href: articles/time-to-event.html
       - text: -------
-      - text: Two Binary Endpoints
+      - text: Two binary endpoints
         href: articles/two-binary.html
-      - text: Two Continuous Endpoints
+      - text: Two continuous endpoints
         href: articles/two-continuous.html
+      - text: -------
+      - text: Migrating from version 0.1.0
+        href: articles/migration.html

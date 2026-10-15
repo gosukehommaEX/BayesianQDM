@@ -1,0 +1,16 @@
+#' BayesianQDM: Bayesian Quantitative Decision-Making for Clinical Trials
+#'
+#' Tools for Go/NoGo/Gray decision-making in proof-of-concept clinical trials
+#' under a Bayesian framework. A trial is described by small specification
+#' objects (priors, data, external data with power priors, hypothetical
+#' controls and decision criteria), and the decision rule is evaluated for
+#' observed data or for its operating characteristics.
+#' \code{vignette("overview", package = "BayesianQDM")} introduces the
+#' package, and \code{vignette("migration", package = "BayesianQDM")} shows
+#' how to translate code written for version 0.1.0.
+#'
+#' @keywords internal
+#' @useDynLib BayesianQDM, .registration = TRUE
+#' @importFrom Rcpp sourceCpp
+#' @importFrom ggplot2 .data
+"_PACKAGE"

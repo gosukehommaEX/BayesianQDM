@@ -1,0 +1,70 @@
+#' Distribution function of the difference of two milestone survival
+#' probabilities
+#'
+#' Computes \eqn{\Pr(S_t - S_c \le q)} (or the upper tail
+#' \eqn{\Pr(S_t - S_c > q)}) for the milestone survival probabilities
+#' \eqn{S_k = \exp(-\lambda_k t_0)}, where the hazards have independent
+#' Gamma distributions, \eqn{\lambda_t \sim \textrm{Gamma}(a_t, b_t)} and
+#' \eqn{\lambda_c \sim \textrm{Gamma}(a_c, b_c)} (shape and rate). This is
+#' the posterior probability used for a time-to-event endpoint with a
+#' concurrent, external or hypothetical control.
+#'
+#' The upper tail is computed as
+#' \deqn{\Pr(S_t - S_c > q) = \Pr(S_c \le -q) +
+#'   \int g_c(\lambda) G_t\left(-\log(q + e^{-\lambda t_0}) / t_0\right)
+#'   \, d\lambda,}
+#' where \eqn{g_c} is the density of \eqn{\lambda_c}, \eqn{G_t} is the
+#' distribution function of \eqn{\lambda_t}, the integral runs over the
+#' values of \eqn{\lambda} with \eqn{0 < q + e^{-\lambda t_0} < 1}, and the
+#' first term is zero for \eqn{q \ge 0}. The integral is evaluated by
+#' adaptive Gauss-Kronrod quadrature (the QUADPACK routine used by
+#' \code{\link[stats]{integrate}}), with the range split at quantiles of the
+#' control hazard and at the values that correspond to quantiles of the
+#' treatment hazard. When the density of \eqn{\lambda_c} is unbounded at 0
+#' (\eqn{a_c < 1}), the integral below its median is evaluated in the
+#' variable \eqn{u = \lambda^{a_c}}, in which the integrand is bounded. The
+#' lower tail is computed from the same formula with the roles of the two
+#' groups exchanged, so both tails are accurate near 0.
+#'
+#' @param q Numeric vector of quantiles.
+#' @param milestone Positive milestone time \eqn{t_0}.
+#' @param shape_t,rate_t Positive shape and rate of the treatment hazard.
+#' @param shape_c,rate_c Positive shape and rate of the control hazard.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are
+#'   \eqn{\Pr(S_t - S_c \le q)}, otherwise \eqn{\Pr(S_t - S_c > q)}.
+#'
+#' @return A numeric vector of probabilities. All arguments except
+#'   \code{lower.tail} are recycled to a common length; each must have length
+#'   1 or the common length.
+#'
+#' @family distributions
+#' @examples
+#' # Posterior probability that the 3-month survival is higher by more than
+#' # 0.1 with 5 events in 40 months of follow-up versus 9 events in 35 months
+#' # (Gamma(0.1, 1) priors)
+#' psurvdiff(0.1, milestone = 3, shape_t = 5.1, rate_t = 41,
+#'           shape_c = 9.1, rate_c = 36, lower.tail = FALSE)
+#' @export
+psurvdiff <- function(q, milestone, shape_t, rate_t, shape_c, rate_c,
+                      lower.tail = TRUE) {
+  check_numeric(q, "q", len = NULL)
+  check_numeric(milestone, "milestone", len = NULL, lower = 0,
+                lower_open = TRUE)
+  check_numeric(shape_t, "shape_t", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(rate_t, "rate_t", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(shape_c, "shape_c", len = NULL, lower = 0, lower_open = TRUE)
+  check_numeric(rate_c, "rate_c", len = NULL, lower = 0, lower_open = TRUE)
+  check_flag(lower.tail, "lower.tail")
+  args <- recycle_common(list(q = q, milestone = milestone,
+                              shape_t = shape_t, rate_t = rate_t,
+                              shape_c = shape_c, rate_c = rate_c))
+  if (lower.tail) {
+    # P(S_t - S_c <= q) = P(S_c - S_t >= -q), the upper tail with the groups
+    # exchanged (the distribution is continuous).
+    cpp_psurvdiff_upper(-args$q, args$milestone, args$shape_c, args$rate_c,
+                        args$shape_t, args$rate_t)
+  } else {
+    cpp_psurvdiff_upper(args$q, args$milestone, args$shape_t, args$rate_t,
+                        args$shape_c, args$rate_c)
+  }
+}

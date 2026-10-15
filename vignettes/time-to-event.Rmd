@@ -1,0 +1,208 @@
+---
+title: "Time-to-event endpoint"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Time-to-event endpoint}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+This vignette describes the analysis of a proof-of-concept (PoC) study with
+one time-to-event endpoint, such as progression-free survival, evaluated by
+the survival probability at a milestone time. `vignette("overview")`
+introduces the decision criteria.
+
+## Model
+
+In group $k$ ($k = t, c$), the event times are exponential with hazard
+$\lambda_k$, and the data are summarized by the number of events $d_k$ and
+the total observed time $E_k$, the sum of the follow-up times of all
+subjects until their event or censoring (`data_tte()`). With the Gamma prior
+$\lambda_k \sim \textrm{Gamma}(a_k, b_k)$ (shape $a_k$ and rate $b_k$;
+`prior_gamma()`), the posterior distribution is
+$$\lambda_k \mid D \sim \textrm{Gamma}(a_k + d_k, \; b_k + E_k).$$
+The prior acts as $a_k$ events in a total observed time of $b_k$, so a prior
+with a small shape and rate, such as `prior_gamma(0.1, 1)` with time in
+months, has little influence.
+
+The effect is the difference of the survival probabilities at the milestone
+time $t_0$,
+$$\theta = S_t(t_0) - S_c(t_0), \qquad S_k(t_0) = \exp(-\lambda_k t_0).$$
+The posterior probability $\Pr(\theta > q \mid D)$ is computed by numerical
+integration over the control hazard (`psurvdiff()`).
+
+External data with $d_e$ events and total observed time $E_e$ enter through
+a power prior with weight $a_0$, which adds $a_0 d_e$ to the shape and
+$a_0 E_e$ to the rate. A hypothetical control adds its events and total
+observed time to the prior of the control group.
+
+## Decision for observed data
+
+A single-arm study is often compared with a known benchmark. With
+`fixed_c`, the control survival probability at the milestone is a known
+value $S_{c0}$, and the probabilities of the Go and NoGo regions are Gamma
+probabilities of the treatment hazard. Consider 30 subjects, a milestone of
+3 months, a benchmark of 0.72, $\theta_{TV} = 0.15$ and
+$\theta_{MAV} = 0$:
+
+```{r design}
+crit <- criterion_posterior(theta_tv = 0.15, theta_mav = 0,
+                            gamma_go = 0.6, gamma_nogo = 0.8)
+des <- design_tte(n_t = 30, n_c = 0, prior_t = prior_gamma(0.1, 1),
+                  criterion = crit, milestone = 3, fixed_c = 0.72)
+dec <- qdm_decide(des, data_t = data_tte(events = 6, exposure = 150))
+dec
+```
+
+The Go region is $S_t(3) > 0.72 + 0.15$, that is
+$\lambda_t < -\log(0.87) / 3$, whose posterior probability is
+
+```{r fixed-check}
+pgamma(-log(0.87) / 3, shape = 0.1 + 6, rate = 1 + 150)
+```
+
+With `fixed_c = 0`, the effect is the milestone survival probability
+itself, and the thresholds are survival probabilities.
+
+With a concurrent control group of 30 subjects:
+
+```{r concurrent}
+des_c <- design_tte(n_t = 30, n_c = 30, prior_t = prior_gamma(0.1, 1),
+                    prior_c = prior_gamma(0.1, 1), criterion = crit,
+                    milestone = 3)
+dec_c <- qdm_decide(des_c, data_t = data_tte(6, 150),
+                    data_c = data_tte(12, 140))
+dec_c
+post_t <- dec_c$posterior_t
+post_c <- dec_c$posterior_c
+psurvdiff(0.15, milestone = 3, shape_t = post_t[["shape"]],
+          rate_t = post_t[["rate"]], shape_c = post_c[["shape"]],
+          rate_c = post_c[["rate"]], lower.tail = FALSE)
+```
+
+External control data and hypothetical controls are given as in the other
+vignettes, with `borrow(data_tte(...), a0)` and
+`hypothetical(data_tte(...))`.
+
+## Conduct of the study
+
+The operating characteristics and the predictive criterion need the timing
+of the study, which `conduct_tte()` specifies: the enrollment
+(piecewise uniform over the intervals of `accrual_time` with relative rates
+`accrual_rate`), the dropout (piecewise exponential hazards) and the time of
+the analysis, either at a calendar time (`cut_time`) or at the time of a
+given number of events among all subjects of the study (`cut_events`). For
+example, enrollment over 15 months with increasing rates, a small dropout
+hazard and an analysis 15.44 months after the start of enrollment:
+
+```{r conduct}
+cond <- conduct_tte(accrual_time = c(0, 5, 10, 15),
+                    accrual_rate = c(0.4, 2, 4.5),
+                    dropout_hazard = 0.00226, cut_time = 15.44)
+cond
+des <- design_tte(n_t = 30, n_c = 0, prior_t = prior_gamma(0.1, 1),
+                  criterion = crit, milestone = 3, conduct = cond,
+                  fixed_c = 0.72)
+```
+
+## Predictive criterion
+
+For the predictive criterion, a future study with $m_t$ and $m_c$ subjects
+is conducted as specified by `conduct_future` (by default `conduct`). The
+survival probability of each group in the future study is estimated by
+$\exp\{-t_0 (a + \tilde d) / (b + \tilde E)\}$, from its number of events
+$\tilde d$ and total observed time $\tilde E$, and the future effect is the
+difference of the two estimates (or the treatment estimate minus the fixed
+value). The predictive probabilities are estimated by simulating `nMC`
+future studies, each with hazards drawn from the posterior distributions,
+so they are Monte Carlo estimates and depend on the seed:
+
+```{r predictive}
+des_pred <- design_tte(
+  n_t = 30, n_c = 0, prior_t = prior_gamma(0.1, 1),
+  criterion = criterion_predictive(theta_null = 0.05, m_t = 60,
+                                   gamma_go = 0.8, gamma_nogo = 0.3),
+  milestone = 3, conduct = cond, fixed_c = 0.72, nMC = 5000
+)
+qdm_decide(des_pred, data_t = data_tte(6, 150), seed = 1)
+```
+
+## Operating characteristics
+
+A scenario gives the median survival time of each group (`median_t` and,
+with a concurrent control group, `median_c`), and the hazard is
+$\log 2$ divided by the median. `qdm_oc()` simulates `nsim` studies
+conducted as specified by `conduct`, with the same random numbers for all
+scenarios. The median for which the milestone survival equals the benchmark
+is `med0` below, and the median for which it equals the benchmark plus
+$\theta_{TV}$ is `med1`:
+
+```{r oc}
+med0 <- 3 * log(2) / -log(0.72)
+med1 <- 3 * log(2) / -log(0.72 + 0.15)
+c(med0, med1)
+scen <- data.frame(median_t = c(6, 8, 10, 12, 15, 20))
+oc <- qdm_oc(des, scen, seed = 1)
+oc
+plot(oc)
+```
+
+The horizontal axis is the survival probability of the treatment group at
+the milestone, and the vertical lines are shifted by the fixed control
+value. For a design with a concurrent control group, the probabilities of
+each simulated study are computed by numerical integration, which takes
+longer; here 1000 studies are simulated per scenario:
+
+```{r oc-concurrent}
+des_c <- design_tte(n_t = 30, n_c = 30, prior_t = prior_gamma(0.1, 1),
+                    prior_c = prior_gamma(0.1, 1), criterion = crit,
+                    milestone = 3, conduct = cond)
+oc_c <- qdm_oc(des_c, data.frame(median_t = c(med0, 10, 15, 20),
+                                 median_c = med0), nsim = 1000, seed = 1)
+oc_c
+```
+
+With a predictive criterion, every simulated study requires `nMC` simulated
+future studies, so small values of `nsim` and `nMC` are advisable for
+exploration.
+
+## Calibration of the thresholds
+
+The thresholds of the single-arm design are calibrated so that the Go
+criterion is met with probability at most 0.05 when the milestone survival
+equals the benchmark (median `med0`), and the NoGo criterion with
+probability at most 0.1 when it equals the benchmark plus 0.15 (median
+`med1`):
+
+```{r calibrate}
+cal <- qdm_calibrate(des, scenario_go = data.frame(median_t = med0),
+                     scenario_nogo = data.frame(median_t = med1),
+                     target_go = 0.05, target_nogo = 0.1, seed = 1)
+cal
+plot(cal)
+```
+
+The chosen thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
+$\gamma_{nogo} =$ `r cal$gamma_nogo`.
+
+## Decision boundary
+
+`qdm_boundary()` gives the decision for each combination of the number of
+events and the total observed time of the treatment group. With a posterior
+criterion, it does not depend on the conduct of the study:
+
+```{r boundary}
+b <- qdm_boundary(des, exposure_t = seq(20, 400, by = 5))
+plot(b)
+```
+
+With a total observed time of 150 months, a Go decision needs at most
+`r max(b$events_t[b$exposure_t == 150 & b$decision == "Go"])` events. For a
+design with a concurrent control group, the observed control data are given
+by `data_c`.

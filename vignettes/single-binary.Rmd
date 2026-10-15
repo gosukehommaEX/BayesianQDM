@@ -1,484 +1,263 @@
 ---
-title: "Single Binary Endpoint"
+title: "Single binary endpoint"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Single Binary Endpoint}
+  %\VignetteIndexEntry{Single binary endpoint}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment  = "#>",
-  fig.width  = 7,
-  fig.height = 4.5,
-  fig.path = "figures/single-bin-"
-)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
 library(BayesianQDM)
 ```
 
-## Motivating Scenario
+This vignette describes the analysis of a proof-of-concept (PoC) study with
+one binary endpoint (Kang, Yamaguchi and Han, 2026). `vignette("overview")`
+introduces the decision criteria.
 
-We use a hypothetical Phase IIa proof-of-concept (PoC) trial in
-moderate-to-severe rheumatoid arthritis (RA). The investigational drug
-is compared with placebo in a 1:1 randomised controlled trial with
-$n_t = n_c = 12$ patients per group.
+## Model
 
-Endpoint: ACR20 response rate (proportion of patients achieving
-$\ge 20\%$ improvement in ACR criteria).
+In group $k$ ($k = t$ for treatment, $c$ for control), $y_k$ of $n_k$
+subjects respond, $y_k \sim \textrm{Binomial}(n_k, \pi_k)$, and the response
+rate has the prior distribution $\pi_k \sim \textrm{Beta}(a_k, b_k)$
+(`prior_beta()`; `prior_beta(0.5, 0.5)` is the Jeffreys prior). The
+posterior distribution is
+$$\pi_k \mid y_k \sim \textrm{Beta}(a_k + y_k, b_k + n_k - y_k),$$
+and the treatment effect is $\theta = \pi_t - \pi_c$. The posterior
+probability $\Pr(\theta > q \mid D)$ is computed by numerical integration
+(`pbetadiff()`).
 
-Clinically meaningful thresholds (posterior probability):
+For the predictive criterion, $m_k$ future subjects of group $k$ have
+$\tilde y_k$ responders, whose posterior predictive distribution is
+beta-binomial. The future effect is
+$\tilde\theta = \tilde y_t / m_t - \tilde y_c / m_c$, and its predictive
+probabilities are computed exactly by summation (`pbetabinomdiff()`).
 
-- Target Value (TV) = 0.20 (treatment–control difference)
-- Minimum Acceptable Value (MAV) = 0.05
+## Decision for observed data
 
-Null hypothesis threshold (predictive probability):
-$\theta_{\mathrm{NULL}} = 0.10$.
+A study with 12 subjects in each group, Jeffreys priors and a posterior
+criterion with $\theta_{TV} = 0.2$, $\theta_{MAV} = 0.1$,
+$\gamma_{go} = 0.5$ and $\gamma_{nogo} = 0.8$:
 
-Decision thresholds: $\gamma_{\mathrm{go}} = 0.80$ (Go), $\gamma_{\mathrm{nogo}} = 0.20$ (NoGo).
+```{r design}
+jeffreys <- prior_beta(0.5, 0.5)
+crit <- criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                            gamma_go = 0.5, gamma_nogo = 0.8)
+des <- design_binary(n_t = 12, n_c = 12, prior_t = jeffreys,
+                     prior_c = jeffreys, criterion = crit)
+dec <- qdm_decide(des, data_t = data_binary(12, 9),
+                  data_c = data_binary(12, 3))
+dec
+```
 
-Observed data (used in Sections 2–4):
-$y_t = 8$ responders out of $n_t = 12$ (treatment);
-$y_c = 3$ responders out of $n_c = 12$ (control).
+The probabilities of the Go and NoGo regions are the posterior probabilities
+$\Pr(\theta > 0.2 \mid D)$ and $\Pr(\theta \le 0.1 \mid D)$, which
+`pbetadiff()` gives from the posterior parameters:
 
----
+```{r pbetadiff}
+post_t <- dec$posterior_t
+post_c <- dec$posterior_c
+pbetadiff(0.2, a_t = post_t[["a"]], b_t = post_t[["b"]],
+          a_c = post_c[["a"]], b_c = post_c[["b"]], lower.tail = FALSE)
+pbetadiff(0.1, a_t = post_t[["a"]], b_t = post_t[["b"]],
+          a_c = post_c[["a"]], b_c = post_c[["b"]])
+```
 
-## 1. Bayesian Model: Beta-Binomial Conjugate
+With 9 and 3 responders, the decision is `r dec$decision`.
 
-### 1.1 Prior Distribution
+## Forms of the control group
 
-Let $\pi_j$ denote the true response rate in group $j$
-($j = t$: treatment, $j = c$: control). We model the number of
-responders as
+### External control data
 
-$$y_j \mid \pi_j \;\sim\; \mathrm{Binomial}(n_j,\, \pi_j),$$
+External data enter through a power prior: with $n_e$ subjects,
+$y_e$ responders and weight $a_0$ (from 0 to 1), the posterior distribution
+of the response rate is
+$$\textrm{Beta}(a + a_0 y_e + y, \; b + a_0 (n_e - y_e) + n - y).$$
+With $a_0 = 0$ the external data are ignored, and with $a_0 = 1$ they are
+pooled with the current data. Borrowing half of 20 external control
+subjects with 5 responders:
 
-and place independent Beta priors on each rate:
-
-$$\pi_j \;\sim\; \mathrm{Beta}(a_j,\, b_j),$$
-
-where $a_j > 0$ and $b_j > 0$ are the shape parameters.
-
-The Jeffreys prior corresponds to $a_j = b_j = 0.5$, giving a
-weakly informative, symmetric prior on $(0, 1)$.
-The uniform prior corresponds to $a_j = b_j = 1$.
-
-### 1.2 Posterior Distribution
-
-By conjugacy of the Beta-Binomial model, the posterior after observing
-$y_j$ responders among $n_j$ patients is
-
-$$\pi_j \mid y_j \;\sim\; \mathrm{Beta}(a_j^*,\, b_j^*),$$
-
-where the posterior shape parameters are
-
-$$a_j^* = a_j + y_j, \qquad b_j^* = b_j + n_j - y_j.$$
-
-The posterior mean and variance are
-
-$$E[\pi_j \mid y_j] = \frac{a_j^*}{a_j^* + b_j^*}, \qquad
-  \mathrm{Var}(\pi_j \mid y_j) =
-  \frac{a_j^*\, b_j^*}{(a_j^* + b_j^*)^2\,(a_j^* + b_j^* + 1)}.$$
-
-### 1.3 Posterior of the Treatment Effect
-
-The treatment effect is $\theta = \pi_t - \pi_c$.  Since the two
-groups are independent,
-$\theta \mid y_t, y_c$ follows the distribution of the difference
-of two independent Beta random variables:
-
-$$\pi_t \mid y_t \;\sim\; \mathrm{Beta}(a_t^*,\, b_t^*), \qquad
-  \pi_c \mid y_c \;\sim\; \mathrm{Beta}(a_c^*,\, b_c^*).$$
-
-There is no closed-form CDF for $\theta = \pi_t - \pi_c$, so the
-posterior probability
-
-$$P(\theta > \theta_0 \mid y_t, y_c) = P(\pi_t - \pi_c > \theta_0
-  \mid y_t, y_c)$$
-
-is evaluated by the convolution integral implemented in `pbetadiff()`:
-
-$$P(\pi_t - \pi_c > \theta_0) =
-  \int_0^1
-  F_{\mathrm{Beta}(a_c^*, b_c^*)}\!\left(x - \theta_0\right)\,
-  f_{\mathrm{Beta}(a_t^*, b_t^*)}\!(x)\; dx,$$
-
-where $F_{\mathrm{Beta}(\alpha,\beta)}$ is the Beta CDF and
-$f_{\mathrm{Beta}(\alpha,\beta)}$ is the Beta PDF.
-This one-dimensional integral is evaluated by adaptive Gauss-Kronrod
-quadrature via `stats::integrate()`.
-
----
-
-## 2. Posterior Predictive Probability
-
-### 2.1 Beta-Binomial Predictive Distribution
-
-Let $\tilde{y}_j \mid \pi_j \sim \mathrm{Binomial}(m_j, \pi_j)$ be
-future trial counts with $m_j$ future patients. Integrating out $\pi_j$
-over its Beta posterior gives the Beta-Binomial predictive distribution:
-
-$$P(\tilde{y}_j = k \mid y_j) =
-  \binom{m_j}{k}
-  \frac{B(a_j^* + k,\; b_j^* + m_j - k)}{B(a_j^*,\; b_j^*)},
-  \quad k = 0, 1, \ldots, m_j,$$
-
-where $B(\cdot, \cdot)$ is the Beta function.
-
-### 2.2 Posterior Predictive Probability of Future Success
-
-The posterior predictive probability that the future treatment difference
-exceeds $\theta_{\mathrm{NULL}}$ is
-
-$$P\!\left(\frac{\tilde{y}_t}{m_t} - \frac{\tilde{y}_c}{m_c}
-  > \theta_{\mathrm{NULL}} \;\Big|\; y_t, y_c\right)
-  = \sum_{k_t=0}^{m_t} \sum_{k_c=0}^{m_c}
-  \mathbf{1}\!\left[\frac{k_t}{m_t} - \frac{k_c}{m_c} >
-  \theta_{\mathrm{NULL}}\right]\,
-  P(\tilde{y}_t = k_t \mid y_t)\,
-  P(\tilde{y}_c = k_c \mid y_c).$$
-
-This double sum over all $(m_t + 1)(m_c + 1)$ outcome combinations is
-evaluated exactly by `pbetabinomdiff()`.
-
----
-
-## 3. Study Designs
-
-### 3.1 Controlled Design
-
-Standard parallel-group RCT with observed data from both groups.  The
-posterior shape parameters for group $j$ are
-
-$$a_j^* = a_j + y_j, \qquad b_j^* = b_j + n_j - y_j,$$
-
-and the posterior probability is $P(\pi_t - \pi_c > \theta_0 \mid y_t, y_c)$
-computed via `pbetadiff()`.
-
-Posterior probability at TV and MAV:
-
-```{r ctrl-post}
-# P(pi_t - pi_c > TV  | data)
-p_tv <- pbayespostpred1bin(
-  prob = 'posterior', design = 'controlled', theta0 = 0.20,
-  n_t = 12, n_c = 12, y_t = 8, y_c = 3,
-  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-  m_t = NULL, m_c = NULL, z = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  lower.tail = FALSE
+```{r external}
+des_ext <- design_binary(
+  n_t = 12, n_c = 12, prior_t = jeffreys, prior_c = jeffreys,
+  criterion = crit,
+  external_c = borrow(data_binary(n = 20, y = 5), a0 = 0.5)
 )
+dec_ext <- qdm_decide(des_ext, data_t = data_binary(12, 9),
+                      data_c = data_binary(12, 3))
+dec_ext$posterior_c
+```
 
-# P(pi_t - pi_c > MAV | data)
-p_mav <- pbayespostpred1bin(
-  prob = 'posterior', design = 'controlled', theta0 = 0.05,
-  n_t = 12, n_c = 12, y_t = 8, y_c = 3,
-  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-  m_t = NULL, m_c = NULL, z = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  lower.tail = FALSE
+The external data add
+`r dec_ext$posterior_c[["a"]] - dec$posterior_c[["a"]]` responders and
+`r dec_ext$posterior_c[["b"]] - dec$posterior_c[["b"]]` non-responders to the
+posterior distribution of the control group, and the
+probability of the Go region becomes
+`r format(dec_ext$prob_go, digits = 3)` (without them,
+`r format(dec$prob_go, digits = 3)`).
+
+Without a concurrent control group (`n_c = 0`), the control group can be
+described by the external data alone:
+
+```{r external-only}
+des_ext0 <- design_binary(
+  n_t = 12, n_c = 0, prior_t = jeffreys, prior_c = jeffreys,
+  criterion = crit,
+  external_c = borrow(data_binary(n = 40, y = 10), a0 = 1)
 )
-
-cat(sprintf("P(theta > TV  | data) = %.4f  -> Go  criterion (>= %.2f): %s\n",
-            p_tv,  0.80, ifelse(p_tv  >= 0.80, "YES", "NO")))
-cat(sprintf("P(theta <= MAV | data) = %.4f  -> NoGo criterion (>= %.2f): %s\n",
-            1 - p_mav, 0.20, ifelse((1 - p_mav) >= 0.20, "YES", "NO")))
-cat(sprintf("Decision: %s\n",
-            ifelse(p_tv >= 0.80 & (1 - p_mav) < 0.20, "Go",
-                   ifelse(p_tv < 0.80 & (1 - p_mav) >= 0.20, "NoGo",
-                          ifelse(p_tv >= 0.80 & (1 - p_mav) >= 0.20, "Miss", "Gray")))))
+qdm_decide(des_ext0, data_t = data_binary(12, 9))
 ```
 
-Posterior predictive probability (future Phase III: $m_t = m_c = 40$):
+External treatment data (`external_t`) can be used in the same way with any
+form of the control group.
 
-```{r ctrl-pred}
-p_pred <- pbayespostpred1bin(
-  prob = 'predictive', design = 'controlled', theta0 = 0.10,
-  n_t = 12, n_c = 12, y_t = 8, y_c = 3,
-  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-  m_t = 40, m_c = 40, z = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  lower.tail = FALSE
+### Hypothetical control
+
+For an uncontrolled study, Kang et al. (2026, Section 4.1.4) describe the
+control response rate by a hypothetical control,
+$\pi_c \sim \textrm{Beta}(a_t + z, b_t + n_t - z)$, where $z$ is the number
+of responders expected among $n_t$ control subjects. This is obtained with
+`prior_c` equal to `prior_t` and `hypothetical(data_binary(n_t, z))`:
+
+```{r hypothetical}
+des_hyp <- design_binary(
+  n_t = 12, n_c = 0, prior_t = jeffreys, prior_c = jeffreys,
+  criterion = crit,
+  hypothetical_c = hypothetical(data = data_binary(n = 12, y = 3))
 )
-cat(sprintf("Predictive probability (m_t = m_c = 40) = %.4f\n", p_pred))
+qdm_decide(des_hyp, data_t = data_binary(12, 9))
 ```
 
-Vectorised computation over all possible outcomes:
+### Fixed control
 
-The function accepts vectors for `y_t` and `y_c`, enabling efficient
-computation of the posterior probability for every possible outcome pair
-$(y_t, y_c) \in \{0,\ldots,n_t\} \times \{0,\ldots,n_c\}$.
+A single-arm study is often compared with a known benchmark, such as the
+response rate of the standard of care reported in the literature. With
+`fixed_c`, the control response rate is a known value $\pi_{c0}$, the
+treatment effect is $\theta = \pi_t - \pi_{c0}$, and `prior_c` is not used
+(it must be `NULL`). The probability of the Go region is then the Beta
+probability $\Pr(\pi_t > \pi_{c0} + \theta_{TV} \mid D)$. A study with 20
+subjects compared with a benchmark of 0.2:
 
-```{r ctrl-vector}
-grid <- expand.grid(y_t = 0:12, y_c = 0:12)
-p_all <- pbayespostpred1bin(
-  prob = 'posterior', design = 'controlled', theta0 = 0.20,
-  n_t = 12, n_c = 12, y_t = grid$y_t, y_c = grid$y_c,
-  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-  m_t = NULL, m_c = NULL, z = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  lower.tail = FALSE
+```{r fixed}
+crit_fix <- criterion_posterior(theta_tv = 0.2, theta_mav = 0.05,
+                                gamma_go = 0.8, gamma_nogo = 0.8)
+des_fix <- design_binary(n_t = 20, n_c = 0, prior_t = prior_beta(1, 1),
+                         criterion = crit_fix, fixed_c = 0.2)
+dec_fix <- qdm_decide(des_fix, data_t = data_binary(20, 11))
+dec_fix
+pbeta(0.2 + 0.2, 1 + 11, 1 + 20 - 11, lower.tail = FALSE)
+```
+
+With `fixed_c = 0`, the effect is the response rate itself, and the
+thresholds are response rates. For the predictive criterion, the future
+effect is $\tilde y_t / m_t - \pi_{c0}$, and `m_c` is not used.
+
+## Predictive criterion
+
+The predictive criterion asks whether a future study with $m_t$ and $m_c$
+subjects would observe an effect larger than $\theta_{NULL}$. With 40
+subjects per group in the future study and $\theta_{NULL} = 0$:
+
+```{r predictive}
+des_pred <- design_binary(
+  n_t = 12, n_c = 12, prior_t = jeffreys, prior_c = jeffreys,
+  criterion = criterion_predictive(theta_null = 0, m_t = 40,
+                                   gamma_go = 0.9, gamma_nogo = 0.7)
 )
-# Show results for a selection of outcome pairs
-sel <- data.frame(y_t = grid$y_t, y_c = grid$y_c, P_gt_TV = round(p_all, 4))
-head(sel[order(-sel$P_gt_TV), ], 10)
+dec_pred <- qdm_decide(des_pred, data_t = data_binary(12, 9),
+                       data_c = data_binary(12, 3))
+dec_pred
+post_t <- dec_pred$posterior_t
+post_c <- dec_pred$posterior_c
+pbetabinomdiff(0, m_t = 40, a_t = post_t[["a"]], b_t = post_t[["b"]],
+               m_c = 40, a_c = post_c[["a"]], b_c = post_c[["b"]],
+               lower.tail = FALSE)
 ```
 
-### 3.2 Uncontrolled Design (Single-Arm)
+The Go and NoGo regions of the predictive criterion are complementary, so
+their probabilities add up to 1. A Gray decision is then possible only when
+$\gamma_{go} + \gamma_{nogo} > 1$.
 
-When no concurrent control group is enrolled, a hypothetical control
-responder count $z$ is specified from historical knowledge. The
-control posterior is then
+## Operating characteristics
 
-$$\pi_c \mid z \;\sim\; \mathrm{Beta}(a_c + z,\; b_c + n_c - z),$$
+`qdm_oc()` computes the probabilities of Go, NoGo, Gray and Miss decisions
+under scenarios for the true response rates. All outcomes
+$(y_t, y_c)$ of the study are enumerated and weighted by their binomial
+probabilities, so the results are exact.
 
-where $n_c$ is the hypothetical control sample size and $z$ is the
-assumed number of hypothetical responders ($0 \le z \le n_c$). Only the
-treatment group data $y_t$ are observed; $y_c$ is set to `NULL`.
-
-```{r unctrl-post}
-# Hypothetical control: z = 2 responders out of n_c = 12
-p_unctrl <- pbayespostpred1bin(
-  prob = 'posterior', design = 'uncontrolled', theta0 = 0.20,
-  n_t = 12, n_c = 12, y_t = 8, y_c = NULL,
-  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-  m_t = NULL, m_c = NULL, z = 2L,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  lower.tail = FALSE
-)
-cat(sprintf("P(theta > TV | data, uncontrolled, z=2) = %.4f\n", p_unctrl))
+```{r oc}
+oc <- qdm_oc(des, data.frame(pi_t = seq(0.2, 0.8, by = 0.05), pi_c = 0.2))
+oc
+plot(oc)
 ```
 
-Effect of the hypothetical control count: varying $z$ shows the
-sensitivity to the assumed control rate.
+The vertical lines mark the effects $\theta_{MAV}$ and $\theta_{TV}$. For
+the uncontrolled design, the horizontal axis is the response rate of the
+treatment group, and the lines are shifted by the mean of the hypothetical
+control distribution:
 
-```{r unctrl-z-sens}
-z_seq <- 0:12
-p_z   <- sapply(z_seq, function(z) {
-  pbayespostpred1bin(
-    prob = 'posterior', design = 'uncontrolled', theta0 = 0.20,
-    n_t = 12, n_c = 12, y_t = 8, y_c = NULL,
-    a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-    m_t = NULL, m_c = NULL, z = z,
-    ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-    alpha0e_t = NULL, alpha0e_c = NULL,
-    lower.tail = FALSE
-  )
-})
-data.frame(z = z_seq, P_gt_TV = round(p_z, 4))
+```{r oc-hyp}
+oc_hyp <- qdm_oc(des_hyp, data.frame(pi_t = seq(0.2, 0.8, by = 0.05)))
+plot(oc_hyp)
 ```
 
-### 3.3 External Design (Power Prior)
+## Decision boundary
 
-Historical or external data are incorporated via a power prior with
-borrowing weight $\alpha_{0ej} \in (0, 1]$. The augmented prior shape
-parameters are
+`qdm_boundary()` gives the decision for every possible outcome of the study,
+and its plot shows which outcomes lead to Go, NoGo and Gray decisions.
+Unlike the operating characteristics, it does not depend on the true
+response rates. For the design with a concurrent control group, the axes are
+the numbers of responders of the two groups:
 
-$$a_j^* = a_j + \alpha_{0ej}\, y_{ej}, \qquad
-  b_j^* = b_j + \alpha_{0ej}\,(n_{ej} - y_{ej}),$$
-
-where $n_{ej}$ and $y_{ej}$ are the external sample size and responder
-count for group $j$
-(corresponding to `ne_t`/`ne_c`, `ye_t`/`ye_c`, and `alpha0e_t`/`alpha0e_c`).
-These serve as the prior for the current PoC data,
-yielding a closed-form posterior:
-
-$$\pi_j \mid y_j \;\sim\;
-  \mathrm{Beta}\!\left(a_j^* + y_j,\; b_j^* + n_j - y_j\right).$$
-
-Setting $\alpha_{0ej} = 1$ corresponds to full borrowing (the external
-data are treated as if they came from the current trial); $\alpha_{0ej} \to 0$
-recovers the result from the current data alone with the original prior.
-
-Here, external data for both groups (external design):
-$n_{et} = 15$, $y_{et} = 5$,
-$n_{ec} = 15$, $y_{ec} = 4$, borrowing weights $\alpha_{0et} = \alpha_{0ec} = 0.5$:
-
-```{r ext-post}
-p_ext <- pbayespostpred1bin(
-  prob = 'posterior', design = 'external', theta0 = 0.20,
-  n_t = 12, n_c = 12, y_t = 8, y_c = 3,
-  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-  m_t = NULL, m_c = NULL, z = NULL,
-  ne_t = 15L, ne_c = 15L, ye_t = 5L, ye_c = 4L,
-  alpha0e_t = 0.5, alpha0e_c = 0.5,
-  lower.tail = FALSE
-)
-cat(sprintf("P(theta > TV | data, external, alpha0e=0.5) = %.4f\n", p_ext))
+```{r boundary}
+plot(qdm_boundary(des))
 ```
 
-Effect of the borrowing weight: varying $\alpha_{0ec}$ (control group
-only) with fixed $\alpha_{0et} = 0.5$:
+Without a concurrent control group, the boundary is shown for several sample
+sizes of the treatment group, here from 10 to 40 subjects for the design
+with a fixed control:
 
-```{r ext-borrowing}
-# alpha0e must be in (0, 1]; avoid alpha0e = 0
-ae_seq <- c(0.01, seq(0.1, 1.0, by = 0.1))
-p_ae   <- sapply(ae_seq, function(ae) {
-  pbayespostpred1bin(
-    prob = 'posterior', design = 'external', theta0 = 0.20,
-    n_t = 12, n_c = 12, y_t = 8, y_c = 3,
-    a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-    m_t = NULL, m_c = NULL, z = NULL,
-    ne_t = 15L, ne_c = 15L, ye_t = 5L, ye_c = 4L,
-    alpha0e_t = 0.5, alpha0e_c = ae,
-    lower.tail = FALSE
-  )
-})
-data.frame(alpha0e_c = ae_seq, P_gt_TV = round(p_ae, 4))
+```{r boundary-fixed}
+b_fix <- qdm_boundary(des_fix, n_t = 10:40)
+plot(b_fix)
 ```
 
----
+With 20 subjects, a Go decision needs at least
+`r min(b_fix$y_t[b_fix$n_t == 20 & b_fix$decision == "Go"])` responders, and
+the decision is NoGo with at most
+`r max(b_fix$y_t[b_fix$n_t == 20 & b_fix$decision == "NoGo"])` responders.
 
-## 4. Operating Characteristics
+## Calibration of the thresholds
 
-### 4.1 Definition
+`qdm_calibrate()` chooses $\gamma_{go}$ as the smallest value of a grid for
+which the probability of meeting the Go criterion under `scenario_go` is at
+most `target_go`, and $\gamma_{nogo}$ in the same way for the NoGo criterion
+under `scenario_nogo`. Here the Go criterion should be met with probability
+at most 0.05 when the treatment has no effect, and the NoGo criterion with
+probability at most 0.2 when the effect is 0.3:
 
-For given true response rates $(\pi_t, \pi_c)$, the operating
-characteristics are computed by exact enumeration over all
-$(n_t + 1)(n_c + 1)$ possible outcome pairs
-$(y_t, y_c) \in \{0,\ldots,n_t\} \times \{0,\ldots,n_c\}$:
-
-$$\Pr(\mathrm{Go}) =
-  \sum_{y_t=0}^{n_t} \sum_{y_c=0}^{n_c}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_t, y_c) \ge \gamma_{\mathrm{go}}
-    \;\text{ and }\; g_{\mathrm{NoGo}}(y_t, y_c) < \gamma_{\mathrm{nogo}}\right]\,
-  \binom{n_t}{y_t} \pi_t^{y_t}(1-\pi_t)^{n_t-y_t}\,
-  \binom{n_c}{y_c} \pi_c^{y_c}(1-\pi_c)^{n_c-y_c},$$
-
-where
-
-$$g_{\mathrm{Go}}(y_t, y_c) = P(\pi_t - \pi_c > \theta_{\mathrm{TV}} \mid y_t, y_c),$$
-$$g_{\mathrm{NoGo}}(y_t, y_c) = P(\pi_t - \pi_c \le \theta_{\mathrm{MAV}} \mid y_t, y_c),$$
-
-and the decision outcomes are classified as:
-
-- Go: $g_{\mathrm{Go}} \ge \gamma_{\mathrm{go}}$ AND $g_{\mathrm{NoGo}} < \gamma_{\mathrm{nogo}}$
-- NoGo: $g_{\mathrm{Go}} < \gamma_{\mathrm{go}}$ AND $g_{\mathrm{NoGo}} \ge \gamma_{\mathrm{nogo}}$
-- Miss: $g_{\mathrm{Go}} \ge \gamma_{\mathrm{go}}$ AND $g_{\mathrm{NoGo}} \ge \gamma_{\mathrm{nogo}}$
-- Gray: neither Go nor NoGo criterion met
-
-### 4.2 Example: Controlled Design, Posterior Probability
-
-```{r oc-controlled, fig.width = 8, fig.height = 6}
-oc_ctrl <- pbayesdecisionprob1bin(
-  prob      = 'posterior',
-  design    = 'controlled',
-  theta_TV  = 0.30,  theta_MAV = 0.15,  theta_NULL = NULL,
-  gamma_go  = 0.80,  gamma_nogo = 0.20,
-  pi_t      = seq(0.10, 0.80, by = 0.05),
-  pi_c      = rep(0.10, length(seq(0.10, 0.80, by = 0.05))),
-  n_t = 12,  n_c = 12,
-  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-  z = NULL, m_t = NULL, m_c = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  error_if_Miss = TRUE, Gray_inc_Miss = FALSE
-)
-print(oc_ctrl)
-plot(oc_ctrl, base_size = 20)
+```{r calibrate}
+cal <- qdm_calibrate(des,
+                     scenario_go = data.frame(pi_t = 0.2, pi_c = 0.2),
+                     scenario_nogo = data.frame(pi_t = 0.5, pi_c = 0.2),
+                     target_go = 0.05, target_nogo = 0.2)
+cal
+plot(cal)
 ```
 
-The same function supports `design = 'uncontrolled'` (with argument `z`),
-`design = 'external'` (with power prior arguments `ne_t`, `ne_c`, `ye_t`,
-`ye_c`, `alpha0e_t`, `alpha0e_c`), and `prob = 'predictive'` (with future
-sample size arguments `m_t`, `m_c` and `theta_NULL`). The function signature
-and output format are identical across all combinations.
+The chosen thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
+$\gamma_{nogo} =$ `r cal$gamma_nogo`. The design with these thresholds is
+`cal$design`:
 
----
-
-## 5. Optimal Threshold Search
-
-### 5.1 Objective and Algorithm
-
-The `getgamma1bin()` function finds the optimal pair
-$(\gamma_{\mathrm{go}}^*, \gamma_{\mathrm{nogo}}^*)$ by grid search over
-$\Gamma = \{\gamma^{(1)}, \ldots, \gamma^{(K)}\} \subset (0, 1)$ at a
-null scenario $(\pi_t^{\mathrm{null}}, \pi_c^{\mathrm{null}})$.
-
-A two-stage precompute-then-sweep strategy is used:
-
-Stage 1 (Precompute): all posterior/predictive probabilities
-$g_{\mathrm{Go}}(y_t, y_c)$ and $g_{\mathrm{NoGo}}(y_t, y_c)$ are
-computed once over all $(n_t + 1)(n_c + 1)$ outcome pairs — independently
-of $\gamma$.
-
-Stage 2 (Sweep): for each candidate $\gamma \in \Gamma$,
-$\Pr(\mathrm{Go} \mid \gamma)$ and $\Pr(\mathrm{NoGo} \mid \gamma)$
-are obtained as weighted sums of indicator functions:
-
-$$\Pr(\mathrm{Go} \mid \gamma) = \sum_{y_t, y_c}
-  \mathbf{1}\!\left[g_{\mathrm{Go}}(y_t, y_c) \ge \gamma\right]\,
-  w(y_t, y_c),$$
-
-$$\Pr(\mathrm{NoGo} \mid \gamma) = \sum_{y_t, y_c}
-  \mathbf{1}\!\left[g_{\mathrm{NoGo}}(y_t, y_c) \ge \gamma\right]\,
-  w(y_t, y_c),$$
-
-where $w(y_t, y_c) = \mathrm{Binom}(y_t; n_t, \pi_t)\,\mathrm{Binom}(y_c; n_c, \pi_c)$
-are the binomial weights under the null scenario.  No further calls to
-`pbayespostpred1bin()` are required at this stage.
-
-The sweep is vectorised using `outer()`, making the full grid search
-computationally negligible once Stage 1 is complete.
-
-The optimal $\gamma_{\mathrm{go}}^*$ is the smallest value in $\Gamma$ such that
-$\Pr(\mathrm{Go} \mid \gamma_{\mathrm{go}}^*)$ satisfies the criterion against a
-target (e.g., $\Pr(\mathrm{Go}) < 0.05$). Analogously for $\gamma_{\mathrm{nogo}}^*$.
-
-### 5.2 Example: Controlled Design, Posterior Probability
-
-```{r getgamma-ctrl, fig.width = 8, fig.height = 6}
-res_gamma <- getgamma1bin(
-  prob      = 'posterior',
-  design    = 'controlled',
-  theta_TV  = 0.30, theta_MAV = 0.15, theta_NULL = NULL,
-  pi_t_go   = 0.10, pi_c_go   = 0.10,
-  pi_t_nogo = 0.30, pi_c_nogo = 0.10,
-  target_go = 0.05, target_nogo = 0.20,
-  n_t = 12L, n_c = 12L,
-  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
-  z = NULL, m_t = NULL, m_c = NULL,
-  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
-  alpha0e_t = NULL, alpha0e_c = NULL,
-  gamma_grid = seq(0.01, 0.99, by = 0.01)
-)
-plot(res_gamma, base_size = 20)
+```{r calibrated-oc}
+qdm_oc(cal$design, data.frame(pi_t = c(0.2, 0.35, 0.5), pi_c = 0.2))
 ```
 
-The same function supports `design = 'uncontrolled'` (with `pi_t_go`,
-`pi_t_nogo`, and `z`), `design = 'external'` (with power prior arguments),
-and `prob = 'predictive'` (with `theta_NULL`, `m_t`, and `m_c`). The
-calibration plot and the returned `gamma_go`/`gamma_nogo` values are
-available for all combinations.
+## Reference
 
----
-
-## 6. Summary
-
-This vignette covered single binary endpoint analysis in BayesianQDM:
-
-1. Bayesian model: Beta-Binomial conjugate posterior with explicit
-   update formulae for $a_j^* = a_j + y_j$ and $b_j^* = b_j + n_j - y_j$;
-   Jeffreys prior ($a_j = b_j = 0.5$) as the recommended weakly
-   informative default.
-2. Posterior probability: evaluated via the convolution integral
-   in `pbetadiff()` — no closed-form CDF exists for the Beta difference.
-3. Posterior predictive probability: evaluated by exact enumeration
-   of the Beta-Binomial double sum in `pbetabinomdiff()`.
-4. Three study designs: controlled (both groups observed), uncontrolled
-   (hypothetical control count $z$ fixed from prior knowledge), external
-   design (power prior with borrowing weight $\alpha_{0ej}$, augmenting
-   the prior by $\alpha_{0ej}$ times the external sufficient statistics).
-5. Operating characteristics: computed by exact enumeration over all
-   $(n_t+1)(n_c+1)$ outcome pairs with binomial probability weights —
-   no simulation required for the binary endpoint.
-6. Optimal threshold search: two-stage precompute-then-sweep strategy
-   in `getgamma1bin()` using `outer()` for a fully vectorised gamma sweep.
-
-See `vignette("single-continuous")` for the analogous continuous endpoint
-analysis.
+Kang, R., Yamaguchi, Y. and Han, C. (2026). Bayesian quantitative
+decision-making framework in cell and gene therapy development for rare
+diseases. *Journal of Biopharmaceutical Statistics*.
+<https://doi.org/10.1080/10543406.2026.2655410>

@@ -1,0 +1,222 @@
+---
+title: "Migrating from version 0.1.0"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Migrating from version 0.1.0}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+Version 1.0.0 of BayesianQDM is a redesign of version 0.1.0 and is not
+backward compatible. In version 0.1.0, each combination of endpoint and
+operation had its own function with up to about 50 arguments. In version
+1.0.0, a study is described by small specification objects that are
+combined into a design, and three functions work with any design. This
+vignette shows how to translate code written for version 0.1.0 and lists
+the changes in the results. The code for version 0.1.0 is shown but not run.
+
+## Correspondence of the functions
+
+| Version 0.1.0 | Version 1.0.0 |
+|---|---|
+| `pbayespostpred1bin()`, `pbayespostpred1cont()`, `pbayespostpred2bin()`, `pbayespostpred2cont()` | `qdm_decide()` with a design and observed data |
+| `pbayesdecisionprob1bin()`, `pbayesdecisionprob1cont()`, `pbayesdecisionprob2bin()`, `pbayesdecisionprob2cont()` | `qdm_oc()` |
+| `getgamma1bin()`, `getgamma1cont()`, `getgamma2bin()`, `getgamma2cont()` | `qdm_calibrate()` |
+| `ptdiff_NI()`, `ptdiff_MC()`, `ptdiff_MM()` | `ptdiff()` with `method = "NI"`, `"MC"` or `"MM"` |
+| `pbetadiff()`, `pbetabinomdiff()` | Same names, with the arguments ordered by group |
+| `getjointbin()` | `cellprob_binary2()` |
+| `rdirichlet()` | Same name |
+| `allmultinom()` | Internal function |
+
+## Correspondence of the arguments
+
+| Version 0.1.0 | Version 1.0.0 |
+|---|---|
+| `prob = 'posterior'` with `theta_TV`, `theta_MAV`, `gamma_go`, `gamma_nogo` | `criterion_posterior(theta_tv, theta_mav, gamma_go, gamma_nogo)` |
+| `prob = 'predictive'` with `theta_NULL`, `m_t`, `m_c` | `criterion_predictive(theta_null, m_t, m_c, gamma_go, gamma_nogo)` |
+| `a_t`, `b_t`, `a_c`, `b_c` | `prior_beta(a, b)` for each group |
+| `prior = 'vague'` | `prior_vague()` |
+| `prior = 'N-Inv-Chisq'` with `mu0_*`, `kappa0_*`, `nu0_*`, `sigma0_*` | `prior_nix(mu0, kappa0, nu0, sigma0)` for each group |
+| `CalcMethod` | `method` of `design_continuous()` and `design_continuous2()` |
+| `design = 'controlled'` | `n_c` of at least 1 (binary endpoints), 2 (one continuous endpoint) or 3 (two continuous endpoints) |
+| `design = 'external'` with `ne_*`, `ye_*` (or `bar_ye_*`, `se_*`) and `alpha0e_*` | `borrow(data_*(...), a0)` as `external_t` or `external_c` |
+| `design = 'uncontrolled'` with `z` (binary) or `mu0_c` and `r` (continuous) | `n_c = 0` and `hypothetical_c = hypothetical(...)` |
+| `pi_t`, `pi_c` and similar vectors of true parameters | A data frame of scenarios |
+| `error_if_Miss`, `Gray_inc_Miss` | Removed; Miss decisions are reported in their own column |
+| `col_go`, `col_nogo`, `col_gray` and `base_size` of the `plot()` methods | Same names, with `col_miss`, `linewidth`, `point_size`, `label_size` and `legend_position` where they apply; `base_size` is 11 by default instead of 28 |
+| `title`, `xlab` and `ylab` of the `plot()` methods | `ggplot2::labs()` added to the plot |
+| `which` of the `plot()` methods for two endpoints | Removed; the plot has one panel per decision |
+
+The meaning of `gamma_nogo` is unchanged: the NoGo criterion is
+$\Pr(\theta \le \theta_{MAV} \mid D) \ge \gamma_{nogo}$.
+
+## Posterior probability for observed data
+
+Version 0.1.0:
+
+```{r old-post, eval = FALSE}
+pbayespostpred1bin(
+  prob = 'posterior', design = 'controlled', theta0 = 0.05,
+  n_t = 10, n_c = 10, y_t = 7, y_c = 3,
+  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
+  m_t = NULL, m_c = NULL, z = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL,
+  lower.tail = FALSE
+)
+```
+
+Version 1.0.0 computes the probability directly from the posterior
+distributions $\textrm{Beta}(7.5, 3.5)$ and $\textrm{Beta}(3.5, 7.5)$, or as
+the probability of the Go region of a design whose target value is 0.05:
+
+```{r new-post}
+pbetadiff(0.05, a_t = 7.5, b_t = 3.5, a_c = 3.5, b_c = 7.5,
+          lower.tail = FALSE)
+
+des <- design_binary(
+  n_t = 10, n_c = 10,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.05, theta_mav = 0,
+                                  gamma_go = 0.8, gamma_nogo = 0.8)
+)
+qdm_decide(des, data_t = data_binary(10, 7), data_c = data_binary(10, 3))
+```
+
+## Operating characteristics
+
+Version 0.1.0:
+
+```{r old-oc, eval = FALSE}
+pbayesdecisionprob1bin(
+  prob = 'posterior', design = 'controlled',
+  theta_TV = 0.30, theta_MAV = 0.10, theta_NULL = NULL,
+  gamma_go = 0.80, gamma_nogo = 0.20,
+  pi_t = seq(0.15, 0.9, l = 10), pi_c = rep(0.15, 10),
+  n_t = 10, n_c = 10,
+  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
+  z = NULL, m_t = NULL, m_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL
+)
+```
+
+Version 1.0.0:
+
+```{r new-oc}
+des <- design_binary(
+  n_t = 10, n_c = 10,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.30, theta_mav = 0.10,
+                                  gamma_go = 0.80, gamma_nogo = 0.20)
+)
+oc <- qdm_oc(des, data.frame(pi_t = seq(0.15, 0.9, length.out = 10),
+                             pi_c = 0.15))
+oc
+```
+
+## Calibration of the thresholds
+
+Version 0.1.0:
+
+```{r old-cal, eval = FALSE}
+getgamma1bin(
+  prob = 'posterior', design = 'controlled',
+  theta_TV = 0.30, theta_MAV = 0.10, theta_NULL = NULL,
+  pi_t_go = 0.15, pi_c_go = 0.15, pi_t_nogo = 0.35, pi_c_nogo = 0.15,
+  target_go = 0.05, target_nogo = 0.20,
+  n_t = 12L, n_c = 12L,
+  a_t = 0.5, b_t = 0.5, a_c = 0.5, b_c = 0.5,
+  z = NULL, m_t = NULL, m_c = NULL,
+  ne_t = NULL, ne_c = NULL, ye_t = NULL, ye_c = NULL,
+  alpha0e_t = NULL, alpha0e_c = NULL
+)
+```
+
+Version 1.0.0 (the thresholds of the design are replaced by the calibrated
+ones):
+
+```{r new-cal}
+des12 <- design_binary(
+  n_t = 12, n_c = 12,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.30, theta_mav = 0.10,
+                                  gamma_go = 0.80, gamma_nogo = 0.20)
+)
+cal <- qdm_calibrate(des12,
+                     scenario_go = data.frame(pi_t = 0.15, pi_c = 0.15),
+                     scenario_nogo = data.frame(pi_t = 0.35, pi_c = 0.15),
+                     target_go = 0.05, target_nogo = 0.20)
+cal
+```
+
+Version 0.1.0 required the probabilities to be less than the targets;
+version 1.0.0 requires them to be at most the targets.
+
+## External data and hypothetical controls
+
+External data given in version 0.1.0 by `ne_c = 20, ye_c = 5,
+alpha0e_c = 0.5` are given in version 1.0.0 by
+`external_c = borrow(data_binary(n = 20, y = 5), a0 = 0.5)`. For a
+continuous endpoint, `ne_c`, `bar_ye_c`, `se_c` and `alpha0e_c` become
+`borrow(data_continuous(n, mean, sd), a0)`.
+
+The uncontrolled design of version 0.1.0 with `z` hypothetical responders
+among `n_c` control subjects and control prior $\textrm{Beta}(a_c, b_c)$
+corresponds to `n_c = 0`, `prior_c = prior_beta(a_c, b_c)` and
+`hypothetical_c = hypothetical(data = data_binary(n_c, z))`; for example:
+
+```{r hypothetical}
+design_binary(
+  n_t = 12, n_c = 0,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.30, theta_mav = 0.10,
+                                  gamma_go = 0.80, gamma_nogo = 0.20),
+  hypothetical_c = hypothetical(data = data_binary(n = 12, y = 2))
+)
+```
+
+For a continuous endpoint, `mu0_c` and `r` become
+`hypothetical(mean = mu0_c, r = r)`.
+
+## Changes in the results
+
+Formulas and numerical methods that were wrong in version 0.1.0 have been
+corrected, so some results differ.
+
+- The posterior predictive distribution of the mean of $m$ future subjects
+  of a continuous endpoint has the squared scale
+  $\sigma_n^2 (1 / \kappa_n + 1 / m)$ (one endpoint) and the scale matrix
+  $(1 / \kappa_n + 1 / m) \Lambda_n / (\nu_n - 1)$ (two endpoints).
+  Version 0.1.0 treated the future subjects as independent draws from the
+  predictive distribution of one subject, which understates the
+  uncertainty.
+- With the vague prior and external data for a continuous endpoint, the
+  posterior distribution of the mean has $a_0 n_e + n - 1$ degrees of
+  freedom, and its scale uses the same denominator (version 0.1.0 used
+  $a_0 n_e + n$).
+- For two binary endpoints, the predictive probabilities are computed
+  exactly instead of by Monte Carlo simulation.
+- For two continuous endpoints, the moment-matching approximation uses the
+  real degrees of freedom (version 0.1.0 rounded them to an integer), and
+  with Monte Carlo simulation each simulated study has its own draws
+  (version 0.1.0 used the same draws for all simulated studies).
+- Numerical integration for one continuous endpoint covers the whole real
+  line (version 0.1.0 truncated the range).
+- Probabilities are no longer set to 0 below `.Machine$double.eps^0.25`.
+- Miss decisions (both criteria met) are reported in their own column with a
+  warning, instead of an error or being counted as Gray.
+- `qdm_decide()`, `qdm_oc()` and `qdm_calibrate()` have a `seed` argument and
+  restore the state of the random number generator when a seed is given.
+
+Version 1.0.0 also has features without a counterpart in version 0.1.0: a
+fixed control (`fixed_c` of the design functions) for single-arm studies
+compared with a known value, one time-to-event endpoint (`design_tte()`,
+see `vignette("time-to-event")`) and decision boundaries
+(`qdm_boundary()`). `NEWS.md` lists all changes.
