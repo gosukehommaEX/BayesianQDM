@@ -16,6 +16,7 @@ and plots of the observed data that lead to each decision.
 ## Test environments
 
 * Local: Windows 11, R 4.6.0
+* win-builder: R-devel (2026-10-14 r90673) and R-release (4.6.1)
 * GitHub Actions: ubuntu-latest (R-devel, R-release and R-oldrel-1),
   windows-latest (R-release) and macos-latest (R-release)
 
@@ -32,4 +33,4 @@ There are no reverse dependencies on CRAN.
 * The heavy computations (numerical integration and Monte Carlo loops) are
   written in C++ with Rcpp.
 * The examples, tests and vignettes use small numbers of simulated studies
-  and Monte Carlo draws; the tests take less than a minute in R CMD check.
+  and Monte Carlo draws; the tests take about one minute in R CMD check.
