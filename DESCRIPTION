@@ -31,8 +31,7 @@ Description: Bayesian quantitative decision-making for proof-of-concept
     exact summation, numerical integration, a moment-matching approximation
     or Monte Carlo simulation, with the main computations in C++. See Kang,
     Yamaguchi, and Han (2026) <doi:10.1080/10543406.2026.2655410> for the
-    methodological framework and Huang et al. (2019)
-    <doi:10.1080/10543406.2018.1489400> for the hazard ratio.
+    methodological framework.
 License: GPL (>= 2)
 Encoding: UTF-8
 Language: en-US
