@@ -176,10 +176,10 @@ plot.qdm_boundary <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
     ggplot2::sec_axis(~ . / s, name = "Observed treatment response rate",
                       labels = function(v) paste0(round(100 * v), "%"))
   }
+  # The secondary axis is used only with counts on the vertical axis (one
+  # binary endpoint with a concurrent control group)
   if (axes$discrete_y) {
     p <- p + ggplot2::scale_y_continuous(breaks = int_breaks, sec.axis = sec)
-  } else if (!is.null(axes$sec_scale)) {
-    p <- p + ggplot2::scale_y_continuous(sec.axis = sec)
   }
   p
 }
