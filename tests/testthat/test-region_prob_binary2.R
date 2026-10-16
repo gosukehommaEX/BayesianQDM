@@ -98,3 +98,63 @@ test_that("region_prob_binary2() handles a fixed control", {
   pi2 <- (g[, 2] + g[, 4]) / rowSums(g)
   expect_equal(p3[1L, 1L], mean(pi1 > 0.5 & pi2 > 0.5))
 })
+
+test_that("region_prob_binary2() reverses the regions of an endpoint for direction = \"less\"", {
+  # Python_reference/ref_direction_qdm.py: exact enumeration with the
+  # strict inequality theta2 < NULL2 for the Go side of endpoint 2 (ties
+  # with the null value 0 occur)
+  cr <- criterion_predictive(c(0.1, 0), m_t = 4, m_c = 3, gamma_go = 0.5,
+                             gamma_nogo = 0.5,
+                             direction = c("greater", "less"))
+  p <- region_prob_binary2(cr, matrix(c(2, 1, 3, 4) + 0.25, 1L),
+                           matrix(c(4, 2, 3, 1) + 0.25, 1L), 1L, 1L,
+                           as.list(1:4), 10L)
+  expect_equal(p[1L, ], c(0.199878312057982, 0.44343223481702,
+                          0.114812124458627, 0.241877328666374),
+               tolerance = 1e-12)
+  c2 <- criterion_predictive(c(0.1, 0), m_t = 4, m_c = 3, gamma_go = 0.5,
+                             gamma_nogo = 0.5, direction = "less")
+  p2 <- region_prob_binary2(c2, matrix(c(2, 1, 3, 4) + 0.25, 1L),
+                            matrix(c(4, 2, 3, 1) + 0.25, 1L), 1L, 1L,
+                            as.list(1:4), 10L)
+  expect_equal(p2[1L, ], c(0.114812124458627, 0.241877328666374,
+                           0.199878312057982, 0.44343223481702),
+               tolerance = 1e-12)
+})
+
+test_that("region_prob_binary2() reflects both endpoints in posterior probabilities", {
+  # Marginal probabilities against the Beta distributions of the marginal
+  # response rates (Python_reference/ref_direction_qdm.py)
+  cr <- criterion_posterior(c(0.3, 0.1), c(0.4, 0.2), 0.5, 0.5,
+                            direction = "less")
+  n_mc <- 100000L
+  set.seed(7)
+  p <- region_prob_binary2(cr, alpha_a1[1L, , drop = FALSE],
+                           alpha_a1[2L, , drop = FALSE], 1L, 1L,
+                           list(1:3, c(1L, 4L, 7L), 7:9, c(3L, 6L, 9L)),
+                           n_mc)
+  ref <- c(0.539691439821062, 0.335733557366368, 0.269781322197002,
+           0.472881048257155)
+  expect_true(all(abs(p[1L, ] - ref) <= 4.5 * sqrt(ref * (1 - ref) / n_mc)))
+  # The same draws as the reference direction with the cells permuted
+  # (endpoint 2 complemented: 00 <-> 01, 10 <-> 11) and negated thresholds
+  c2 <- criterion_posterior(c(0.3, 0.1), c(0.2, 0.2), 0.5, 0.5,
+                            direction = c("greater", "less"))
+  ref2 <- criterion_posterior(c(0.3, -0.1), c(0.2, -0.2), 0.5, 0.5)
+  set.seed(8)
+  a <- region_prob_binary2(c2, alpha_a1, alpha_a1[2:1, ], 1:2, c(1L, 1L),
+                           as.list(1:9), 500L)
+  set.seed(8)
+  b <- region_prob_binary2(ref2, alpha_a1[, c(2, 1, 4, 3)],
+                           alpha_a1[2:1, c(2, 1, 4, 3)], 1:2, c(1L, 1L),
+                           as.list(1:9), 500L)
+  expect_identical(a, b)
+  # Fixed control rates are complemented on the reflected endpoint
+  set.seed(9)
+  f1 <- region_prob_binary2(c2, alpha_a1, NULL, 1:2, NULL, as.list(1:9),
+                            500L, fixed = c(0.3, 0.4))
+  set.seed(9)
+  f2 <- region_prob_binary2(ref2, alpha_a1[, c(2, 1, 4, 3)], NULL, 1:2,
+                            NULL, as.list(1:9), 500L, fixed = c(0.3, 0.6))
+  expect_identical(f1, f2)
+})

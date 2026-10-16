@@ -59,6 +59,8 @@
 #'   default) for a fixed control and is required otherwise.
 #' @param criterion Decision criterion for two endpoints, created by
 #'   \code{\link{criterion_posterior}} or \code{\link{criterion_predictive}}.
+#'   Its argument \code{direction} sets whether larger or smaller effects
+#'   are favorable on each endpoint.
 #' @param external_t,external_c External data of the treatment and control
 #'   groups, created by \code{\link{borrow}} with
 #'   \code{\link{data_binary2}}, or \code{NULL} (no external data).

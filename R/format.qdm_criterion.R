@@ -39,6 +39,11 @@ format.qdm_criterion <- function(x, digits = 4L, ...) {
   if (marginal) {
     header <- sprintf("%s, marginal rule \"%s\"", header, x$rule)
   }
+  if (x$n_endpoints == 2L && !marginal && any(x$direction == "less")) {
+    # The regions are defined on the favorable side of each endpoint
+    extra <- c(extra, sprintf("  Favorable direction: theta1 %s, theta2 %s",
+                              x$direction[1L], x$direction[2L]))
+  }
   c(header, paste0("  Go:   ", criteria(labels$go, x$gamma_go)),
     paste0("  NoGo: ", criteria(labels$nogo, x$gamma_nogo)), extra)
 }

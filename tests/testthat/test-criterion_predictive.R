@@ -59,3 +59,18 @@ test_that("criterion_predictive() supports marginal rules for two endpoints", {
                                     rule = "and"),
                "used only with rule = \"joint\"")
 })
+
+test_that("criterion_predictive() stores the favorable direction", {
+  cp <- criterion_predictive(0, m_t = 10, gamma_go = 0.8, gamma_nogo = 0.3)
+  expect_identical(cp$direction, "greater")
+  cl <- criterion_predictive(0, m_t = 10, gamma_go = 0.8, gamma_nogo = 0.3,
+                             direction = "less")
+  expect_identical(cl$direction, "less")
+  c2 <- criterion_predictive(c(0, 0), m_t = 10, gamma_go = 0.5,
+                             gamma_nogo = 0.5, direction = c("less", "greater"))
+  expect_identical(c2$direction, c("less", "greater"))
+  expect_error(criterion_predictive(0, m_t = 10, gamma_go = 0.8,
+                                    gamma_nogo = 0.3,
+                                    direction = c("less", "less")),
+               "'direction' must be \"greater\" or \"less\".", fixed = TRUE)
+})

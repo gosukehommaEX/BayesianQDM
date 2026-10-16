@@ -41,7 +41,7 @@ cpp_tte_oc_data <- function(nsim, n_t, n_c, hazard_t, hazard_c, acc_time, acc_cu
     .Call(`_BayesianQDM_cpp_tte_oc_data`, nsim, n_t, n_c, hazard_t, hazard_c, acc_time, acc_cum, drop_start, drop_hazard, cut_time, cut_events)
 }
 
-cpp_pred_tte <- function(shape_t, rate_t, shape_c, rate_c, fixed_c, prior_t, prior_c, m_t, m_c, acc_time, acc_cum, drop_start, drop_hazard, cut_time, cut_events, t0, q, nMC) {
-    .Call(`_BayesianQDM_cpp_pred_tte`, shape_t, rate_t, shape_c, rate_c, fixed_c, prior_t, prior_c, m_t, m_c, acc_time, acc_cum, drop_start, drop_hazard, cut_time, cut_events, t0, q, nMC)
+cpp_pred_tte <- function(shape_t, rate_t, shape_c, rate_c, fixed_c, prior_t, prior_c, m_t, m_c, acc_time, acc_cum, drop_start, drop_hazard, cut_time, cut_events, t0, q, nMC, effect) {
+    .Call(`_BayesianQDM_cpp_pred_tte`, shape_t, rate_t, shape_c, rate_c, fixed_c, prior_t, prior_c, m_t, m_c, acc_time, acc_cum, drop_start, drop_hazard, cut_time, cut_events, t0, q, nMC, effect)
 }
 

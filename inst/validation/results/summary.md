@@ -92,7 +92,24 @@ INFO rows (published and computed values):
 | Kang et al. (2026), Table 4 | P(theta > TV | data) | External treatment and control data, a0c = 0.8 | 0.640 | 0.5207 |
 | Kang et al. (2026), Table 4 | P(theta > MAV | data) | External treatment and control data, a0c = 0.8 | 1.000 | 0.9719 |
 
-Total: 713 checks, 424 PASS, 261 EXPLAINED, 0 FAIL, 28 INFO.
+## Huang, Talukder, Han and Kuan (2019), Table 1 (one time-to-event endpoint, hazard ratio)
+
+| Quantity | Setting | Method | Published | Computed | Verdict |
+|---|---|---|---|---|---|
+| P(Go | HR = 0.5) | loss-to-follow-up hazard 0.003 in both groups | simulation (nsim = 100000) | 0.946 | 0.9451 | EXPLAINED |
+| P(Go | HR = 0.6) | loss-to-follow-up hazard 0.003 in both groups | simulation (nsim = 100000) | 0.727 | 0.7256 | EXPLAINED |
+| P(Go | HR = 0.7) | loss-to-follow-up hazard 0.003 in both groups | simulation (nsim = 100000) | 0.406 | 0.4028 | EXPLAINED |
+| P(Go | HR = 0.8) | loss-to-follow-up hazard 0.003 in both groups | simulation (nsim = 100000) | 0.170 | 0.1673 | EXPLAINED |
+| P(Go | HR = 0.5) | loss-to-follow-up hazard 0.01 in both groups | simulation (nsim = 100000) | 0.946 | 0.9449 | EXPLAINED |
+| P(Go | HR = 0.6) | loss-to-follow-up hazard 0.01 in both groups | simulation (nsim = 100000) | 0.726 | 0.7244 | EXPLAINED |
+| P(Go | HR = 0.7) | loss-to-follow-up hazard 0.01 in both groups | simulation (nsim = 100000) | 0.406 | 0.4018 | EXPLAINED |
+| P(Go | HR = 0.8) | loss-to-follow-up hazard 0.01 in both groups | simulation (nsim = 100000) | 0.170 | 0.1677 | EXPLAINED |
+| P(Go | HR = 0.5) | loss-to-follow-up hazard 0.05 in both groups | simulation (nsim = 100000) | 0.948 | 0.9070 | INFO |
+| P(Go | HR = 0.6) | loss-to-follow-up hazard 0.05 in both groups | simulation (nsim = 100000) | 0.728 | 0.6933 | INFO |
+| P(Go | HR = 0.7) | loss-to-follow-up hazard 0.05 in both groups | simulation (nsim = 100000) | 0.406 | 0.4173 | INFO |
+| P(Go | HR = 0.8) | loss-to-follow-up hazard 0.05 in both groups | simulation (nsim = 100000) | 0.170 | 0.2009 | INFO |
+
+Total: 725 checks, 424 PASS, 269 EXPLAINED, 0 FAIL, 32 INFO.
 
 Registered reasons:
 - `kang2026_mc`: the article computes the posterior predictive probability by Monte Carlo simulation. The difference is at most the probability of the outcomes whose exact predictive probability is within 0.01 of a threshold (plus 0.0005 for rounding), whose decisions Monte Carlo error can change.
@@ -101,11 +118,14 @@ Registered reasons:
 - `c1_predictive_scale`: the article computes the posterior predictive probabilities of two continuous endpoints with the scale ((1 + kappa) / kappa) Lambda / ((nu - 1) m) for the mean of m future subjects, which BayesianQDM corrects to (1 / kappa + 1 / m) Lambda / (nu - 1). With the scale of the article the published values are reproduced within the tolerance of `bivariate_cont_mc`.
 - `s3_rho08`: Supplemental Table S3, panel (c) (rho = 0.8), is not reproduced from the stated thresholds with either scale (for example, the probability of Go under the null scenario is 0.08 to 0.09 with the scale of the article and about 0.06 with the corrected scale, instead of 0.0498). Monte Carlo draws shared across the simulated studies, as in version 0.1.0, do not explain the difference. Reported for information.
 - `huang_mc`: the article summarizes Monte Carlo samples of the posterior distributions (its Section 6.3); the difference from the exact value is at most 0.01 beyond rounding.
+- `huang2019_normal`: Huang et al. (2019) compute the probability of Go from the normal approximation of the log hazard ratio with the expected proportion of events in the treatment group; BayesianQDM simulates the studies and uses the exact posterior distribution of the hazard ratio. Simulating 400000 studies per scenario (Python) gives differences of at most 0.0035 from the published values; the tolerance 0.01 adds 4 standard errors of the 100000 simulated studies.
+- `huang2019_events`: with the loss-to-follow-up hazard 0.05, 127 events are not expected even with unlimited follow-up; the article keeps the variance of 127 events, whereas the simulated studies analyze the events observed. Reported for information.
 - `kang2026_table4`: the case study of Kang et al. (2026, Section 6) is not reproduced from the inputs stated in the article (vague priors, standard deviations 25, 30 and 20); the article used Markov chain Monte Carlo sampling. Reported for information until the inputs are clarified.
 
 Self-check: shifting the published Go probabilities by 0.02 gives FAIL in 215 of 215 posterior rows (PASS).
 Self-check: shifting the published Go probabilities of two binary endpoints by 0.15 gives FAIL in 136 of 136 evaluable scenarios (PASS).
 Self-check: shifting the published Go probabilities of two continuous endpoints by 0.2 gives FAIL in 80 of 80 scenarios other than INFO (PASS).
 Self-check: shifting the published continuous numbers by 0.05 gives FAIL in 31 of 31 rows other than INFO (PASS).
+Self-check: shifting the published probabilities of Huang et al. (2019) by 0.05 gives FAIL in 8 of 8 rows other than INFO (PASS).
 
-Details: `inst/validation/results/kang2026_binary.csv`, `inst/validation/results/yamaguchi_binary2.csv`, `inst/validation/results/yamaguchi_continuous2.csv` and `inst/validation/results/continuous.csv`.
+Details: `inst/validation/results/kang2026_binary.csv`, `inst/validation/results/yamaguchi_binary2.csv`, `inst/validation/results/yamaguchi_continuous2.csv`, `inst/validation/results/continuous.csv` and `inst/validation/results/huang2019_table1.csv`.

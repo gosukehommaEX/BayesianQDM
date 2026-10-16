@@ -117,3 +117,25 @@ test_that("the simulated studies follow the model for other conducts", {
   expect_true(close_to(sim[, 1], 30 * lam * e_r))
   expect_true(close_to(sim[, 2], 30 * e_r))
 })
+
+test_that("oc_sample_tte() matches the exact operating characteristics of the hazard ratio", {
+  # Complete follow-up with a concurrent control: each criterion is a
+  # threshold on the ratio of the posterior rates
+  # (Python_reference/ref_hazard_ratio.py, design H1)
+  des <- ref_design_hr("H1")
+  sc <- data.frame(median_t = c(6, 8, 10, 15), median_c = 6)
+  nsim <- 20000L
+  set.seed(11)
+  s <- oc_sample_tte(des, sc, nsim)
+  oc <- oc_from_sample(s, des$criterion$gamma_go, des$criterion$gamma_nogo)
+  ref_go <- c(0.0516426965407, 0.299993852355, 0.631775996499,
+              0.970740011848)
+  ref_nogo <- c(0.299591297106, 0.0516502957777, 0.00667284840507,
+                3.57338309424e-05)
+  tol <- function(p) 4.5 * sqrt(p * (1 - p) / nsim) + 0.002
+  expect_true(all(abs(oc[, "Go"] - ref_go) <= tol(ref_go)))
+  expect_true(all(abs(oc[, "NoGo"] - ref_nogo) <= tol(ref_nogo)))
+  expect_identical(s$method, paste("simulation of 20000 studies;",
+                                   "probabilities by exact computation",
+                                   "(F distribution)"))
+})

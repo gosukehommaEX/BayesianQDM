@@ -217,26 +217,31 @@ default `nsim = 10000`.
 
 ## Decision boundary
 
-`qdm_boundary()` gives the decision on a grid of observed treatment means
-and standard deviations (or sample sizes), and its plot shows which data
-lead to Go, NoGo and Gray decisions. With a concurrent control group, the
-observed control data are given by `data_c`, and the vertical axis is the
-observed difference in means:
+`qdm_boundary()` shows which observed means lead to each decision. For each
+observed standard deviation (or sample size) of the treatment group, it
+gives the intervals of the observed treatment mean that lead to Go, NoGo
+and Gray decisions, and the corresponding observed differences in means;
+the ends of the intervals are located by bisection. With a concurrent
+control group, the observed control data are given by `data_c`:
 
 ```{r boundary}
-b <- qdm_boundary(des_mm, mean_t = seq(-10, 50, by = 1),
-                  sd_t = seq(10, 40, by = 1),
+b <- qdm_boundary(des_mm, sd_t = seq(10, 40, by = 5),
                   data_c = data_continuous(12, 2, 25))
+b
 plot(b)
 ```
 
-A larger standard deviation needs a larger observed difference for a Go
-decision. For the design with a fixed control, the boundary can be drawn
-against the sample size instead:
+With an observed standard deviation of 25, a Go decision needs an observed
+difference in means of at least
+`r format(min(b$effect_from[b$sd_t == 25 & b$decision == "Go"]), digits = 3)`,
+and a larger standard deviation needs a larger observed difference. For the
+design with a fixed control, the boundary can be shown against the sample
+size instead:
 
 ```{r boundary-fixed}
-plot(qdm_boundary(des_fix, n_t = 6:40, mean_t = seq(-10, 40, by = 0.5),
-                  sd_t = 25))
+b_fix <- qdm_boundary(des_fix, n_t = c(6, 12, 20, 30, 40), sd_t = 25)
+b_fix
+plot(b_fix)
 ```
 
 ## Calibration of the thresholds

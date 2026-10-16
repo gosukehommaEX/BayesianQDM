@@ -74,3 +74,32 @@ test_that("criterion_posterior() supports marginal rules for two endpoints", {
   expect_error(criterion_posterior(0.2, 0.1, 0.5, 0.5, rule = "xor"),
                "'arg' should be one of")
 })
+
+test_that("criterion_posterior() stores the favorable direction", {
+  expect_identical(crit_post()$direction, "greater")
+  cr <- criterion_posterior(theta_tv = -0.1, theta_mav = 0, gamma_go = 0.6,
+                            gamma_nogo = 0.7, direction = "less")
+  expect_identical(cr$direction, "less")
+  expect_identical(cr$theta_tv, -0.1)
+  c2 <- criterion_posterior(c(0.2, -0.1), c(0.1, 0), 0.5, 0.5,
+                            direction = c("greater", "less"))
+  expect_identical(c2$direction, c("greater", "less"))
+  expect_identical(criterion_posterior(c(-0.2, -0.1), c(0, 0), 0.5, 0.5,
+                                       direction = "less")$direction,
+                   c("less", "less"))
+})
+
+test_that("criterion_posterior() checks the order of the thresholds by direction", {
+  expect_error(criterion_posterior(0.1, 0.2, 0.5, 0.5),
+               "use direction = \"less\" if smaller effects are favorable.",
+               fixed = TRUE)
+  expect_error(criterion_posterior(0.2, 0.1, 0.5, 0.5, direction = "less"),
+               paste("Each element of 'theta_tv' must be smaller than that",
+                     "of 'theta_mav' for direction = \"less\"."),
+               fixed = TRUE)
+  expect_error(criterion_posterior(c(0.2, 0.1), c(0.1, 0), 0.5, 0.5,
+                                   direction = c("greater", "less")),
+               "must be smaller than that of 'theta_mav'")
+  expect_error(criterion_posterior(0.2, 0.1, 0.5, 0.5, direction = "lower"),
+               "'direction' must be \"greater\" or \"less\".", fixed = TRUE)
+})

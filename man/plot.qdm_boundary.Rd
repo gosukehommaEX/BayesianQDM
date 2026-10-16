@@ -10,6 +10,8 @@
   col_nogo = "#D91E49",
   col_gray = "#939597",
   col_miss = "#E69F00",
+  labels = TRUE,
+  label_size = NULL,
   base_size = 11,
   legend_position = "bottom",
   ...
@@ -22,6 +24,16 @@
 Miss decisions: color names or hexadecimal codes. The defaults are
 green, red, gray and orange. Transparency (an alpha value in the code)
 is not used in the heat maps.}
+
+\item{labels}{\code{TRUE} (the default) to write the boundary values for
+every value of the horizontal axis (or, with more than 16 values, for
+about six of them, leaving out the first and the last), \code{FALSE}
+for none, or a numeric vector of the values of the horizontal axis at
+which they are written.}
+
+\item{label_size}{Size of the boundary values, in millimeters, or
+\code{NULL} for the size of the axis tick labels,
+\code{0.8 * base_size / .pt}.}
 
 \item{base_size}{Base font size of \code{ggplot2::theme_bw()}, in points,
 which sets the size of the axis labels, tick labels, legend and caption.}
@@ -36,10 +48,17 @@ To place the legend inside the plot, add \code{ggplot2::theme()}.}
 A \code{ggplot} object.
 }
 \description{
-Draws the decision (Go, NoGo, Gray, or Miss if it occurs) at each point of
-the grid computed by \code{\link{qdm_boundary}} as a tile filled by the
-decision. The edges between regions of different decisions are the
-decision boundaries of the design.
+Draws the decision intervals computed by \code{\link{qdm_boundary}} as
+regions filled by the decision (Go, NoGo, Gray, or Miss if it occurs):
+the horizontal axis is the condition (for example, the number of control
+responders or the treatment group size) and the vertical axis is the
+observed quantity (numbers of responders or events, or the observed
+treatment mean) or, for continuous endpoints with a concurrent control
+group, the observed difference in means. The boundary values are
+written on the Go and NoGo regions next to the boundaries, for example
+the smallest number of responders that leads to a Go decision. With a
+concurrent control group and a binary endpoint, the observed response
+rate of the treatment group is shown on a secondary axis.
 }
 \details{
 The plot is a \code{ggplot} object, so it can be changed further by adding
@@ -55,5 +74,6 @@ des <- design_binary(
 )
 b <- qdm_boundary(des)
 plot(b)
-plot(b, col_gray = "gray80", base_size = 14, legend_position = "right")
+plot(b, labels = c(0, 4, 8), col_gray = "gray80", base_size = 14,
+     legend_position = "right")
 }

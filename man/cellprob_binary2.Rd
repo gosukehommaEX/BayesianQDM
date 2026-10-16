@@ -42,6 +42,7 @@ cellprob_binary2(pi1 = 0.3, pi2 = 0.4, rho = 0.3)
 Other distributions:
 \code{\link[=pbetabinomdiff]{pbetabinomdiff()}},
 \code{\link[=pbetadiff]{pbetadiff()}},
+\code{\link[=phazardratio]{phazardratio()}},
 \code{\link[=psurvdiff]{psurvdiff()}},
 \code{\link[=ptdiff]{ptdiff()}},
 \code{\link[=rdirichlet]{rdirichlet()}}

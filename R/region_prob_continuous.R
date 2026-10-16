@@ -13,6 +13,11 @@
 #' the treatment mean (\code{post_c}, \code{method} and \code{nMC} are not
 #' used).
 #'
+#' For a criterion with \code{direction = "less"}, the probabilities are
+#' those of the reflected problem (see \code{reflect_criterion()}): the
+#' locations of the distributions of the means and the fixed control mean
+#' are negated, and so are the thresholds.
+#'
 #' @param criterion An object of class \code{"qdm_criterion"} for one
 #'   endpoint.
 #' @param post_t,post_c Lists with elements \code{mu}, \code{kappa},
@@ -25,6 +30,16 @@
 #' @noRd
 region_prob_continuous <- function(criterion, post_t, post_c, method,
                                    nMC = 10000L, fixed = NULL) {
+  r <- reflect_criterion(criterion)
+  if (r$flip) {
+    post_t$mu <- -post_t$mu
+    if (!is.null(post_c)) {
+      post_c$mu <- -post_c$mu
+    }
+    fixed_r <- if (is.null(fixed)) NULL else -fixed
+    return(region_prob_continuous(r$criterion, post_t, post_c, method, nMC,
+                                  fixed = fixed_r))
+  }
   if (criterion$type == "posterior") {
     scale_t <- sqrt(post_t$sigma2 / post_t$kappa)
     q_go <- criterion$theta_tv

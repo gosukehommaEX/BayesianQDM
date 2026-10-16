@@ -1,41 +1,105 @@
-plot_labels <- function(p) {
-  if (exists("get_labs", envir = asNamespace("ggplot2"), inherits = FALSE)) {
-    ggplot2::get_labs(p)
-  } else {
-    p$labels
-  }
-}
-
-test_that("plot.qdm_boundary() draws the decision of each grid point", {
+test_that("plot.qdm_boundary() draws the decision intervals", {
   b <- qdm_boundary(ref_design("D8"), n_t = 10:20)
   p <- plot(b)
   expect_s3_class(p, "ggplot")
-  tiles <- ggplot2::ggplot_build(p)$data[[1]]
-  expect_identical(nrow(tiles), nrow(b))
-  idx <- match(paste(tiles$x, tiles$y), paste(b$n_t, b$y_t))
-  expect_false(anyNA(idx))
+  built <- ggplot2::ggplot_build(p)
+  rects <- built$data[[1]]
+  expect_identical(nrow(rects), nrow(b))
+  # Rectangles of whole numbers: n_t +- 0.5 and the responders +- 0.5
+  expect_equal(rects$xmin, b$n_t - 0.5)
+  expect_equal(rects$ymax, b$to + 0.5)
+  # Only whole numbers on the axes
+  pp <- built$layout$panel_params[[1]]
+  for (br in list(pp$x$breaks, pp$y$breaks)) {
+    br <- br[!is.na(br)]
+    expect_true(length(br) > 1L && all(abs(br - round(br)) < 1e-8))
+  }
+  # Sample sizes 5 apart: the regions reach the midpoints between them
+  b5 <- qdm_boundary(ref_design("D8"), n_t = c(10, 15, 25))
+  r5 <- ggplot2::ggplot_build(plot(b5))$data[[1]]
+  expect_equal(r5$xmin, c(7.5, 12.5, 20)[match(b5$n_t, c(10, 15, 25))])
+  expect_equal(r5$xmax, c(12.5, 20, 30)[match(b5$n_t, c(10, 15, 25))])
   cols <- c(Go = "#658D1B", NoGo = "#D91E49", Gray = "#939597",
             Miss = "#E69F00")
-  expect_identical(unname(tiles$fill), unname(cols[as.character(
-    b$decision[idx])]))
+  expect_identical(unname(rects$fill), unname(cols[as.character(b$decision)]))
   labs <- plot_labels(p)
   expect_identical(labs$x, "Treatment group size")
   expect_identical(labs$y, "Responders in the treatment group")
   expect_identical(labs$fill, "Decision")
+  # The boundary values: the smallest Go count and the largest NoGo count
+  # for every sample size (11 values of n_t)
+  text <- built$data[[2]]
+  go <- b[b$decision == "Go", ]
+  nogo <- b[b$decision == "NoGo", ]
+  expect_identical(nrow(text), 22L)
+  expect_setequal(paste(text$x, text$label),
+                  c(paste(go$n_t, go$from), paste(nogo$n_t, nogo$to)))
 })
 
-test_that("plot.qdm_boundary() shows the control data in a caption", {
-  b <- qdm_boundary(ref_design_tte("T2"), events_t = 0:20,
-                    exposure_t = seq(20, 200, by = 20),
-                    data_c = data_tte(9, 35))
-  p <- plot(b)
+test_that("plot.qdm_boundary() labels some or none of the conditions", {
+  b <- qdm_boundary(ref_design("D8"), n_t = 10:40)
+  # More than 16 values: about six of them
+  text <- ggplot2::ggplot_build(plot(b))$data[[2]]
+  expect_true(all(unique(text$x) %in% c(10, 15, 20, 25, 30, 35, 40)))
+  # but not at the first and the last value, whose labels would be cut
+  expect_setequal(unique(text$x), c(15, 20, 25, 30, 35))
+  expect_length(ggplot2::ggplot_build(plot(b, labels = FALSE))$data, 1L)
+  text2 <- ggplot2::ggplot_build(plot(b, labels = c(12, 30)))$data[[2]]
+  expect_setequal(unique(text2$x), c(12, 30))
+  expect_error(plot(b, labels = 50),
+               "'labels' must be TRUE, FALSE or values of the horizontal")
+  expect_error(plot(b, labels = "a"),
+               "'labels' must be TRUE, FALSE or values of the horizontal")
+})
+
+test_that("plot.qdm_boundary() shows the response rate on a secondary axis", {
+  p <- plot(qdm_boundary(ref_design("D1")))
+  sec <- plot_scales(p)$get_scales("y")$secondary.axis
+  expect_false(is.null(sec))
+  expect_identical(sec$name, "Observed treatment response rate")
   labs <- plot_labels(p)
+  expect_identical(labs$x, "Responders in the control group (n = 12)")
+})
+
+test_that("plot.qdm_boundary() draws observed means against a continuous condition", {
+  b <- qdm_boundary(ref_design_cont("C1", method = "MM"),
+                    sd_t = c(20, 25, 30), data_c = ref_data_cont$C1$c)
+  p <- plot(b)
+  built <- ggplot2::ggplot_build(p)
+  rects <- built$data[[1]]
+  # Midpoints between the values of the standard deviation
+  expect_equal(sort(unique(rects$xmin)), c(17.5, 22.5, 27.5))
+  # The open ends are drawn to the edges of the panel
+  expect_true(any(is.infinite(c(b$effect_from, b$effect_to))))
+  text <- built$data[[2]]
+  go <- b[b$decision == "Go", ]
+  expect_equal(sort(text$y[text$label %in%
+                             vapply(go$effect_from, format, "", digits = 3)]),
+               sort(go$effect_from))
+  labs <- plot_labels(p)
+  expect_identical(labs$y, "Observed difference in means")
   expect_match(labs$caption, "^Control data: ")
-  expect_identical(labs$x, "Total observed time of the treatment group")
-  tiles <- ggplot2::ggplot_build(p)$data[[1]]
-  expect_setequal(unique(tiles$fill),
-                  c(Go = "#658D1B", NoGo = "#D91E49", Gray = "#939597",
-                    Miss = "#E69F00")[unique(as.character(b$decision))])
+  # The vertical range covers the boundaries
+  lim <- built$layout$panel_params[[1]]$y.range
+  expect_true(lim[1L] < min(b$effect_to[b$decision == "NoGo"]))
+  expect_true(lim[2L] > max(go$effect_from))
+})
+
+test_that("plot.qdm_boundary() handles a single condition and a constant decision", {
+  b <- qdm_boundary(ref_design_cont("C7"), sd_t = 20,
+                    mean_t = seq(-10, 40, by = 5))
+  rects <- ggplot2::ggplot_build(plot(b))$data[[1]]
+  expect_equal(unique(rects$xmin), 11.5)
+  # Without any finite boundary, the grid gives the range (and there are
+  # no boundary values to write)
+  b2 <- b
+  b2$decision[] <- "Gray"
+  b2$from <- -Inf
+  b2$to <- Inf
+  built <- ggplot2::ggplot_build(plot(b2))
+  lim <- built$layout$panel_params[[1]]$y.range
+  expect_true(lim[1L] <= -10 && lim[2L] >= 40)
+  expect_length(built$data, 1L)
 })
 
 test_that("plot.qdm_boundary() needs the axes attribute", {
@@ -45,16 +109,15 @@ test_that("plot.qdm_boundary() needs the axes attribute", {
                "'x' must be an unmodified result of qdm_boundary\\(\\).")
 })
 
-test_that("plot.qdm_boundary() takes colors, text size and legend", {
+test_that("plot.qdm_boundary() takes colors, text sizes and legend", {
   b <- qdm_boundary(ref_design("D8"), n_t = 10:20)
   p <- plot(b, col_go = "black", col_nogo = "blue", col_gray = "white",
-            base_size = 8, legend_position = "none")
-  tiles <- ggplot2::ggplot_build(p)$data[[1]]
-  idx <- match(paste(tiles$x, tiles$y), paste(b$n_t, b$y_t))
+            base_size = 8, legend_position = "none", label_size = 2)
+  built <- ggplot2::ggplot_build(p)
   cols <- c(Go = "black", NoGo = "blue", Gray = "white", Miss = "#E69F00")
-  expect_identical(unname(tiles$fill), unname(cols[as.character(
-    b$decision[idx])]))
-  expect_true(all(c("Go", "NoGo", "Gray") %in% as.character(b$decision)))
+  expect_identical(unname(built$data[[1]]$fill),
+                   unname(cols[as.character(b$decision)]))
+  expect_identical(unique(built$data[[2]]$size), 2)
   th <- plot_theme(p)
   expect_identical(th[["legend.position"]], "none")
   expect_identical(element_size(th[["text"]]), 8)

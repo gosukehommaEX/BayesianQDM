@@ -1,60 +1,50 @@
-test_that("boundary_tte() matches the fixed-control reference", {
-  # Reference: Python_reference/ref_fixed_tte_qdm.py, design T1
-  b <- boundary_tte(ref_design_tte("T1"), 30, c(6, 3), c(150, 100), NULL)
-  expect_identical(names(b$grid), c("events_t", "exposure_t"))
-  expect_equal(b$grid$events_t, c(3, 6, 3, 6))
-  expect_equal(b$grid$exposure_t, c(100, 100, 150, 150))
-  expect_equal(b$p_go[4L], 0.686259165773, tolerance = 1e-10)
-  expect_equal(b$p_nogo[4L], 0.00106102273767, tolerance = 1e-10)
-  # Go: exp(-3 hazard) > 0.72 + 0.15; NoGo: exp(-3 hazard) < 0.72
-  expect_equal(b$p_go, stats::pgamma(-log(0.87) / 3, 0.1 + b$grid$events_t,
-                                     1 + b$grid$exposure_t))
-  expect_equal(b$p_nogo, stats::pgamma(-log(0.72) / 3, 0.1 + b$grid$events_t,
-                                       1 + b$grid$exposure_t,
-                                       lower.tail = FALSE))
-  expect_identical(b$axes$x, "exposure_t")
-  expect_identical(b$axes$y, "events_t")
-  expect_null(b$axes$caption)
-  b0 <- boundary_tte(ref_design_tte("T1"), 30, NULL, 150, NULL)
-  expect_equal(b0$grid$events_t, 0:30)
-  b12 <- boundary_tte(ref_design_tte("T1"), 12, NULL, 150, NULL)
-  expect_equal(b12$grid$events_t, 0:12)
+test_that("boundary_tte() specifies the grid of events", {
+  des <- ref_design_tte("T1")
+  s <- boundary_tte(des, 10, NULL, c(150, 100), NULL)
+  expect_identical(s$cond, data.frame(exposure_t = c(100, 150)))
+  expect_equal(s$values, list(0:10, 0:10))
+  expect_true(s$discrete)
+  expect_false(s$increasing)
+  p <- s$prob(2L, 6)
+  expect_equal(c(p$go, p$nogo), unname(ref_prob_tte$T1), tolerance = 1e-10)
+  d <- s$derived(2L, 6)
+  expect_equal(d$surv, exp(-3 * 6 / 150))
+  expect_equal(d$effect, exp(-3 * 6 / 150) - 0.72)
+  expect_match(s$titles[["surv"]], "exp\\(-3 d_t / E_t\\)")
 })
 
-test_that("boundary_tte() matches the references for random controls", {
-  b <- boundary_tte(ref_design_tte("T2"), 20, 5, c(40, 60), data_tte(9, 35))
-  expect_equal(c(b$p_go[1L], b$p_nogo[1L]), unname(ref_prob_tte$T2),
-               tolerance = 1e-10)
-  expect_match(b$axes$caption, "^Control data: ")
-  for (name in c("T5", "T6")) {
-    b <- boundary_tte(ref_design_tte(name), 30, 6, 150, NULL)
-    expect_equal(c(b$p_go, b$p_nogo), unname(ref_prob_tte[[name]]),
-                 tolerance = 1e-10, info = name)
-  }
-})
-
-test_that("boundary_tte() estimates predictive probabilities", {
-  # Reference: Python_reference/ref_fixed_tte_qdm.py, design T3 (Monte Carlo
-  # estimate with 10000 simulated future studies)
-  set.seed(11)
-  b <- boundary_tte(ref_design_tte("T3"), 30, c(6, 20), 70, NULL)
-  ref <- 0.917785289262
-  expect_lt(abs(b$p_go[1L] - ref), 4.5 * sqrt(ref * (1 - ref) / 1e4) + 0.002)
-  expect_equal(b$p_go + b$p_nogo, c(1, 1))
-  expect_lt(b$p_go[2L], b$p_go[1L])
+test_that("boundary_tte() measures the hazard ratio", {
+  s <- boundary_tte(ref_design_hr("H1"), 30, 0:30, 200, ref_data_hr$c)
+  expect_true(s$increasing == FALSE)
+  expect_null(s$derived(1L, 12)$surv)
+  expect_equal(s$derived(1L, 12)$effect, (12 / 200) / (20 / 180))
+  expect_match(s$titles[["effect"]], "observed in the control group")
+  p <- s$prob(1L, 12)
+  expect_equal(c(p$go, p$nogo), unname(ref_prob_hr$H1), tolerance = 1e-10)
+  expect_match(s$axes$caption, "^Control data: ")
+  # Fixed control: relative to the fixed hazard log(2) / 6
+  s2 <- boundary_tte(ref_design_hr("H2"), 30, 12, 200, NULL)
+  expect_equal(s2$derived(1L, 12)$effect, (12 / 200) / (log(2) / 6))
+  expect_match(s2$titles[["effect"]], "fixed control value")
+  # Milestone survival of a concurrent control: the observed value
+  s3 <- boundary_tte(ref_design_tte("T2"), 20, 5, 40, data_tte(9, 35))
+  expect_equal(s3$derived(1L, 5)$effect, exp(-3 * 5 / 40) - exp(-3 * 9 / 35))
+  s5 <- boundary_tte(ref_design_tte("T5"), 30, 5, 150, NULL)
+  expect_match(s5$titles[["effect"]], "mean of the control distribution")
+  # A concurrent control without events: the observed hazard ratio is not
+  # defined
+  s6 <- boundary_tte(ref_design_hr("H1"), 30, 0:30, 200, data_tte(0, 180))
+  expect_identical(s6$derived(1L, c(0, 12))$effect, c(NA_real_, NA_real_))
 })
 
 test_that("boundary_tte() validates its arguments", {
-  des <- ref_design_tte("T1")
-  expect_error(boundary_tte(des, 30, 1:3, NULL, NULL),
+  des <- ref_design_tte("T2")
+  expect_error(boundary_tte(des, 20, NULL, NULL, data_tte(9, 35)),
                "'exposure_t' must be given for a time-to-event endpoint.")
-  expect_error(boundary_tte(des, 30, -1, 100, NULL),
-               "'events_t' must be at least 0.")
-  expect_error(boundary_tte(des, 30, 1, 0, NULL),
+  expect_error(boundary_tte(des, 20, 1.5, 40, data_tte(9, 35)),
+               "'events_t' must contain whole numbers only.")
+  expect_error(boundary_tte(des, 20, 5, 0, data_tte(9, 35)),
                "'exposure_t' must be greater than 0.")
-  expect_error(boundary_tte(des, c(10, 20), NULL, 100, NULL),
-               "'n_t' must have length 1.")
-  expect_error(boundary_tte(ref_design_tte("T2"), 20, 1, 100,
-                            data_binary(10, 2)),
+  expect_error(boundary_tte(des, 20, 5, 40, data_binary(9, 3)),
                "'data_c' must be created by data_tte\\(\\).")
 })

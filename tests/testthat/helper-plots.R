@@ -15,3 +15,17 @@ element_size <- function(el) {
   size <- attr(el, "size")
   if (is.null(size)) el$size else size
 }
+
+plot_scales <- function(p) {
+  s <- attr(p, "scales")
+  if (is.null(s)) p$scales else s
+}
+
+# Labels of the plot (ggplot2::get_labs() from ggplot2 3.5.2 on)
+plot_labels <- function(p) {
+  if (exists("get_labs", envir = asNamespace("ggplot2"), inherits = FALSE)) {
+    ggplot2::get_labs(p)
+  } else {
+    p$labels
+  }
+}

@@ -75,6 +75,7 @@ reference:
   - pbetabinomdiff
   - ptdiff
   - psurvdiff
+  - phazardratio
   - cellprob_binary2
   - rdirichlet
 

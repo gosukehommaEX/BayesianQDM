@@ -6,6 +6,13 @@
 #' all pairs (Yamaguchi et al., submitted, equation A.2), or posterior
 #' predictive probabilities computed exactly (equation A.4).
 #'
+#' For an endpoint with \code{direction = "less"}, the probabilities are
+#' those of the reflected problem (see \code{reflect_criterion()}): the
+#' response of that endpoint is replaced by its complement, which exchanges
+#' the cells 00 and 10 with 01 and 11 (endpoint 2) or 00 and 01 with 10 and
+#' 11 (endpoint 1), the fixed control rate of that endpoint becomes
+#' \eqn{1 - \pi_{c0}}, and its thresholds are negated.
+#'
 #' @param criterion An object of class \code{"qdm_criterion"} for two
 #'   endpoints.
 #' @param alpha_t,alpha_c Matrices of Dirichlet parameters (one row per
@@ -22,6 +29,25 @@
 #' @noRd
 region_prob_binary2 <- function(criterion, alpha_t, alpha_c, pair_t, pair_c,
                                 sets, nMC, fixed = NULL) {
+  r <- reflect_criterion(criterion)
+  if (any(r$flip)) {
+    # Cells 00, 01, 10, 11 with the first (second) digit complemented
+    perm <- 1:4
+    if (r$flip[1L]) {
+      perm <- perm[c(3L, 4L, 1L, 2L)]
+    }
+    if (r$flip[2L]) {
+      perm <- perm[c(2L, 1L, 4L, 3L)]
+    }
+    alpha_t <- alpha_t[, perm, drop = FALSE]
+    if (!is.null(alpha_c)) {
+      alpha_c <- alpha_c[, perm, drop = FALSE]
+    }
+    if (!is.null(fixed)) {
+      fixed[r$flip] <- 1 - fixed[r$flip]
+    }
+    criterion <- r$criterion
+  }
   masks <- vapply(sets, region_mask, integer(1))
   value_c <- c(0, 0)
   if (!is.null(fixed)) {

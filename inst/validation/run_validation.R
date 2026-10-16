@@ -18,7 +18,8 @@ local({
   for (f in c("validate_kang2026_binary.R", "validation_helpers.R",
               "validate_yamaguchi_glaucoma.R", "validate_huang_table3.R",
               "validate_kang2026_table4.R", "validate_yamaguchi_binary2.R",
-              "validate_yamaguchi_continuous2.R")) {
+              "validate_yamaguchi_continuous2.R",
+              "validate_huang2019_table1.R")) {
     sys.source(file.path(val_dir, f), envir = env)
   }
   count <- function(x, v) sum(x == v)
@@ -104,7 +105,15 @@ local({
   info <- num[num$verdict == "INFO", ]
   not_pass <- num[num$verdict %in% c("EXPLAINED", "FAIL"), ]
 
-  verdicts <- c(res$verdict, res2$verdict, res3$verdict, num$verdict)
+  # One time-to-event endpoint (hazard ratio): operating characteristics
+  raw_tte <- validate_huang2019_table1()
+  num_tte <- number_verdict(raw_tte)
+  utils::write.csv(num_tte, file.path(out_dir, "huang2019_table1.csv"),
+                   row.names = FALSE)
+  self_tte <- number_self_check(raw_tte)
+
+  verdicts <- c(res$verdict, res2$verdict, res3$verdict, num$verdict,
+                num_tte$verdict)
   fmt_diff <- function(x) ifelse(is.finite(x), sprintf("%.4f", x), "-")
   lines <- c(
     "# Validation of BayesianQDM against published results",
@@ -196,6 +205,15 @@ local({
                 info$setting, format(info$published), info$computed),
         "")
     },
+    paste("## Huang, Talukder, Han and Kuan (2019), Table 1 (one",
+          "time-to-event endpoint, hazard ratio)"),
+    "",
+    "| Quantity | Setting | Method | Published | Computed | Verdict |",
+    "|---|---|---|---|---|---|",
+    sprintf("| %s | %s | %s | %.3f | %.4f | %s |", num_tte$quantity,
+            num_tte$setting, num_tte$method, num_tte$published,
+            num_tte$computed, num_tte$verdict),
+    "",
     sprintf(paste("Total: %d checks, %d PASS, %d EXPLAINED, %d FAIL,",
                   "%d INFO."), length(verdicts), count(verdicts, "PASS"),
             count(verdicts, "EXPLAINED"), count(verdicts, "FAIL"),
@@ -237,6 +255,19 @@ local({
     paste("- `huang_mc`: the article summarizes Monte Carlo samples of the",
           "posterior distributions (its Section 6.3); the difference from",
           "the exact value is at most 0.01 beyond rounding."),
+    paste("- `huang2019_normal`: Huang et al. (2019) compute the",
+          "probability of Go from the normal approximation of the log",
+          "hazard ratio with the expected proportion of events in the",
+          "treatment group; BayesianQDM simulates the studies and uses the",
+          "exact posterior distribution of the hazard ratio. Simulating",
+          "400000 studies per scenario (Python) gives differences of at",
+          "most 0.0035 from the published values; the tolerance 0.01 adds",
+          "4 standard errors of the 100000 simulated studies."),
+    paste("- `huang2019_events`: with the loss-to-follow-up hazard 0.05,",
+          "127 events are not expected even with unlimited follow-up;",
+          "the article keeps the variance of 127 events, whereas the",
+          "simulated studies analyze the events observed. Reported for",
+          "information."),
     paste("- `kang2026_table4`: the case study of Kang et al. (2026,",
           "Section 6) is not reproduced from the inputs stated in the",
           "article (vague priors, standard deviations 25, 30 and 20); the",
@@ -261,11 +292,17 @@ local({
                   "0.05 gives FAIL in %d of %d rows other than INFO (%s)."),
             self_num$n_fail, self_num$n_checked,
             if (self_num$ok) "PASS" else "FAIL"),
+    sprintf(paste("Self-check: shifting the published probabilities of",
+                  "Huang et al. (2019) by 0.05 gives FAIL in %d of %d rows",
+                  "other than INFO (%s)."),
+            self_tte$n_fail, self_tte$n_checked,
+            if (self_tte$ok) "PASS" else "FAIL"),
     "",
     paste("Details: `inst/validation/results/kang2026_binary.csv`,",
           "`inst/validation/results/yamaguchi_binary2.csv`,",
-          "`inst/validation/results/yamaguchi_continuous2.csv` and",
-          "`inst/validation/results/continuous.csv`.")
+          "`inst/validation/results/yamaguchi_continuous2.csv`,",
+          "`inst/validation/results/continuous.csv` and",
+          "`inst/validation/results/huang2019_table1.csv`.")
   )
   writeLines(lines, file.path(out_dir, "summary.md"))
   message(sprintf(paste("Validation: %d checks, %d PASS, %d EXPLAINED,",
@@ -273,7 +310,8 @@ local({
                   length(verdicts), count(verdicts, "PASS"),
                   count(verdicts, "EXPLAINED"), count(verdicts, "FAIL"),
                   count(verdicts, "INFO"),
-                  if (self$ok && self2$ok && self3$ok && self_num$ok) {
+                  if (self$ok && self2$ok && self3$ok && self_num$ok &&
+                      self_tte$ok) {
                     "PASS"
                   } else {
                     "FAIL"

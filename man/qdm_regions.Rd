@@ -4,11 +4,14 @@
 \alias{qdm_regions}
 \title{Region numbers for two endpoints}
 \usage{
-qdm_regions(prob = c("posterior", "predictive"))
+qdm_regions(prob = c("posterior", "predictive"), direction = "greater")
 }
 \arguments{
 \item{prob}{Either \code{"posterior"} (nine regions) or \code{"predictive"}
 (four regions).}
+
+\item{direction}{\code{"greater"} (the default) or \code{"less"}, as in the
+criterion: a single value for both endpoints or one value per endpoint.}
 }
 \value{
 A character matrix of region labels (printed without quotes), with
@@ -25,10 +28,18 @@ value (MAV) of each endpoint divide the plane of \eqn{(\theta_1, \theta_2)}
 into nine regions. Columns correspond to endpoint 1 and rows to endpoint 2.
 For posterior predictive probability, the null values divide the plane into
 four regions.
+
+For an endpoint on which smaller effects are favorable
+(\code{direction = "less"} in the criterion), the inequalities of that
+endpoint are reversed, so that region 1 is always the most favorable one:
+for example, \code{"theta2 < TV2"}, \code{"TV2 <= theta2 < MAV2"} and
+\code{"theta2 >= MAV2"}.
 }
 \examples{
 qdm_regions("posterior")
 qdm_regions("predictive")
+# Endpoint 2 is a safety endpoint (smaller effects are favorable)
+qdm_regions("posterior", direction = c("greater", "less"))
 }
 \references{
 Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.

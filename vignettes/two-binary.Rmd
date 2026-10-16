@@ -164,6 +164,38 @@ des_fix <- design_binary2(
 qdm_decide(des_fix, data_t = data_binary2(c(3, 2, 2, 3)), seed = 1)
 ```
 
+## Efficacy and safety endpoints
+
+The favorable direction can differ between the endpoints. For an efficacy
+endpoint (a response, on which larger effects are favorable) and a safety
+endpoint (the occurrence of an adverse event, on which smaller effects are
+favorable), `direction = c("greater", "less")` reverses the inequalities of
+endpoint 2, so that region 1 is still the most favorable one:
+
+```{r regions-safety}
+qdm_regions("posterior", direction = c("greater", "less"))
+```
+
+Here the first digit of a cell is the response and the second the adverse
+event. The decision is Go if, with probability at least 0.5, the response
+rate is improved by more than 0.15 and the rate of the adverse event is
+increased by less than 0.1 (region 1), and NoGo if, with probability at
+least 0.6, the response rate is improved by at most 0.1 and the rate of the
+adverse event is increased by at least 0.2 (region 9):
+
+```{r safety}
+des_safety <- design_binary2(
+  n_t = 10, n_c = 10, prior_t = prior, prior_c = prior,
+  criterion = criterion_posterior(theta_tv = c(0.15, 0.1),
+                                  theta_mav = c(0.10, 0.2),
+                                  gamma_go = 0.5, gamma_nogo = 0.6,
+                                  direction = c("greater", "less")),
+  nMC = 2000
+)
+qdm_decide(des_safety, data_t = data_binary2(c(2, 1, 5, 2)),
+           data_c = data_binary2(c(6, 1, 2, 1)), seed = 1)
+```
+
 ## Operating characteristics
 
 A scenario gives the response rates of the two endpoints and their
@@ -195,6 +227,26 @@ plot(oc)
 A scenario whose correlation is outside the feasible range is not evaluable:
 its probabilities are `NA`, with a warning, and it is marked "NE" in the
 plot.
+
+With `overlay = TRUE`, the decisions are drawn in a single heat map, as in
+Figure 2 of Yamaguchi et al. (submitted): each cell has the color of the
+decision with the highest probability, shaded in five steps of that
+probability (below 0.5, 0.5 to 0.6, 0.6 to 0.7, 0.7 to 0.8, and 0.8 or
+more). In the scenarios above, Gray decisions are the most likely in every
+cell; with effects up to 0.5, Go decisions become the most likely when both
+effects are large. `cell_values = FALSE` leaves out the probabilities
+written in the cells:
+
+```{r oc-overlay}
+eff_wide <- expand.grid(theta1 = seq(0, 0.5, by = 0.1),
+                        theta2 = seq(0, 0.5, by = 0.1))
+scen_wide <- data.frame(pi_t1 = 0.2 + eff_wide$theta1,
+                        pi_t2 = 0.2 + eff_wide$theta2, rho_t = 0.3,
+                        pi_c1 = 0.2, pi_c2 = 0.2, rho_c = 0.3)
+oc_wide <- qdm_oc(des, scen_wide, seed = 1)
+plot(oc_wide, overlay = TRUE)
+plot(oc_wide, overlay = TRUE, cell_values = FALSE)
+```
 
 The decision boundaries of `qdm_boundary()` (see `vignette("single-binary")`)
 are not available for two binary endpoints, because the decision depends on

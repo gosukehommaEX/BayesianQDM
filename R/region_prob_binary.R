@@ -5,6 +5,12 @@
 #' Beta posterior distributions of the two groups, or of the treatment group
 #' and a fixed control response rate.
 #'
+#' For a criterion with \code{direction = "less"}, the probabilities are
+#' those of the reflected problem (see \code{reflect_criterion()}): the
+#' response rates \eqn{1 - \pi} have the Beta distributions with the two
+#' parameters exchanged, the fixed control rate is \eqn{1 - \pi_{c0}}, and
+#' the thresholds are negated.
+#'
 #' @param criterion An object of class \code{"qdm_criterion"} for one
 #'   endpoint.
 #' @param a_t,b_t,a_c,b_c Numeric vectors of posterior Beta parameters
@@ -14,6 +20,12 @@
 #' @return A list with numeric vectors \code{go} and \code{nogo}.
 #' @noRd
 region_prob_binary <- function(criterion, a_t, b_t, a_c, b_c, fixed = NULL) {
+  r <- reflect_criterion(criterion)
+  if (r$flip) {
+    fixed_r <- if (is.null(fixed)) NULL else 1 - fixed
+    return(region_prob_binary(r$criterion, b_t, a_t, b_c, a_c,
+                              fixed = fixed_r))
+  }
   if (!is.null(fixed)) {
     if (criterion$type == "posterior") {
       # pi_t - fixed > TV if and only if pi_t > TV + fixed

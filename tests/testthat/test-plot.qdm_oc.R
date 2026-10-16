@@ -95,6 +95,37 @@ test_that("plot.qdm_oc() draws heat maps for two endpoints", {
   n_dec <- 3L + any(oc7$Miss > 0, na.rm = TRUE)
   expect_identical(nrow(ggplot2::ggplot_build(plot(oc7))$data[[1]]),
                    n_dec * nrow(sc))
+  # Without the probabilities in the cells, only "NE" is written
+  b0 <- ggplot2::ggplot_build(plot(oc, cell_values = FALSE))
+  expect_identical(sort(unique(b0$data[[2]]$label)), c("", "NE"))
+  expect_identical(sum(b0$data[[2]]$label == "NE"), 3L)
+  # Overlay: one cell per scenario, colored by the decision with the
+  # highest probability (dominant_decision())
+  po <- plot(oc, overlay = TRUE)
+  bo <- ggplot2::ggplot_build(po)
+  tiles <- bo$data[[1]]
+  tiles <- tiles[order(tiles$y, tiles$x), ]
+  expect_identical(nrow(tiles), nrow(sc))
+  expect_true(all(oc$Miss[!is.na(oc$Miss)] == 0))
+  dom <- dominant_decision(oc, c("Go", "Gray", "NoGo"))
+  cols <- c(Go = "#658D1B", NoGo = "#D91E49", Gray = "#939597")
+  w <- c(0.2, 0.4, 0.6, 0.8, 1)[dom$step]
+  expected <- shade_color(w, cols[dom$decision])
+  expected[is.na(dom$decision)] <- "#FFFFFF"
+  expect_identical(tiles$fill, expected)
+  expect_identical(sum(bo$data[[3]]$label == "NE"), 1L)
+})
+
+test_that("plot.qdm_oc() checks the arguments of the heat maps", {
+  oc <- qdm_oc(ref_design_bin2("B2"), scen_bin2[1:2, ])
+  expect_error(plot(oc, overlay = NA), "'overlay' must be TRUE or FALSE.")
+  expect_error(plot(oc, cell_values = "yes"),
+               "'cell_values' must be TRUE or FALSE.")
+  oc1 <- qdm_oc(ref_design("D8"), scen_u)
+  expect_error(plot(oc1, overlay = TRUE),
+               "'overlay' and 'cell_values' apply only to the heat maps of")
+  expect_error(plot(oc1, cell_values = FALSE),
+               "'overlay' and 'cell_values' apply only to the heat maps of")
 })
 
 test_that("plot.qdm_oc() draws heat maps for two continuous endpoints", {

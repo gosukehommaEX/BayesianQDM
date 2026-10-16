@@ -47,12 +47,15 @@ a decision criterion), which are combined into a design.
 | One continuous | `design_continuous()` | Normal-Inverse-chi-squared or vague | Numerical integration, moment matching or Monte Carlo |
 | Two binary | `design_binary2()` | Dirichlet-multinomial | Monte Carlo (posterior), exact sum (predictive) |
 | Two continuous | `design_continuous2()` | Normal-Inverse-Wishart or vague | Moment matching or Monte Carlo |
-| One time-to-event | `design_tte()` | Exponential with Gamma prior (milestone survival) | Numerical integration (posterior), simulation (predictive) |
+| One time-to-event | `design_tte()` | Exponential with Gamma prior (milestone survival or hazard ratio) | Numerical integration or F distribution (posterior), simulation (predictive) |
 
 The control group can be a concurrent control group, external control
 data only, a hypothetical control, or a fixed value of the control
 parameter (a single-arm study compared with a benchmark), and external
-data can be borrowed for either group.
+data can be borrowed for either group. Larger effects are favorable by
+default; with `direction = "less"` in the criterion, smaller effects are
+favorable, for example for the rate of an adverse event or a hazard
+ratio.
 
 ## Installation
 
@@ -122,6 +125,64 @@ qdm_calibrate(des,
 #>       scenario pi_t pi_c      Go   NoGo   Gray Miss
 #>    scenario_go  0.3  0.3 0.03587 0.7486 0.2155    0
 #>  scenario_nogo  0.6  0.3 0.36483 0.1820 0.4531    0
+```
+
+Numbers of responders in the treatment group that lead to each decision,
+for each number of responders in the control group, with the observed
+response rates and differences in response rates:
+
+``` r
+qdm_boundary(des)
+#> Decision boundary of a design with one binary endpoint
+#>   n_t = 12, n_c = 12
+#> 
+#> Responders in the treatment group (y_t)
+#>   y_c   NoGo   Gray    Go
+#>   0     0      1-2     3-12
+#>   1     0-1    2-3     4-12
+#>   2     0-1    2-4     5-12
+#>   3     0-2    3-5     6-12
+#>   4     0-3    4-6     7-12
+#>   5     0-4    5-7     8-12
+#>   6     0-5    6-8     9-12
+#>   7     0-6    7-9     10-12
+#>   8     0-7    8-10    11-12
+#>   9     0-8    9-11    12
+#>   10    0-9    10-12   -
+#>   11    0-11   12      -
+#>   12    0-12   -       -
+#> 
+#> Observed response rate (y_t / n_t)
+#>   y_c   NoGo             Gray              Go
+#>   0     0.0%             8.3% to 16.7%     25.0% to 100.0%
+#>   1     0.0% to 8.3%     16.7% to 25.0%    33.3% to 100.0%
+#>   2     0.0% to 8.3%     16.7% to 33.3%    41.7% to 100.0%
+#>   3     0.0% to 16.7%    25.0% to 41.7%    50.0% to 100.0%
+#>   4     0.0% to 25.0%    33.3% to 50.0%    58.3% to 100.0%
+#>   5     0.0% to 33.3%    41.7% to 58.3%    66.7% to 100.0%
+#>   6     0.0% to 41.7%    50.0% to 66.7%    75.0% to 100.0%
+#>   7     0.0% to 50.0%    58.3% to 75.0%    83.3% to 100.0%
+#>   8     0.0% to 58.3%    66.7% to 83.3%    91.7% to 100.0%
+#>   9     0.0% to 66.7%    75.0% to 91.7%    100.0%
+#>   10    0.0% to 75.0%    83.3% to 100.0%   -
+#>   11    0.0% to 91.7%    100.0%            -
+#>   12    0.0% to 100.0%   -                 -
+#> 
+#> Observed difference in response rates (y_t / n_t - y_c / n_c)
+#>   y_c   NoGo                  Gray                Go
+#>   0     0                     0.08333 to 0.1667   0.25 to 1
+#>   1     -0.08333 to 0         0.08333 to 0.1667   0.25 to 0.9167
+#>   2     -0.1667 to -0.08333   0 to 0.1667         0.25 to 0.8333
+#>   3     -0.25 to -0.08333     0 to 0.1667         0.25 to 0.75
+#>   4     -0.3333 to -0.08333   0 to 0.1667         0.25 to 0.6667
+#>   5     -0.4167 to -0.08333   0 to 0.1667         0.25 to 0.5833
+#>   6     -0.5 to -0.08333      0 to 0.1667         0.25 to 0.5
+#>   7     -0.5833 to -0.08333   0 to 0.1667         0.25 to 0.4167
+#>   8     -0.6667 to -0.08333   0 to 0.1667         0.25 to 0.3333
+#>   9     -0.75 to -0.08333     0 to 0.1667         0.25
+#>   10    -0.8333 to -0.08333   0 to 0.1667         -
+#>   11    -0.9167 to 0          0.08333             -
+#>   12    -1 to 0               -                   -
 ```
 
 `plot()` draws the operating characteristics, the calibration curves and

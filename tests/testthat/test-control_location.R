@@ -22,3 +22,10 @@ test_that("control_location() gives the fixed value or the mean survival", {
   # External control only: Gamma(10.1, 51)
   expect_equal(control_location(ref_design_tte("T6")), (51 / 54)^10.1)
 })
+
+test_that("control_location() gives the control hazard for the hazard ratio", {
+  expect_equal(control_location(ref_design_hr("H2")), log(2) / 6)
+  # Mean of the Gamma(15.1, 101) and Gamma(15.1, 126) distributions
+  expect_equal(control_location(ref_design_hr("H3")), 15.1 / 101)
+  expect_equal(control_location(ref_design_hr("H4")), 15.1 / 126)
+})

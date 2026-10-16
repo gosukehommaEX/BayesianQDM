@@ -136,3 +136,19 @@ test_that("format.qdm_design() describes time-to-event designs", {
   des$conduct <- NULL
   expect_false(any(grepl("Conduct", format(des))))
 })
+
+test_that("format.qdm_design() describes designs with the hazard ratio", {
+  f2 <- format(ref_design_hr("H2"))
+  expect_identical(
+    f2[1:7],
+    c("Design: one time-to-event endpoint (hazard ratio)",
+      "  Treatment: n = 30, prior Gamma(shape = 0.1, rate = 1)",
+      "  Control: fixed median survival time 6",
+      "Posterior probability criterion",
+      "  Go:   P(theta < 0.7 | data) >= 0.6",
+      "  NoGo: P(theta >= 1 | data) >= 0.7",
+      "Probabilities: exact computation (fixed control)")
+  )
+  expect_identical(format(ref_design_hr("H1"))[7],
+                   "Probabilities: exact computation (F distribution)")
+})

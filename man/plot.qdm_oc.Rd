@@ -15,6 +15,8 @@
   label_size = NULL,
   base_size = 11,
   legend_position = "bottom",
+  overlay = FALSE,
+  cell_values = TRUE,
   ...
 )
 }
@@ -42,6 +44,19 @@ which sets the size of the axis labels, tick labels, legend and caption.}
 \item{legend_position}{Position of the legend: \code{"bottom"} (the
 default), \code{"top"}, \code{"left"}, \code{"right"} or \code{"none"}.
 To place the legend inside the plot, add \code{ggplot2::theme()}.}
+
+\item{overlay}{Two endpoints only: \code{FALSE} (the default) for one
+heat map per decision, or \code{TRUE} for a single heat map of the
+decision with the highest probability in each cell.}
+
+\item{cell_values}{Two endpoints only: \code{TRUE} (the default) to write
+the probabilities in the cells of the heat maps (with
+\code{overlay = TRUE}, the probability of the decision shown), or
+\code{FALSE} to leave them out. Scenarios that are not evaluable are
+marked "NE" in either case. The probabilities are rounded to two
+decimals, so a probability just below a step of the overlay (for
+example 0.499) is written as the value of the step (0.50) in a cell of
+the lower step.}
 
 \item{...}{Not used; arguments given here are ignored with a warning.}
 }
@@ -73,7 +88,14 @@ are marked "NE". The scenarios must have distinct values on the axes, so
 scenarios with several correlations (or several parameters of the control
 group) are plotted separately. Each panel is shaded from white
 (probability 0) to the color of its decision (probability 1); the heat maps
-have no legend.
+have no legend. With \code{overlay = TRUE}, a single heat map is drawn
+instead: each cell has the color of the decision with the highest
+probability (Go, Gray or NoGo, or Miss if it occurs; ties go to the first
+in this order), shaded in five steps of that probability (below 0.5, 0.5
+to 0.6, 0.6 to 0.7, 0.7 to 0.8, and 0.8 or more), with legends for the
+decisions and the steps (shown in gray whatever the colors of the
+decisions), as in the heat maps of Yamaguchi et al. (submitted,
+Figure 2).
 
 The plot is a \code{ggplot} object, so it can be changed further by adding
 \pkg{ggplot2} functions, for example \code{ggplot2::labs()} for the title
@@ -97,4 +119,28 @@ plot(oc)
 plot(oc, col_go = "darkgreen", col_nogo = "firebrick", linewidth = 0.6,
      base_size = 14, legend_position = "right") +
   ggplot2::labs(title = "Operating characteristics")
+
+# Two binary endpoints: one heat map per decision, or a single heat map
+# of the decision with the highest probability in each cell
+prior <- prior_dirichlet(rep(0.25, 4))
+des2 <- design_binary2(
+  n_t = 6, n_c = 6, prior_t = prior, prior_c = prior,
+  criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+                                  theta_mav = c(0.1, 0.1),
+                                  gamma_go = 0.6, gamma_nogo = 0.6),
+  nMC = 500
+)
+eff <- expand.grid(theta1 = c(0, 0.2, 0.4), theta2 = c(0, 0.2, 0.4))
+oc2 <- qdm_oc(des2, data.frame(pi_t1 = 0.2 + eff$theta1,
+                               pi_t2 = 0.2 + eff$theta2, rho_t = 0.3,
+                               pi_c1 = 0.2, pi_c2 = 0.2, rho_c = 0.3),
+              seed = 1)
+plot(oc2)
+plot(oc2, overlay = TRUE)
+plot(oc2, overlay = TRUE, cell_values = FALSE)
+}
+\references{
+Yamaguchi, Y., Hu, H., Huang, Y., Han, C., Homma, G. and Wang, A.
+(submitted). Bivariate Bayesian quantitative decision-making for two
+endpoints in rare disease drug development.
 }

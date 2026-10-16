@@ -163,13 +163,36 @@ studies. The moment-matching approximation is much faster than Monte Carlo
 estimation of the region probabilities, whose computing time is
 proportional to `nMC` for every simulated study.
 
+`overlay = TRUE` draws a single heat map of the decision with the highest
+probability in each cell (see `vignette("two-binary")`), here over a wider
+range of effects:
+
+```{r oc-overlay}
+eff_wide <- expand.grid(theta1 = seq(0, 40, by = 10),
+                        theta2 = seq(0, 8, by = 2))
+scen_wide <- data.frame(mu_t1 = -10 + eff_wide$theta1,
+                        mu_t2 = -1 + eff_wide$theta2, sd_t1 = 80,
+                        sd_t2 = 6, rho_t = 0.3, mu_c1 = -10, mu_c2 = -1,
+                        sd_c1 = 80, sd_c2 = 6, rho_c = 0.3)
+plot(qdm_oc(des, scen_wide, nsim = 1000, seed = 1), overlay = TRUE)
+```
+
 ## Decision boundary
 
-`qdm_boundary()` gives the decision on a grid of observed treatment means of
-the two endpoints, for a given sample covariance matrix, and its plot shows
-which means lead to Go, NoGo and Gray decisions. With a concurrent control
-group, the observed control data are given by `data_c`, and the axes are the
-observed differences in means:
+For each observed treatment mean of endpoint 1, `qdm_boundary()` gives the
+intervals of the observed treatment mean of endpoint 2 that lead to Go, NoGo
+and Gray decisions, for a given sample covariance matrix, together with the
+observed differences in means. The ends of the intervals are located by
+bisection between the values of the grid `mean_t[[2]]`. With a concurrent
+control group, the observed control data are given by `data_c`:
+
+```{r boundary-table}
+qdm_boundary(des, mean_t = list(c(0, 10, 20, 30), seq(-3, 7, by = 0.25)),
+             cov_t = data_t$cov, data_c = data_c)
+```
+
+With more values of endpoint 1, the plot shows the regions of the decisions
+over the observed differences in means of the two endpoints:
 
 ```{r boundary}
 b <- qdm_boundary(des, mean_t = list(seq(-30, 50, by = 2),

@@ -44,4 +44,9 @@ test_that("format_posterior() gives fixed control values", {
   expect_identical(format_posterior(ref_design_cont2("KF1"),
                                     c(value1 = -10, value2 = -1)),
                    "fixed values (-10, -1)")
+  # Hazard ratio: the fixed control is a median survival time
+  expect_identical(format_posterior(ref_design_hr("H2"), c(value = 6)),
+                   "fixed median survival time 6")
+  expect_identical(format_posterior(ref_design_tte("T1"), c(value = 0.72)),
+                   "fixed value 0.72")
 })
