@@ -8,8 +8,10 @@ calibrated decision thresholds for any design. Formulas and numerical methods
 that were wrong in version 0.1.0 have been corrected. NEWS.md lists the
 changes and the correspondence between the old and new functions, and a new
 vignette explains the migration. Version 1.0.0 also adds a time-to-event
-endpoint, single-arm designs compared with a fixed control value, and
-decision boundaries over possible observed data.
+endpoint evaluated by the milestone survival probability or the hazard
+ratio, single-arm designs compared with a fixed control value, decision
+criteria for endpoints on which smaller effects are favorable, and tables
+and plots of the observed data that lead to each decision.
 
 ## Test environments
 

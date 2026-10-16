@@ -232,12 +232,20 @@ With `overlay = TRUE`, the decisions are drawn in a single heat map, as in
 Figure 2 of Yamaguchi et al. (submitted): each cell has the color of the
 decision with the highest probability, shaded in five steps of that
 probability (below 0.5, 0.5 to 0.6, 0.6 to 0.7, 0.7 to 0.8, and 0.8 or
-more). `cell_values = FALSE` leaves out the probabilities written in the
-cells:
+more). In the scenarios above, Gray decisions are the most likely in every
+cell; with effects up to 0.5, Go decisions become the most likely when both
+effects are large. `cell_values = FALSE` leaves out the probabilities
+written in the cells:
 
 ```{r oc-overlay}
-plot(oc, overlay = TRUE)
-plot(oc, overlay = TRUE, cell_values = FALSE)
+eff_wide <- expand.grid(theta1 = seq(0, 0.5, by = 0.1),
+                        theta2 = seq(0, 0.5, by = 0.1))
+scen_wide <- data.frame(pi_t1 = 0.2 + eff_wide$theta1,
+                        pi_t2 = 0.2 + eff_wide$theta2, rho_t = 0.3,
+                        pi_c1 = 0.2, pi_c2 = 0.2, rho_c = 0.3)
+oc_wide <- qdm_oc(des, scen_wide, seed = 1)
+plot(oc_wide, overlay = TRUE)
+plot(oc_wide, overlay = TRUE, cell_values = FALSE)
 ```
 
 The decision boundaries of `qdm_boundary()` (see `vignette("single-binary")`)

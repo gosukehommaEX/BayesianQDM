@@ -8,6 +8,17 @@ test_that("plot.qdm_boundary() draws the decision intervals", {
   # Rectangles of whole numbers: n_t +- 0.5 and the responders +- 0.5
   expect_equal(rects$xmin, b$n_t - 0.5)
   expect_equal(rects$ymax, b$to + 0.5)
+  # Only whole numbers on the axes
+  pp <- built$layout$panel_params[[1]]
+  for (br in list(pp$x$breaks, pp$y$breaks)) {
+    br <- br[!is.na(br)]
+    expect_true(length(br) > 1L && all(abs(br - round(br)) < 1e-8))
+  }
+  # Sample sizes 5 apart: the regions reach the midpoints between them
+  b5 <- qdm_boundary(ref_design("D8"), n_t = c(10, 15, 25))
+  r5 <- ggplot2::ggplot_build(plot(b5))$data[[1]]
+  expect_equal(r5$xmin, c(7.5, 12.5, 20)[match(b5$n_t, c(10, 15, 25))])
+  expect_equal(r5$xmax, c(12.5, 20, 30)[match(b5$n_t, c(10, 15, 25))])
   cols <- c(Go = "#658D1B", NoGo = "#D91E49", Gray = "#939597",
             Miss = "#E69F00")
   expect_identical(unname(rects$fill), unname(cols[as.character(b$decision)]))
@@ -30,6 +41,8 @@ test_that("plot.qdm_boundary() labels some or none of the conditions", {
   # More than 16 values: about six of them
   text <- ggplot2::ggplot_build(plot(b))$data[[2]]
   expect_true(all(unique(text$x) %in% c(10, 15, 20, 25, 30, 35, 40)))
+  # but not at the first and the last value, whose labels would be cut
+  expect_setequal(unique(text$x), c(15, 20, 25, 30, 35))
   expect_length(ggplot2::ggplot_build(plot(b, labels = FALSE))$data, 1L)
   text2 <- ggplot2::ggplot_build(plot(b, labels = c(12, 30)))$data[[2]]
   expect_setequal(unique(text2$x), c(12, 30))

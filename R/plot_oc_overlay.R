@@ -67,5 +67,7 @@ plot_oc_overlay <- function(x, design, cols, style, cell_values = TRUE) {
     ) +
     ggplot2::labs(x = grid$labs[1L], y = grid$labs[2L]) +
     style$theme +
-    ggplot2::theme(panel.grid = ggplot2::element_blank())
+    # The two legends one above the other, so that they fit below the plot
+    ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                   legend.box = "vertical")
 }

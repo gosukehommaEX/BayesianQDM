@@ -27,8 +27,9 @@ is not used in the heat maps.}
 
 \item{labels}{\code{TRUE} (the default) to write the boundary values for
 every value of the horizontal axis (or, with more than 16 values, for
-about six of them), \code{FALSE} for none, or a numeric vector of the
-values of the horizontal axis at which they are written.}
+about six of them, leaving out the first and the last), \code{FALSE}
+for none, or a numeric vector of the values of the horizontal axis at
+which they are written.}
 
 \item{label_size}{Size of the boundary values, in millimeters, or
 \code{NULL} for the size of the axis tick labels,

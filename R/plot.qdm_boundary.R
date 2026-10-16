@@ -20,8 +20,9 @@
 #' @param x An object of class \code{"qdm_boundary"}.
 #' @param labels \code{TRUE} (the default) to write the boundary values for
 #'   every value of the horizontal axis (or, with more than 16 values, for
-#'   about six of them), \code{FALSE} for none, or a numeric vector of the
-#'   values of the horizontal axis at which they are written.
+#'   about six of them, leaving out the first and the last), \code{FALSE}
+#'   for none, or a numeric vector of the values of the horizontal axis at
+#'   which they are written.
 #' @param label_size Size of the boundary values, in millimeters, or
 #'   \code{NULL} for the size of the axis tick labels,
 #'   \code{0.8 * base_size / .pt}.
@@ -62,9 +63,12 @@ plot.qdm_boundary <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
     lab_x <- if (length(ux) <= 16L) {
       ux
     } else {
-      unique(ux[vapply(pretty(ux, n = 6L), function(v) {
+      # About six values near pretty values, without the first and the last
+      # value, whose labels would be cut at the edges of the panel
+      thin <- unique(ux[vapply(pretty(ux, n = 6L), function(v) {
         which.min(abs(ux - v))
       }, integer(1))])
+      setdiff(thin, ux[c(1L, length(ux))])
     }
   } else if (isFALSE(labels)) {
     lab_x <- numeric(0)
@@ -81,8 +85,10 @@ plot.qdm_boundary <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
       any(abs(labels - u) <= 1e-8 * max(1, abs(u)))
     }, logical(1))]
   }
-  # Horizontal extent of the regions of each value of the condition
-  if (axes$discrete_x || length(ux) == 1L) {
+  # Horizontal extent of the regions of each value of the condition: up to
+  # the midpoints between neighboring values (half a unit for consecutive
+  # whole numbers)
+  if (length(ux) == 1L) {
     left <- ux - 0.5
     right <- ux + 0.5
   } else {
@@ -155,15 +161,25 @@ plot.qdm_boundary <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
       colour = "white", fontface = "bold", size = style$label_size
     )
   }
-  if (!is.null(axes$sec_scale)) {
+  # Whole numbers only on the axes of counts and sample sizes
+  int_breaks <- function(lim) {
+    b <- pretty(lim)
+    b[abs(b - round(b)) < 1e-8]
+  }
+  if (axes$discrete_x) {
+    p <- p + ggplot2::scale_x_continuous(breaks = int_breaks)
+  }
+  sec <- if (is.null(axes$sec_scale)) {
+    ggplot2::waiver()
+  } else {
     s <- axes$sec_scale
-    p <- p + ggplot2::scale_y_continuous(
-      sec.axis = ggplot2::sec_axis(~ . / s,
-                                   name = "Observed treatment response rate",
-                                   labels = function(v) {
-                                     paste0(round(100 * v), "%")
-                                   })
-    )
+    ggplot2::sec_axis(~ . / s, name = "Observed treatment response rate",
+                      labels = function(v) paste0(round(100 * v), "%"))
+  }
+  if (axes$discrete_y) {
+    p <- p + ggplot2::scale_y_continuous(breaks = int_breaks, sec.axis = sec)
+  } else if (!is.null(axes$sec_scale)) {
+    p <- p + ggplot2::scale_y_continuous(sec.axis = sec)
   }
   p
 }
