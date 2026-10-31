@@ -1,17 +1,13 @@
 ## Submission
 
-This is a major update of BayesianQDM from version 0.1.0 to 1.0.0. The
-interface has been redesigned and is not backward compatible: a study is
-specified by small objects combined into a design, and three functions
-compute the decision for observed data, the operating characteristics and
-calibrated decision thresholds for any design. Formulas and numerical methods
-that were wrong in version 0.1.0 have been corrected. NEWS.md lists the
-changes and the correspondence between the old and new functions, and a new
-vignette explains the migration. Version 1.0.0 also adds a time-to-event
-endpoint evaluated by the milestone survival probability or the hazard
-ratio, single-arm designs compared with a fixed control value, decision
-criteria for endpoints on which smaller effects are favorable, and tables
-and plots of the observed data that lead to each decision.
+This is a patch release of BayesianQDM 1.0.0. It fixes the installation
+warning on r-devel-linux-x86_64-fedora-gcc (-Warray-bounds with GCC 16 in
+src/regions_continuous2.cpp), which the CRAN team asked us to correct before
+2026-11-20. The warning came from std::sort() on a fixed-size array in which
+at most two elements are sorted; the call is replaced by a comparison and a
+swap, so the results are unchanged. We do not have access to GCC 16; with
+the compilers used in the test environments below, the package installs
+without warnings.
 
 ## Test environments
 

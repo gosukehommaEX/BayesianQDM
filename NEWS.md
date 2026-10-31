@@ -1,3 +1,9 @@
+# BayesianQDM 1.0.1
+
+* The C++ code for two continuous endpoints no longer calls `std::sort()` on
+  a fixed-size array, for which GCC 16 gave a compiler warning
+  (`-Warray-bounds`) during installation. The results are unchanged.
+
 # BayesianQDM 1.0.0
 
 This version is a redesign of the package and is not backward compatible with

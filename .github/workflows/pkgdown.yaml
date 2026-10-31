@@ -5,8 +5,6 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-  release:
-    types: [published]
   workflow_dispatch:
 
 name: pkgdown
@@ -61,7 +59,8 @@ jobs:
           path: docs
 
   # The github-pages environment accepts deployments from the default branch
-  # only, so the job that uses it does not run for pull requests.
+  # only, so the job that uses it does not run for pull requests, and the
+  # workflow does not run for releases (their tags are rejected).
   deploy:
     if: github.event_name != 'pull_request'
     needs: build

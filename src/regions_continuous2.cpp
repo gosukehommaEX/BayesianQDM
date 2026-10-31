@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -161,7 +162,11 @@ double bvt_cdf(double h, double k, double rho, double nu) {
   if (0.0 < hi) {
     cuts[n_cut++] = 0.0;
   }
-  std::sort(cuts + 1, cuts + n_cut);
+  // At most two interior cuts; a swap orders them (std::sort() on the
+  // fixed-size array gives a false -Warray-bounds warning with GCC 16).
+  if (n_cut == 3 && cuts[2] < cuts[1]) {
+    std::swap(cuts[1], cuts[2]);
+  }
   cuts[n_cut++] = hi;
   double total = 0.0;
   for (int i = 0; i + 1 < n_cut; ++i) {
