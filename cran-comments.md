@@ -11,14 +11,20 @@ without warnings.
 
 ## Test environments
 
-* Local: Windows 11, R 4.6.0
-* win-builder: R-devel (2026-10-28 r90783) and R-release (4.6.2)
+* Local: Windows 11, R 4.6.1
+* win-builder: R-devel (2026-10-30 r90805) and R-release (4.6.2)
 * GitHub Actions: ubuntu-latest (R-devel, R-release and R-oldrel-1),
   windows-latest (R-release) and macos-latest (R-release)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+* checking CRAN incoming feasibility ... NOTE
+  Days since last update: 1
+
+  This update follows the CRAN team's request to fix the warning above, so
+  it comes one day after version 1.0.0.
 
 ## Reverse dependencies
 
