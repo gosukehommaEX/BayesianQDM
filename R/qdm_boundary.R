@@ -58,7 +58,8 @@
 #'
 #' @param design A design created by \code{\link{design_binary}},
 #'   \code{\link{design_continuous}}, \code{\link{design_continuous2}} or
-#'   \code{\link{design_tte}}.
+#'   \code{\link{design_tte}}, or a design specification started by
+#'   \code{\link{qdm_endpoint}}, which is built by \code{\link{qdm_build}}.
 #' @param n_t Numbers of subjects in the treatment group (whole numbers); by
 #'   default that of the design. Several values are allowed for one binary
 #'   endpoint without a concurrent control group and for one continuous
@@ -153,7 +154,7 @@
 qdm_boundary <- function(design, n_t = NULL, mean_t = NULL, sd_t = NULL,
                          cov_t = NULL, events_t = NULL, exposure_t = NULL,
                          data_c = NULL, seed = NULL) {
-  check_design(design)
+  design <- check_design(design)
   if (design$endpoint == "binary2") {
     stop(paste("qdm_boundary() does not support two binary endpoints,",
                "whose decision depends on the four cell counts."),

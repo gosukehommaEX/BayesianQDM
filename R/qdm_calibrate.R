@@ -22,7 +22,9 @@
 #'
 #' @param design A design created by \code{\link{design_binary}},
 #'   \code{\link{design_continuous}}, \code{\link{design_binary2}},
-#'   \code{\link{design_continuous2}} or \code{\link{design_tte}}. Its
+#'   \code{\link{design_continuous2}} or \code{\link{design_tte}}, or a design
+#'   specification started by \code{\link{qdm_endpoint}}, which is built by
+#'   \code{\link{qdm_build}}. Its
 #'   thresholds are replaced by the calibrated ones. For two endpoints with a
 #'   marginal rule (\code{rule = "and"} or \code{"or"}), the same threshold is
 #'   used for both endpoints.
@@ -77,7 +79,7 @@
 qdm_calibrate <- function(design, scenario_go, scenario_nogo, target_go,
                           target_nogo, grid = seq(0.01, 0.99, by = 0.01),
                           nsim = 10000L, seed = NULL) {
-  check_design(design)
+  design <- check_design(design)
   scenario_go <- check_scenarios(design, scenario_go, "scenario_go",
                                  one_row = TRUE, feasible = TRUE)
   scenario_nogo <- check_scenarios(design, scenario_nogo, "scenario_nogo",

@@ -9,7 +9,9 @@ qdm_decide(design, data_t, data_c = NULL, seed = NULL)
 \arguments{
 \item{design}{A design created by \code{\link{design_binary}},
 \code{\link{design_continuous}}, \code{\link{design_binary2}},
-\code{\link{design_continuous2}} or \code{\link{design_tte}}.}
+\code{\link{design_continuous2}} or \code{\link{design_tte}}, or a design
+specification started by \code{\link{qdm_endpoint}}, which is built by
+\code{\link{qdm_build}}.}
 
 \item{data_t}{Observed data of the treatment group, created by
 \code{\link{data_binary}}, \code{\link{data_continuous}},

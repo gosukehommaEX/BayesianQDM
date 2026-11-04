@@ -332,3 +332,10 @@ test_that("qdm_decide() handles endpoints on which smaller effects are favorable
                tolerance = 1e-10)
   expect_identical(dh$decision, "Go")
 })
+
+test_that("qdm_decide() accepts a design specification", {
+  dt <- data_binary(12, 9)
+  dc <- data_binary(12, 4)
+  expect_identical(spec_d1() |> qdm_decide(data_t = dt, data_c = dc),
+                   qdm_decide(ref_design("D1"), data_t = dt, data_c = dc))
+})

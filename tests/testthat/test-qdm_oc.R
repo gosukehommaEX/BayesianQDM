@@ -623,3 +623,8 @@ test_that("qdm_oc() simulates designs with the hazard ratio", {
   expect_identical(names(oc2), c("median_t", "Go", "NoGo", "Gray", "Miss"))
   expect_gt(oc2$Go[2L], oc2$Go[1L])
 })
+
+test_that("qdm_oc() accepts a design specification", {
+  expect_identical(spec_d1() |> qdm_oc(scen_c, seed = 1L),
+                   qdm_oc(ref_design("D1"), scen_c, seed = 1L))
+})

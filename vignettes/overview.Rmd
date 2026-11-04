@@ -78,6 +78,7 @@ a design.
 | `criterion_posterior()`, `criterion_predictive()` | Decision criterion |
 | `conduct_tte()` | Enrollment, dropout and time of the analysis of a study with a time-to-event endpoint |
 | `design_binary()`, `design_continuous()`, `design_binary2()`, `design_continuous2()`, `design_tte()` | Design of the study |
+| `qdm_endpoint()` and the steps that follow it | Design of the study, built step by step (see below) |
 
 The control group of a design takes one of four forms: a concurrent control
 group (`n_c` of at least 1 for binary and time-to-event endpoints, 2 for one
@@ -172,6 +173,57 @@ With 4 control responders, a Go decision needs at least
 `r min(b$from[b$y_c == 4 & b$decision == "Go"])` of the 12 treatment
 subjects to respond.
 
+## Building a design step by step
+
+A design can also be built step by step, for example with the native pipe
+`|>` of R. `qdm_endpoint()` starts a specification for an endpoint, and
+each of the other steps sets some arguments of the `design_*()` function of
+the endpoint:
+
+| Step | Arguments |
+|---|---|
+| `qdm_sample_size()` | `n_t`, `n_c` |
+| `qdm_prior()` | `prior_t`, `prior_c` |
+| `qdm_criterion()` | `criterion` |
+| `qdm_external()` | `external_t`, `external_c` |
+| `qdm_control()` | `hypothetical_c`, `fixed_c` |
+| `qdm_tte()` | `milestone`, `effect`, `conduct`, `conduct_future` (time-to-event endpoint) |
+| `qdm_computation()` | `method`, `nMC`, `enumerate` |
+
+```{r pipe}
+spec <- qdm_endpoint("binary") |>
+  qdm_sample_size(n_t = 12, n_c = 12) |>
+  qdm_prior(prior_t = prior_beta(0.5, 0.5),
+            prior_c = prior_beta(0.5, 0.5)) |>
+  qdm_criterion(criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                    gamma_go = 0.5, gamma_nogo = 0.8))
+spec
+```
+
+`qdm_build()` creates the design by calling `design_binary()` with these
+arguments, so it is the design `des` of the first example:
+
+```{r pipe-build}
+identical(qdm_build(spec), des)
+```
+
+The steps only store their arguments, which are checked when the design is
+built, so the error messages are those of the `design_*()` function. A step
+given again replaces the arguments that it set before. `qdm_decide()`,
+`qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` accept a specification
+and build it, so the pipe can go on to the analysis, here the operating
+characteristics with 20 subjects in each group:
+
+```{r pipe-oc}
+spec |>
+  qdm_sample_size(n_t = 20, n_c = 20) |>
+  qdm_oc(data.frame(pi_t = seq(0.3, 0.7, by = 0.1), pi_c = 0.3))
+```
+
+`vignette("pipe")` gives more examples with the pipe, including
+`show_report()`, which writes the design and its results as a draft of the
+corresponding sections of a study protocol.
+
 ## Plots
 
 The `plot()` methods return ggplot2 objects. Depending on the plot, their
@@ -240,6 +292,8 @@ system.file("validation", "results", "summary.md", package = "BayesianQDM")
 
 ## Further reading
 
+- `vignette("pipe")`: designs and analyses built with the pipe, and reports
+  for a study protocol.
 - `vignette("single-binary")`: one binary endpoint.
 - `vignette("single-continuous")`: one continuous endpoint.
 - `vignette("two-binary")`: two binary endpoints.

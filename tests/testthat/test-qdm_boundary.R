@@ -204,3 +204,8 @@ test_that("qdm_boundary() validates its arguments", {
                             data_c = data_continuous(12, 0, 25)),
                "'data_c' must be NULL for a design without a concurrent")
 })
+
+test_that("qdm_boundary() accepts a design specification", {
+  expect_identical(spec_d1() |> qdm_boundary(seed = 1L),
+                   qdm_boundary(ref_design("D1"), seed = 1L))
+})

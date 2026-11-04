@@ -54,7 +54,9 @@
 #'
 #' @param design A design created by \code{\link{design_binary}},
 #'   \code{\link{design_continuous}}, \code{\link{design_binary2}},
-#'   \code{\link{design_continuous2}} or \code{\link{design_tte}}.
+#'   \code{\link{design_continuous2}} or \code{\link{design_tte}}, or a design
+#'   specification started by \code{\link{qdm_endpoint}}, which is built by
+#'   \code{\link{qdm_build}}.
 #' @param scenarios A data frame with one row per scenario. For a binary
 #'   endpoint the columns \code{pi_t} and \code{pi_c} give the true response
 #'   rates of the treatment and control groups. For a continuous endpoint the
@@ -139,7 +141,7 @@
 #' plot(oc3)
 #' @export
 qdm_oc <- function(design, scenarios, nsim = 10000L, seed = NULL) {
-  check_design(design)
+  design <- check_design(design)
   scenarios <- check_scenarios(design, scenarios)
   check_numeric(nsim, "nsim", lower = 1, upper = .Machine$integer.max,
                 integer = TRUE)

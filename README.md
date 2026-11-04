@@ -39,7 +39,9 @@ The package answers four questions for a planned or completed study:
 
 A study is described by small specification objects (priors, data,
 external data borrowed through a power prior, a hypothetical control and
-a decision criterion), which are combined into a design.
+a decision criterion), which are combined into a design. A design is
+created by a `design_*()` function, or step by step with the native pipe
+`|>`, starting from `qdm_endpoint()`.
 
 | Endpoints | Design | Model | Computation of the probabilities |
 |----|----|----|----|
@@ -185,11 +187,34 @@ qdm_boundary(des)
 #>   12    -1 to 0               -                   -
 ```
 
+The same design can be built step by step with the native pipe `|>`, and
+the functions above accept the specification in place of the design:
+
+``` r
+qdm_endpoint("binary") |>
+  qdm_sample_size(n_t = 12, n_c = 12) |>
+  qdm_prior(prior_t = prior_beta(0.5, 0.5),
+            prior_c = prior_beta(0.5, 0.5)) |>
+  qdm_criterion(criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                    gamma_go = 0.5, gamma_nogo = 0.8)) |>
+  qdm_decide(data_t = data_binary(12, 9), data_c = data_binary(12, 4))
+#> Decision: Go
+#>   Go:   P(theta > 0.2 | data) = 0.8517 (threshold 0.5, met)
+#>   NoGo: P(theta <= 0.1 | data) = 0.05935 (threshold 0.8, not met)
+#> Posterior distributions
+#>   Treatment: Beta(a = 9.5, b = 3.5)
+#>   Control:   Beta(a = 4.5, b = 8.5)
+```
+
 `plot()` draws the operating characteristics, the calibration curves and
 the decision boundaries computed by `qdm_boundary()`. The plots are
 ggplot2 objects: their arguments set the colors of the decisions, the
 line widths, the text sizes and the position of the legend, and ggplot2
 functions can be added to change them further.
+
+`show_report()` writes the design and a result as a report in HTML or
+plain text, with the formulas of the decision criteria, as a draft of
+the corresponding sections of a study protocol.
 
 ## Documentation
 
@@ -197,6 +222,8 @@ The vignettes describe the models and the functions with examples:
 
 - [Overview of
   BayesianQDM](https://gosukehommaEX.github.io/BayesianQDM/articles/overview.html)
+- [Working with the
+  pipe](https://gosukehommaEX.github.io/BayesianQDM/articles/pipe.html)
 - [Single binary
   endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/single-binary.html)
 - [Single continuous
@@ -237,7 +264,7 @@ and for the package
 
 > Homma, G. and Yamaguchi, Y. (2026). BayesianQDM: Bayesian Quantitative
 > Decision-Making Framework for Binary, Continuous and Time-to-Event
-> Endpoints. R package version 1.0.0.
+> Endpoints. R package version 1.1.0.
 
 ## License
 

@@ -291,3 +291,14 @@ test_that("qdm_calibrate() simulates time-to-event designs", {
   expect_equal(cal$oc$NoGo, oc$NoGo)
   expect_identical(cal$method, attr(oc, "method"))
 })
+
+test_that("qdm_calibrate() accepts a design specification", {
+  a <- cal_args$D1
+  expect_identical(
+    spec_d1() |>
+      qdm_calibrate(a$scenario_go, a$scenario_nogo, a$target_go,
+                    a$target_nogo, seed = 1L),
+    qdm_calibrate(ref_design("D1"), a$scenario_go, a$scenario_nogo,
+                  a$target_go, a$target_nogo, seed = 1L)
+  )
+})

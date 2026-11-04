@@ -32,6 +32,19 @@ reference:
   - design_tte
   - conduct_tte
 
+- title: Building a design step by step
+  desc: Specification of a design with the native pipe, built by the design functions
+  contents:
+  - qdm_endpoint
+  - qdm_sample_size
+  - qdm_prior
+  - qdm_criterion
+  - qdm_external
+  - qdm_control
+  - qdm_tte
+  - qdm_computation
+  - qdm_build
+
 - title: Operations
   desc: Decision for observed data, operating characteristics, calibration of the thresholds and decision boundaries
   contents:
@@ -39,6 +52,11 @@ reference:
   - qdm_oc
   - qdm_calibrate
   - qdm_boundary
+
+- title: Reports
+  desc: Reports of a design and its results for a study protocol
+  contents:
+  - show_report
 
 - title: Priors
   desc: Prior distributions of each group
@@ -90,6 +108,7 @@ articles:
   navbar: ~
   contents:
   - overview
+  - pipe
 
 - title: One endpoint
   navbar: One endpoint
@@ -119,6 +138,8 @@ navbar:
       menu:
       - text: Overview of BayesianQDM
         href: articles/overview.html
+      - text: Working with the pipe
+        href: articles/pipe.html
       - text: -------
       - text: Single binary endpoint
         href: articles/single-binary.html

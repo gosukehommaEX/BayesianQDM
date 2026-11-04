@@ -1,7 +1,7 @@
 Package: BayesianQDM
 Type: Package
 Title: Bayesian Quantitative Decision-Making Framework for Binary, Continuous and Time-to-Event Endpoints
-Version: 1.0.1
+Version: 1.1.0
 Authors@R: c(
     person(given  = "Gosuke",
            family = "Homma",
@@ -36,18 +36,21 @@ License: GPL (>= 2)
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
+Depends:
+    R (>= 4.1.0)
 Imports:
     ggplot2 (>= 3.4.0),
     grDevices,
     Rcpp,
-    stats
+    stats,
+    utils
 LinkingTo:
     Rcpp
 Suggests:
     knitr,
     rmarkdown,
     spelling,
-    testthat (>= 3.0.0)
+    testthat (>= 3.1.7)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 URL: https://gosukehommaEX.github.io/BayesianQDM/, https://github.com/gosukehommaEX/BayesianQDM

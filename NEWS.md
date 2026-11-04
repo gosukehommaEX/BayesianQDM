@@ -1,3 +1,26 @@
+# BayesianQDM 1.1.0
+
+* A design can be built step by step, for example with the native pipe
+  `|>` of R. `qdm_endpoint()` starts a design specification for an
+  endpoint, and `qdm_sample_size()`, `qdm_prior()`, `qdm_criterion()`,
+  `qdm_external()`, `qdm_control()`, `qdm_tte()` and `qdm_computation()` set
+  the arguments of the `design_*()` function of the endpoint. `qdm_build()`
+  creates the design with that function, so the design and the error
+  messages are the same as when the function is called directly.
+  `qdm_decide()`, `qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` accept
+  a specification in place of a design and build it. The results of the
+  other functions are unchanged.
+* `show_report()` writes a design, or a result of `qdm_oc()`,
+  `qdm_calibrate()`, `qdm_boundary()` or `qdm_decide()`, as a report in HTML
+  or plain text: the study design, the statistical model and the prior
+  distributions, the decision criteria with their formulas in LaTeX, the
+  computation of the probabilities and the result, as a draft of the
+  corresponding sections of a study protocol. It can end a pipe.
+* A new vignette, `vignette("pipe")`, shows designs and analyses built with
+  the pipe and the reports of `show_report()`.
+* The package depends on R (>= 4.1.0), the first version with the native
+  pipe, which the examples and the vignettes use.
+
 # BayesianQDM 1.0.1
 
 * The C++ code for two continuous endpoints no longer calls `std::sort()` on

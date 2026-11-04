@@ -1,0 +1,244 @@
+---
+title: "Working with the pipe"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Working with the pipe}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+## Designs built step by step
+
+The native pipe `|>` of R (version 4.1.0 or later) passes the result of one
+function to the first argument of the next. In BayesianQDM,
+`qdm_endpoint()` starts a design specification for an endpoint, and each of
+the other steps sets some arguments of the `design_*()` function of the
+endpoint:
+
+| Step | Arguments |
+|---|---|
+| `qdm_sample_size()` | `n_t`, `n_c` |
+| `qdm_prior()` | `prior_t`, `prior_c` |
+| `qdm_criterion()` | `criterion` |
+| `qdm_external()` | `external_t`, `external_c` |
+| `qdm_control()` | `hypothetical_c`, `fixed_c` |
+| `qdm_tte()` | `milestone`, `effect`, `conduct`, `conduct_future` (time-to-event endpoint) |
+| `qdm_computation()` | `method`, `nMC`, `enumerate` |
+
+A specification can be printed at any step. Until the required arguments
+are set, it lists those still needed:
+
+```{r spec-start}
+spec <- qdm_endpoint("binary") |>
+  qdm_sample_size(n_t = 12, n_c = 12)
+spec
+```
+
+Once the sample sizes, the prior distribution of the treatment group and the
+decision criterion are set, it describes the design:
+
+```{r spec-complete}
+spec <- spec |>
+  qdm_prior(prior_t = prior_beta(0.5, 0.5),
+            prior_c = prior_beta(0.5, 0.5)) |>
+  qdm_criterion(criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                    gamma_go = 0.5, gamma_nogo = 0.8))
+spec
+```
+
+The steps only store their arguments. `qdm_build()` creates the design by
+calling `design_binary()`, which checks the arguments, so the design is the
+same as when `design_binary()` is called directly:
+
+```{r build}
+des <- design_binary(
+  n_t = 12, n_c = 12,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                  gamma_go = 0.5, gamma_nogo = 0.8)
+)
+identical(qdm_build(spec), des)
+```
+
+An invalid argument gives the error of `design_binary()` when the design is
+built:
+
+```{r error}
+try(spec |> qdm_sample_size(n_t = 0, n_c = 12) |> qdm_build())
+```
+
+## From the design to the results
+
+`qdm_decide()`, `qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` accept a
+specification in place of a design and build it, and their results can be
+passed on to `plot()`. The decision for 9 responders of 12 subjects in the
+treatment group and 4 of 12 in the control group is
+
+```{r decide}
+spec |>
+  qdm_decide(data_t = data_binary(12, 9), data_c = data_binary(12, 4))
+```
+
+The operating characteristics for true response rates of the treatment
+group from 0.3 to 0.7, with a control response rate of 0.3, are
+
+```{r oc}
+scen <- data.frame(pi_t = seq(0.3, 0.7, by = 0.05), pi_c = 0.3)
+spec |>
+  qdm_oc(scen) |>
+  plot()
+```
+
+The thresholds can be calibrated so that the probability of meeting the Go
+criterion is at most 0.05 when the treatment has no effect, and that of
+meeting the NoGo criterion is at most 0.2 when the effect is 0.3:
+
+```{r calibrate}
+cal <- spec |>
+  qdm_calibrate(scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
+                scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
+                target_go = 0.05, target_nogo = 0.2)
+cal
+```
+
+The calibrated thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
+$\gamma_{nogo} =$ `r cal$gamma_nogo`, and `cal$design` is the design with
+these thresholds, which can start another pipe:
+
+```{r calibrated}
+cal$design |>
+  qdm_decide(data_t = data_binary(12, 9), data_c = data_binary(12, 4))
+```
+
+The observed data that lead to each decision are
+
+```{r boundary}
+spec |>
+  qdm_boundary() |>
+  plot()
+```
+
+## Changing one step
+
+A step given again replaces the arguments that it set before, so a
+specification can be the start of several pipes that change one of its
+parts. For example, the probabilities of a Go decision with no effect
+($\pi_t = \pi_c = 0.2$) and with an effect of 0.3 ($\pi_t = 0.5$), for
+sample sizes from 12 to 30 per group, are
+
+```{r sample-size}
+scen2 <- data.frame(pi_t = c(0.2, 0.5), pi_c = 0.2)
+n <- c(12, 18, 24, 30)
+go <- vapply(n, function(k) {
+  oc <- spec |>
+    qdm_sample_size(n_t = k, n_c = k) |>
+    qdm_oc(scen2)
+  oc$Go
+}, numeric(2))
+data.frame(n = n, no_effect = go[1, ], effect = go[2, ])
+```
+
+With `r n[4]` subjects per group, the probability of a Go decision is
+`r format(go[2, 4], digits = 2)` with the effect of 0.3 and
+`r format(go[1, 4], digits = 2)` with no effect, against
+`r format(go[2, 1], digits = 2)` and `r format(go[1, 1], digits = 2)` with
+`r n[1]` subjects per group.
+
+External control data borrowed through a power prior:
+
+```{r external}
+spec |>
+  qdm_external(external_c = borrow(data_binary(n = 40, y = 8), a0 = 0.5)) |>
+  qdm_oc(scen2)
+```
+
+A criterion based on the posterior predictive probability of the effect
+that will be observed in a future study with 50 subjects per group:
+
+```{r predictive}
+spec |>
+  qdm_criterion(criterion_predictive(theta_null = 0.1, m_t = 50, m_c = 50,
+                                     gamma_go = 0.8, gamma_nogo = 0.8)) |>
+  qdm_decide(data_t = data_binary(12, 9), data_c = data_binary(12, 4))
+```
+
+A single-arm study of 20 subjects compared with a fixed control response
+rate of 0.2, for which the control group has no prior distribution:
+
+```{r fixed}
+spec |>
+  qdm_sample_size(n_t = 20, n_c = 0) |>
+  qdm_prior(prior_t = prior_beta(0.5, 0.5)) |>
+  qdm_control(fixed_c = 0.2) |>
+  qdm_decide(data_t = data_binary(20, 9))
+```
+
+## Other endpoints
+
+The steps are the same for every endpoint. `qdm_computation()` sets the
+method of computation of the probabilities, for example the
+moment-matching approximation for one continuous endpoint:
+
+```{r continuous}
+qdm_endpoint("continuous") |>
+  qdm_sample_size(n_t = 15, n_c = 15) |>
+  qdm_prior(prior_t = prior_vague(), prior_c = prior_vague()) |>
+  qdm_criterion(criterion_posterior(theta_tv = 30, theta_mav = 15,
+                                    gamma_go = 0.6, gamma_nogo = 0.7)) |>
+  qdm_computation(method = "MM") |>
+  qdm_oc(data.frame(mu_t = c(0, 20, 40), sd_t = 25, mu_c = 0, sd_c = 25),
+         nsim = 2000, seed = 1)
+```
+
+`qdm_tte()` sets the arguments specific to a time-to-event endpoint, here
+the hazard ratio as the effect measure, for which smaller effects are
+favorable:
+
+```{r tte}
+qdm_endpoint("tte") |>
+  qdm_sample_size(n_t = 30, n_c = 30) |>
+  qdm_prior(prior_t = prior_gamma(0.1, 1), prior_c = prior_gamma(0.1, 1)) |>
+  qdm_criterion(criterion_posterior(theta_tv = 0.67, theta_mav = 0.8,
+                                    gamma_go = 0.5, gamma_nogo = 0.6,
+                                    direction = "less")) |>
+  qdm_tte(effect = "hazard_ratio") |>
+  qdm_decide(data_t = data_tte(events = 12, exposure = 300),
+             data_c = data_tte(events = 20, exposure = 260))
+```
+
+## Reports for a study protocol
+
+`show_report()` can end a pipe. It writes the design, and the result passed
+to it, as a draft of the corresponding sections of a study protocol: the
+study design, the statistical model, the decision criteria with their
+formulas, the computation of the probabilities and the result. The report
+is an HTML file (`file_type = "html"`, the default), whose formulas are
+displayed by MathJax, or a plain text file in Markdown format with the
+formulas in LaTeX (`file_type = "text"`). It is written in a temporary file
+unless `file` is given, and it is shown when R is used interactively
+(`open`). Here the text report of the operating characteristics is printed:
+
+```{r report}
+spec |>
+  qdm_oc(scen2) |>
+  show_report(file_type = "text", open = TRUE)
+```
+
+The HTML report is written and opened in the same way:
+
+```{r report-html, eval = FALSE}
+spec |>
+  qdm_oc(scen2) |>
+  show_report(file = "decision_criteria.html")
+```
+
+The report gives the parts that depend on the design and the results. The
+parts that depend on the study, such as the name of the endpoint and the
+reasons for the target value and the minimum acceptable value, are to be
+added in the protocol.
