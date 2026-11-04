@@ -52,8 +52,10 @@ report_decision <- function(x, digits) {
   c(out, list(
     report_block("par", text = "The posterior distributions are:"),
     report_block("list", items = c(
-      paste("Treatment group:", format_posterior(design, x$posterior_t)),
-      paste("Control group:", format_posterior(design, x$posterior_c))
+      paste("Treatment group:",
+            format_posterior(design, x$posterior_t, num = report_num)),
+      paste("Control group:",
+            format_posterior(design, x$posterior_c, num = report_num))
     ))
   ))
 }

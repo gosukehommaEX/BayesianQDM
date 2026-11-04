@@ -74,3 +74,16 @@ test_that("report_decision() combines the criteria of each endpoint", {
             op[1L], prob(dec$prob_go[2L]), op[2L])
   )
 })
+
+test_that("report_decision() formats each number of the posterior distributions", {
+  d <- ref_data_cont2$K1
+  dec <- qdm_decide(ref_design_cont2("K1"), d$t, d$c)
+  res <- report_decision(dec, 3L)
+  expect_identical(
+    res[[length(res)]][["items"]],
+    c(paste("Treatment group:",
+            format_posterior(dec$design, dec$posterior_t, num = report_num)),
+      paste("Control group:",
+            format_posterior(dec$design, dec$posterior_c, num = report_num)))
+  )
+})

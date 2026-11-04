@@ -44,7 +44,7 @@ test_that("report_computation() describes the conduct of a time-to-event study",
          list(type = "par",
               text = paste("The operating characteristics are computed by",
                            "simulating the conduct of the study:")),
-         list(type = "list", items = format(conduct_example)))
+         list(type = "list", items = report_conduct(conduct_example)))
   )
   res <- report_computation(ref_design_tte("T4", nMC = 500L))
   expect_length(res, 6L)
@@ -52,7 +52,7 @@ test_that("report_computation() describes the conduct of a time-to-event study",
                    computed_by("simulation of future studies (nMC = 500)"))
   expect_identical(res[[5L]][["text"]],
                    "The future studies are simulated with:")
-  expect_identical(res[[6L]][["items"]], format(conduct_complete))
+  expect_identical(res[[6L]][["items"]], report_conduct(conduct_complete))
   g <- prior_gamma(0.1, 1)
   expect_length(report_computation(design_tte(20, 20, g, g, crit_tte(),
                                               milestone = 3)), 2L)

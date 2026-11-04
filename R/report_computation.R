@@ -36,13 +36,13 @@ report_computation <- function(design) {
       report_block("par", text = paste("The operating characteristics are",
                                        "computed by simulating the conduct",
                                        "of the study:")),
-      report_block("list", items = format(design$conduct))
+      report_block("list", items = report_conduct(design$conduct))
     ))
   }
   if (design$endpoint == "tte" && !posterior) {
     out <- c(out, list(
       report_block("par", text = "The future studies are simulated with:"),
-      report_block("list", items = format(design$conduct_future))
+      report_block("list", items = report_conduct(design$conduct_future))
     ))
   }
   out

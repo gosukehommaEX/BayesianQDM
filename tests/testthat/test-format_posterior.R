@@ -50,3 +50,20 @@ test_that("format_posterior() gives fixed control values", {
   expect_identical(format_posterior(ref_design_tte("T1"), c(value = 0.72)),
                    "fixed value 0.72")
 })
+
+test_that("format_posterior() formats the numbers with the given function", {
+  # kappa = 1, nu = 2: the scale matrix is Lambda
+  post <- c(mu1 = 18, mu2 = 2.5, kappa = 1, nu = 2, L11 = 330, L12 = 11,
+            L22 = 2.292)
+  des <- ref_design_cont2("K1")
+  expect_identical(format_posterior(des, post),
+                   paste("mean ~ t(df = 1, location = (18.0, 2.5), scale =",
+                         "(330, 11; 11.000, 2.292))"))
+  expect_identical(format_posterior(des, post, num = report_num),
+                   paste("mean ~ t(df = 1, location = (18, 2.5), scale =",
+                         "(330, 11; 11, 2.292))"))
+  expect_identical(format_posterior(ref_design_bin2("BF1"),
+                                    c(value1 = 0.25, value2 = 0.5),
+                                    num = report_num),
+                   "fixed values (0.25, 0.5)")
+})
