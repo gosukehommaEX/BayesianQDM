@@ -75,15 +75,16 @@ plot(cmp)
 
 ```{r compare-numbers, include = FALSE}
 go_effect <- function(label) {
-  cmp$Go[cmp$design == label & abs(cmp$theta - 0.3) < 1e-9]
+  formatC(cmp$Go[cmp$design == label & abs(cmp$theta - 0.3) < 1e-9],
+          format = "f", digits = 2)
 }
 ```
 
 With an effect of 0.3, the probability of a Go decision is
-`r format(go_effect("24 per group"), digits = 2)` with 24 subjects per group,
-against `r format(go_effect("12 per group"), digits = 2)` with 12 subjects per
-group. Other parts of a design are compared in the same way, for example the
-borrowing of external control data through a power prior:
+`r go_effect("24 per group")` with 24 subjects per group, against
+`r go_effect("12 per group")` with 12 subjects per group. Other parts of a
+design are compared in the same way, for example the borrowing of external
+control data through a power prior:
 
 ```{r compare-borrowing}
 ext <- des |>
@@ -116,8 +117,12 @@ stable_text <- if (is.na(res$n_t_stable)) {
 } else if (res$n_t_stable == res$n_t) {
   "every larger candidate also meets them"
 } else {
-  sprintf(paste("some larger candidates do not, and every candidate from",
-                "%d subjects per group on meets them"), res$n_t_stable)
+  fail <- res$curve$n_t[res$curve$n_t > res$n_t & !res$curve$met]
+  many <- length(fail) > 1L
+  sprintf(paste("the larger candidate%s with %s subjects per group %s not",
+                "meet them, and every candidate from %d subjects per group",
+                "on does"), if (many) "s" else "", paste(fail, collapse = ", "),
+          if (many) "do" else "does", res$n_t_stable)
 }
 ```
 
