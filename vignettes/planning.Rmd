@@ -1,0 +1,176 @@
+---
+title: "Planning a study"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Planning a study}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.5)
+library(BayesianQDM)
+```
+
+This vignette shows the functions that help to plan a proof-of-concept
+study and to explain its decision: scenarios for the operating
+characteristics (`qdm_scenarios()`), the comparison of designs
+(`qdm_compare()`), the search of the sample size (`qdm_find_n()`), tables of
+results (`as.data.frame()`), the plot of a decision and the R code of a
+design (`show_code()`). The examples use one binary endpoint, and the
+functions work in the same way for the other endpoints.
+
+```{r design}
+des <- design_binary(
+  n_t = 12, n_c = 12,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                  gamma_go = 0.5, gamma_nogo = 0.8)
+)
+```
+
+## Scenarios
+
+`qdm_scenarios()` creates the data frame of scenarios with the columns that
+the design needs (see `qdm_oc()`), and a missing or misspelled column is an
+error. By default it takes all combinations of the values:
+
+```{r scenarios}
+qdm_scenarios(des, pi_t = c(0.3, 0.5), pi_c = c(0.2, 0.3))
+```
+
+The scenarios can also be given by the treatment effect `theta` and the
+control group, which is convenient for two endpoints and for a
+time-to-event endpoint, whose scenarios are median survival times. With
+`theta = "thresholds"`, the scenarios are those that a protocol usually
+reports: no effect, the minimum acceptable value (MAV) and the target value
+(TV).
+
+```{r scenarios-theta}
+scen <- qdm_scenarios(des, theta = seq(0, 0.4, by = 0.1), pi_c = 0.3)
+scen
+qdm_oc(des, qdm_scenarios(des, theta = "thresholds", pi_c = 0.3))
+```
+
+For a continuous endpoint, `sd` gives the same standard deviation to both
+groups, and `sd1`, `sd2` and `rho` do the same for two continuous
+endpoints.
+
+## Comparing designs
+
+The design steps (see `vignette("pipe")`) accept a design, so designs that
+differ in one part are made from `des`. `qdm_compare()` computes their
+operating characteristics under the same scenarios, in one table with a
+column that names the design:
+
+```{r compare}
+n <- c(12, 18, 24)
+designs <- lapply(n, function(k) qdm_sample_size(des, n_t = k, n_c = k))
+names(designs) <- paste(n, "per group")
+cmp <- qdm_compare(designs, scen)
+cmp
+plot(cmp)
+```
+
+```{r compare-numbers, include = FALSE}
+go_effect <- function(label) {
+  cmp$Go[cmp$design == label & abs(cmp$theta - 0.3) < 1e-9]
+}
+```
+
+With an effect of 0.3, the probability of a Go decision is
+`r format(go_effect("24 per group"), digits = 2)` with 24 subjects per group,
+against `r format(go_effect("12 per group"), digits = 2)` with 12 subjects per
+group. Other parts of a design are compared in the same way, for example the
+borrowing of external control data through a power prior:
+
+```{r compare-borrowing}
+ext <- des |>
+  qdm_external(external_c = borrow(data_binary(n = 40, y = 12), a0 = 0.5))
+qdm_compare(list(Concurrent = des, Borrowing = ext), scen) |>
+  plot(decisions = c("Go", "NoGo"))
+```
+
+## Choosing the sample size
+
+`qdm_find_n()` is the counterpart of `qdm_calibrate()`: with the thresholds
+fixed, it finds the smallest candidate sample size for which the
+probability of meeting the Go criterion when the treatment has no effect,
+and that of meeting the NoGo criterion when the effect is 0.3, are both at
+most 0.1:
+
+```{r find-n}
+res <- qdm_find_n(des,
+                  scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
+                  scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
+                  target_go = 0.1, target_nogo = 0.1,
+                  n_t = seq(6, 30, by = 2))
+res
+plot(res)
+```
+
+```{r find-n-text, include = FALSE}
+stable_text <- if (is.na(res$n_t_stable)) {
+  "the largest candidate does not meet them"
+} else if (res$n_t_stable == res$n_t) {
+  "every larger candidate also meets them"
+} else {
+  sprintf(paste("some larger candidates do not, and every candidate from",
+                "%d subjects per group on meets them"), res$n_t_stable)
+}
+```
+
+The smallest candidate that meets both targets has `r res$n_t` subjects per
+group. The outcomes of a binary endpoint are discrete, so the probabilities
+do not decrease steadily as the sample size increases: here
+`r stable_text`. `res$design` is the design with the chosen sample size.
+
+## Tables of results
+
+`as.data.frame()` converts a decision, a calibration or a search of the
+sample size to a data frame with one row, so that results can be combined
+with `rbind()` and written to a file with `write.csv()`. For example, the
+decisions for the same data with three prior distributions:
+
+```{r tables}
+priors <- list(Jeffreys = prior_beta(0.5, 0.5), Uniform = prior_beta(1, 1),
+               Skeptical = prior_beta(2, 6))
+decisions <- lapply(priors, function(p) {
+  des |>
+    qdm_prior(prior_t = p, prior_c = p) |>
+    qdm_decide(data_t = data_binary(12, 8), data_c = data_binary(12, 4))
+})
+do.call(rbind, lapply(decisions, as.data.frame))
+```
+
+The operating characteristics of `qdm_oc()` and `qdm_compare()` are data
+frames already.
+
+## Explaining a decision
+
+`plot()` of a decision shows how the data lead to it. For one endpoint and
+a criterion based on posterior probability, it shows the posterior density
+of the treatment effect with the Go and NoGo regions:
+
+```{r plot-decision}
+dec <- qdm_decide(des, data_t = data_binary(12, 8),
+                  data_c = data_binary(12, 4))
+plot(dec)
+```
+
+For a predictive criterion, it shows the predictive probabilities with their
+thresholds, and for two endpoints the probabilities of the regions.
+
+## R code of a design
+
+`show_code()` writes the R code that creates a design, as a pipe of the
+design steps or as a call of the `design_*()` function:
+
+```{r code}
+show_code(res$design)
+show_code(res$design, style = "design")
+```
+
+`show_report(x, code = TRUE)` adds the code to the end of the report of a
+design or of a result (see `vignette("pipe")`).

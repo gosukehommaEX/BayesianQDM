@@ -5,7 +5,8 @@
 #' when the design is built, by the \code{design_*()} function of the
 #' endpoint.
 #'
-#' @param x A design specification started by \code{\link{qdm_endpoint}}.
+#' @param x A design specification started by \code{\link{qdm_endpoint}},
+#'   or a design, which is converted to the specification that builds it.
 #' @param prior_t,prior_c Prior distributions of the treatment and control
 #'   groups, created by the \code{prior_*()} function of the endpoint (see
 #'   \code{\link{design_binary}}, \code{\link{design_continuous}},
@@ -13,7 +14,8 @@
 #'   \code{\link{design_tte}}). \code{prior_c} is \code{NULL} (the default)
 #'   for a fixed control.
 #'
-#' @return \code{x} with the prior distributions set.
+#' @return A design specification: \code{x}, or the specification of the
+#'   design \code{x}, with the prior distributions set.
 #'
 #' @family design steps
 #' @examples

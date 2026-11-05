@@ -8,7 +8,8 @@
 #' function. The arguments are checked when the design is built, by the
 #' \code{design_*()} function of the endpoint.
 #'
-#' @param x A design specification started by \code{\link{qdm_endpoint}}.
+#' @param x A design specification started by \code{\link{qdm_endpoint}},
+#'   or a design, which is converted to the specification that builds it.
 #' @param hypothetical_c Hypothetical control, created by
 #'   \code{\link{hypothetical}}, or \code{NULL}.
 #' @param fixed_c Fixed value of the control parameter, or \code{NULL}. Its
@@ -16,7 +17,8 @@
 #'   \code{\link{design_continuous}}, \code{\link{design_binary2}},
 #'   \code{\link{design_continuous2}} and \code{\link{design_tte}}).
 #'
-#' @return \code{x} with the control set.
+#' @return A design specification: \code{x}, or the specification of the
+#'   design \code{x}, with the control set.
 #'
 #' @family design steps
 #' @examples

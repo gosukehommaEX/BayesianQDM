@@ -4,7 +4,8 @@
 #' specification. An argument given as \code{NULL} is removed, so that the
 #' \code{design_*()} function uses its default.
 #'
-#' @param x A design specification (class \code{"qdm_spec"}).
+#' @param x A design specification (class \code{"qdm_spec"}), or a design,
+#'   which is converted to the specification that builds it.
 #' @param values Named list of arguments of the \code{design_*()} function of
 #'   the endpoint.
 #' @param step Name of the function that sets the arguments, used in the
@@ -13,7 +14,7 @@
 #' @return \code{x} with the arguments replaced.
 #' @noRd
 spec_set <- function(x, values, step) {
-  check_spec(x)
+  x <- check_spec(x)
   fun <- design_function(x$endpoint)
   used <- !vapply(values, is.null, logical(1))
   unknown <- setdiff(names(values)[used],

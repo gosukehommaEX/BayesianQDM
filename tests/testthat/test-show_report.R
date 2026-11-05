@@ -28,6 +28,20 @@ test_that("show_report() writes an HTML report", {
                                report_note()))
 })
 
+test_that("show_report() adds the R code of the design", {
+  f <- tempfile(fileext = ".txt")
+  on.exit(unlink(f), add = TRUE)
+  oc <- qdm_oc(ref_design("D1"), scen_c)
+  show_report(oc, file_type = "text", file = f, open = FALSE, code = TRUE)
+  expect_identical(readLines(f),
+                   report_text("Decision criteria and operating characteristics",
+                               c(report_blocks(oc, 3L), report_code(oc)),
+                               report_note()))
+  expect_true(any(readLines(f) == "## R code"))
+  expect_error(show_report(oc, file = f, open = FALSE, code = NA),
+               "'code' must be TRUE or FALSE.", fixed = TRUE)
+})
+
 test_that("show_report() uses a temporary file by default", {
   html <- show_report(ref_design("D1"), open = FALSE)
   text <- show_report(ref_design("D1"), file_type = "text", open = FALSE)

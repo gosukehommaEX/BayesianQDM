@@ -29,6 +29,13 @@
 #' \code{\link{qdm_boundary}} accept a specification in place of a design
 #' and build it.
 #'
+#' A design created by a \code{design_*()} function can also be given to the
+#' steps and to \code{\link{qdm_build}}: it is converted to the
+#' specification that builds it (the arguments that are \code{NULL} in the
+#' design are not set), so that one part of a design can be changed with a
+#' step, for example
+#' \code{design_binary(...) |> qdm_sample_size(n_t = 20, n_c = 20)}.
+#'
 #' @param endpoint Type of endpoint: \code{"binary"} (one binary endpoint,
 #'   \code{\link{design_binary}}), \code{"continuous"} (one continuous
 #'   endpoint, \code{\link{design_continuous}}), \code{"binary2"} (two binary

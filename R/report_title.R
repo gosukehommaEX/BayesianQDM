@@ -9,6 +9,8 @@ report_title <- function(x) {
     "Decision criteria and operating characteristics"
   } else if (inherits(x, "qdm_calibration")) {
     "Decision criteria and calibration of the thresholds"
+  } else if (inherits(x, "qdm_n_search")) {
+    "Decision criteria and sample size"
   } else if (inherits(x, "qdm_boundary")) {
     "Decision criteria and decision boundaries"
   } else if (inherits(x, "qdm_decision")) {

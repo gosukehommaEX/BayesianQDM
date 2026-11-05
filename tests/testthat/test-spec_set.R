@@ -27,3 +27,11 @@ test_that("spec_set() rejects arguments that the design function does not have",
   expect_error(spec_set(list(), list(n_t = 1), "f"),
                "'x' must be a design specification", fixed = TRUE)
 })
+
+test_that("spec_set() starts from the specification of a design", {
+  spec <- spec_set(ref_design("D1"), list(n_t = 20), "f")
+  expect_s3_class(spec, "qdm_spec", exact = TRUE)
+  expect_identical(spec$args$n_t, 20)
+  expect_identical(spec$args$n_c, 12L)
+  expect_identical(spec$args$criterion, crit_post())
+})

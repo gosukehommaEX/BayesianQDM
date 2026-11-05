@@ -156,6 +156,9 @@ endpoints in rare disease drug development.
 Other operations:
 \code{\link[=qdm_boundary]{qdm_boundary()}},
 \code{\link[=qdm_calibrate]{qdm_calibrate()}},
-\code{\link[=qdm_decide]{qdm_decide()}}
+\code{\link[=qdm_compare]{qdm_compare()}},
+\code{\link[=qdm_decide]{qdm_decide()}},
+\code{\link[=qdm_find_n]{qdm_find_n()}},
+\code{\link[=qdm_scenarios]{qdm_scenarios()}}
 }
 \concept{operations}

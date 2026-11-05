@@ -9,7 +9,8 @@
 #' is an error. The values are checked when the design is built, by the
 #' \code{design_*()} function.
 #'
-#' @param x A design specification started by \code{\link{qdm_endpoint}}.
+#' @param x A design specification started by \code{\link{qdm_endpoint}},
+#'   or a design, which is converted to the specification that builds it.
 #' @param method Method of computation of the probabilities:
 #'   \code{"NI"}, \code{"MM"} or \code{"MC"} for one continuous endpoint
 #'   (see \code{\link{design_continuous}}), \code{"MM"} or \code{"MC"} for
@@ -21,7 +22,8 @@
 #'   characteristics enumerate all outcomes (see
 #'   \code{\link{design_binary2}}), or \code{NULL} for the default.
 #'
-#' @return \code{x} with the arguments set.
+#' @return A design specification: \code{x}, or the specification of the
+#'   design \code{x}, with the arguments set.
 #'
 #' @family design steps
 #' @examples

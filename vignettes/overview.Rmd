@@ -209,10 +209,12 @@ identical(qdm_build(spec), des)
 
 The steps only store their arguments, which are checked when the design is
 built, so the error messages are those of the `design_*()` function. A step
-given again replaces the arguments that it set before. `qdm_decide()`,
-`qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` accept a specification
-and build it, so the pipe can go on to the analysis, here the operating
-characteristics with 20 subjects in each group:
+given again replaces the arguments that it set before, and a design can
+start a pipe of steps, which change one of its parts. The analyses
+(`qdm_decide()`, `qdm_oc()`, `qdm_compare()`, `qdm_calibrate()`,
+`qdm_find_n()` and `qdm_boundary()`) accept a specification and build it,
+so the pipe can go on to the analysis, here the operating characteristics
+with 20 subjects in each group:
 
 ```{r pipe-oc}
 spec |>
@@ -232,13 +234,22 @@ and `col_miss`), the width of the lines (`linewidth`), the size of the points
 (`point_size`), the size of the text drawn in the plot (`label_size`), the
 base font size (`base_size`) and the position of the legend
 (`legend_position`); the help pages of `plot.qdm_oc()`,
-`plot.qdm_calibration()` and `plot.qdm_boundary()` list them. Anything else
+`plot.qdm_calibration()`, `plot.qdm_boundary()`, `plot.qdm_decision()`,
+`plot.qdm_comparison()` and `plot.qdm_n_search()` list them. Anything else
 can be changed by adding ggplot2 functions, as for any other ggplot2 plot:
 
 ```{r plot-style}
 plot(oc, col_go = "darkgreen", col_nogo = "firebrick", linewidth = 0.7,
      base_size = 13, legend_position = "right") +
   ggplot2::labs(title = "Operating characteristics of the design")
+```
+
+The plot of a decision shows how the observed data lead to it, here with
+the posterior density of the treatment effect and the Go and NoGo regions:
+
+```{r plot-decision}
+plot(qdm_decide(des, data_t = data_binary(12, 9),
+                data_c = data_binary(12, 4)))
 ```
 
 ## Endpoints and computation
@@ -268,8 +279,8 @@ simulated operating characteristics to `nsim`.
 
 ## Random numbers
 
-`qdm_decide()`, `qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` have a
-`seed` argument for
+`qdm_decide()`, `qdm_oc()`, `qdm_compare()`, `qdm_calibrate()`,
+`qdm_find_n()` and `qdm_boundary()` have a `seed` argument for
 the random numbers they use (simulated studies and Monte Carlo estimates of
 probabilities). With `seed = NULL` (the default) they use the current random
 number stream, so `set.seed()` makes the results reproducible. With a given
@@ -294,6 +305,9 @@ system.file("validation", "results", "summary.md", package = "BayesianQDM")
 
 - `vignette("pipe")`: designs and analyses built with the pipe, and reports
   for a study protocol.
+- `vignette("planning")`: scenarios, comparison of designs, search of the
+  sample size, tables of results, the plot of a decision and the R code of
+  a design.
 - `vignette("single-binary")`: one binary endpoint.
 - `vignette("single-continuous")`: one continuous endpoint.
 - `vignette("two-binary")`: two binary endpoints.

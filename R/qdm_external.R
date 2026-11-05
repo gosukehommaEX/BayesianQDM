@@ -8,12 +8,14 @@
 #' are checked when the design is built, by the \code{design_*()} function
 #' of the endpoint.
 #'
-#' @param x A design specification started by \code{\link{qdm_endpoint}}.
+#' @param x A design specification started by \code{\link{qdm_endpoint}},
+#'   or a design, which is converted to the specification that builds it.
 #' @param external_t,external_c External data of the treatment and control
 #'   groups, created by \code{\link{borrow}} with the \code{data_*()}
 #'   function of the endpoint, or \code{NULL} (no external data).
 #'
-#' @return \code{x} with the external data set.
+#' @return A design specification: \code{x}, or the specification of the
+#'   design \code{x}, with the external data set.
 #'
 #' @family design steps
 #' @examples

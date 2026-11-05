@@ -29,3 +29,18 @@ test_that("control_location() gives the control hazard for the hazard ratio", {
   expect_equal(control_location(ref_design_hr("H3")), 15.1 / 101)
   expect_equal(control_location(ref_design_hr("H4")), 15.1 / 126)
 })
+
+test_that("control_location() gives one center per endpoint for two", {
+  # Dirichlet(0.25 + counts): the hypothetical counts (2, 1, 1, 0) give
+  # (2.25, 1.25, 1.25, 0.25), and the external counts (14, 2, 3, 1) with
+  # a0 = 0.5 give (7.25, 1.25, 1.75, 0.75); the response rates of endpoints
+  # 1 and 2 are the sums of the cells "10" and "11", and "01" and "11"
+  expect_equal(control_location(ref_design_bin2("B7")), c(1.5, 1.5) / 5)
+  expect_equal(control_location(ref_design_bin2("B8")), c(2.5, 2) / 11)
+  expect_identical(control_location(ref_design_bin2("BF1")), c(0.25, 0.5))
+  # Hypothetical control location, and posterior mean given the external
+  # control data (vague prior)
+  expect_identical(control_location(ref_design_cont2("K4")), c(-10, -1))
+  expect_equal(control_location(ref_design_cont2("K5")), c(-10, -1))
+  expect_identical(control_location(ref_design_cont2("KF1")), c(-10, -1))
+})

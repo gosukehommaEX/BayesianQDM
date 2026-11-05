@@ -10,15 +10,16 @@ show_report(
   file = NULL,
   title = NULL,
   digits = 3L,
-  open = interactive()
+  open = interactive(),
+  code = FALSE
 )
 }
 \arguments{
 \item{x}{A design (created by a \code{design_*()} function such as
 \code{\link{design_binary}}), a design specification (started by
 \code{\link{qdm_endpoint}}), or a result of \code{\link{qdm_oc}},
-\code{\link{qdm_calibrate}}, \code{\link{qdm_boundary}} or
-\code{\link{qdm_decide}}.}
+\code{\link{qdm_calibrate}}, \code{\link{qdm_find_n}},
+\code{\link{qdm_boundary}} or \code{\link{qdm_decide}}.}
 
 \item{file_type}{\code{"html"} (the default) for an HTML file or
 \code{"text"} for a plain text file.}
@@ -38,6 +39,10 @@ viewer of RStudio, if the file is in the temporary folder of the R
 session, or else in the web browser, and a text report is printed in
 the console. By default the report is shown when R is used
 interactively.}
+
+\item{code}{\code{TRUE} to end the report with the R code that creates
+the design (see \code{\link{show_code}}). By default, the code is left
+out.}
 }
 \value{
 The name of the file, invisibly.
@@ -60,6 +65,9 @@ operating characteristics.}
 \item{A result of \code{\link{qdm_calibrate}}}{The design with the
 calibrated thresholds, how the thresholds were chosen, and the decision
 probabilities under the two scenarios of the calibration.}
+\item{A result of \code{\link{qdm_find_n}}}{The design with the chosen
+sample sizes, how they were chosen, the probabilities for the
+candidates and the decision probabilities under the two scenarios.}
 \item{A result of \code{\link{qdm_boundary}}}{The design and the decision
 boundaries.}
 \item{A result of \code{\link{qdm_decide}}}{The design, the observed
@@ -82,10 +90,11 @@ spec <- qdm_endpoint("binary") |>
   qdm_criterion(criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
                                     gamma_go = 0.5, gamma_nogo = 0.8))
 
-# Text report of the operating characteristics, printed in the console
+# Text report of the operating characteristics with the R code of the
+# design, printed in the console
 spec |>
   qdm_oc(data.frame(pi_t = c(0.3, 0.5), pi_c = 0.3)) |>
-  show_report(file_type = "text", open = TRUE)
+  show_report(file_type = "text", open = TRUE, code = TRUE)
 
 # HTML report of a decision in a temporary file, which is opened when R
 # is used interactively

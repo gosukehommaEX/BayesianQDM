@@ -4,13 +4,15 @@
 #' started by \code{\link{qdm_endpoint}}. They are checked when the design is
 #' built, by the \code{design_*()} function of the endpoint.
 #'
-#' @param x A design specification started by \code{\link{qdm_endpoint}}.
+#' @param x A design specification started by \code{\link{qdm_endpoint}},
+#'   or a design, which is converted to the specification that builds it.
 #' @param n_t Number of subjects in the treatment group.
 #' @param n_c Number of subjects in the concurrent control group: 0 for a
 #'   study without a concurrent control group (external control data only, a
 #'   hypothetical control or a fixed control).
 #'
-#' @return \code{x} with the sample sizes set.
+#' @return A design specification: \code{x}, or the specification of the
+#'   design \code{x}, with the sample sizes set.
 #'
 #' @family design steps
 #' @examples

@@ -28,13 +28,15 @@ posterior predictive probability of the treatment effect with
 thresholds, for a target value (TV) and a minimum acceptable value (MAV)
 of the effect.
 
-The package answers four questions for a planned or completed study:
+The package answers five questions for a planned or completed study:
 
 - Which decision do the observed data lead to? (`qdm_decide()`)
 - How often does the design lead to each decision when the true effect
-  is known? (`qdm_oc()`)
+  is known? (`qdm_oc()`, or `qdm_compare()` for several designs)
 - Which thresholds keep the probabilities of a false Go and a false NoGo
   decision below given targets? (`qdm_calibrate()`)
+- Which sample size keeps these probabilities below the targets with
+  given thresholds? (`qdm_find_n()`)
 - Which observed data lead to each decision? (`qdm_boundary()`)
 
 A study is described by small specification objects (priors, data,
@@ -224,6 +226,8 @@ The vignettes describe the models and the functions with examples:
   BayesianQDM](https://gosukehommaEX.github.io/BayesianQDM/articles/overview.html)
 - [Working with the
   pipe](https://gosukehommaEX.github.io/BayesianQDM/articles/pipe.html)
+- [Planning a
+  study](https://gosukehommaEX.github.io/BayesianQDM/articles/planning.html)
 - [Single binary
   endpoint](https://gosukehommaEX.github.io/BayesianQDM/articles/single-binary.html)
 - [Single continuous

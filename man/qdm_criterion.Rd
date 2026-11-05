@@ -7,14 +7,16 @@
 qdm_criterion(x, criterion)
 }
 \arguments{
-\item{x}{A design specification started by \code{\link{qdm_endpoint}}.}
+\item{x}{A design specification started by \code{\link{qdm_endpoint}},
+or a design, which is converted to the specification that builds it.}
 
 \item{criterion}{Decision criterion created by
 \code{\link{criterion_posterior}} or \code{\link{criterion_predictive}},
 for one endpoint or for two endpoints as the endpoint requires.}
 }
 \value{
-\code{x} with the decision criterion set.
+A design specification: \code{x}, or the specification of the
+design \code{x}, with the decision criterion set.
 }
 \description{
 Sets the argument \code{criterion} of a design specification started by

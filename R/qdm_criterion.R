@@ -4,12 +4,14 @@
 #' \code{\link{qdm_endpoint}}. It is checked when the design is built, by the
 #' \code{design_*()} function of the endpoint.
 #'
-#' @param x A design specification started by \code{\link{qdm_endpoint}}.
+#' @param x A design specification started by \code{\link{qdm_endpoint}},
+#'   or a design, which is converted to the specification that builds it.
 #' @param criterion Decision criterion created by
 #'   \code{\link{criterion_posterior}} or \code{\link{criterion_predictive}},
 #'   for one endpoint or for two endpoints as the endpoint requires.
 #'
-#' @return \code{x} with the decision criterion set.
+#' @return A design specification: \code{x}, or the specification of the
+#'   design \code{x}, with the decision criterion set.
 #'
 #' @family design steps
 #' @examples

@@ -11,7 +11,8 @@
 #' group (\code{\link{qdm_prior}}) and the decision criterion
 #' (\code{\link{qdm_criterion}}) must have been set.
 #'
-#' @param x A design specification started by \code{\link{qdm_endpoint}}.
+#' @param x A design specification started by \code{\link{qdm_endpoint}},
+#'   or a design, for which the same design is returned.
 #'
 #' @return A design, an object of class \code{"qdm_design"}, as returned by
 #'   the \code{design_*()} function of the endpoint.
@@ -27,7 +28,7 @@
 #'   qdm_build()
 #' @export
 qdm_build <- function(x) {
-  check_spec(x)
+  x <- check_spec(x)
   unset <- spec_missing(x)
   if (length(unset) > 0L) {
     stop(sprintf("The design specification is incomplete: set %s.",

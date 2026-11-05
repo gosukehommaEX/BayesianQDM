@@ -16,8 +16,44 @@
   distributions, the decision criteria with their formulas in LaTeX, the
   computation of the probabilities and the result, as a draft of the
   corresponding sections of a study protocol. It can end a pipe.
-* A new vignette, `vignette("pipe")`, shows designs and analyses built with
-  the pipe and the reports of `show_report()`.
+* The design steps also accept a design created by a `design_*()`
+  function: it is converted to the specification that builds it, so that
+  one part of a design can be changed, for example
+  `design_binary(...) |> qdm_sample_size(n_t = 20, n_c = 20)`. `qdm_build()`
+  returns a design given to it unchanged.
+* `qdm_scenarios()` creates the data frame of scenarios with the columns
+  that a design needs, from the values of the columns or from the treatment
+  effects (`theta`); `theta = "thresholds"` gives the scenarios of no
+  effect, the minimum acceptable value and the target value.
+* `qdm_compare()` computes the operating characteristics of several designs
+  under the same scenarios in one table, with `print()` and `plot()`
+  methods.
+* `qdm_find_n()` finds the smallest candidate sample size for which the
+  probabilities of meeting the Go criterion under one scenario and the NoGo
+  criterion under another are at most given targets, with the thresholds
+  fixed (the counterpart of `qdm_calibrate()`). Because the probabilities
+  of a binary endpoint are not monotone in the sample size, it also gives
+  the smallest candidate from which all larger candidates meet the targets.
+  The result has `format()`, `print()`, `plot()` and `as.data.frame()`
+  methods and is reported by `show_report()`.
+* `plot()` of a result of `qdm_decide()` shows the posterior density of the
+  treatment effect with the Go and NoGo regions (one endpoint, posterior
+  criterion), the predictive probabilities with their thresholds (one
+  endpoint, predictive criterion), or the probabilities of the regions of
+  two endpoints.
+* `as.data.frame()` converts a result of `qdm_decide()`, `qdm_calibrate()`
+  or `qdm_find_n()` to a data frame with one row, so that results can be
+  combined with `rbind()`.
+* `show_code()` writes the R code that creates a design, as a pipe of the
+  design steps or as a call of the `design_*()` function, and
+  `show_report(code = TRUE)` adds it to the end of a report.
+* The validation also computes Supplemental Tables 3 and 4 of Kang et al.
+  (2026), which compare sample sizes, with `qdm_compare()`.
+* New vignettes: `vignette("pipe")` shows designs and analyses built with
+  the pipe and the reports of `show_report()`, and `vignette("planning")`
+  shows the scenarios, the comparison of designs, the search of the sample
+  size, tables of results, the plot of a decision and the R code of a
+  design.
 * The package depends on R (>= 4.1.0), the first version with the native
   pipe, which the examples and the vignettes use.
 

@@ -100,6 +100,9 @@ qdm_decide(des2, data_t = data_continuous(12, 18, 25),
 Other operations:
 \code{\link[=qdm_boundary]{qdm_boundary()}},
 \code{\link[=qdm_calibrate]{qdm_calibrate()}},
-\code{\link[=qdm_oc]{qdm_oc()}}
+\code{\link[=qdm_compare]{qdm_compare()}},
+\code{\link[=qdm_find_n]{qdm_find_n()}},
+\code{\link[=qdm_oc]{qdm_oc()}},
+\code{\link[=qdm_scenarios]{qdm_scenarios()}}
 }
 \concept{operations}

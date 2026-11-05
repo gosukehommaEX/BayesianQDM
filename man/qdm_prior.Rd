@@ -7,7 +7,8 @@
 qdm_prior(x, prior_t, prior_c = NULL)
 }
 \arguments{
-\item{x}{A design specification started by \code{\link{qdm_endpoint}}.}
+\item{x}{A design specification started by \code{\link{qdm_endpoint}},
+or a design, which is converted to the specification that builds it.}
 
 \item{prior_t, prior_c}{Prior distributions of the treatment and control
 groups, created by the \code{prior_*()} function of the endpoint (see
@@ -17,7 +18,8 @@ groups, created by the \code{prior_*()} function of the endpoint (see
 for a fixed control.}
 }
 \value{
-\code{x} with the prior distributions set.
+A design specification: \code{x}, or the specification of the
+design \code{x}, with the prior distributions set.
 }
 \description{
 Sets the arguments \code{prior_t} and \code{prior_c} of a design

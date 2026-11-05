@@ -181,7 +181,10 @@ plot(b2)
 \seealso{
 Other operations:
 \code{\link[=qdm_calibrate]{qdm_calibrate()}},
+\code{\link[=qdm_compare]{qdm_compare()}},
 \code{\link[=qdm_decide]{qdm_decide()}},
-\code{\link[=qdm_oc]{qdm_oc()}}
+\code{\link[=qdm_find_n]{qdm_find_n()}},
+\code{\link[=qdm_oc]{qdm_oc()}},
+\code{\link[=qdm_scenarios]{qdm_scenarios()}}
 }
 \concept{operations}

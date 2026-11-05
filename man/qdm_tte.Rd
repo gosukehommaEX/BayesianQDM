@@ -13,7 +13,9 @@ qdm_tte(
 )
 }
 \arguments{
-\item{x}{A design specification started by \code{qdm_endpoint("tte")}.}
+\item{x}{A design specification started by \code{qdm_endpoint("tte")},
+or a time-to-event design, which is converted to the specification that
+builds it.}
 
 \item{milestone}{Milestone time \eqn{t_0} for \code{effect = "milestone"},
 or \code{NULL}.}
@@ -30,7 +32,8 @@ criterion, created by \code{\link{conduct_tte}}, or \code{NULL} for the
 default of \code{\link{design_tte}} (\code{conduct}).}
 }
 \value{
-\code{x} with the arguments set.
+A design specification: \code{x}, or the specification of the
+design \code{x}, with the arguments set.
 }
 \description{
 Sets the arguments of \code{\link{design_tte}} that are specific to a

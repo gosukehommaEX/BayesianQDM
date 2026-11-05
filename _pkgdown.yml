@@ -46,17 +46,21 @@ reference:
   - qdm_build
 
 - title: Operations
-  desc: Decision for observed data, operating characteristics, calibration of the thresholds and decision boundaries
+  desc: Decision for observed data, scenarios and operating characteristics of one or several designs, calibration of the thresholds, search of the sample size and decision boundaries
   contents:
   - qdm_decide
+  - qdm_scenarios
   - qdm_oc
+  - qdm_compare
   - qdm_calibrate
+  - qdm_find_n
   - qdm_boundary
 
-- title: Reports
-  desc: Reports of a design and its results for a study protocol
+- title: Reports and R code
+  desc: Reports of a design and its results for a study protocol, and the R code of a design
   contents:
   - show_report
+  - show_code
 
 - title: Priors
   desc: Prior distributions of each group
@@ -97,11 +101,12 @@ reference:
   - cellprob_binary2
   - rdirichlet
 
-- title: Print, format and plot methods
+- title: Print, format, plot and conversion methods
   contents:
   - starts_with("print.")
   - starts_with("format.")
   - starts_with("plot.")
+  - starts_with("as.data.frame.")
 
 articles:
 - title: Getting started
@@ -109,6 +114,7 @@ articles:
   contents:
   - overview
   - pipe
+  - planning
 
 - title: One endpoint
   navbar: One endpoint
@@ -140,6 +146,8 @@ navbar:
         href: articles/overview.html
       - text: Working with the pipe
         href: articles/pipe.html
+      - text: Planning a study
+        href: articles/planning.html
       - text: -------
       - text: Single binary endpoint
         href: articles/single-binary.html

@@ -31,3 +31,10 @@ test_that("qdm_computation() rejects arguments that the endpoint does not use", 
                  qdm_computation(enumerate = TRUE),
                "which design_continuous2() does not have.", fixed = TRUE)
 })
+
+test_that("qdm_computation() changes the computation of a design", {
+  expect_identical(
+    ref_design_cont("C1") |> qdm_computation(method = "MM") |> qdm_build(),
+    ref_design_cont("C1", method = "MM")
+  )
+})

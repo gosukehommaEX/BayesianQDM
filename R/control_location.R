@@ -13,10 +13,15 @@
 #' the hazard, \eqn{a / b}, for the hazard ratio (\eqn{\log(2)} divided by
 #' the median survival time for a fixed control).
 #'
-#' @param design An object of class \code{"qdm_design"} for one endpoint
-#'   without a concurrent control group.
+#' For two endpoints, it is one value per endpoint: the fixed values, the
+#' means of the response rates of the Dirichlet distribution of the control
+#' cells (two binary endpoints), or the location of the distribution of the
+#' control means (two continuous endpoints, as for one continuous endpoint).
 #'
-#' @return A number.
+#' @param design An object of class \code{"qdm_design"} without a concurrent
+#'   control group.
+#'
+#' @return A number, or two numbers for two endpoints.
 #' @noRd
 control_location <- function(design) {
   hr <- identical(design$effect, "hazard_ratio")
@@ -36,6 +41,20 @@ control_location <- function(design) {
     } else {
       posterior_continuous(design$prior_c, 0L,
                            external = design$external_c)$mu
+    },
+    binary2 = {
+      alpha <- posterior_binary2(design$prior_c, c(0, 0, 0, 0),
+                                 external = design$external_c,
+                                 hypothetical = design$hypothetical_c)[1L, ]
+      # The cells are "00", "01", "10" and "11" for endpoints 1 and 2
+      unname(c(alpha["10"] + alpha["11"], alpha["01"] + alpha["11"]) /
+               sum(alpha))
+    },
+    continuous2 = if (design$control == "hypothetical") {
+      design$hypothetical_c$mean
+    } else {
+      as.numeric(posterior_continuous2(design$prior_c, 0L,
+                                       external = design$external_c)$mu)
     },
     tte = {
       post <- posterior_tte(design$prior_c, 0, 0,

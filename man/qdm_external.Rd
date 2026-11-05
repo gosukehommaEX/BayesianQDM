@@ -7,14 +7,16 @@
 qdm_external(x, external_t = NULL, external_c = NULL)
 }
 \arguments{
-\item{x}{A design specification started by \code{\link{qdm_endpoint}}.}
+\item{x}{A design specification started by \code{\link{qdm_endpoint}},
+or a design, which is converted to the specification that builds it.}
 
 \item{external_t, external_c}{External data of the treatment and control
 groups, created by \code{\link{borrow}} with the \code{data_*()}
 function of the endpoint, or \code{NULL} (no external data).}
 }
 \value{
-\code{x} with the external data set.
+A design specification: \code{x}, or the specification of the
+design \code{x}, with the external data set.
 }
 \description{
 Sets the arguments \code{external_t} and \code{external_c} of a design

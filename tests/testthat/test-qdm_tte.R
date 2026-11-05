@@ -24,3 +24,16 @@ test_that("qdm_tte() is used only with a time-to-event endpoint", {
   expect_error(qdm_tte(list(), milestone = 3),
                "'x' must be a design specification", fixed = TRUE)
 })
+
+test_that("qdm_tte() changes the time-to-event arguments of a design", {
+  expect_identical(
+    ref_design_tte("T2") |>
+      qdm_tte(milestone = 4, conduct = conduct_example) |>
+      qdm_build(),
+    design_tte(20, 20, prior_gamma(0.1, 1), prior_gamma(0.1, 1), crit_tte(),
+               milestone = 4, conduct = conduct_example)
+  )
+  expect_error(ref_design("D1") |> qdm_tte(milestone = 3),
+               "qdm_tte() is used only with qdm_endpoint(\"tte\").",
+               fixed = TRUE)
+})

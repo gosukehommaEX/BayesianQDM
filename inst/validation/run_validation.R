@@ -15,7 +15,8 @@ local({
   out_dir <- file.path(val_dir, "results")
   dir.create(out_dir, showWarnings = FALSE)
   env <- environment()
-  for (f in c("validate_kang2026_binary.R", "validation_helpers.R",
+  for (f in c("validate_kang2026_binary.R", "validate_kang2026_compare.R",
+              "validation_helpers.R",
               "validate_yamaguchi_glaucoma.R", "validate_huang_table3.R",
               "validate_kang2026_table4.R", "validate_yamaguchi_binary2.R",
               "validate_yamaguchi_continuous2.R",
@@ -39,6 +40,25 @@ local({
                max_abs_diff = max(d$max_abs_diff))
   }))
   tab <- tab[order(tab$table, tab$criterion), ]
+
+  # One binary endpoint: Supplemental Tables 3 and 4 with qdm_compare()
+  res_cmp <- validate_kang2026_compare(
+    file.path(val_dir, "kang2026_supplement.csv"), res
+  )
+  utils::write.csv(res_cmp, file.path(out_dir, "kang2026_compare.csv"),
+                   row.names = FALSE)
+  self_cmp <- kang2026_compare_self_check(res_cmp, res)
+  tab_cmp <- do.call(rbind, lapply(split(res_cmp, list(res_cmp$table,
+                                                       res_cmp$criterion),
+                                         drop = TRUE), function(d) {
+    data.frame(table = d$table[1], criterion = d$criterion[1],
+               checks = nrow(d), PASS = count(d$verdict, "PASS"),
+               EXPLAINED = count(d$verdict, "EXPLAINED"),
+               FAIL = count(d$verdict, "FAIL"),
+               max_abs_diff = max(d$max_abs_diff),
+               identical = sum(d$same_as_qdm_oc))
+  }))
+  tab_cmp <- tab_cmp[order(tab_cmp$table, tab_cmp$criterion), ]
 
   # Two binary endpoints: operating characteristics
   res2 <- validate_yamaguchi_binary2(file.path(val_dir,
@@ -112,8 +132,8 @@ local({
                    row.names = FALSE)
   self_tte <- number_self_check(raw_tte)
 
-  verdicts <- c(res$verdict, res2$verdict, res3$verdict, num$verdict,
-                num_tte$verdict)
+  verdicts <- c(res$verdict, res_cmp$verdict, res2$verdict, res3$verdict,
+                num$verdict, num_tte$verdict)
   fmt_diff <- function(x) ifelse(is.finite(x), sprintf("%.4f", x), "-")
   lines <- c(
     "# Validation of BayesianQDM against published results",
@@ -129,6 +149,22 @@ local({
             tab$checks, tab$PASS, tab$EXPLAINED, tab$FAIL, tab$max_abs_diff),
     "",
     sprintf("Largest probability of a Miss decision: %.3g.", max(res$Miss)),
+    "",
+    paste("## Kang, Yamaguchi and Han (2026), Supplemental Tables 3 and 4",
+          "computed with qdm_compare()"),
+    "",
+    paste("| Table | Criterion | Checks | PASS | EXPLAINED | FAIL |",
+          "Largest difference | Identical to qdm_oc() |"),
+    "|---|---|---|---|---|---|---|---|",
+    sprintf("| %d | %s | %d | %d | %d | %d | %.4f | %d of %d |",
+            tab_cmp$table, tab_cmp$criterion, tab_cmp$checks, tab_cmp$PASS,
+            tab_cmp$EXPLAINED, tab_cmp$FAIL, tab_cmp$max_abs_diff,
+            tab_cmp$identical, tab_cmp$checks),
+    "",
+    paste("Each table is computed by one call of qdm_compare() with the four",
+          "sample sizes (6/6, 12/6, 12/12 and 24/24). The verdicts are those",
+          "of the section above, and a row is FAIL if its probabilities",
+          "differ from those of qdm_oc() for the same design."),
     "",
     paste("## Yamaguchi, Hu, Huang, Han, Homma and Wang (submitted),",
           "Table 3 and Supplemental Tables S1 and S2 (two binary endpoints)"),
@@ -278,6 +314,14 @@ local({
                   "gives FAIL in %d of %d posterior rows (%s)."),
             self$n_fail, self$n_posterior,
             if (self$ok) "PASS" else "FAIL"),
+    sprintf(paste("Self-check: shifting the published Go probabilities by",
+                  "0.02 gives FAIL in %d of %d posterior rows of the tables",
+                  "computed with qdm_compare(), and a change of 1e-12 in one",
+                  "of their probabilities is %s as a difference from",
+                  "qdm_oc() (%s)."),
+            self_cmp$n_fail, self_cmp$n_posterior,
+            if (self_cmp$ok_identity) "detected" else "not detected",
+            if (self_cmp$ok) "PASS" else "FAIL"),
     sprintf(paste("Self-check: shifting the published Go probabilities of",
                   "two binary endpoints by 0.15 gives FAIL in %d of %d",
                   "evaluable scenarios (%s)."),
@@ -299,6 +343,7 @@ local({
             if (self_tte$ok) "PASS" else "FAIL"),
     "",
     paste("Details: `inst/validation/results/kang2026_binary.csv`,",
+          "`inst/validation/results/kang2026_compare.csv`,",
           "`inst/validation/results/yamaguchi_binary2.csv`,",
           "`inst/validation/results/yamaguchi_continuous2.csv`,",
           "`inst/validation/results/continuous.csv` and",
@@ -310,8 +355,8 @@ local({
                   length(verdicts), count(verdicts, "PASS"),
                   count(verdicts, "EXPLAINED"), count(verdicts, "FAIL"),
                   count(verdicts, "INFO"),
-                  if (self$ok && self2$ok && self3$ok && self_num$ok &&
-                      self_tte$ok) {
+                  if (self$ok && self_cmp$ok && self2$ok && self3$ok &&
+                      self_num$ok && self_tte$ok) {
                     "PASS"
                   } else {
                     "FAIL"

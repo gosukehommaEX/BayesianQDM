@@ -6,7 +6,9 @@
 #' have been started by \code{qdm_endpoint("tte")}. The arguments are checked
 #' when the design is built, by \code{\link{design_tte}}.
 #'
-#' @param x A design specification started by \code{qdm_endpoint("tte")}.
+#' @param x A design specification started by \code{qdm_endpoint("tte")},
+#'   or a time-to-event design, which is converted to the specification that
+#'   builds it.
 #' @param milestone Milestone time \eqn{t_0} for \code{effect = "milestone"},
 #'   or \code{NULL}.
 #' @param effect Effect measure, \code{"milestone"} or
@@ -18,7 +20,8 @@
 #'   criterion, created by \code{\link{conduct_tte}}, or \code{NULL} for the
 #'   default of \code{\link{design_tte}} (\code{conduct}).
 #'
-#' @return \code{x} with the arguments set.
+#' @return A design specification: \code{x}, or the specification of the
+#'   design \code{x}, with the arguments set.
 #'
 #' @family design steps
 #' @examples
@@ -37,7 +40,7 @@
 #' @export
 qdm_tte <- function(x, milestone = NULL, effect = NULL, conduct = NULL,
                     conduct_future = NULL) {
-  check_spec(x)
+  x <- check_spec(x)
   if (x$endpoint != "tte") {
     stop("qdm_tte() is used only with qdm_endpoint(\"tte\").",
          call. = FALSE)

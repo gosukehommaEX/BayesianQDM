@@ -150,6 +150,17 @@ With `r n[4]` subjects per group, the probability of a Go decision is
 `r format(go[2, 1], digits = 2)` and `r format(go[1, 1], digits = 2)` with
 `r n[1]` subjects per group.
 
+A design created by a `design_*()` function can also start such a pipe: it
+is converted to the specification that builds it. `qdm_compare()` computes
+the operating characteristics of several designs in one table, and
+`qdm_find_n()` searches the sample size (see `vignette("planning")`):
+
+```{r compare}
+designs <- lapply(n, function(k) qdm_sample_size(des, n_t = k, n_c = k))
+names(designs) <- paste(n, "per group")
+qdm_compare(designs, scen2)
+```
+
 External control data borrowed through a power prior:
 
 ```{r external}
@@ -236,6 +247,15 @@ The HTML report is written and opened in the same way:
 spec |>
   qdm_oc(scen2) |>
   show_report(file = "decision_criteria.html")
+```
+
+`show_code()` writes the R code that creates a design, as a pipe of the
+design steps or as a call of the `design_*()` function, and `code = TRUE`
+adds that code to the end of the report:
+
+```{r code}
+show_code(des)
+show_code(des, style = "design")
 ```
 
 The report gives the parts that depend on the design and the results. The

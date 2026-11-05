@@ -7,7 +7,8 @@
 qdm_build(x)
 }
 \arguments{
-\item{x}{A design specification started by \code{\link{qdm_endpoint}}.}
+\item{x}{A design specification started by \code{\link{qdm_endpoint}},
+or a design, for which the same design is returned.}
 }
 \value{
 A design, an object of class \code{"qdm_design"}, as returned by

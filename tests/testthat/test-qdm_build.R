@@ -287,6 +287,8 @@ test_that("qdm_build() gives the errors of the design_*() function", {
                  qdm_prior(prior_nix(0, 1, 3, 1), prior_beta(1, 1)) |>
                  qdm_build(),
                "'prior_t' must be created by prior_beta().", fixed = TRUE)
-  expect_error(qdm_build(ref_design("D1")),
+  expect_error(qdm_build(list()),
                "'x' must be a design specification", fixed = TRUE)
+  # A design gives the same design
+  expect_identical(qdm_build(ref_design("D1")), ref_design("D1"))
 })

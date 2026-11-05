@@ -7,7 +7,8 @@
 qdm_computation(x, method = NULL, nMC = NULL, enumerate = NULL)
 }
 \arguments{
-\item{x}{A design specification started by \code{\link{qdm_endpoint}}.}
+\item{x}{A design specification started by \code{\link{qdm_endpoint}},
+or a design, which is converted to the specification that builds it.}
 
 \item{method}{Method of computation of the probabilities:
 \code{"NI"}, \code{"MM"} or \code{"MC"} for one continuous endpoint
@@ -23,7 +24,8 @@ characteristics enumerate all outcomes (see
 \code{\link{design_binary2}}), or \code{NULL} for the default.}
 }
 \value{
-\code{x} with the arguments set.
+A design specification: \code{x}, or the specification of the
+design \code{x}, with the arguments set.
 }
 \description{
 Sets the arguments of the \code{design_*()} function that choose how the

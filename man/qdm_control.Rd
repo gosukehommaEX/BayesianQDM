@@ -7,7 +7,8 @@
 qdm_control(x, hypothetical_c = NULL, fixed_c = NULL)
 }
 \arguments{
-\item{x}{A design specification started by \code{\link{qdm_endpoint}}.}
+\item{x}{A design specification started by \code{\link{qdm_endpoint}},
+or a design, which is converted to the specification that builds it.}
 
 \item{hypothetical_c}{Hypothetical control, created by
 \code{\link{hypothetical}}, or \code{NULL}.}
@@ -18,7 +19,8 @@ meaning depends on the endpoint (see \code{\link{design_binary}},
 \code{\link{design_continuous2}} and \code{\link{design_tte}}).}
 }
 \value{
-\code{x} with the control set.
+A design specification: \code{x}, or the specification of the
+design \code{x}, with the control set.
 }
 \description{
 Sets the arguments \code{hypothetical_c} and \code{fixed_c} of a design

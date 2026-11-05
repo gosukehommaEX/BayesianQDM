@@ -7,7 +7,8 @@
 qdm_sample_size(x, n_t, n_c)
 }
 \arguments{
-\item{x}{A design specification started by \code{\link{qdm_endpoint}}.}
+\item{x}{A design specification started by \code{\link{qdm_endpoint}},
+or a design, which is converted to the specification that builds it.}
 
 \item{n_t}{Number of subjects in the treatment group.}
 
@@ -16,7 +17,8 @@ study without a concurrent control group (external control data only, a
 hypothetical control or a fixed control).}
 }
 \value{
-\code{x} with the sample sizes set.
+A design specification: \code{x}, or the specification of the
+design \code{x}, with the sample sizes set.
 }
 \description{
 Sets the arguments \code{n_t} and \code{n_c} of a design specification
