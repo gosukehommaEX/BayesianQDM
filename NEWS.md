@@ -47,6 +47,10 @@
 * `show_code()` writes the R code that creates a design, as a pipe of the
   design steps or as a call of the `design_*()` function, and
   `show_report(code = TRUE)` adds it to the end of a report.
+* The default `grid` of `qdm_calibrate()` is `(1:99) / 100`, so that the
+  chosen thresholds are the numbers written with two decimals (for example
+  0.7, where `seq(0.01, 0.99, by = 0.01)` gave 0.7000000000000001), as
+  `show_code()` writes them.
 * The validation also computes Supplemental Tables 3 and 4 of Kang et al.
   (2026), which compare sample sizes, with `qdm_compare()`.
 * New vignettes: `vignette("pipe")` shows designs and analyses built with

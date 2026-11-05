@@ -40,8 +40,10 @@ A ggplot object.
 Draws the probabilities that the Go criterion is met under
 \code{scenario_go} and that the NoGo criterion is met under
 \code{scenario_nogo} against the number of subjects in the treatment
-group, with the targets (dashed lines) and the smallest candidate that
-meets them (dotted line).
+group, with the targets (dashed lines, one gray line when the two targets
+are equal) and the smallest candidate that meets them (dotted line). The
+vertical axis runs from 0 to the largest probability or target, so that
+small probabilities can be read.
 }
 \examples{
 des <- design_binary(

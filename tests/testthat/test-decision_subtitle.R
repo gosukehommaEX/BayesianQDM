@@ -24,14 +24,18 @@ test_that("decision_subtitle() gives each endpoint of a marginal rule", {
   dec <- qdm_decide(ref_design_cont2("K5"), ref_data_cont2$K5$t)
   p <- function(v) formatC(unname(v), format = "f", digits = 3L)
   met <- function(m) if (m) "met" else "not met"
-  expect_identical(strsplit(decision_subtitle(dec), "\n")[[1]], c(
+  # One line for each endpoint, so that the lines fit in a plot
+  lines <- strsplit(decision_subtitle(dec), "\n")[[1]]
+  expect_identical(lines, c(
     sprintf(paste("Go (rule \"and\", %s): P(theta1 > 10 | data) = %s",
-                  "(threshold 0.6); P(theta2 > 2 | data) = %s",
-                  "(threshold 0.5)"),
-            met(dec$met_go), p(dec$prob_go[1L]), p(dec$prob_go[2L])),
+                  "(threshold 0.6);"),
+            met(dec$met_go), p(dec$prob_go[1L])),
+    sprintf("  P(theta2 > 2 | data) = %s (threshold 0.5)", p(dec$prob_go[2L])),
     sprintf(paste("NoGo (rule \"and\", %s): P(theta1 <= 5 | data) = %s",
-                  "(threshold 0.5); P(theta2 <= 1 | data) = %s",
-                  "(threshold 0.6)"),
-            met(dec$met_nogo), p(dec$prob_nogo[1L]), p(dec$prob_nogo[2L]))
+                  "(threshold 0.5);"),
+            met(dec$met_nogo), p(dec$prob_nogo[1L])),
+    sprintf("  P(theta2 <= 1 | data) = %s (threshold 0.6)",
+            p(dec$prob_nogo[2L]))
   ))
+  expect_true(all(nchar(lines) <= 75L))
 })

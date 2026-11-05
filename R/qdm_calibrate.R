@@ -35,7 +35,10 @@
 #' @param target_go,target_nogo Upper bounds for the probabilities that the
 #'   Go criterion is met under \code{scenario_go} and that the NoGo criterion
 #'   is met under \code{scenario_nogo}, strictly between 0 and 1.
-#' @param grid Candidate thresholds, strictly between 0 and 1.
+#' @param grid Candidate thresholds, strictly between 0 and 1. The default
+#'   gives 0.01, 0.02, ..., 0.99 as the numbers written with two decimals
+#'   (\code{seq(0.01, 0.99, by = 0.01)} gives numbers such as
+#'   0.7000000000000001 instead of 0.7).
 #' @param nsim,seed As in \code{\link{qdm_oc}}. The probabilities for all
 #'   values of \code{grid} are computed from the same outcomes (simulated
 #'   studies or enumerated outcomes) and the same Monte Carlo draws.
@@ -77,7 +80,7 @@
 #' cal$design
 #' @export
 qdm_calibrate <- function(design, scenario_go, scenario_nogo, target_go,
-                          target_nogo, grid = seq(0.01, 0.99, by = 0.01),
+                          target_nogo, grid = (1:99) / 100,
                           nsim = 10000L, seed = NULL) {
   design <- check_design(design)
   scenario_go <- check_scenarios(design, scenario_go, "scenario_go",

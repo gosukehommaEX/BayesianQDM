@@ -98,7 +98,8 @@ show_code <- function(x, style = c("pipe", "design"), name = "design") {
     lead <- if (k == 1L) prefix else "  "
     # Room for " |>" at the end of all steps but the last
     part <- code_format(steps[[k]], nchar(lead),
-                        width = if (k < n) 77L else 80L)
+                        width = if (k < n) 77L else 80L,
+                        base = if (k == 1L) 0L else nchar(lead))
     part[1L] <- paste0(lead, part[1L])
     if (k < n) {
       part[length(part)] <- paste0(part[length(part)], " |>")

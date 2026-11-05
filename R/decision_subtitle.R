@@ -5,7 +5,8 @@
 #'
 #' @return A character string with one line for the Go criterion and one for
 #'   the NoGo criterion: the probability, the threshold and whether the
-#'   criterion is met (for each endpoint with a marginal rule).
+#'   criterion is met. With a marginal rule, each criterion has one line for
+#'   each endpoint, so that the lines fit in the width of a plot.
 #' @noRd
 decision_subtitle <- function(x, digits = 3L) {
   crit <- x$design$criterion
@@ -21,7 +22,7 @@ decision_subtitle <- function(x, digits = 3L) {
     sprintf("%s (rule \"%s\", %s): %s", name, crit$rule, met(m),
             paste(sprintf("%s = %s (threshold %s)", lab, prob(p),
                           vapply(gamma, format_num, character(1),
-                                 digits = digits)), collapse = "; "))
+                                 digits = digits)), collapse = ";\n  "))
   }
   paste(line("Go", labels$go, x$prob_go, crit$gamma_go, x$met_go),
         line("NoGo", labels$nogo, x$prob_nogo, crit$gamma_nogo, x$met_nogo),

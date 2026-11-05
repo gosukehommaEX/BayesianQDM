@@ -10,6 +10,8 @@ test_that("plot.qdm_comparison() draws one curve per design and decision", {
   expect_identical(nrow(b$data[[2]]), 2L * 3L)
   expect_equal(unique(b$data[[2]]$x), c(0.1, 0.2))
   expect_setequal(b$data[[2]]$label, c("theta[MAV]", "theta[TV]"))
+  # The second label is lower, so that the labels do not overlap
+  expect_equal(unique(b$data[[2]]$y), c(1, 0.93))
   lines <- b$data[[3]]
   expect_identical(nrow(lines), 2L * 3L * 4L)
   cols <- grDevices::hcl.colors(2, "Dark 3")

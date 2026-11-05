@@ -10,7 +10,7 @@ qdm_calibrate(
   scenario_nogo,
   target_go,
   target_nogo,
-  grid = seq(0.01, 0.99, by = 0.01),
+  grid = (1:99)/100,
   nsim = 10000L,
   seed = NULL
 )
@@ -34,7 +34,10 @@ correlations must be feasible.}
 Go criterion is met under \code{scenario_go} and that the NoGo criterion
 is met under \code{scenario_nogo}, strictly between 0 and 1.}
 
-\item{grid}{Candidate thresholds, strictly between 0 and 1.}
+\item{grid}{Candidate thresholds, strictly between 0 and 1. The default
+gives 0.01, 0.02, ..., 0.99 as the numbers written with two decimals
+(\code{seq(0.01, 0.99, by = 0.01)} gives numbers such as
+0.7000000000000001 instead of 0.7).}
 
 \item{nsim, seed}{As in \code{\link{qdm_oc}}. The probabilities for all
 values of \code{grid} are computed from the same outcomes (simulated

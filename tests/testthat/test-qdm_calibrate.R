@@ -10,7 +10,7 @@ test_that("qdm_calibrate() matches the exact references", {
     expect_equal(cal$prob_go, ref$prob_go, tolerance = 1e-10, info = name)
     expect_equal(cal$prob_nogo, ref$prob_nogo, tolerance = 1e-10,
                  info = name)
-    expect_equal(cal$curve$gamma, seq(0.01, 0.99, by = 0.01), info = name)
+    expect_identical(cal$curve$gamma, (1:99) / 100, info = name)
     expect_equal(cal$curve$prob_go, ref$curve_go, tolerance = 1e-10,
                  info = name)
     expect_equal(cal$curve$prob_nogo, ref$curve_nogo, tolerance = 1e-10,
@@ -51,6 +51,13 @@ test_that("qdm_calibrate() returns the design with the chosen thresholds", {
   expect_identical(cal$scenario_go, cal_args$D5$scenario_go)
   expect_identical(cal$target_nogo, 0.2)
   expect_identical(cal$method, "exact enumeration of the outcomes")
+})
+
+test_that("qdm_calibrate() uses thresholds written with two decimals", {
+  # The default grid gives 0.7 itself, not 0.7000000000000001
+  cal <- run_cal("D1")
+  expect_identical(cal$curve$gamma[c(41L, 70L)], c(0.41, 0.7))
+  expect_identical(c(cal$gamma_go, cal$gamma_nogo), c(0.7, 0.41))
 })
 
 test_that("qdm_calibrate() accepts a custom grid", {

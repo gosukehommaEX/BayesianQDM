@@ -139,11 +139,15 @@ plot.qdm_comparison <- function(x, decisions = NULL, col_design = NULL,
       ggplot2::geom_vline(xintercept = axis$lines, colour = "gray40",
                           linetype = "dotted") +
       # A layer with its own data: annotate() with several labels fails when
-      # the plot has facets
-      ggplot2::geom_text(data = data.frame(x = axis$lines,
-                                           label = axis$labels),
-                         ggplot2::aes(x = .data$x, label = .data$label),
-                         y = 1, parse = TRUE, hjust = -0.15, vjust = 1,
+      # the plot has facets. The labels are at different heights, so that
+      # they do not overlap in narrow panels.
+      ggplot2::geom_text(data = data.frame(
+                           x = axis$lines, label = axis$labels,
+                           y = 1 - 0.07 * (seq_along(axis$lines) - 1)
+                         ),
+                         ggplot2::aes(x = .data$x, y = .data$y,
+                                      label = .data$label),
+                         parse = TRUE, hjust = -0.15, vjust = 1,
                          colour = "gray30", size = style$label_size,
                          inherit.aes = FALSE)
   }

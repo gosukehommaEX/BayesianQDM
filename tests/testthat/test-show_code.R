@@ -44,6 +44,36 @@ test_that("show_code() writes the pipe of the design steps", {
   ))
 })
 
+test_that("show_code() keeps every line within 80 characters", {
+  # Some reference designs (B7, K3, K5 and others) have deeply nested
+  # arguments
+  designs <- all_ref_designs()
+  for (nm in names(designs)) {
+    for (style in c("pipe", "design")) {
+      code <- show_code(designs[[nm]], style = style)
+      expect_lte(max(nchar(code)), 80L, label = paste(nm, style))
+    }
+  }
+  # Expected lines: Python_reference/port_code_format.out (B7, pipe)
+  expect_identical(unclass(show_code(ref_design_bin2("B7"))), c(
+    "design <- qdm_endpoint(\"binary2\") |>",
+    "  qdm_sample_size(n_t = 3, n_c = 0) |>",
+    "  qdm_prior(prior_t = prior_dirichlet(alpha = c(0.25, 0.25, 0.25, 0.25)),",
+    paste0("            prior_c = prior_dirichlet(alpha = c(0.25, 0.25, 0.25, ",
+           "0.25))) |>"),
+    "  qdm_criterion(criterion_predictive(theta_null = c(0.1, 0), m_t = 4,",
+    "                                     m_c = 3, gamma_go = 0.4,",
+    "                                     gamma_nogo = 0.3)) |>",
+    "  qdm_control(",
+    "    hypothetical_c = hypothetical(",
+    "      data = data_binary2(counts = c(2, 1, 1, 0))",
+    "    )",
+    "  ) |>",
+    "  qdm_computation(nMC = 20000) |>",
+    "  qdm_build()"
+  ))
+})
+
 test_that("show_code() writes the call of the design function", {
   # Expected lines: Python_reference/port_code_format.out
   expect_identical(unclass(show_code(ref_design("D2"), style = "design")), c(
@@ -103,7 +133,8 @@ test_that("show_code() writes specifications and the designs of results", {
                    show_code(des))
   cal <- run_cal("D1")
   expect_identical(show_code(cal), show_code(cal$design))
-  expect_true(any(grepl("gamma_go = 0.7", show_code(cal), fixed = TRUE)))
+  expect_true(any(grepl("gamma_go = 0.7, gamma_nogo = 0.41)", show_code(cal),
+                        fixed = TRUE)))
   res <- find_n_d1(n_t = seq(6, 20, by = 2))
   expect_identical(show_code(res), show_code(res$design))
 })

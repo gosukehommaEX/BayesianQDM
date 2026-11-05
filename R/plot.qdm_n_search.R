@@ -3,8 +3,10 @@
 #' Draws the probabilities that the Go criterion is met under
 #' \code{scenario_go} and that the NoGo criterion is met under
 #' \code{scenario_nogo} against the number of subjects in the treatment
-#' group, with the targets (dashed lines) and the smallest candidate that
-#' meets them (dotted line).
+#' group, with the targets (dashed lines, one gray line when the two targets
+#' are equal) and the smallest candidate that meets them (dotted line). The
+#' vertical axis runs from 0 to the largest probability or target, so that
+#' small probabilities can be read.
 #'
 #' @param x An object of class \code{"qdm_n_search"}.
 #' @param col_go,col_nogo Colors of the probabilities and targets of the Go
@@ -52,20 +54,26 @@ plot.qdm_n_search <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
                         event = factor(labels, levels = labels))
   chosen <- data.frame(x = x$n_t)
   chosen <- chosen[!is.na(chosen$x), , drop = FALSE]
-  ggplot2::ggplot(long, ggplot2::aes(x = .data$n, y = .data$prob,
-                                     colour = .data$event)) +
+  # Equal targets are one line, which the colors of the two would hide
+  target_line <- if (identical(x$target_go, x$target_nogo)) {
+    ggplot2::geom_hline(yintercept = x$target_go, colour = "gray40",
+                        linetype = "dashed")
+  } else {
     ggplot2::geom_hline(data = targets,
                         ggplot2::aes(yintercept = .data$y,
                                      colour = .data$event),
-                        linetype = "dashed") +
+                        linetype = "dashed")
+  }
+  ggplot2::ggplot(long, ggplot2::aes(x = .data$n, y = .data$prob,
+                                     colour = .data$event)) +
+    target_line +
     ggplot2::geom_vline(data = chosen,
                         ggplot2::aes(xintercept = .data$x),
                         colour = "gray40", linetype = "dotted") +
     ggplot2::geom_line(linewidth = style$linewidth) +
     ggplot2::geom_point(size = style$point_size) +
     ggplot2::scale_colour_manual(values = cols) +
-    ggplot2::scale_y_continuous(limits = c(0, 1),
-                                breaks = seq(0, 1, by = 0.2)) +
+    ggplot2::scale_y_continuous(limits = c(0, NA)) +
     ggplot2::labs(x = "Number of subjects in the treatment group",
                   y = "Probability", colour = NULL) +
     style$theme +

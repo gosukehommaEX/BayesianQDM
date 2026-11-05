@@ -25,6 +25,8 @@ test_that("plot_decision_density() draws the density with the regions", {
   expect_identical(plot_labels(p)$title, "Decision: Go")
   expect_identical(plot_labels(p)$subtitle, decision_subtitle(dec))
   expect_null(plot_labels(p)$caption)
+  # Room above the density for the labels of the thresholds
+  expect_equal(plot_scales(p)$get_scales("y")$expand, c(0.02, 0, 0.15, 0))
 })
 
 test_that("plot_decision_density() agrees with independent references", {

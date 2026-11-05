@@ -60,6 +60,10 @@ plot_decision_density <- function(x, cols, style) {
     ggplot2::scale_fill_manual(values = stats::setNames(
       unname(cols[c("Go", "NoGo")]), labels
     ), drop = FALSE) +
+    # Room above the density for the labels of the thresholds
+    ggplot2::scale_y_continuous(
+      expand = ggplot2::expansion(mult = c(0.02, 0.15))
+    ) +
     ggplot2::labs(x = effect_label(design), y = "Posterior density",
                   fill = NULL, title = sprintf("Decision: %s", x$decision),
                   subtitle = decision_subtitle(x), caption = caption) +
