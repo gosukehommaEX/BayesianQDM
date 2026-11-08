@@ -58,16 +58,17 @@ plot.qdm_calibration <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
   chosen <- data.frame(x = c(x$gamma_go, x$gamma_nogo),
                        event = factor(labels, levels = labels))
   chosen <- chosen[!is.na(chosen$x), , drop = FALSE]
+  # The keys of the legend show the curves only
   ggplot2::ggplot(long, ggplot2::aes(x = .data$gamma, y = .data$prob,
                                      colour = .data$event)) +
     ggplot2::geom_hline(data = targets,
                         ggplot2::aes(yintercept = .data$y,
                                      colour = .data$event),
-                        linetype = "dashed") +
+                        linetype = "dashed", show.legend = FALSE) +
     ggplot2::geom_vline(data = chosen,
                         ggplot2::aes(xintercept = .data$x,
                                      colour = .data$event),
-                        linetype = "dotted") +
+                        linetype = "dotted", show.legend = FALSE) +
     ggplot2::geom_step(linewidth = style$linewidth) +
     ggplot2::scale_colour_manual(values = cols) +
     ggplot2::scale_y_continuous(limits = c(0, 1),

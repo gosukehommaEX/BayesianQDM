@@ -7,7 +7,10 @@
 #' a time-to-event endpoint, and \code{enumerate} for two binary endpoints. An
 #' argument that the \code{design_*()} function of the endpoint does not have
 #' is an error. The values are checked when the design is built, by the
-#' \code{design_*()} function.
+#' \code{design_*()} function. All the arguments of the step are set together:
+#' an argument that is not given returns to the default, so
+#' \code{qdm_computation(x, nMC = 5000)} also returns \code{method} to its
+#' default.
 #'
 #' @param x A design specification started by \code{\link{qdm_endpoint}},
 #'   or a design, which is converted to the specification that builds it.

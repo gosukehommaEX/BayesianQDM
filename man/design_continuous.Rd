@@ -71,7 +71,12 @@ Specifies a proof-of-concept study with one normally distributed endpoint:
 the sample sizes, the prior distributions, the external data, the form of
 the control group, the decision criterion and the method used to compute
 the probabilities. The design is used by \code{\link{qdm_decide}},
-\code{\link{qdm_oc}} and \code{\link{qdm_calibrate}}.
+\code{\link{qdm_oc}}, \code{\link{qdm_compare}},
+\code{\link{qdm_calibrate}}, \code{\link{qdm_find_n}},
+\code{\link{qdm_boundary}} and \code{\link{qdm_scenarios}}, and
+\code{\link{show_report}} and \code{\link{show_code}} write it as a report
+and as R code; the design steps (see \code{\link{qdm_endpoint}}) change one
+part of it.
 }
 \details{
 The outcomes of group \eqn{k} (\eqn{k = t, c}) follow

@@ -6,7 +6,9 @@
 #' \code{\link{qdm_sample_size}}). A concurrent control group and external
 #' control data only (see \code{\link{qdm_external}}) need no call of this
 #' function. The arguments are checked when the design is built, by the
-#' \code{design_*()} function of the endpoint.
+#' \code{design_*()} function of the endpoint. All the arguments of the step
+#' are set together: an argument that is not given returns to the default, so
+#' a hypothetical control replaces a fixed control and the other way round.
 #'
 #' @param x A design specification started by \code{\link{qdm_endpoint}},
 #'   or a design, which is converted to the specification that builds it.

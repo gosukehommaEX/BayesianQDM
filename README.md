@@ -208,11 +208,13 @@ qdm_endpoint("binary") |>
 #>   Control:   Beta(a = 4.5, b = 8.5)
 ```
 
-`plot()` draws the operating characteristics, the calibration curves and
-the decision boundaries computed by `qdm_boundary()`. The plots are
-ggplot2 objects: their arguments set the colors of the decisions, the
-line widths, the text sizes and the position of the legend, and ggplot2
-functions can be added to change them further.
+`plot()` draws the operating characteristics, the comparison of designs,
+the calibration curves, the probabilities for the candidate sample
+sizes, the decision boundaries computed by `qdm_boundary()` and the
+decision for observed data. The plots are ggplot2 objects: their
+arguments set the colors of the decisions, the line widths, the text
+sizes and the position of the legend, and ggplot2 functions can be added
+to change them further.
 
 `show_report()` writes the design and a result as a report in HTML or
 plain text, with the formulas of the decision criteria, as a draft of

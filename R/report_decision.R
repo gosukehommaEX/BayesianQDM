@@ -49,13 +49,14 @@ report_decision <- function(x, digits) {
                                 prob(unname(pr))))
     ))
   }
-  c(out, list(
-    report_block("par", text = "The posterior distributions are:"),
-    report_block("list", items = c(
-      paste("Treatment group:",
-            format_posterior(design, x$posterior_t, num = report_num)),
-      paste("Control group:",
-            format_posterior(design, x$posterior_c, num = report_num))
-    ))
-  ))
+  post_t <- report_posterior(design, x$posterior_t, "t")
+  # A fixed control value is given in the section on the statistical model
+  posterior <- if (startsWith(names(x$posterior_c)[1L], "value")) {
+    sprintf("The posterior distribution of %s is %s.", post_t[1L], post_t[2L])
+  } else {
+    post_c <- report_posterior(design, x$posterior_c, "c")
+    sprintf("The posterior distribution of %s is %s, and that of %s is %s.",
+            post_t[1L], post_t[2L], post_c[1L], post_c[2L])
+  }
+  c(out, list(report_block("par", text = posterior)))
 }

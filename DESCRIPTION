@@ -16,12 +16,14 @@ Description: Bayesian quantitative decision-making for proof-of-concept
     through power priors, a concurrent, external, hypothetical or fixed
     control group, and a decision criterion based on the posterior or
     posterior predictive probability of the treatment effect. The package
-    computes the decision for observed data, the operating characteristics
-    of a design under scenarios for the true parameters, the decision
-    thresholds that control the probabilities of false Go and false NoGo
-    decisions, and the observed data that lead to each decision. One
-    or two binary endpoints (Beta-binomial and Dirichlet-multinomial
-    models), one or two continuous endpoints (Normal-Inverse-chi-squared and
+    computes the decision for observed data, the operating characteristics of
+    one or more designs under scenarios for the true parameters, the decision
+    thresholds or the smallest sample size that control the probabilities of
+    false Go and false NoGo decisions, and the observed data that lead to
+    each decision. Reports of a design and its results can be written as
+    drafts of the corresponding sections of a study protocol. One or two
+    binary endpoints (Beta-binomial and Dirichlet-multinomial models), one or
+    two continuous endpoints (Normal-Inverse-chi-squared and
     Normal-Inverse-Wishart models) and one time-to-event endpoint evaluated
     by the milestone survival probability or the hazard ratio (exponential
     model with Gamma priors) are supported, with larger or smaller effects

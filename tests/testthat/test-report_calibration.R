@@ -16,11 +16,13 @@ test_that("report_calibration() describes how the thresholds were chosen", {
           sprintf(paste("$\\gamma_{go}$ is the smallest candidate for which",
                         "the probability that the Go criterion is met is at",
                         "most 0.05 under the scenario $\\pi_t = 0.4$,",
-                        "$\\pi_c = 0.4$ (the probability is %s), and",
+                        "$\\pi_c = 0.4$, under which a Go decision would be",
+                        "wrong (the probability is %s), and",
                         "$\\gamma_{nogo}$ is the smallest candidate for which",
                         "the probability that the NoGo criterion is met is",
                         "at most 0.2 under the scenario $\\pi_t = 0.7$,",
-                        "$\\pi_c = 0.4$ (the probability is %s)."),
+                        "$\\pi_c = 0.4$, under which a NoGo decision would be",
+                        "wrong (the probability is %s)."),
                   prob(cal$prob_go), prob(cal$prob_nogo)))
   )
   table <- res[[4L]]

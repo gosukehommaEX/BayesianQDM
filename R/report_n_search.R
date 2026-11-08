@@ -25,10 +25,12 @@ report_n_search <- function(x, digits) {
                     x$n_t, x$n_c, nrow(curve), min(curve$n_t),
                     max(curve$n_t), x$method)
   rule <- sprintf(paste(
-    "They are the smallest candidate for which the probability that the Go",
-    "criterion is met is at most %s under the scenario %s (the probability",
-    "is %s) and the probability that the NoGo criterion is met is at most %s",
-    "under the scenario %s (the probability is %s)."
+    "They are those of the smallest candidate for which the probability that",
+    "the Go criterion is met is at most %s under the scenario %s, under which",
+    "a Go decision would be wrong (the probability is %s), and the",
+    "probability that the NoGo criterion is met is at most %s under the",
+    "scenario %s, under which a NoGo decision would be wrong (the probability",
+    "is %s)."
   ), num(x$target_go), scenario(x$scenario_go), prob(x$prob_go),
   num(x$target_nogo), scenario(x$scenario_nogo), prob(x$prob_nogo))
   if (is.na(x$n_t_stable)) {
@@ -50,8 +52,9 @@ report_n_search <- function(x, digits) {
   list(report_block("heading", text = "Sample size"),
        report_block("par", text = paste(chosen, rule)),
        report_block("table",
-                    header = c("$n_t$", "$n_c$", "P(Go criterion met)",
-                               "P(NoGo criterion met)", "Targets met"),
+                    header = c("$n_t$", "$n_c$",
+                               false_decision_labels()$probability,
+                               "Targets met"),
                     rows = unname(rows)),
        report_block("par", text = paste("The probabilities of the decisions",
                                         "with the chosen sample sizes are as",

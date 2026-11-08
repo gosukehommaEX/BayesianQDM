@@ -6,8 +6,9 @@
 #'
 #' @return A ggplot object with one tile per region, placed as in
 #'   \code{qdm_regions()} but with the favorable side of each endpoint at the
-#'   right and at the top, labeled with the number and the probability of
-#'   the region.
+#'   right and at the top, labeled with the number and the probability of the
+#'   region. The labels of the axes give the conditions of the regions,
+#'   preceded by "future" for a predictive criterion.
 #' @noRd
 plot_decision_regions <- function(x, cols, style) {
   crit <- x$design$criterion
@@ -25,6 +26,10 @@ plot_decision_regions <- function(x, cols, style) {
         text <- gsub(paste0("NULL", k), format_num(crit$theta_null[k], 4L),
                      text, fixed = TRUE)
       }
+    }
+    # A predictive criterion is on the effects observed in the future study
+    if (crit$type == "predictive") {
+      text <- paste("future", text)
     }
     text
   }

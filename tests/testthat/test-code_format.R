@@ -69,3 +69,14 @@ test_that("code_format() indents the arguments of a hanging call", {
     ")"
   ))
 })
+
+test_that("code_format() starts the argument after a long one on a new line", {
+  # Expected lines: Python_reference/port_code_format.out
+  inner <- code_node("g", list(x = strrep("1", 40), y = strrep("2", 40)))
+  node <- code_node("f", list(a = inner, b = "3"))
+  expect_identical(code_format(node), c(
+    paste0("f(a = g(x = ", strrep("1", 40), ","),
+    paste0("        y = ", strrep("2", 40), "),"),
+    "  b = 3)"
+  ))
+})

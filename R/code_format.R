@@ -3,12 +3,12 @@
 #' Writes a call on one line if it fits in \code{width} characters from the
 #' column \code{indent}. Otherwise the arguments are placed on lines aligned
 #' after the opening parenthesis, as many on a line as fit, and an argument
-#' that does not fit on a line is itself written over several lines. If the
-#' aligned arguments do not fit (for example because the call starts far to
-#' the right), or with \code{hanging = TRUE}, the arguments start on the next
-#' line, indented by two spaces from the line on which the call starts, and
-#' the closing parenthesis is on a line of its own, as in the examples of the
-#' package.
+#' that does not fit on a line is itself written over several lines; the
+#' argument after it starts a new line. If the aligned arguments do not fit
+#' (for example because the call starts far to the right), or with
+#' \code{hanging = TRUE}, the arguments start on the next line, indented by
+#' two spaces from the line on which the call starts, and the closing
+#' parenthesis is on a line of its own, as in the examples of the package.
 #'
 #' @param node A character string of R code or a call from
 #'   \code{code_node()}.
@@ -55,7 +55,18 @@ code_format <- function(node, indent = 0L, width = 80L, hanging = FALSE,
     }
     col <- inner
     empty <- TRUE
+    multi <- FALSE
     for (k in seq_len(n)) {
+      # The argument after an argument written over several lines starts a
+      # new line
+      if (multi) {
+        out <- c(out, line)
+        line <- strrep(" ", inner)
+        col <- inner
+        line_base <- inner
+        empty <- TRUE
+      }
+      multi <- FALSE
       lead <- if (nzchar(nms[k])) paste(nms[k], "= ") else ""
       own <- if (k < n) "," else if (hang) "" else ")"
       # The characters of the caller follow the last aligned argument
@@ -88,6 +99,7 @@ code_format <- function(node, indent = 0L, width = 80L, hanging = FALSE,
           line <- sub[length(sub)]
           col <- nchar(line)
           line_base <- nchar(line) - nchar(trimws(line, which = "left"))
+          multi <- TRUE
         } else {
           col <- col + nchar(sub[1L])
         }

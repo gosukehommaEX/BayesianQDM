@@ -15,7 +15,8 @@ groups, created by the \code{prior_*()} function of the endpoint (see
 \code{\link{design_binary}}, \code{\link{design_continuous}},
 \code{\link{design_binary2}}, \code{\link{design_continuous2}} and
 \code{\link{design_tte}}). \code{prior_c} is \code{NULL} (the default)
-for a fixed control.}
+for a fixed control, and for a hypothetical control of one or two
+continuous endpoints.}
 }
 \value{
 A design specification: \code{x}, or the specification of the
@@ -23,9 +24,11 @@ design \code{x}, with the prior distributions set.
 }
 \description{
 Sets the arguments \code{prior_t} and \code{prior_c} of a design
-specification started by \code{\link{qdm_endpoint}}. They are checked
-when the design is built, by the \code{design_*()} function of the
-endpoint.
+specification started by \code{\link{qdm_endpoint}}. They are checked when
+the design is built, by the \code{design_*()} function of the endpoint. All
+the arguments of the step are set together: an argument that is not given
+returns to the default, so \code{qdm_prior(x, prior_t = ...)} also removes
+\code{prior_c} of \code{x}.
 }
 \examples{
 qdm_endpoint("binary") |>

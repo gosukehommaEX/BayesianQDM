@@ -27,9 +27,13 @@ test_that("plot.qdm_n_search() draws different targets in their colors", {
   a <- cal_args$D1
   res <- qdm_find_n(ref_design("D1"), a$scenario_go, a$scenario_nogo,
                     target_go = 0.3, target_nogo = 0.1, n_t = c(12, 14))
-  b <- ggplot2::ggplot_build(plot(res))
+  p <- plot(res)
+  b <- ggplot2::ggplot_build(p)
   expect_equal(b$data[[1]]$yintercept, c(0.3, 0.1))
   expect_identical(b$data[[1]]$colour, c("#658D1B", "#D91E49"))
+  # The targets have no keys in the legend
+  layers <- if (is.null(attr(p, "layers"))) p$layers else attr(p, "layers")
+  expect_false(layers[[1L]]$show.legend)
   # The axis contains the larger target
   expect_equal(b$layout$panel_scales_y[[1]]$get_limits(), c(0, 0.3))
 })

@@ -167,7 +167,7 @@ proportional to `nMC` for every simulated study.
 probability in each cell (see `vignette("two-binary")`), here over a wider
 range of effects:
 
-```{r oc-overlay, fig.alt = "Heat map of the most likely decision and its probability over the true effects on the two endpoints"}
+```{r oc-overlay, fig.alt = "Heat map of the most likely decision and its probability over the true effects on the two endpoints, with the probabilities in the cells"}
 eff_wide <- expand.grid(theta1 = seq(0, 40, by = 10),
                         theta2 = seq(0, 8, by = 2))
 scen_wide <- data.frame(mu_t1 = -10 + eff_wide$theta1,

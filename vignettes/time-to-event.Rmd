@@ -232,8 +232,12 @@ plot(cal)
 The chosen thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
 $\gamma_{nogo} =$ `r cal$gamma_nogo`. The thresholds add up to
 `r cal$gamma_go + cal$gamma_nogo`, so Miss decisions are possible; their
-simulated probability is `r format(max(cal$oc$Miss), digits = 2)` under both
-scenarios.
+largest simulated probability under the two scenarios is
+`r format(max(cal$oc$Miss), digits = 2)`. The probability of meeting the Go
+criterion with the chosen $\gamma_{go}$,
+`r formatC(cal$prob_go, format = "f", digits = 3)`, is close to the target,
+so another seed or a larger `nsim` can give another threshold (see "Random
+numbers" in `vignette("overview")`).
 
 ## Hazard ratio
 

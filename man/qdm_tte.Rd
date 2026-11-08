@@ -40,7 +40,10 @@ Sets the arguments of \code{\link{design_tte}} that are specific to a
 time-to-event endpoint: the effect measure, the milestone time and the
 conduct of the study and of the future study. The specification must
 have been started by \code{qdm_endpoint("tte")}. The arguments are checked
-when the design is built, by \code{\link{design_tte}}.
+when the design is built, by \code{\link{design_tte}}. All the arguments of
+the step are set together: an argument that is not given returns to the
+default, so \code{qdm_tte(x, conduct = ...)} also removes \code{milestone}
+and \code{effect} of \code{x}.
 }
 \examples{
 qdm_endpoint("tte") |>

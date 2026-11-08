@@ -13,6 +13,10 @@ test_that("plot.qdm_calibration() draws the calibration curves", {
   expect_identical(unique(steps$colour[steps$group == 2]), "#D91E49")
   # The legend names the false Go and the false NoGo, not the arguments
   expect_identical(levels(plot_data(p)$event), false_decision_labels()$legend)
+  # The targets and the chosen thresholds have no keys in the legend
+  layers <- if (is.null(attr(p, "layers"))) p$layers else attr(p, "layers")
+  expect_false(layers[[1L]]$show.legend)
+  expect_false(layers[[2L]]$show.legend)
 })
 
 test_that("plot.qdm_calibration() omits thresholds that were not found", {

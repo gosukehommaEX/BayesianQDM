@@ -26,10 +26,11 @@ test_that("report_model() describes the external data of both groups", {
     prior_text(ref_design("D2")),
     paste("The prior distribution of the treatment group is",
           "$\\pi_t \\sim \\textrm{Beta}(1, 1)$. External data of the",
-          "treatment group (n = 10, y = 6) are borrowed through a power",
-          "prior with weight $a_0 = 0.5$. The prior distribution of the",
-          "control group is $\\pi_c \\sim \\textrm{Beta}(2, 3)$. External",
-          "data of the control group (n = 20, y = 8) are borrowed through a",
+          "treatment group (6 responders among 10 subjects) are borrowed",
+          "through a power prior with weight $a_0 = 0.5$. The prior",
+          "distribution of the control group is",
+          "$\\pi_c \\sim \\textrm{Beta}(2, 3)$. External data of the control",
+          "group (8 responders among 20 subjects) are borrowed through a",
           "power prior with weight $a_0 = 0.5$. The posterior distributions",
           "have closed forms.")
   )
@@ -40,8 +41,9 @@ test_that("report_model() describes the controls without a concurrent group", {
     prior_text(ref_design("D3")),
     paste("There is no concurrent control group: the control group is a",
           "hypothetical control, whose parameters have their posterior",
-          "distribution given the hypothetical control data (n = 12, y = 4),",
-          "with the prior distribution $\\pi_c \\sim \\textrm{Beta}(1, 1)$."),
+          "distribution given the hypothetical control data (4 responders",
+          "among 12 subjects), with the prior distribution",
+          "$\\pi_c \\sim \\textrm{Beta}(1, 1)$."),
     fixed = TRUE
   )
   expect_match(
@@ -50,8 +52,8 @@ test_that("report_model() describes the controls without a concurrent group", {
           "parameters of the control group is their posterior distribution",
           "given the external control data, with the prior distribution",
           "$\\pi_c \\sim \\textrm{Beta}(1, 1)$. External data of the control",
-          "group (n = 20, y = 6) are borrowed through a power prior with",
-          "weight $a_0 = 0.5$."),
+          "group (6 responders among 20 subjects) are borrowed through a",
+          "power prior with weight $a_0 = 0.5$."),
     fixed = TRUE
   )
   expect_identical(
@@ -97,10 +99,10 @@ test_that("report_model() describes two binary endpoints", {
   b6 <- prior_text(ref_design_bin2("B6"))
   expect_match(b6, "$p_t \\sim \\textrm{Dirichlet}(0.25, 0.25, 0.25, 0.25)$",
                fixed = TRUE)
-  expect_match(b6, paste("External data of the control group (n = 20,",
-                         "counts (00, 01, 10, 11) = (14, 2, 3, 1)) are",
-                         "borrowed through a power prior with weight",
-                         "$a_0 = 0.5$."), fixed = TRUE)
+  expect_match(b6, paste("External data of the control group (20 subjects",
+                         "with the counts (14, 2, 3, 1) of the responses 00,",
+                         "01, 10 and 11) are borrowed through a power prior",
+                         "with weight $a_0 = 0.5$."), fixed = TRUE)
   expect_match(prior_text(ref_design_bin2("BF1")),
                paste("the control response rates are fixed at",
                      "$(\\pi_{c1}, \\pi_{c2}) = (0.25, 0.5)$."), fixed = TRUE)
@@ -143,8 +145,8 @@ test_that("report_model() describes a time-to-event endpoint", {
                paste("the control survival probability at the milestone time",
                      "is fixed at $S_c(t_0) = 0.72$."), fixed = TRUE)
   expect_match(prior_text(ref_design_tte("T5")),
-               paste("given the hypothetical control data (events = 8, total",
-                     "observed time = 60)"), fixed = TRUE)
+               paste("given the hypothetical control data (8 events in a",
+                     "total observed time of 60)"), fixed = TRUE)
   expect_match(model_text(ref_design_hr("H1")),
                paste("the treatment effect is the hazard ratio,",
                      "$\\theta = \\lambda_t / \\lambda_c$."), fixed = TRUE)

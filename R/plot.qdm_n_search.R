@@ -57,7 +57,8 @@ plot.qdm_n_search <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
                         event = factor(labels, levels = labels))
   chosen <- data.frame(x = x$n_t)
   chosen <- chosen[!is.na(chosen$x), , drop = FALSE]
-  # Equal targets are one line, which the colors of the two would hide
+  # Equal targets are one line, which the colors of the two would hide.
+  # The keys of the legend show the curves only
   target_line <- if (identical(x$target_go, x$target_nogo)) {
     ggplot2::geom_hline(yintercept = x$target_go, colour = "gray40",
                         linetype = "dashed")
@@ -65,7 +66,7 @@ plot.qdm_n_search <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
     ggplot2::geom_hline(data = targets,
                         ggplot2::aes(yintercept = .data$y,
                                      colour = .data$event),
-                        linetype = "dashed")
+                        linetype = "dashed", show.legend = FALSE)
   }
   ggplot2::ggplot(long, ggplot2::aes(x = .data$n, y = .data$prob,
                                      colour = .data$event)) +

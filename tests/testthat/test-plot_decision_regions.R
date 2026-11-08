@@ -49,6 +49,9 @@ test_that("plot_decision_regions() covers marginal and predictive criteria", {
   p <- plot(pred)
   b <- ggplot2::ggplot_build(p)
   expect_identical(nrow(b$data[[1]]), 4L)
+  # The conditions are on the effects observed in the future study
   expect_identical(plot_scales(p)$get_scales("x")$labels,
-                   c("theta1 <= 1.984", "theta1 > 1.984"))
+                   c("future theta1 <= 1.984", "future theta1 > 1.984"))
+  expect_identical(plot_scales(p)$get_scales("y")$labels,
+                   c("future theta2 <= 1.191", "future theta2 > 1.191"))
 })

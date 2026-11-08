@@ -26,10 +26,12 @@
 #' them (\code{n_t_stable} and \code{n_c_stable}).
 #'
 #' With a seed, the simulated studies of all candidates start from the same
-#' random numbers, so the probabilities change smoothly with the sample size.
-#' For a continuous or time-to-event endpoint, many candidates and the
-#' default \code{nsim} can take long; \code{method = "MM"} (continuous
-#' endpoints) or a smaller \code{nsim} gives a first answer quickly.
+#' random numbers, so the differences between candidates are less affected by
+#' the simulation error than with \code{seed = NULL}, under which each
+#' candidate continues the random number stream. For a continuous or
+#' time-to-event endpoint, many candidates and the default \code{nsim} can
+#' take long; \code{method = "MM"} (continuous endpoints) or a smaller
+#' \code{nsim} gives a first answer quickly.
 #'
 #' @param design A design created by \code{\link{design_binary}},
 #'   \code{\link{design_continuous}}, \code{\link{design_binary2}},

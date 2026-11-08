@@ -66,18 +66,23 @@ A \code{ggplot} object.
 \description{
 Draws the probabilities of Go, NoGo and Gray decisions (and Miss decisions
 if they have positive probability) against the true treatment effect of
-the scenarios. For a time-to-event endpoint, the effect is the difference
-of the milestone survival probabilities \eqn{\exp(-\log(2) t_0 / m)}
-given by the median survival times \eqn{m} of the scenarios. For a design
+the scenarios. For a time-to-event endpoint evaluated by the milestone
+survival, the effect is the difference of the milestone survival
+probabilities \eqn{\exp(-\log(2) t_0 / m)} given by the median survival
+times \eqn{m} of the scenarios; evaluated by the hazard ratio, it is the
+hazard ratio \eqn{m_c / m_t} of the median survival times. For a design
 without a concurrent control group, the horizontal axis is the true
 response rate (binary endpoint), mean (continuous endpoint) or milestone
-survival probability (time-to-event endpoint) of the treatment group, and
-the thresholds of the criterion are shifted by the fixed control value, or
-otherwise by the mean (binary and time-to-event) or location (continuous)
-of the distribution of the control group. The scenarios must have
-distinct values on the horizontal axis, so scenarios with the same effect
-(for example, with several standard deviations or control parameters) are
-plotted separately.
+survival probability (time-to-event endpoint evaluated by the milestone
+survival) of the treatment group, and the thresholds of the criterion are
+shifted by the fixed control value, or otherwise by the mean (binary and
+time-to-event) or location (continuous) of the distribution of the control
+group; for the hazard ratio, the axis is the ratio of the treatment hazard
+\eqn{\log(2) / m_t} to the fixed control hazard or to the mean of the
+distribution of the control hazard, and the thresholds are not shifted. The
+scenarios must have distinct values on the horizontal axis, so scenarios
+with the same effect (for example, with several standard deviations or
+control parameters) are plotted separately.
 }
 \details{
 For two endpoints, the plot has one heat map per decision, with the true

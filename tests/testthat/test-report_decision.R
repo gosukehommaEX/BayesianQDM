@@ -10,8 +10,9 @@ test_that("report_decision() gives the data, the criteria and the decision", {
     report_decision(dec, 3L),
     list(list(type = "heading", text = "Decision for the observed data"),
          list(type = "par",
-              text = paste("The observed data are n = 12, y = 9 in the",
-                           "treatment group and n = 12, y = 4 in the control",
+              text = paste("The observed data are 9 responders among 12",
+                           "subjects in the treatment group and 4",
+                           "responders among 12 subjects in the control",
                            "group.")),
          list(type = "list",
               items = c(sprintf(paste("Go criterion (met): $\\Pr(\\theta >",
@@ -21,10 +22,10 @@ test_that("report_decision() gives the data, the criteria and the decision", {
                                       "$\\Pr(\\theta \\le 0.1 \\mid D) = %s <",
                                       "0.8$"), prob(dec$prob_nogo)))),
          list(type = "par", text = "The decision is Go."),
-         list(type = "par", text = "The posterior distributions are:"),
-         list(type = "list",
-              items = c("Treatment group: Beta(a = 10, b = 4)",
-                        "Control group: Beta(a = 5, b = 9)")))
+         list(type = "par",
+              text = paste("The posterior distribution of $\\pi_t$ is",
+                           "$\\textrm{Beta}(10, 4)$, and that of $\\pi_c$ is",
+                           "$\\textrm{Beta}(5, 9)$.")))
   )
 })
 
@@ -32,9 +33,13 @@ test_that("report_decision() gives the data of the treatment group only", {
   dec <- qdm_decide(ref_design("D8"), data_binary(20, 9))
   res <- report_decision(dec, 3L)
   expect_identical(res[[2L]][["text"]],
-                   "The observed data of the treatment group are n = 20, y = 9.")
-  expect_identical(res[[length(res)]][["items"]][2L],
-                   "Control group: fixed value 0.2")
+                   paste("The observed data of the treatment group are 9",
+                         "responders among 20 subjects."))
+  # The fixed control value is given in the section on the statistical model
+  expect_identical(res[[length(res)]],
+                   list(type = "par",
+                        text = paste("The posterior distribution of $\\pi_t$",
+                                     "is $\\textrm{Beta}(10, 12)$.")))
 })
 
 test_that("report_decision() gives the probabilities of the regions", {
@@ -75,15 +80,16 @@ test_that("report_decision() combines the criteria of each endpoint", {
   )
 })
 
-test_that("report_decision() formats each number of the posterior distributions", {
+test_that("report_decision() gives the posterior distributions", {
   d <- ref_data_cont2$K1
   dec <- qdm_decide(ref_design_cont2("K1"), d$t, d$c)
   res <- report_decision(dec, 3L)
+  post_t <- report_posterior(dec$design, dec$posterior_t, "t")
+  post_c <- report_posterior(dec$design, dec$posterior_c, "c")
   expect_identical(
-    res[[length(res)]][["items"]],
-    c(paste("Treatment group:",
-            format_posterior(dec$design, dec$posterior_t, num = report_num)),
-      paste("Control group:",
-            format_posterior(dec$design, dec$posterior_c, num = report_num)))
+    res[[length(res)]][["text"]],
+    sprintf("The posterior distribution of %s is %s, and that of %s is %s.",
+            post_t[1L], post_t[2L], post_c[1L], post_c[2L])
   )
+  expect_match(post_c[2L], "^the bivariate t distribution with ")
 })

@@ -7,15 +7,19 @@
   the arguments of the `design_*()` function of the endpoint. `qdm_build()`
   creates the design with that function, so the design and the error
   messages are the same as when the function is called directly.
-  `qdm_decide()`, `qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` accept
-  a specification in place of a design and build it. The results of the
-  other functions are unchanged.
-* `show_report()` writes a design, or a result of `qdm_oc()`,
-  `qdm_calibrate()`, `qdm_boundary()` or `qdm_decide()`, as a report in HTML
-  or plain text: the study design, the statistical model and the prior
-  distributions, the decision criteria with their formulas in LaTeX, the
-  computation of the probabilities and the result, as a draft of the
-  corresponding sections of a study protocol. It can end a pipe.
+  `qdm_decide()`, `qdm_oc()`, `qdm_compare()`, `qdm_calibrate()`,
+  `qdm_find_n()`, `qdm_boundary()` and `qdm_scenarios()` accept a
+  specification in place of a design and build it, and `show_report()` and
+  `show_code()` accept it as well. Apart from the default `grid` of
+  `qdm_calibrate()` and the legends of the plots of its results (see
+  below), the functions of version 1.0.1 give the same results.
+* `show_report()` writes a design or a design specification, or a result of
+  `qdm_oc()`, `qdm_calibrate()`, `qdm_find_n()`, `qdm_boundary()` or
+  `qdm_decide()`, as a report in HTML or plain text: the study design, the
+  statistical model and the prior distributions, the decision criteria with
+  their formulas in LaTeX, the computation of the probabilities and the
+  result, as a draft of the corresponding sections of a study protocol. It
+  can end a pipe.
 * The design steps also accept a design created by a `design_*()`
   function: it is converted to the specification that builds it, so that
   one part of a design can be changed, for example

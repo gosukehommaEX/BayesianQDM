@@ -20,14 +20,16 @@
 #' function of the endpoint.
 #'
 #' The steps only store their arguments, so they can be given in any order.
-#' A step given again replaces the arguments that it set before, and an
-#' argument given as \code{NULL} returns to the default of the
+#' A step given again sets all its arguments anew: an argument that is not
+#' given, or is given as \code{NULL}, returns to the default of the
 #' \code{design_*()} function. The arguments are checked when the design is
 #' built, by the \code{design_*()} function, so the design and its error
 #' messages are those of that function. \code{\link{qdm_decide}},
-#' \code{\link{qdm_oc}}, \code{\link{qdm_calibrate}} and
-#' \code{\link{qdm_boundary}} accept a specification in place of a design
-#' and build it.
+#' \code{\link{qdm_oc}}, \code{\link{qdm_compare}},
+#' \code{\link{qdm_calibrate}}, \code{\link{qdm_find_n}},
+#' \code{\link{qdm_boundary}} and \code{\link{qdm_scenarios}} accept a
+#' specification in place of a design and build it, and
+#' \code{\link{show_report}} and \code{\link{show_code}} accept it as well.
 #'
 #' A design created by a \code{design_*()} function can also be given to the
 #' steps and to \code{\link{qdm_build}}: it is converted to the

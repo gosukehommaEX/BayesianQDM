@@ -24,8 +24,11 @@ specification started by \code{\link{qdm_endpoint}}: external data of the
 treatment and control groups, borrowed through a power prior. With
 \code{n_c = 0} (see \code{\link{qdm_sample_size}}) and external control
 data, the control group is the external control data only. The arguments
-are checked when the design is built, by the \code{design_*()} function
-of the endpoint.
+are checked when the design is built, by the \code{design_*()} function of
+the endpoint. All the arguments of the step are set together: an argument
+that is not given returns to the default, so
+\code{qdm_external(x, external_c = ...)} also removes the external data of
+the treatment group of \code{x}.
 }
 \examples{
 qdm_endpoint("binary") |>

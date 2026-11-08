@@ -8,12 +8,16 @@
 #' would be wrong. The labels describe them as the probabilities of a false
 #' Go and a false NoGo, without the argument names.
 #'
-#' @return A list with \code{legend}, the legend labels of the plots, and
+#' @return A list with \code{legend}, the legend labels of the plots,
 #'   \code{scenario}, the labels of the two scenarios in the tables of the
-#'   reports (Go first, then NoGo).
+#'   reports, and \code{probability}, the labels of the two probabilities in
+#'   the table of the candidates of a search for the sample size (Go first,
+#'   then NoGo, in each).
 #' @noRd
 false_decision_labels <- function() {
   list(legend = c("False Go (Go criterion met when Go would be wrong)",
                   "False NoGo (NoGo criterion met when NoGo would be wrong)"),
-       scenario = c("Go would be wrong", "NoGo would be wrong"))
+       scenario = c("Go would be wrong", "NoGo would be wrong"),
+       probability = c("P(Go criterion met when Go would be wrong)",
+                       "P(NoGo criterion met when NoGo would be wrong)"))
 }

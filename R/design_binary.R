@@ -3,8 +3,12 @@
 #' Specifies a proof-of-concept study with one binary endpoint: the sample
 #' sizes, the prior distributions, the external data, the form of the control
 #' group and the decision criterion. The design is used by
-#' \code{\link{qdm_decide}}, \code{\link{qdm_oc}} and
-#' \code{\link{qdm_calibrate}}.
+#' \code{\link{qdm_decide}}, \code{\link{qdm_oc}}, \code{\link{qdm_compare}},
+#' \code{\link{qdm_calibrate}}, \code{\link{qdm_find_n}},
+#' \code{\link{qdm_boundary}} and \code{\link{qdm_scenarios}}, and
+#' \code{\link{show_report}} and \code{\link{show_code}} write it as a report
+#' and as R code; the design steps (see \code{\link{qdm_endpoint}}) change one
+#' part of it.
 #'
 #' The response rates \eqn{\pi_t} and \eqn{\pi_c} of the treatment and control
 #' groups have Beta prior distributions, and the treatment effect is

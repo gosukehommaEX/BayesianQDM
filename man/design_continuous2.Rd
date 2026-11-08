@@ -62,8 +62,12 @@ Specifies a proof-of-concept study with two continuous endpoints: the
 sample sizes, the prior distributions, the external data, the form of the
 control group, the decision criterion for two endpoints and the method
 used to compute the probabilities. The design is used by
-\code{\link{qdm_decide}}, \code{\link{qdm_oc}} and
-\code{\link{qdm_calibrate}}.
+\code{\link{qdm_decide}}, \code{\link{qdm_oc}}, \code{\link{qdm_compare}},
+\code{\link{qdm_calibrate}}, \code{\link{qdm_find_n}},
+\code{\link{qdm_boundary}} and \code{\link{qdm_scenarios}}, and
+\code{\link{show_report}} and \code{\link{show_code}} write it as a report
+and as R code; the design steps (see \code{\link{qdm_endpoint}}) change one
+part of it.
 }
 \details{
 The responses of a subject on the two endpoints have a bivariate normal

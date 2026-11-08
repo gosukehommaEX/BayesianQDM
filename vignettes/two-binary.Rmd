@@ -240,12 +240,11 @@ With `overlay = TRUE`, the decisions are drawn in a single heat map, as in
 Figure 2 of Yamaguchi et al. (submitted): each cell has the color of the
 decision with the highest probability, shaded in five steps of that
 probability (below 0.5, 0.5 to 0.6, 0.6 to 0.7, 0.7 to 0.8, and 0.8 or
-more). The legend Probability shows the five steps in gray; each decision
+more). The legend "Probability" shows the five steps in gray; each decision
 color is shaded in the same way. In the scenarios above, Gray decisions are
-the most likely in every
-cell; with effects up to 0.5, Go decisions become the most likely when both
-effects are large. `cell_values = FALSE` leaves out the probabilities
-written in the cells:
+the most likely in every cell; with effects up to 0.5, Go decisions become
+the most likely when both effects are large. `cell_values = FALSE` leaves
+out the probabilities written in the cells:
 
 ```{r oc-overlay, fig.alt = c("Heat map of the most likely decision and its probability over the true effects on the two endpoints, with the probabilities in the cells", "The same heat map without the probabilities in the cells")}
 eff_wide <- expand.grid(theta1 = seq(0, 0.5, by = 0.1),

@@ -131,11 +131,11 @@ spec |>
 
 ## Changing one step
 
-A step given again replaces the arguments that it set before, so a
-specification can be the start of several pipes that change one of its
-parts. For example, the probabilities of a Go decision with no effect
-($\pi_t = \pi_c = 0.2$) and with an effect of 0.3 ($\pi_t = 0.5$), for
-sample sizes from 12 to 30 per group, are
+A step given again sets all its arguments anew (an argument that is not
+given returns to its default), so a specification can be the start of
+several pipes that change one of its parts. For example, the probabilities
+of a Go decision with no effect ($\pi_t = \pi_c = 0.2$) and with an effect
+of 0.3 ($\pi_t = 0.5$), for sample sizes from 12 to 30 per group, are
 
 ```{r sample-size}
 scen2 <- data.frame(pi_t = c(0.2, 0.5), pi_c = 0.2)
