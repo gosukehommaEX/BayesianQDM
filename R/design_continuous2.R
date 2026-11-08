@@ -31,7 +31,7 @@
 #' the mean of \eqn{m} future subjects has the same distribution with the
 #' scale matrix \eqn{(1 / \kappa_n + 1 / m) \Lambda_n / (\nu_n - 1)},
 #' because the future subjects share the same mean and covariance matrix
-#' (version 0.1.0 and Yamaguchi et al. used the scale matrix
+#' (version 0.1.0 used the scale matrix
 #' \eqn{(1 + \kappa_n) \Lambda_n / (\kappa_n (\nu_n - 1) m)}, which treats
 #' them as independent draws from the predictive distribution of one
 #' subject). A hypothetical control (\code{hypothetical(mean = c(m1, m2),
@@ -53,9 +53,9 @@
 #'     approximated by a bivariate t distribution with the same mean,
 #'     covariance matrix and radial fourth moment (Yamaguchi, Homma, Takeda
 #'     and Maruo, submitted, Theorem 3), whose rectangle
-#'     probabilities are computed by numerical integration for real degrees
-#'     of freedom. It requires more than 4 degrees of freedom for both
-#'     groups and is the fastest method.}
+#'     probabilities are computed by numerical integration, also for
+#'     non-integer degrees of freedom. It requires more than 4 degrees of
+#'     freedom for both groups and is the fastest method.}
 #'   \item{\code{"MC"}}{Monte Carlo simulation with \code{nMC} draws from
 #'     each distribution; the probabilities of all regions are estimated
 #'     from the same draws. The computing time is proportional to

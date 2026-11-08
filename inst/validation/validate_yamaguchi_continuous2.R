@@ -33,9 +33,12 @@
 #              is within 0.01 of its threshold (decisions that Monte Carlo
 #              error can change).
 #              Table 4: reason "bivariate_cont_mc" (simulation error).
-#              Table S3: reason "c1_predictive_scale": the article used the
-#              predictive scale ((1 + kappa) / kappa) Lambda / ((nu - 1) m),
-#              which BayesianQDM corrects to (1 / kappa + 1 / m) Lambda /
+#              Table S3: reason "c1_predictive_scale": the article draws
+#              the future subjects independently from the predictive
+#              distribution of one subject, which gives their mean the
+#              covariance matrix of the t distribution with the scale
+#              ((1 + kappa) / kappa) Lambda / ((nu - 1) m) (the scale of the
+#              article); BayesianQDM uses (1 / kappa + 1 / m) Lambda /
 #              (nu - 1) (inspection item C1). The verdict compares the
 #              published values with the computation using the scale of the
 #              article; the values of BayesianQDM are reported alongside.

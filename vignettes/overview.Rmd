@@ -89,13 +89,15 @@ value of the control parameter as in a single-arm study compared with a
 benchmark.
 External data can also be borrowed for the treatment group (`external_t`).
 
-Four functions work with the designs.
+Six functions work with the designs.
 
 | Function | Computes |
 |---|---|
 | `qdm_decide()` | The probabilities of the Go and NoGo regions and the decision for observed data |
 | `qdm_oc()` | The operating characteristics: the probabilities of Go, NoGo, Gray and Miss decisions under scenarios for the true parameters |
+| `qdm_compare()` | The operating characteristics of several designs under the same scenarios, in one table |
 | `qdm_calibrate()` | The thresholds $\gamma_{go}$ and $\gamma_{nogo}$ that control the probabilities of a false Go and a false NoGo decision |
+| `qdm_find_n()` | The smallest candidate sample size for which the probabilities of meeting the Go and NoGo criteria under two scenarios are at most given targets |
 | `qdm_boundary()` | The observed data that lead to each decision, for example the numbers of responders, with the observed rates and effects (not available for two binary endpoints) |
 
 ## A first example
@@ -132,7 +134,7 @@ The operating characteristics show how often the design leads to each
 decision. For a binary endpoint all outcomes of the study are enumerated, so
 the probabilities are exact.
 
-```{r oc}
+```{r oc, fig.alt = "Probabilities of the decisions against the true difference in response rates"}
 oc <- qdm_oc(des, data.frame(pi_t = seq(0.3, 0.7, by = 0.05), pi_c = 0.3))
 oc
 plot(oc)
@@ -144,7 +146,7 @@ calibrated so that the probability of meeting the Go criterion is at most
 0.05 under no effect, and the probability of meeting the NoGo criterion is at
 most 0.2 when the effect is 0.3:
 
-```{r calibrate}
+```{r calibrate, fig.alt = "Probabilities of meeting the Go and NoGo criteria against the threshold, with the targets and the chosen thresholds"}
 cal <- qdm_calibrate(des,
                      scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
                      scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
@@ -156,6 +158,8 @@ plot(cal)
 The calibrated thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
 $\gamma_{nogo} =$ `r cal$gamma_nogo`, and `cal$design` is the design with
 these thresholds, which can be passed to `qdm_decide()` and `qdm_oc()`.
+In the plot, the dashed horizontal lines are the targets and the dotted
+vertical lines are the chosen thresholds, in the colors of the criteria.
 
 `qdm_boundary()` shows which observed data lead to each decision. For each
 number of control responders, it gives the numbers of treatment responders
@@ -163,13 +167,15 @@ that lead to Go, NoGo and Gray decisions, the corresponding observed
 response rates of the treatment group and the observed differences in
 response rates:
 
-```{r boundary}
+```{r boundary, fig.alt = "Regions of the decisions by the numbers of control and treatment responders"}
 b <- qdm_boundary(des)
 b
 plot(b)
 ```
 
-With 4 control responders, a Go decision needs at least
+The numbers written on the regions are the boundary values, such as the
+smallest number of treatment responders that leads to a Go decision. With
+4 control responders, a Go decision needs at least
 `r min(b$from[b$y_c == 4 & b$decision == "Go"])` of the 12 treatment
 subjects to respond.
 
@@ -209,8 +215,9 @@ identical(qdm_build(spec), des)
 
 The steps only store their arguments, which are checked when the design is
 built, so the error messages are those of the `design_*()` function. A step
-given again replaces the arguments that it set before, and a design can
-start a pipe of steps, which change one of its parts. The analyses
+given again replaces the arguments that it set before. A design created by
+a `design_*()` function can also start a pipe, and the steps then change
+parts of it. The analyses
 (`qdm_decide()`, `qdm_oc()`, `qdm_compare()`, `qdm_calibrate()`,
 `qdm_find_n()` and `qdm_boundary()`) accept a specification and build it,
 so the pipe can go on to the analysis, here the operating characteristics
@@ -238,7 +245,7 @@ base font size (`base_size`) and the position of the legend
 `plot.qdm_comparison()` and `plot.qdm_n_search()` list them. Anything else
 can be changed by adding ggplot2 functions, as for any other ggplot2 plot:
 
-```{r plot-style}
+```{r plot-style, fig.alt = "Operating characteristics drawn with other colors, line width, font size, legend position and a title"}
 plot(oc, col_go = "darkgreen", col_nogo = "firebrick", linewidth = 0.7,
      base_size = 13, legend_position = "right") +
   ggplot2::labs(title = "Operating characteristics of the design")
@@ -247,7 +254,7 @@ plot(oc, col_go = "darkgreen", col_nogo = "firebrick", linewidth = 0.7,
 The plot of a decision shows how the observed data lead to it, here with
 the posterior density of the treatment effect and the Go and NoGo regions:
 
-```{r plot-decision}
+```{r plot-decision, fig.alt = "Posterior density of the difference in response rates with the Go and NoGo regions"}
 plot(qdm_decide(des, data_t = data_binary(12, 9),
                 data_c = data_binary(12, 4)))
 ```
@@ -270,7 +277,8 @@ forms or by numerical integration, except for the posterior probabilities of
 two binary endpoints and the predictive probabilities of a time-to-event
 endpoint, which are Monte Carlo estimates. For one continuous endpoint, numerical integration is exact up
 to a small numerical error; the moment-matching approximation is faster by
-about two orders of magnitude and is suited to exploring designs, and the
+about two orders of magnitude for operating characteristics and is suited
+to exploring designs, and the
 chosen design can then be checked with numerical integration. For two
 continuous endpoints, the moment-matching approximation can be checked with
 Monte Carlo estimates. The computing time of
@@ -287,6 +295,12 @@ number stream, so `set.seed()` makes the results reproducible. With a given
 seed, the computation uses that seed and the previous state of the random
 number generator is restored on exit. `ptdiff()` with `method = "MC"` and
 `rdirichlet()` always use the current random number stream.
+
+When the operating characteristics are simulated, the thresholds chosen by
+`qdm_calibrate()` and the sample size chosen by `qdm_find_n()` can change
+with the simulation error if the probabilities are close to the targets, so
+a larger `nsim` (and `nMC`) than for exploring designs is advisable for the
+final design.
 
 ## Validation
 
@@ -305,7 +319,7 @@ system.file("validation", "results", "summary.md", package = "BayesianQDM")
 
 - `vignette("pipe")`: designs and analyses built with the pipe, and reports
   for a study protocol.
-- `vignette("planning")`: scenarios, comparison of designs, search of the
+- `vignette("planning")`: scenarios, comparison of designs, search for the
   sample size, tables of results, the plot of a decision and the R code of
   a design.
 - `vignette("single-binary")`: one binary endpoint.

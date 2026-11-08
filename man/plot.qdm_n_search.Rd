@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.qdm_n_search.R
 \name{plot.qdm_n_search}
 \alias{plot.qdm_n_search}
-\title{Plot a search of the sample size}
+\title{Plot a search for the sample size}
 \usage{
 \method{plot}{qdm_n_search}(
   x,

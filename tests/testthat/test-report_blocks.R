@@ -20,7 +20,7 @@ test_that("report_blocks() adds the result to the design", {
                    c(report_design(des), report_decision(dec, 3L)))
 })
 
-test_that("report_blocks() reports a search of the sample size", {
+test_that("report_blocks() reports a search for the sample size", {
   res <- find_n_d1(n_t = seq(6, 20, by = 2))
   expect_identical(report_blocks(res, 3L),
                    c(report_design(res$design), report_n_search(res, 3L)))

@@ -107,7 +107,8 @@ of the study, which `conduct_tte()` specifies: the enrollment
 the analysis, either at a calendar time (`cut_time`) or at the time of a
 given number of events among all subjects of the study (`cut_events`). For
 example, enrollment over 15 months with increasing rates, a small dropout
-hazard and an analysis 15.44 months after the start of enrollment:
+hazard and an analysis 15.44 months after the start of enrollment
+(illustrative values):
 
 ```{r conduct}
 cond <- conduct_tte(accrual_time = c(0, 5, 10, 15),
@@ -119,17 +120,24 @@ des <- design_tte(n_t = 30, n_c = 0, prior_t = prior_gamma(0.1, 1),
                   fixed_c = 0.72)
 ```
 
+Subjects enrolled late are followed for less than the milestone of 3
+months at the analysis, and they still contribute their events and observed
+time to the exponential model.
+
 ## Predictive criterion
 
 For the predictive criterion, a future study with $m_t$ and $m_c$ subjects
 is conducted as specified by `conduct_future` (by default `conduct`). The
-survival probability of each group in the future study is estimated by
-$\exp\{-t_0 (a + \tilde d) / (b + \tilde E)\}$, from its number of events
-$\tilde d$ and total observed time $\tilde E$, and the future effect is the
-difference of the two estimates (or the treatment estimate minus the fixed
-value). The predictive probabilities are estimated by simulating `nMC`
-future studies, each with hazards drawn from the posterior distributions,
-so they are Monte Carlo estimates and depend on the seed:
+hazard of group $k$ in the future study is estimated by
+$(a_k + \tilde d_k) / (b_k + \tilde E_k)$, the posterior mean given the prior
+of the group and the future data alone, from its number of events
+$\tilde d_k$ and total observed time $\tilde E_k$. The survival probability
+is estimated by $\exp\{-t_0 (a_k + \tilde d_k) / (b_k + \tilde E_k)\}$, and
+the future effect is the difference of the two estimates (or the treatment
+estimate minus the fixed value). The predictive probabilities are estimated
+by simulating `nMC` future studies, each with hazards drawn from the
+posterior distributions, so they are Monte Carlo estimates and depend on the
+seed:
 
 ```{r predictive}
 des_pred <- design_tte(
@@ -151,7 +159,7 @@ scenarios. The median for which the milestone survival equals the benchmark
 is `med0` below, and the median for which it equals the benchmark plus
 $\theta_{TV}$ is `med1`:
 
-```{r oc}
+```{r oc, fig.alt = "Probabilities of the decisions against the survival probability of the treatment group at the milestone"}
 med0 <- 3 * log(2) / -log(0.72)
 med1 <- 3 * log(2) / -log(0.72 + 0.15)
 c(med0, med1)
@@ -180,25 +188,6 @@ With a predictive criterion, every simulated study requires `nMC` simulated
 future studies, so small values of `nsim` and `nMC` are advisable for
 exploration.
 
-## Calibration of the thresholds
-
-The thresholds of the single-arm design are calibrated so that the Go
-criterion is met with probability at most 0.05 when the milestone survival
-equals the benchmark (median `med0`), and the NoGo criterion with
-probability at most 0.1 when it equals the benchmark plus 0.15 (median
-`med1`):
-
-```{r calibrate}
-cal <- qdm_calibrate(des, scenario_go = data.frame(median_t = med0),
-                     scenario_nogo = data.frame(median_t = med1),
-                     target_go = 0.05, target_nogo = 0.1, seed = 1)
-cal
-plot(cal)
-```
-
-The chosen thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
-$\gamma_{nogo} =$ `r cal$gamma_nogo`.
-
 ## Decision boundary
 
 `qdm_boundary()` gives, for each total observed time of the treatment group,
@@ -217,12 +206,34 @@ With a total observed time of 150 months, a Go decision needs at most
 shows the regions of the decisions over many values of the total observed
 time:
 
-```{r boundary-plot}
+```{r boundary-plot, fig.alt = "Regions of the decisions by the total observed time and the number of events of the treatment group"}
 plot(qdm_boundary(des, exposure_t = seq(20, 400, by = 5)))
 ```
 
 For a design with a concurrent control group, the observed control data are
 given by `data_c`.
+
+## Calibration of the thresholds
+
+The thresholds of the single-arm design are calibrated so that the Go
+criterion is met with probability at most 0.05 when the milestone survival
+equals the benchmark (median `med0`), and the NoGo criterion with
+probability at most 0.1 when it equals the benchmark plus 0.15 (median
+`med1`):
+
+```{r calibrate, fig.alt = "Probabilities of meeting the Go and NoGo criteria against the threshold, with the targets and the chosen thresholds"}
+cal <- qdm_calibrate(des, scenario_go = data.frame(median_t = med0),
+                     scenario_nogo = data.frame(median_t = med1),
+                     target_go = 0.05, target_nogo = 0.1, seed = 1)
+cal
+plot(cal)
+```
+
+The chosen thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
+$\gamma_{nogo} =$ `r cal$gamma_nogo`. The thresholds add up to
+`r cal$gamma_go + cal$gamma_nogo`, so Miss decisions are possible; their
+simulated probability is `r format(max(cal$oc$Miss), digits = 2)` under both
+scenarios.
 
 ## Hazard ratio
 
@@ -231,7 +242,7 @@ criterion is specified with `direction = "less"`: the Go region is
 $\theta < \theta_{TV}$ and the NoGo region is $\theta \ge \theta_{MAV}$,
 with $\theta_{TV} < \theta_{MAV}$. The example of Huang et al. (2019) is a
 randomized study with 112 subjects in the treatment group and 56 in the
-control group, uniform enrollment over 13 months, a control median
+control group, enrollment over 13 months (uniform here), a control median
 survival time of 8.5 months, a loss-to-follow-up hazard of 0.003 per month,
 a target value of 0.67 and a minimum acceptable value of 0.8 for the hazard
 ratio, and an analysis at 127 events. Huang et al. (2019) use the minimum
@@ -265,7 +276,7 @@ exponential model, the hazard ratio is
 the ratio of the median survival times of the control and treatment groups,
 which is the horizontal axis of the plot of operating characteristics:
 
-```{r hr-oc}
+```{r hr-oc, fig.alt = "Probabilities of the decisions against the true hazard ratio"}
 oc_hr <- qdm_oc(des_hr, data.frame(median_t = 8.5 / c(0.5, 0.6, 0.7, 0.8, 1),
                                    median_c = 8.5), seed = 1)
 oc_hr
@@ -273,9 +284,13 @@ plot(oc_hr)
 ```
 
 The probabilities of a Go decision are close to those of Table 1 of Huang
-et al. (2019), which are based on the normal approximation of the estimated
-log hazard ratio (0.946, 0.727, 0.406 and 0.170 for hazard ratios of 0.5,
-0.6, 0.7 and 0.8). The decision boundary gives the numbers of treatment
+et al. (2019) for a loss-to-follow-up hazard of 0.003 in both groups (0.946,
+0.727, 0.406 and 0.170 for hazard ratios of 0.5, 0.6, 0.7 and 0.8), which
+are based on the normal approximation of the estimated log hazard ratio.
+With 127 events, an observed hazard ratio of at most 0.67 nearly implies
+their condition on the upper confidence limit, and with weak priors the Go
+criterion here is met when the observed hazard ratio is below about 0.67.
+The decision boundary gives the numbers of treatment
 events that lead to each decision for given total observed times of the
 treatment group and given control data (`data_c`), with the observed hazard
 ratios $(d_t / E_t) / (d_c / E_c)$:
@@ -288,7 +303,8 @@ qdm_boundary(des_hr, exposure_t = seq(800, 1400, by = 200),
 For a single-arm study, `fixed_c` is the median survival time of the
 control, whose hazard is $\log 2$ divided by it. For the predictive
 criterion, the hazard of each group in the future study is estimated by
-$(a + \tilde d) / (b + \tilde E)$, the future effect is the ratio of the two
+$(a_k + \tilde d_k) / (b_k + \tilde E_k)$ (see the predictive criterion
+above), the future effect is the ratio of the two
 estimates, and with `direction = "less"` the Go region is that it is below
 $\theta_{NULL}$.
 

@@ -16,8 +16,8 @@ library(BayesianQDM)
 This vignette shows the functions that help to plan a proof-of-concept
 study and to explain its decision: scenarios for the operating
 characteristics (`qdm_scenarios()`), the comparison of designs
-(`qdm_compare()`), the search of the sample size (`qdm_find_n()`), tables of
-results (`as.data.frame()`), the plot of a decision and the R code of a
+(`qdm_compare()`), the search for the sample size (`qdm_find_n()`), tables
+of results (`as.data.frame()`), the plot of a decision and the R code of a
 design (`show_code()`). The examples use one binary endpoint, and the
 functions work in the same way for the other endpoints.
 
@@ -64,7 +64,7 @@ differ in one part are made from `des`. `qdm_compare()` computes their
 operating characteristics under the same scenarios, in one table with a
 column that names the design:
 
-```{r compare}
+```{r compare, fig.alt = "Probabilities of Go, NoGo and Gray decisions against the treatment effect for three sample sizes"}
 n <- c(12, 18, 24)
 designs <- lapply(n, function(k) qdm_sample_size(des, n_t = k, n_c = k))
 names(designs) <- paste(n, "per group")
@@ -86,7 +86,7 @@ With an effect of 0.3, the probability of a Go decision is
 design are compared in the same way, for example the borrowing of external
 control data through a power prior:
 
-```{r compare-borrowing}
+```{r compare-borrowing, fig.alt = "Probabilities of Go and NoGo decisions against the treatment effect, with and without borrowing external control data"}
 ext <- des |>
   qdm_external(external_c = borrow(data_binary(n = 40, y = 12), a0 = 0.5))
 qdm_compare(list(Concurrent = des, Borrowing = ext), scen) |>
@@ -101,7 +101,7 @@ probability of meeting the Go criterion when the treatment has no effect,
 and that of meeting the NoGo criterion when the effect is 0.3, are both at
 most 0.1:
 
-```{r find-n}
+```{r find-n, fig.alt = "Probabilities of meeting the Go and NoGo criteria against the candidate sample size, with the target and the chosen sample size"}
 res <- qdm_find_n(des,
                   scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
                   scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
@@ -133,7 +133,7 @@ do not decrease steadily as the sample size increases: here
 
 ## Tables of results
 
-`as.data.frame()` converts a decision, a calibration or a search of the
+`as.data.frame()` converts a decision, a calibration or a search for the
 sample size to a data frame with one row, so that results can be combined
 with `rbind()` and written to a file with `write.csv()`. For example, the
 decisions for the same data with three prior distributions:
@@ -158,7 +158,7 @@ frames already.
 a criterion based on posterior probability, it shows the posterior density
 of the treatment effect with the Go and NoGo regions:
 
-```{r plot-decision}
+```{r plot-decision, fig.alt = "Posterior density of the difference in response rates with the Go and NoGo regions"}
 dec <- qdm_decide(des, data_t = data_binary(12, 8),
                   data_c = data_binary(12, 4))
 plot(dec)

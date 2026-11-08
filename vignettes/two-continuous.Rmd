@@ -38,7 +38,7 @@ $S$ is $n - 1$ times the sample covariance matrix.
 For the predictive criterion, the mean of $m$ future subjects has the same
 distribution with the scale matrix
 $(1 / \kappa_n + 1 / m) \Lambda_n / (\nu_n - 1)$. Version 0.1.0 of the
-package and Yamaguchi et al. (submitted) used
+package used
 $(1 + \kappa_n) \Lambda_n / \{\kappa_n (\nu_n - 1) m\}$, which treats the
 future subjects as independent draws from the predictive distribution of one
 subject.
@@ -50,9 +50,9 @@ the probabilities of the regions are computed by one of two methods
 - `"MM"` (the default): the difference of the two bivariate t
   distributions is approximated by a bivariate t distribution with matched
   moments (Yamaguchi, Homma, Takeda and Maruo, submitted, Theorem 3), whose
-  rectangle probabilities are computed by numerical integration for real
-  degrees of freedom; it requires more than 4 degrees of freedom in both
-  groups;
+  rectangle probabilities are computed by numerical integration, also for
+  non-integer degrees of freedom; it requires more than 4 degrees of
+  freedom in both groups;
 - `"MC"`: Monte Carlo simulation with `nMC` draws from each distribution.
 
 ## Decision for observed data
@@ -61,7 +61,7 @@ The second case study of Yamaguchi et al. (submitted) has 30 subjects per
 group, Normal-Inverse-Wishart priors, $\theta_{TV} = (10, 2)$ and
 $\theta_{MAV} = (5, 1)$. Here the thresholds are
 $\gamma_{go} = \gamma_{nogo} = 0.6$ (the article calibrates its own
-thresholds):
+thresholds), and the observed data are illustrative:
 
 ```{r design}
 L0 <- matrix(c(80^2, 15, 15, 6^2), 2, 2)
@@ -146,7 +146,7 @@ numbers for all scenarios. A scenario gives the means, standard deviations
 and correlation of the two endpoints in each group. To keep this vignette
 quick, 1000 studies are simulated per scenario (the default is 10000):
 
-```{r oc}
+```{r oc, fig.alt = "Heat maps of the probabilities of the decisions over the true effects on the two endpoints"}
 effects <- expand.grid(theta1 = c(0, 10, 20), theta2 = c(0, 2, 4))
 scen <- data.frame(mu_t1 = -10 + effects$theta1,
                    mu_t2 = -1 + effects$theta2, sd_t1 = 80, sd_t2 = 6,
@@ -167,7 +167,7 @@ proportional to `nMC` for every simulated study.
 probability in each cell (see `vignette("two-binary")`), here over a wider
 range of effects:
 
-```{r oc-overlay}
+```{r oc-overlay, fig.alt = "Heat map of the most likely decision and its probability over the true effects on the two endpoints"}
 eff_wide <- expand.grid(theta1 = seq(0, 40, by = 10),
                         theta2 = seq(0, 8, by = 2))
 scen_wide <- data.frame(mu_t1 = -10 + eff_wide$theta1,
@@ -183,8 +183,12 @@ For each observed treatment mean of endpoint 1, `qdm_boundary()` gives the
 intervals of the observed treatment mean of endpoint 2 that lead to Go, NoGo
 and Gray decisions, for a given sample covariance matrix, together with the
 observed differences in means. The ends of the intervals are located by
-bisection between the values of the grid `mean_t[[2]]`. With a concurrent
-control group, the observed control data are given by `data_c`:
+bisection between the values of the grid `mean_t[[2]]`, extended by values
+far beyond its ends, so an interval can reach beyond the grid. With a
+concurrent control group, the observed control data are given by `data_c`,
+and the rows are labeled by the observed difference in means of endpoint 1
+(`effect1`), the treatment mean minus the control mean of $-10$; the
+treatment means 0, 10, 20 and 30 below appear as 10, 20, 30 and 40:
 
 ```{r boundary-table}
 qdm_boundary(des, mean_t = list(c(0, 10, 20, 30), seq(-3, 7, by = 0.25)),
@@ -194,7 +198,7 @@ qdm_boundary(des, mean_t = list(c(0, 10, 20, 30), seq(-3, 7, by = 0.25)),
 With more values of endpoint 1, the plot shows the regions of the decisions
 over the observed differences in means of the two endpoints:
 
-```{r boundary}
+```{r boundary, fig.alt = "Regions of the decisions by the observed differences in means of the two endpoints"}
 b <- qdm_boundary(des, mean_t = list(seq(-30, 50, by = 2),
                                      seq(-3, 7, by = 0.25)),
                   cov_t = data_t$cov, data_c = data_c)
@@ -207,7 +211,7 @@ The thresholds are calibrated so that the Go criterion is met with
 probability at most 0.1 when neither endpoint is improved, and the NoGo
 criterion with probability at most 0.2 when the effects are 20 and 4:
 
-```{r calibrate}
+```{r calibrate, fig.alt = "Probabilities of meeting the Go and NoGo criteria against the threshold, with the targets and the chosen thresholds"}
 cal <- qdm_calibrate(des, scenario_go = scen[1, ], scenario_nogo = scen[9, ],
                      target_go = 0.1, target_nogo = 0.2, nsim = 1000,
                      seed = 1)

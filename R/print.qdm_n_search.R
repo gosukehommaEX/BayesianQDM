@@ -1,4 +1,4 @@
-#' Print a search of the sample size
+#' Print a search for the sample size
 #'
 #' @param x An object of class \code{"qdm_n_search"}.
 #' @param digits Number of significant digits.

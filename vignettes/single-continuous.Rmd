@@ -24,9 +24,10 @@ the data are summarized by the number of subjects $n_k$, the sample mean
 $\bar y_k$ and the sample standard deviation $s_k$ (`data_continuous()`).
 The treatment effect is $\theta = \mu_t - \mu_c$.
 
-With the Normal-Inverse-chi-squared prior (`prior_nix()`),
-$$\mu_k \mid \sigma_k^2 \sim N(\mu_0, \sigma_k^2 / \kappa_0), \qquad
-\sigma_k^2 \sim \textrm{Inv-}\chi^2(\nu_0, \sigma_0^2),$$
+With the Normal-Inverse-chi-squared prior (`prior_nix()`) of a group (the
+subscript $k$ is dropped from here on),
+$$\mu \mid \sigma^2 \sim N(\mu_0, \sigma^2 / \kappa_0), \qquad
+\sigma^2 \sim \textrm{Inv-}\chi^2(\nu_0, \sigma_0^2),$$
 the posterior distribution has the same form with parameters
 $\kappa_n = \kappa_0 + n$, $\mu_n = (\kappa_0 \mu_0 + n \bar y) / \kappa_n$,
 $\nu_n = \nu_0 + n$ and
@@ -109,8 +110,8 @@ subjects, mean $\bar y_e$ and standard deviation $s_e$ act as $a_0 n_e$
 subjects with the same mean and the sum of squares
 $a_0 (n_e - 1) s_e^2$, which keeps the posterior distribution in closed form
 (Huang et al., submitted). With the vague prior, the posterior distribution
-of the mean then has $a_0 n_e + n - 1$ degrees of freedom. Borrowing half of
-30 external control subjects:
+of the mean then has $a_0 n_e + n - 1$ degrees of freedom. External control
+data of 30 subjects, borrowed with $a_0 = 0.5$:
 
 ```{r external}
 des_ext <- design_continuous(
@@ -125,8 +126,8 @@ dec_ext$posterior_c
 
 The control mean now has `r dec_ext$posterior_c[["nu"]]` degrees of freedom
 ($0.5 \times 30 + 12 - 1$), and the probability of the Go region is
-`r format(dec_ext$prob_go, digits = 3)` (without the external data,
-`r format(dec$prob_go, digits = 3)`).
+`r formatC(dec_ext$prob_go, format = "f", digits = 3)` (without the
+external data, `r formatC(dec$prob_go, format = "f", digits = 3)`).
 
 ## Hypothetical control
 
@@ -134,8 +135,10 @@ For an uncontrolled study, Kang, Yamaguchi and Han (2026, Section 4.2.4)
 give the control mean the same t distribution as the posterior distribution
 of the treatment mean, with location $\mu_{0c}$ and the squared scale
 multiplied by $r$:
-$$\mu_c \sim t_{\nu_{nt}}(\mu_{0c}, \; r \sigma_{nt}^2 / \kappa_{nt}).$$
-The prior of the control group is then not used and is left `NULL`:
+$$\mu_c \sim t_{\nu_{nt}}(\mu_{0c}, \; r \sigma_{nt}^2 / \kappa_{nt}),$$
+where $\nu_{nt}$, $\sigma_{nt}^2$ and $\kappa_{nt}$ are the posterior
+parameters $\nu_n$, $\sigma_n^2$ and $\kappa_n$ of the treatment group. The
+prior of the control group is then not used and is left `NULL`:
 
 ```{r hypothetical}
 des_hyp <- design_continuous(
@@ -188,7 +191,7 @@ $X \sim \chi^2_{n - 1}$, and the same random numbers are used for all
 scenarios. The moment-matching approximation is much faster than numerical
 integration and is convenient for exploring designs:
 
-```{r oc}
+```{r oc, fig.alt = "Probabilities of the decisions against the true difference in means"}
 des_mm <- design_continuous(n_t = 12, n_c = 12, prior_t = prior_vague(),
                             prior_c = prior_vague(), criterion = crit,
                             method = "MM")
@@ -224,7 +227,7 @@ and Gray decisions, and the corresponding observed differences in means;
 the ends of the intervals are located by bisection. With a concurrent
 control group, the observed control data are given by `data_c`:
 
-```{r boundary}
+```{r boundary, fig.alt = "Regions of the decisions by the observed standard deviation of the treatment group and the observed difference in means"}
 b <- qdm_boundary(des_mm, sd_t = seq(10, 40, by = 5),
                   data_c = data_continuous(12, 2, 25))
 b
@@ -238,7 +241,7 @@ and a larger standard deviation needs a larger observed difference. For the
 design with a fixed control, the boundary can be shown against the sample
 size instead:
 
-```{r boundary-fixed}
+```{r boundary-fixed, fig.alt = "Regions of the decisions by the sample size and the observed mean of the treatment group, with a fixed control"}
 b_fix <- qdm_boundary(des_fix, n_t = c(6, 12, 20, 30, 40), sd_t = 25)
 b_fix
 plot(b_fix)
@@ -250,7 +253,7 @@ The thresholds are calibrated so that the Go criterion is met with
 probability at most 0.05 when the treatment has no effect, and the NoGo
 criterion with probability at most 0.2 when the effect is 20:
 
-```{r calibrate}
+```{r calibrate, fig.alt = "Probabilities of meeting the Go and NoGo criteria against the threshold, with the targets and the chosen thresholds; the two curves nearly coincide"}
 cal <- qdm_calibrate(
   des_mm,
   scenario_go = data.frame(mu_t = 0, sd_t = 25, mu_c = 0, sd_c = 25),
@@ -260,6 +263,11 @@ cal <- qdm_calibrate(
 cal
 plot(cal)
 ```
+
+The two curves nearly coincide because the scenarios are symmetric. With
+no effect, the Go region $\theta > 15$ begins 15 above the true effect, and
+with an effect of 20, the NoGo region $\theta \le 5$ ends 15 below it; the
+standard deviations and the sample sizes are the same in both scenarios.
 
 The chosen thresholds are $\gamma_{go} =$ `r cal$gamma_go` and
 $\gamma_{nogo} =$ `r cal$gamma_nogo`.

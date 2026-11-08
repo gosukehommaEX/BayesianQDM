@@ -20,10 +20,13 @@ operation had its own function with up to about 50 arguments. In version
 combined into a design, and three functions work with any design. This
 vignette shows how to translate code written for version 0.1.0 and lists
 the changes in the results. The code for version 0.1.0 is shown but not run.
+Version 1.1.0 adds the design steps used with the pipe (see
+`vignette("pipe")`), `qdm_compare()` and `qdm_find_n()` (see
+`vignette("planning")`).
 
 ## Correspondence of the functions
 
-| Version 0.1.0 | Version 1.0.0 |
+| Version 0.1.0 | Version 1.0.0 and later |
 |---|---|
 | `pbayespostpred1bin()`, `pbayespostpred1cont()`, `pbayespostpred2bin()`, `pbayespostpred2cont()` | `qdm_decide()` with a design and observed data |
 | `pbayesdecisionprob1bin()`, `pbayesdecisionprob1cont()`, `pbayesdecisionprob2bin()`, `pbayesdecisionprob2cont()` | `qdm_oc()` |
@@ -36,7 +39,7 @@ the changes in the results. The code for version 0.1.0 is shown but not run.
 
 ## Correspondence of the arguments
 
-| Version 0.1.0 | Version 1.0.0 |
+| Version 0.1.0 | Version 1.0.0 and later |
 |---|---|
 | `prob = 'posterior'` with `theta_TV`, `theta_MAV`, `gamma_go`, `gamma_nogo` | `criterion_posterior(theta_tv, theta_mav, gamma_go, gamma_nogo)` |
 | `prob = 'predictive'` with `theta_NULL`, `m_t`, `m_c` | `criterion_predictive(theta_null, m_t, m_c, gamma_go, gamma_nogo)` |
@@ -53,8 +56,10 @@ the changes in the results. The code for version 0.1.0 is shown but not run.
 | `title`, `xlab` and `ylab` of the `plot()` methods | `ggplot2::labs()` added to the plot |
 | `which` of the `plot()` methods for two endpoints | One panel per decision by default; `overlay = TRUE` for `which = "overlay"` |
 
-The meaning of `gamma_nogo` is unchanged: the NoGo criterion is
-$\Pr(\theta \le \theta_{MAV} \mid D) \ge \gamma_{nogo}$.
+The meaning of `gamma_nogo` is unchanged: in both versions, the NoGo
+criterion is $\Pr(\theta \le \theta_{MAV} \mid D) \ge \gamma_{nogo}$, so its
+value is carried over as it is (the threshold $\gamma_2$ of Kang et al.
+(2026) corresponds to `1 - gamma_nogo`; see `vignette("overview")`).
 
 ## Posterior probability for observed data
 
@@ -204,7 +209,8 @@ corrected, so some results differ.
 - For two binary endpoints, the predictive probabilities are computed
   exactly instead of by Monte Carlo simulation.
 - For two continuous endpoints, the moment-matching approximation uses the
-  real degrees of freedom (version 0.1.0 rounded them to an integer), and
+  non-integer degrees of freedom without rounding (version 0.1.0 rounded
+  them to an integer), and
   with Monte Carlo simulation each simulated study has its own draws
   (version 0.1.0 used the same draws for all simulated studies).
 - Numerical integration for one continuous endpoint covers the whole real

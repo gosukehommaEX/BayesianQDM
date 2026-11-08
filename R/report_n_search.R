@@ -1,4 +1,4 @@
-#' Section of a report on the search of the sample size
+#' Section of a report on the search for the sample size
 #'
 #' @param x An object of class \code{"qdm_n_search"} with a chosen sample
 #'   size.

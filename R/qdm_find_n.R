@@ -1,4 +1,4 @@
-#' Search of the sample size
+#' Search for the sample size
 #'
 #' Finds the smallest sample size, among candidates, for which the
 #' probabilities of a false Go decision and a false NoGo decision are

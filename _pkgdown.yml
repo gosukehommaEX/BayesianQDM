@@ -46,7 +46,7 @@ reference:
   - qdm_build
 
 - title: Operations
-  desc: Decision for observed data, scenarios and operating characteristics of one or several designs, calibration of the thresholds, search of the sample size and decision boundaries
+  desc: Decision for observed data, scenarios and operating characteristics of one or several designs, calibration of the thresholds, search for the sample size and decision boundaries
   contents:
   - qdm_decide
   - qdm_scenarios

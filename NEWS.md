@@ -55,7 +55,7 @@
   (2026), which compare sample sizes, with `qdm_compare()`.
 * New vignettes: `vignette("pipe")` shows designs and analyses built with
   the pipe and the reports of `show_report()`, and `vignette("planning")`
-  shows the scenarios, the comparison of designs, the search of the sample
+  shows the scenarios, the comparison of designs, the search for the sample
   size, tables of results, the plot of a decision and the R code of a
   design.
 * The package depends on R (>= 4.1.0), the first version with the native

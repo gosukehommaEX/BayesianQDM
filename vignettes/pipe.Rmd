@@ -13,6 +13,10 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
 library(BayesianQDM)
 ```
 
+This vignette shows how to build a design step by step with the native
+pipe, how to go on to the results and how to write a report for a study
+protocol.
+
 ## Designs built step by step
 
 The native pipe `|>` of R (version 4.1.0 or later) passes the result of one
@@ -75,8 +79,9 @@ try(spec |> qdm_sample_size(n_t = 0, n_c = 12) |> qdm_build())
 
 ## From the design to the results
 
-`qdm_decide()`, `qdm_oc()`, `qdm_calibrate()` and `qdm_boundary()` accept a
-specification in place of a design and build it, and their results can be
+`qdm_decide()`, `qdm_oc()`, `qdm_compare()`, `qdm_calibrate()`,
+`qdm_find_n()` and `qdm_boundary()` accept a specification in place of a
+design and build it, and their results can be
 passed on to `plot()`. The decision for 9 responders of 12 subjects in the
 treatment group and 4 of 12 in the control group is
 
@@ -88,7 +93,7 @@ spec |>
 The operating characteristics for true response rates of the treatment
 group from 0.3 to 0.7, with a control response rate of 0.3, are
 
-```{r oc}
+```{r oc, fig.alt = "Probabilities of the decisions against the true difference in response rates"}
 scen <- data.frame(pi_t = seq(0.3, 0.7, by = 0.05), pi_c = 0.3)
 spec |>
   qdm_oc(scen) |>
@@ -118,7 +123,7 @@ cal$design |>
 
 The observed data that lead to each decision are
 
-```{r boundary}
+```{r boundary, fig.alt = "Regions of the decisions by the numbers of control and treatment responders"}
 spec |>
   qdm_boundary() |>
   plot()
@@ -148,12 +153,16 @@ With `r n[4]` subjects per group, the probability of a Go decision is
 `r format(go[2, 4], digits = 2)` with the effect of 0.3 and
 `r format(go[1, 4], digits = 2)` with no effect, against
 `r format(go[2, 1], digits = 2)` and `r format(go[1, 1], digits = 2)` with
-`r n[1]` subjects per group.
+`r n[1]` subjects per group. With the effect, the probability is lower with
+`r n[4]` than with `r n[3]` subjects per group
+(`r formatC(go[2, 3], format = "f", digits = 2)`), because the outcomes of a
+binary endpoint are discrete and the probabilities do not increase steadily
+with the sample size (see `vignette("planning")`).
 
 A design created by a `design_*()` function can also start such a pipe: it
 is converted to the specification that builds it. `qdm_compare()` computes
 the operating characteristics of several designs in one table, and
-`qdm_find_n()` searches the sample size (see `vignette("planning")`):
+`qdm_find_n()` searches for the sample size (see `vignette("planning")`):
 
 ```{r compare}
 designs <- lapply(n, function(k) qdm_sample_size(des, n_t = k, n_c = k))

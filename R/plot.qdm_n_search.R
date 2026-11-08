@@ -1,4 +1,4 @@
-#' Plot a search of the sample size
+#' Plot a search for the sample size
 #'
 #' Draws the probabilities that the Go criterion is met under
 #' \code{scenario_go} and that the NoGo criterion is met under

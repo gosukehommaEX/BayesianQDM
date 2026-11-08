@@ -2,7 +2,7 @@
 % Please edit documentation in R/qdm_find_n.R
 \name{qdm_find_n}
 \alias{qdm_find_n}
-\title{Search of the sample size}
+\title{Search for the sample size}
 \usage{
 qdm_find_n(
   design,

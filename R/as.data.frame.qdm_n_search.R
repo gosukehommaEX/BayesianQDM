@@ -1,4 +1,4 @@
-#' Search of the sample size as a data frame
+#' Search for the sample size as a data frame
 #'
 #' Converts a result of \code{\link{qdm_find_n}} to a data frame with one
 #' row: the chosen sample sizes, the probabilities of meeting the criteria

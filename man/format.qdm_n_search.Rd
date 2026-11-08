@@ -2,7 +2,7 @@
 % Please edit documentation in R/format.qdm_n_search.R
 \name{format.qdm_n_search}
 \alias{format.qdm_n_search}
-\title{Format a search of the sample size}
+\title{Format a search for the sample size}
 \usage{
 \method{format}{qdm_n_search}(x, digits = 4L, ...)
 }
@@ -17,7 +17,7 @@
 A character vector of lines.
 }
 \description{
-Format a search of the sample size
+Format a search for the sample size
 }
 \examples{
 des <- design_binary(

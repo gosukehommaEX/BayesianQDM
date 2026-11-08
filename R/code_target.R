@@ -20,7 +20,7 @@ code_target <- function(x) {
                "or qdm_decide()."), call. = FALSE)
   }
   if (!inherits(design, "qdm_design")) {
-    stop(paste("'x' has no design (a calibration or a search of the sample",
+    stop(paste("'x' has no design (a calibration or a search for the sample",
                "size that did not find one)."), call. = FALSE)
   }
   design

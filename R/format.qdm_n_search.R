@@ -1,4 +1,4 @@
-#' Format a search of the sample size
+#' Format a search for the sample size
 #'
 #' @param x An object of class \code{"qdm_n_search"}.
 #' @param digits Number of significant digits.
@@ -20,7 +20,7 @@
 format.qdm_n_search <- function(x, digits = 4L, ...) {
   num <- function(v) format_num(v, digits)
   size <- function(nt, nc) sprintf("n_t = %d, n_c = %d", nt, nc)
-  head <- c(sprintf("Search of the sample size (%s)", x$method),
+  head <- c(sprintf("Search for the sample size (%s)", x$method),
             sprintf(paste("  Targets: P(Go criterion met | scenario_go) <= %s",
                           "and P(NoGo criterion met | scenario_nogo) <= %s"),
                     num(x$target_go), num(x$target_nogo)))

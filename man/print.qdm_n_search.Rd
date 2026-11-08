@@ -2,7 +2,7 @@
 % Please edit documentation in R/print.qdm_n_search.R
 \name{print.qdm_n_search}
 \alias{print.qdm_n_search}
-\title{Print a search of the sample size}
+\title{Print a search for the sample size}
 \usage{
 \method{print}{qdm_n_search}(x, digits = 4L, ...)
 }
@@ -17,7 +17,7 @@
 \code{x}, invisibly.
 }
 \description{
-Print a search of the sample size
+Print a search for the sample size
 }
 \examples{
 des <- design_binary(

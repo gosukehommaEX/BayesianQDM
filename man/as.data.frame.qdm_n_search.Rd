@@ -2,7 +2,7 @@
 % Please edit documentation in R/as.data.frame.qdm_n_search.R
 \name{as.data.frame.qdm_n_search}
 \alias{as.data.frame.qdm_n_search}
-\title{Search of the sample size as a data frame}
+\title{Search for the sample size as a data frame}
 \usage{
 \method{as.data.frame}{qdm_n_search}(x, row.names = NULL, optional = FALSE, ...)
 }

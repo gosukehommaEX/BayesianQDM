@@ -1,6 +1,6 @@
 test_that("format.qdm_n_search() describes the chosen sample sizes", {
   res <- find_n_d1(n_t = seq(6, 20, by = 2))
-  head <- c("Search of the sample size (exact enumeration of the outcomes)",
+  head <- c("Search for the sample size (exact enumeration of the outcomes)",
             paste("  Targets: P(Go criterion met | scenario_go) <= 0.1 and",
                   "P(NoGo criterion met | scenario_nogo) <= 0.1"))
   expect_identical(format(res), c(

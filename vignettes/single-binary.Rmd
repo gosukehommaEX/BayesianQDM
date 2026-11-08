@@ -73,11 +73,11 @@ With 9 and 3 responders, the decision is `r dec$decision`.
 
 External data enter through a power prior: with $n_e$ subjects,
 $y_e$ responders and weight $a_0$ (from 0 to 1), the posterior distribution
-of the response rate is
+of the response rate of a group (the subscript $k$ is dropped) is
 $$\textrm{Beta}(a + a_0 y_e + y, \; b + a_0 (n_e - y_e) + n - y).$$
 With $a_0 = 0$ the external data are ignored, and with $a_0 = 1$ they are
-pooled with the current data. Borrowing half of 20 external control
-subjects with 5 responders:
+pooled with the current data. External control data of 20 subjects with 5
+responders, borrowed with $a_0 = 0.5$:
 
 ```{r external}
 des_ext <- design_binary(
@@ -95,8 +95,8 @@ The external data add
 `r dec_ext$posterior_c[["b"]] - dec$posterior_c[["b"]]` non-responders to the
 posterior distribution of the control group, and the
 probability of the Go region becomes
-`r format(dec_ext$prob_go, digits = 3)` (without them,
-`r format(dec$prob_go, digits = 3)`).
+`r formatC(dec_ext$prob_go, format = "f", digits = 3)` (without them,
+`r formatC(dec$prob_go, format = "f", digits = 3)`).
 
 Without a concurrent control group (`n_c = 0`), the control group can be
 described by the external data alone:
@@ -117,8 +117,10 @@ form of the control group.
 
 For an uncontrolled study, Kang et al. (2026, Section 4.1.4) describe the
 control response rate by a hypothetical control,
-$\pi_c \sim \textrm{Beta}(a_t + z, b_t + n_t - z)$, where $z$ is the number
-of responders expected among $n_t$ control subjects. This is obtained with
+$\pi_c \sim \textrm{Beta}(a_t + z, b_t + n_t - z)$, where $z$ is a parameter,
+set in advance, that shifts the location of the hypothetical control from
+the treatment distribution; it can be read as the number of responders
+among $n_t$ hypothetical control subjects. This is obtained with
 `prior_c` equal to `prior_t` and `hypothetical(data_binary(n_t, z))`:
 
 ```{r hypothetical}
@@ -129,6 +131,10 @@ des_hyp <- design_binary(
 )
 qdm_decide(des_hyp, data_t = data_binary(12, 9))
 ```
+
+The hypothetical control with 3 responders among 12 subjects gives the
+control response rate the distribution $\textrm{Beta}(3.5, 9.5)$, as the 3
+observed control responders above do, so the probabilities are the same.
 
 ### Fixed control
 
@@ -187,7 +193,7 @@ under scenarios for the true response rates. All outcomes
 $(y_t, y_c)$ of the study are enumerated and weighted by their binomial
 probabilities, so the results are exact.
 
-```{r oc}
+```{r oc, fig.alt = "Probabilities of the decisions against the true difference in response rates"}
 oc <- qdm_oc(des, data.frame(pi_t = seq(0.2, 0.8, by = 0.05), pi_c = 0.2))
 oc
 plot(oc)
@@ -198,7 +204,7 @@ the uncontrolled design, the horizontal axis is the response rate of the
 treatment group, and the lines are shifted by the mean of the hypothetical
 control distribution:
 
-```{r oc-hyp}
+```{r oc-hyp, fig.alt = "Probabilities of the decisions against the true response rate of the treatment group, with a hypothetical control"}
 oc_hyp <- qdm_oc(des_hyp, data.frame(pi_t = seq(0.2, 0.8, by = 0.05)))
 plot(oc_hyp)
 ```
@@ -212,7 +218,7 @@ of treatment responders that lead to Go, NoGo and Gray decisions for each
 number of control responders, together with the observed response rates of
 the treatment group and the observed differences in response rates:
 
-```{r boundary}
+```{r boundary, fig.alt = "Regions of the decisions by the numbers of control and treatment responders"}
 b <- qdm_boundary(des)
 b
 plot(b)
@@ -229,7 +235,7 @@ Without a concurrent control group, the boundary is shown for several sample
 sizes of the treatment group, here from 10 to 40 subjects for the design
 with a fixed control:
 
-```{r boundary-fixed}
+```{r boundary-fixed, fig.alt = "Regions of the decisions by the sample size and the number of responders of the treatment group, with a fixed control"}
 b_fix <- qdm_boundary(des_fix, n_t = seq(10, 40, by = 5))
 b_fix
 plot(b_fix)
@@ -272,7 +278,7 @@ pbetadiff(0, a_t = post_t[["a"]], b_t = post_t[["b"]],
 The probability of a Go decision now decreases with the true effect, and a
 Go decision needs few treatment subjects with the adverse event:
 
-```{r safety-oc}
+```{r safety-oc, fig.alt = "Probabilities of the decisions against the true difference in the rates of an adverse event"}
 plot(qdm_oc(des_ae, data.frame(pi_t = seq(0.1, 0.6, by = 0.05),
                                pi_c = 0.4)))
 qdm_boundary(des_ae)
@@ -291,7 +297,7 @@ under `scenario_nogo`. Here the Go criterion should be met with probability
 at most 0.05 when the treatment has no effect, and the NoGo criterion with
 probability at most 0.2 when the effect is 0.3:
 
-```{r calibrate}
+```{r calibrate, fig.alt = "Probabilities of meeting the Go and NoGo criteria against the threshold, with the targets and the chosen thresholds"}
 cal <- qdm_calibrate(des,
                      scenario_go = data.frame(pi_t = 0.2, pi_c = 0.2),
                      scenario_nogo = data.frame(pi_t = 0.5, pi_c = 0.2),

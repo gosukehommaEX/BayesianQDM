@@ -45,9 +45,10 @@ qdm_regions("posterior")
 With `rule = "joint"` (the default), the Go criterion is that the posterior
 probability of the union of `go_regions` is at least $\gamma_{go}$, and the
 NoGo criterion that the probability of the union of `nogo_regions` is at
-least $\gamma_{nogo}$. The defaults, region 1 for Go and region 9 for NoGo,
-require both effects to exceed their target values and both to be at most
-their minimum acceptable values. With `rule = "and"` or `rule = "or"`, the
+least $\gamma_{nogo}$. By default, the Go region is region 1, in which both
+effects exceed their target values, and the NoGo region is region 9, in
+which both effects are at most their minimum acceptable values. With
+`rule = "and"` or `rule = "or"`, the
 criteria are applied to each endpoint separately and combined with AND or
 OR.
 
@@ -69,7 +70,8 @@ The first case study of Yamaguchi et al. (submitted) has 10 subjects per
 group, $\textrm{Dir}(0.25, 0.25, 0.25, 0.25)$ priors,
 $\theta_{TV} = (0.15, 0.15)$ and $\theta_{MAV} = (0.10, 0.10)$. Here the
 thresholds are $\gamma_{go} = \gamma_{nogo} = 0.6$ (the article calibrates
-its own thresholds), and `nMC = 2000` keeps the computations quick:
+its own thresholds), the observed data are illustrative, and `nMC = 2000`
+keeps the computations quick:
 
 ```{r design}
 prior <- prior_dirichlet(rep(0.25, 4))
@@ -148,6 +150,10 @@ des_hyp <- design_binary2(
 qdm_decide(des_hyp, data_t = data_binary2(c(3, 2, 2, 3)), seed = 1)
 ```
 
+The hypothetical control data are the observed control data used above, so
+the posterior distribution of the control group is the same, and with the
+same seed so are the probabilities.
+
 With `fixed_c`, the control response rates of the two endpoints are known
 values $(\pi_{c1,0}, \pi_{c2,0})$, for example those of the standard of care
 reported in the literature. The effects are then
@@ -207,14 +213,16 @@ non-negative.
 cellprob_binary2(pi1 = 0.35, pi2 = 0.35, rho = 0.3)
 ```
 
-By default (`enumerate = TRUE`), `qdm_oc()` enumerates all outcomes of the
-study, `choose(n + 3, 3)` per group (`r choose(13, 3)` for 10 subjects), and
-computes the region probabilities once for every pair of treatment and
-control outcomes, with the same Monte Carlo draws for all pairs. The
-computing time is proportional to the number of pairs times `nMC`; for large
-sample sizes, `enumerate = FALSE` simulates `nsim` studies instead.
+By default (`enumerate = TRUE` in `design_binary2()`), `qdm_oc()` enumerates
+all outcomes of the study, `choose(n + 3, 3)` per group (`r choose(13, 3)`
+for 10 subjects), and computes the region probabilities once for every pair
+of treatment and control outcomes, with the same Monte Carlo draws for all
+pairs. The computing time is proportional to the number of pairs times
+`nMC`; for large sample sizes, a design with `enumerate = FALSE` (set in
+`design_binary2()` or with `qdm_computation()`) makes `qdm_oc()` simulate
+`nsim` studies instead.
 
-```{r oc}
+```{r oc, fig.alt = "Heat maps of the probabilities of the decisions over the true effects on the two endpoints"}
 effects <- expand.grid(theta1 = c(0, 0.15, 0.3), theta2 = c(0, 0.15, 0.3))
 scen <- data.frame(pi_t1 = 0.2 + effects$theta1,
                    pi_t2 = 0.2 + effects$theta2, rho_t = 0.3,
@@ -232,12 +240,14 @@ With `overlay = TRUE`, the decisions are drawn in a single heat map, as in
 Figure 2 of Yamaguchi et al. (submitted): each cell has the color of the
 decision with the highest probability, shaded in five steps of that
 probability (below 0.5, 0.5 to 0.6, 0.6 to 0.7, 0.7 to 0.8, and 0.8 or
-more). In the scenarios above, Gray decisions are the most likely in every
+more). The legend Probability shows the five steps in gray; each decision
+color is shaded in the same way. In the scenarios above, Gray decisions are
+the most likely in every
 cell; with effects up to 0.5, Go decisions become the most likely when both
 effects are large. `cell_values = FALSE` leaves out the probabilities
 written in the cells:
 
-```{r oc-overlay}
+```{r oc-overlay, fig.alt = c("Heat map of the most likely decision and its probability over the true effects on the two endpoints, with the probabilities in the cells", "The same heat map without the probabilities in the cells")}
 eff_wide <- expand.grid(theta1 = seq(0, 0.5, by = 0.1),
                         theta2 = seq(0, 0.5, by = 0.1))
 scen_wide <- data.frame(pi_t1 = 0.2 + eff_wide$theta1,
@@ -259,12 +269,15 @@ criterion and one for the NoGo criterion. Here the Go criterion should be
 met with probability at most 0.1 when neither endpoint is improved, and the
 NoGo criterion with probability at most 0.2 when both effects are 0.3:
 
-```{r calibrate}
+```{r calibrate, fig.alt = "Probabilities of meeting the Go and NoGo criteria against the threshold, with the targets and the chosen thresholds; the two curves are close"}
 cal <- qdm_calibrate(des, scenario_go = scen[1, ], scenario_nogo = scen[9, ],
                      target_go = 0.1, target_nogo = 0.2, seed = 1)
 cal
 plot(cal)
 ```
+
+For these scenarios the two curves are close, so the curve of the Go
+criterion is partly hidden by that of the NoGo criterion.
 
 The calibrated thresholds add up to `r cal$gamma_go + cal$gamma_nogo`. When
 the sum is 1 or less, a Go and a NoGo criterion can be met together (a Miss

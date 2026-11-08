@@ -1,4 +1,4 @@
-test_that("report_n_search() describes the search of the sample size", {
+test_that("report_n_search() describes the search for the sample size", {
   res <- find_n_d1(n_t = seq(6, 20, by = 2))
   blocks <- report_n_search(res, 3L)
   expect_identical(vapply(blocks, function(b) b$type, character(1)),
