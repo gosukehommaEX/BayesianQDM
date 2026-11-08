@@ -44,6 +44,10 @@ group, with the targets (dashed lines, one gray line when the two targets
 are equal) and the smallest candidate that meets them (dotted line). The
 vertical axis runs from 0 to the largest probability or target, so that
 small probabilities can be read.
+\code{scenario_go} is a scenario under which a Go decision would be wrong
+and \code{scenario_nogo} one under which a NoGo decision would be wrong,
+so the legend calls the two probabilities those of a false Go and a false
+NoGo.
 }
 \examples{
 des <- design_binary(

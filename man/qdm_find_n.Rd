@@ -72,10 +72,12 @@ size and chooses the thresholds.
 \details{
 For each candidate, the design with the sample sizes \code{n_t[k]} and
 \code{n_c[k]} (set by \code{\link{qdm_sample_size}}) gives the
-probability that the Go criterion is met under \code{scenario_go}
-(typically a scenario with no or a small treatment effect) and the
-probability that the NoGo criterion is met under \code{scenario_nogo}
-(typically a scenario with the expected treatment effect), computed as in
+probability that the Go criterion is met under \code{scenario_go}, a
+scenario under which a Go decision would be wrong (typically with no or a
+small treatment effect), and the probability that the NoGo criterion is
+met under \code{scenario_nogo}, a scenario under which a NoGo decision
+would be wrong (typically with the expected treatment effect), computed
+as in
 \code{\link{qdm_calibrate}}. A candidate meets the targets when the first
 probability is at most \code{target_go} and the second at most
 \code{target_nogo}.

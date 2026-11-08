@@ -43,8 +43,9 @@ report_n_search <- function(x, digits) {
                 prob(curve$prob_go), prob(curve$prob_nogo),
                 ifelse(curve$met, "yes", "no"))
   oc <- x$oc
-  oc$scenario <- ifelse(oc$scenario == "scenario_go", "Scenario of Go",
-                        "Scenario of NoGo")
+  scen_labels <- false_decision_labels()$scenario
+  oc$scenario <- ifelse(oc$scenario == "scenario_go", scen_labels[1L],
+                        scen_labels[2L])
   names(oc)[names(oc) == "scenario"] <- "Scenario"
   list(report_block("heading", text = "Sample size"),
        report_block("par", text = paste(chosen, rule)),

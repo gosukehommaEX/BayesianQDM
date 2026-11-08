@@ -41,6 +41,10 @@ Draws the probability that the Go criterion is met under
 \code{scenario_go} and the probability that the NoGo criterion is met under
 \code{scenario_nogo} against the threshold, with the targets (horizontal
 lines) and the chosen thresholds (vertical lines).
+\code{scenario_go} is a scenario under which a Go decision would be wrong
+and \code{scenario_nogo} one under which a NoGo decision would be wrong,
+so the legend calls the two probabilities those of a false Go and a false
+NoGo.
 }
 \details{
 The plot is a \code{ggplot} object, so it can be changed further by adding

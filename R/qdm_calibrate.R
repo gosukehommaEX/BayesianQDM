@@ -6,11 +6,13 @@
 #'
 #' The threshold \eqn{\gamma_{go}} is the smallest value in \code{grid} for
 #' which the probability that the Go criterion is met under
-#' \code{scenario_go} (typically a scenario with no or a small treatment
-#' effect) is at most \code{target_go}. The threshold \eqn{\gamma_{nogo}} is
-#' the smallest value in \code{grid} for which the probability that the NoGo
-#' criterion is met under \code{scenario_nogo} (typically a scenario with the
-#' expected treatment effect) is at most \code{target_nogo}. Both
+#' \code{scenario_go}, a scenario under which a Go decision would be wrong
+#' (typically with no or a small treatment effect), is at most
+#' \code{target_go}. The threshold \eqn{\gamma_{nogo}} is the smallest value
+#' in \code{grid} for which the probability that the NoGo criterion is met
+#' under \code{scenario_nogo}, a scenario under which a NoGo decision would
+#' be wrong (typically with the expected treatment effect), is at most
+#' \code{target_nogo}. Both
 #' probabilities decrease as the threshold increases, so the chosen thresholds
 #' are the least strict ones that meet the targets.
 #'

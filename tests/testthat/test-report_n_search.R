@@ -22,7 +22,7 @@ test_that("report_n_search() describes the search for the sample size", {
   expect_identical(blocks[[3]]$rows[1L, 5L], "no")
   expect_identical(blocks[[5]]$header[1L], "Scenario")
   expect_identical(blocks[[5]]$rows[, 1L],
-                   c("Scenario of Go", "Scenario of NoGo"))
+                   c("Go would be wrong", "NoGo would be wrong"))
   expect_identical(blocks[[6]]$text, report_legend(res$design))
 })
 

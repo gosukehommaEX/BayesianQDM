@@ -7,6 +7,10 @@
 #' are equal) and the smallest candidate that meets them (dotted line). The
 #' vertical axis runs from 0 to the largest probability or target, so that
 #' small probabilities can be read.
+#' \code{scenario_go} is a scenario under which a Go decision would be wrong
+#' and \code{scenario_nogo} one under which a NoGo decision would be wrong,
+#' so the legend calls the two probabilities those of a false Go and a false
+#' NoGo.
 #'
 #' @param x An object of class \code{"qdm_n_search"}.
 #' @param col_go,col_nogo Colors of the probabilities and targets of the Go
@@ -41,8 +45,7 @@ plot.qdm_n_search <- function(x, col_go = "#658D1B", col_nogo = "#D91E49",
   style <- plot_style(linewidth = linewidth, point_size = point_size,
                       base_size = base_size,
                       legend_position = legend_position)
-  labels <- c("Go criterion met under scenario_go",
-              "NoGo criterion met under scenario_nogo")
+  labels <- false_decision_labels()$legend
   curve <- x$curve
   long <- data.frame(
     n = rep(curve$n_t, 2L),

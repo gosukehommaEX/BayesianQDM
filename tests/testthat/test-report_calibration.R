@@ -27,8 +27,8 @@ test_that("report_calibration() describes how the thresholds were chosen", {
   expect_identical(table$header,
                    c("Scenario", "$\\pi_t$", "$\\pi_c$", "Go", "NoGo",
                      "Gray", "Miss"))
-  expect_identical(table$rows[, 1L], c("Scenario of $\\gamma_{go}$",
-                                       "Scenario of $\\gamma_{nogo}$"))
+  expect_identical(table$rows[, 1L],
+                   c("Go would be wrong", "NoGo would be wrong"))
   expect_identical(table$rows[, 4L], prob(cal$oc$Go))
   expect_identical(res[[5L]][["text"]], report_legend(cal$design))
 })

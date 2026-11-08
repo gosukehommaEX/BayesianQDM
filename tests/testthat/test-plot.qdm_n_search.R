@@ -16,6 +16,8 @@ test_that("plot.qdm_n_search() draws the probabilities of the candidates", {
   expect_identical(unique(lines$colour[lines$group == 2]), "#D91E49")
   expect_identical(plot_labels(p)$x,
                    "Number of subjects in the treatment group")
+  # The legend names the false Go and the false NoGo, not the arguments
+  expect_identical(levels(plot_data(p)$event), false_decision_labels()$legend)
   # The vertical axis runs from 0 to the largest probability
   expect_equal(b$layout$panel_scales_y[[1]]$get_limits(),
                c(0, max(res$curve$prob_go, res$curve$prob_nogo)))

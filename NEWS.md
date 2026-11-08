@@ -44,6 +44,13 @@
 * `as.data.frame()` converts a result of `qdm_decide()`, `qdm_calibrate()`
   or `qdm_find_n()` to a data frame with one row, so that results can be
   combined with `rbind()`.
+* The legends of the plots of the results of `qdm_calibrate()` and
+  `qdm_find_n()` read "False Go (Go criterion met when Go would be wrong)"
+  and "False NoGo (NoGo criterion met when NoGo would be wrong)" instead of
+  naming the arguments `scenario_go` and `scenario_nogo`, the scenarios
+  under which a Go and a NoGo decision would be wrong. The reports of
+  `show_report()` label the two scenarios "Go would be wrong" and "NoGo
+  would be wrong".
 * `show_code()` writes the R code that creates a design, as a pipe of the
   design steps or as a call of the `design_*()` function, and
   `show_report(code = TRUE)` adds it to the end of a report.

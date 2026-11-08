@@ -31,9 +31,9 @@ report_calibration <- function(x, digits) {
   ), num(x$target_go), scenario(x$scenario_go), prob(x$prob_go),
   num(x$target_nogo), scenario(x$scenario_nogo), prob(x$prob_nogo))
   oc <- x$oc
-  oc$scenario <- ifelse(oc$scenario == "scenario_go",
-                        "Scenario of $\\gamma_{go}$",
-                        "Scenario of $\\gamma_{nogo}$")
+  scen_labels <- false_decision_labels()$scenario
+  oc$scenario <- ifelse(oc$scenario == "scenario_go", scen_labels[1L],
+                        scen_labels[2L])
   names(oc)[names(oc) == "scenario"] <- "Scenario"
   list(report_block("heading", text = "Calibration of the thresholds"),
        report_block("par", text = paste(chosen, rule)),
