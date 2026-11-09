@@ -58,6 +58,9 @@ specification that builds it (the arguments that are \code{NULL} in the
 design are not set), so that one part of a design can be changed with a
 step, for example
 \code{design_binary(...) |> qdm_sample_size(n_t = 20, n_c = 20)}.
+As with a step given again, all the arguments of the step are set: for
+example, \code{qdm_external(des, external_c = ...)} also removes the
+external data of the treatment group of \code{des}.
 }
 \examples{
 spec <- qdm_endpoint("binary") |>

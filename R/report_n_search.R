@@ -25,14 +25,13 @@ report_n_search <- function(x, digits) {
                     x$n_t, x$n_c, nrow(curve), min(curve$n_t),
                     max(curve$n_t), x$method)
   rule <- sprintf(paste(
-    "They are those of the smallest candidate for which the probability that",
-    "the Go criterion is met is at most %s under the scenario %s, under which",
-    "a Go decision would be wrong (the probability is %s), and the",
-    "probability that the NoGo criterion is met is at most %s under the",
-    "scenario %s, under which a NoGo decision would be wrong (the probability",
-    "is %s)."
-  ), num(x$target_go), scenario(x$scenario_go), prob(x$prob_go),
-  num(x$target_nogo), scenario(x$scenario_nogo), prob(x$prob_nogo))
+    "They are those of the smallest candidate that meets two targets. Under",
+    "the scenario %s, under which a Go decision would be wrong, the",
+    "probability that the Go criterion is met is at most %s (it is %s);",
+    "under the scenario %s, under which a NoGo decision would be wrong, the",
+    "probability that the NoGo criterion is met is at most %s (it is %s)."
+  ), scenario(x$scenario_go), num(x$target_go), prob(x$prob_go),
+  scenario(x$scenario_nogo), num(x$target_nogo), prob(x$prob_nogo))
   if (is.na(x$n_t_stable)) {
     rule <- paste(rule, "The largest candidate does not meet the targets.")
   } else if (x$n_t_stable != x$n_t) {

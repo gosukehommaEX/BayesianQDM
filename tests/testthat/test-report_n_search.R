@@ -9,15 +9,15 @@ test_that("report_n_search() describes the search for the sample size", {
                            "chosen from 8 candidates, with $n_t$ from 6 to 20",
                            "(exact enumeration of the outcomes)."),
                fixed = TRUE)
-  expect_match(text, paste("They are those of the smallest candidate for which",
-                           "the probability that the Go criterion is met is at",
-                           "most 0.1 under the scenario $\\pi_t = 0.4$,",
-                           "$\\pi_c = 0.4$, under which a Go decision would be",
-                           "wrong (the probability is 0.088), and the",
+  expect_match(text, paste("They are those of the smallest candidate that",
+                           "meets two targets. Under the scenario",
+                           "$\\pi_t = 0.4$, $\\pi_c = 0.4$, under which a Go",
+                           "decision would be wrong, the probability that the",
+                           "Go criterion is met is at most 0.1 (it is 0.088);",
+                           "under the scenario $\\pi_t = 0.7$, $\\pi_c = 0.4$,",
+                           "under which a NoGo decision would be wrong, the",
                            "probability that the NoGo criterion is met is at",
-                           "most 0.1 under the scenario $\\pi_t = 0.7$,",
-                           "$\\pi_c = 0.4$, under which a NoGo decision would",
-                           "be wrong (the probability is 0.033)."),
+                           "most 0.1 (it is 0.033)."),
                fixed = TRUE)
   expect_match(text, paste("all candidates from $n_t = 20$ and $n_c = 20$ on",
                            "meet the targets."), fixed = TRUE)

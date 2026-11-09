@@ -22,10 +22,12 @@
 #' NoGo regions as bars, with their thresholds (horizontal segments).
 #'
 #' For two endpoints, the plot shows the regions of the plane of the two
-#' effects (see \code{\link{qdm_regions}}), with the favorable side of each
-#' endpoint at the right and at the top, and the posterior (or predictive)
-#' probability of each region; the shade of each region grows with its
-#' probability. With \code{rule = "joint"}, the regions of the Go and NoGo
+#' effects (see \code{\link{qdm_regions}}; for a predictive criterion, the
+#' effects observed in the future study, marked "future" in the labels of the
+#' axes), with the favorable side of each endpoint at the right and at the
+#' top, and the posterior (or predictive) probability of each region; the
+#' shade of each region grows with its probability. With
+#' \code{rule = "joint"}, the regions of the Go and NoGo
 #' criteria have the colors of these decisions.
 #'
 #' @param x An object of class \code{"qdm_decision"}.

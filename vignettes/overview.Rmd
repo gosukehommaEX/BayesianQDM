@@ -214,10 +214,11 @@ identical(qdm_build(spec), des)
 ```
 
 The steps only store their arguments, which are checked when the design is
-built, so the error messages are those of the `design_*()` function. A step
-given again sets all its arguments anew (an argument that is not given
-returns to its default). A design created by a `design_*()` function can
-also start a pipe, and the steps then change parts of it. The analyses
+built, so the error messages are those of the `design_*()` function. A
+design created by a `design_*()` function can also start a pipe, and the
+steps then change parts of it. A step sets all its arguments anew, both when
+it is given again and when it is applied to a design (an argument that is
+not given returns to its default). The analyses
 (`qdm_decide()`, `qdm_oc()`, `qdm_compare()`, `qdm_calibrate()`,
 `qdm_find_n()` and `qdm_boundary()`) accept a specification and build it,
 so the pipe can go on to the analysis, here the operating characteristics

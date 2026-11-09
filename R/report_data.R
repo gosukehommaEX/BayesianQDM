@@ -19,15 +19,15 @@ report_data <- function(data) {
     qdm_data_binary = sprintf("%s among %s", count(data$y, "responder"),
                               count(data$n, "subject")),
     qdm_data_continuous = sprintf(
-      "%s with mean %s and standard deviation %s", count(data$n, "subject"),
-      num(data$mean), num(data$sd)
+      "the outcomes of %s, with mean %s and standard deviation %s",
+      count(data$n, "subject"), num(data$mean), num(data$sd)
     ),
     qdm_data_binary2 = sprintf(
       "%s with the counts (%s) of the responses 00, 01, 10 and 11",
       count(data$n, "subject"), paste(data$counts, collapse = ", ")
     ),
     qdm_data_continuous2 = sprintf(
-      paste("%s with means (%s) and covariance matrix",
+      paste("the outcomes of %s, with means (%s) and covariance matrix",
             "$\\begin{pmatrix} %s & %s \\\\ %s & %s \\end{pmatrix}$"),
       count(data$n, "subject"), num(data$mean), num(data$cov[1L, 1L]),
       num(data$cov[1L, 2L]), num(data$cov[2L, 1L]), num(data$cov[2L, 2L])

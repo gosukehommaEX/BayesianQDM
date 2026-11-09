@@ -18,10 +18,11 @@ Description: Bayesian quantitative decision-making for proof-of-concept
     posterior predictive probability of the treatment effect. The package
     computes the decision for observed data, the operating characteristics of
     one or more designs under scenarios for the true parameters, the decision
-    thresholds or the smallest sample size that control the probabilities of
-    false Go and false NoGo decisions, and the observed data that lead to
-    each decision. Reports of a design and its results can be written as
-    drafts of the corresponding sections of a study protocol. One or two
+    thresholds, or the smallest sample size, for which the probabilities of
+    false Go and false NoGo decisions are at most given targets, and the
+    observed data that lead to each decision. Reports of a design and its
+    results can be written as drafts of the corresponding sections of a
+    study protocol. One or two
     binary endpoints (Beta-binomial and Dirichlet-multinomial models), one or
     two continuous endpoints (Normal-Inverse-chi-squared and
     Normal-Inverse-Wishart models) and one time-to-event endpoint evaluated

@@ -219,6 +219,11 @@ cal
 plot(cal)
 ```
 
+With `nsim = 1000`, the probability of meeting the Go criterion with the
+chosen $\gamma_{go}$, `r formatC(cal$prob_go, format = "f", digits = 3)`,
+is close to the target, so another seed or a larger `nsim` can give another
+threshold (see "Random numbers" in `vignette("overview")`).
+
 The calibrated thresholds add up to `r cal$gamma_go + cal$gamma_nogo`. When
 the sum is 1 or less, a Go and a NoGo criterion can be met together (a Miss
 decision); here Miss decisions have probability up to

@@ -24,13 +24,13 @@ report_calibration <- function(x, digits) {
                     num(min(grid)), num(max(grid)), x$method)
   rule <- sprintf(paste(
     "$\\gamma_{go}$ is the smallest candidate for which the probability that",
-    "the Go criterion is met is at most %s under the scenario %s, under which",
-    "a Go decision would be wrong (the probability is %s), and",
-    "$\\gamma_{nogo}$ is the smallest candidate for which the probability",
-    "that the NoGo criterion is met is at most %s under the scenario %s,",
-    "under which a NoGo decision would be wrong (the probability is %s)."
-  ), num(x$target_go), scenario(x$scenario_go), prob(x$prob_go),
-  num(x$target_nogo), scenario(x$scenario_nogo), prob(x$prob_nogo))
+    "the Go criterion is met is at most %s (it is %s) under the scenario %s,",
+    "under which a Go decision would be wrong, and $\\gamma_{nogo}$ is the",
+    "smallest candidate for which the probability that the NoGo criterion is",
+    "met is at most %s (it is %s) under the scenario %s, under which a NoGo",
+    "decision would be wrong."
+  ), num(x$target_go), prob(x$prob_go), scenario(x$scenario_go),
+  num(x$target_nogo), prob(x$prob_nogo), scenario(x$scenario_nogo))
   oc <- x$oc
   scen_labels <- false_decision_labels()$scenario
   oc$scenario <- ifelse(oc$scenario == "scenario_go", scen_labels[1L],
