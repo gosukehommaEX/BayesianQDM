@@ -136,9 +136,12 @@ articles:
 
 navbar:
   structure:
-    left:  [intro, reference, articles, news]
+    left:  [intro, reference, articles, news, cheatsheet]
     right: [search, github]
   components:
+    cheatsheet:
+      text: Cheat Sheet
+      href: cheatsheet/BayesianQDM_cheatsheet.html
     articles:
       text: Guides
       menu:

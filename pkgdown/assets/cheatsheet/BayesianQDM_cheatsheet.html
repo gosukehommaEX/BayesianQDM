@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BayesianQDM Cheat Sheet</title>
+<meta name="description" content="Cheat sheet of the R package BayesianQDM: Bayesian quantitative decision-making with Go, NoGo and Gray decisions for proof-of-concept trials.">
+<style>
+/* One page of cards in two columns (one on narrow screens); printed on A4
+   landscape in two columns. The decision colors are those of the plots of
+   BayesianQDM. */
+:root {
+  --bg: #F7F8F5;
+  --card: #FFFFFF;
+  --fg: #1E2420;
+  --muted: #59625B;
+  --rule: #D7DBD2;
+  --code-bg: #F0F2EC;
+  --go: #658D1B;
+  --nogo: #D91E49;
+  --gray: #939597;
+  --miss: #E69F00;
+  --spec: #3B5B7A;
+  --plan: #4A6912;
+  --decide: #8A4B2A;
+  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+a { color: var(--spec); }
+a:focus-visible { outline: 2px solid var(--spec); outline-offset: 2px; }
+code { font-family: var(--font-mono); font-size: 0.88em; }
+.page { max-width: 1240px; margin: 0 auto; padding: 18px 16px 40px; }
+
+/* Header */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 24px; padding-bottom: 12px; border-bottom: 3px solid var(--fg); }
+.top > * { min-width: 0; }
+.title h1 { margin: 0; font-size: 1.9rem; line-height: 1.2; }
+.title p { margin: 4px 0 0; color: var(--muted); max-width: 46em; }
+.strip { display: flex; height: 6px; width: 220px; border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.strip > div:nth-child(1) { flex: 5; background: var(--go); }
+.strip > div:nth-child(2) { flex: 3; background: var(--gray); }
+.strip > div:nth-child(3) { flex: 2; background: var(--nogo); }
+.links { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.9rem; align-items: center; }
+.links > * { min-width: 0; }
+.version { font-family: var(--font-mono); font-size: 0.8rem; padding: 2px 8px; border: 1px solid var(--muted); border-radius: 3px; color: var(--muted); }
+button.print { font: inherit; font-size: 0.85rem; padding: 2px 10px; border: 1px solid var(--spec); background: var(--card); color: var(--spec); border-radius: 3px; cursor: pointer; }
+
+/* Workflow */
+.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 14px 0 6px; }
+.step { background: var(--card); border: 1px solid var(--rule); border-top: 4px solid var(--spec); border-radius: 4px; padding: 8px 10px; min-width: 0; }
+.step.plan { border-top-color: var(--plan); }
+.step.decide { border-top-color: var(--decide); }
+.step h3 { margin: 0 0 4px; font-size: 0.95rem; }
+.step p { margin: 0; font-size: 0.82rem; }
+
+/* Cards */
+.sheet { columns: 2 520px; column-gap: 14px; margin-top: 14px; }
+.card { break-inside: avoid; display: block; background: var(--card); border: 1px solid var(--rule); border-left: 5px solid var(--spec); border-radius: 4px; padding: 10px 12px 12px; margin: 0 0 14px; }
+.card.plan { border-left-color: var(--plan); }
+.card.decide { border-left-color: var(--decide); }
+.card.full { column-span: all; }
+.card h2 { margin: 0 0 6px; font-size: 1.08rem; }
+.card h2 .lead { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+.card h3 { margin: 10px 0 4px; font-size: 0.9rem; }
+.card p { margin: 6px 0; }
+.card ul, .card ol { margin: 6px 0; padding-left: 1.3em; }
+.card li + li { margin-top: 2px; }
+.note { font-size: 0.82rem; color: var(--muted); }
+
+/* Tables of functions */
+table { border-collapse: collapse; width: 100%; font-size: 0.84rem; margin: 4px 0 6px; }
+th, td { text-align: left; vertical-align: top; padding: 3px 6px; border-bottom: 1px solid var(--rule); }
+th { color: var(--muted); font-weight: 600; font-size: 0.78rem; }
+td:first-child { white-space: nowrap; }
+td:first-child a { text-decoration: none; }
+.table-wrap { overflow-x: auto; }
+
+/* Code */
+pre { margin: 6px 0; padding: 7px 9px; background: var(--code-bg); border-radius: 4px; overflow-x: auto; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.45; }
+pre code { font-size: inherit; }
+.cm { color: #6A737D; font-style: italic; }
+.st { color: #8A4B2A; }
+.fn { color: var(--spec); font-weight: 600; }
+.op { color: var(--decide); font-weight: 600; }
+
+/* Decisions and formulas */
+.decisions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 6px 0; }
+.dec { border-radius: 4px; padding: 4px 6px; color: #FFFFFF; font-size: 0.8rem; min-width: 0; }
+.dec b { display: block; font-size: 0.9rem; }
+.dec.go { background: var(--go); }
+.dec.nogo { background: var(--nogo); }
+.dec.gray { background: var(--gray); }
+.dec.miss { background: var(--miss); color: var(--fg); }
+.formula { background: var(--code-bg); border-radius: 4px; padding: 4px 8px; margin: 6px 0; overflow-x: auto; }
+.formula p { margin: 2px 0; }
+
+figure { margin: 8px 0 2px; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); border-radius: 3px; background: #FFFFFF; }
+figcaption { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+
+footer { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--rule); font-size: 0.8rem; color: var(--muted); }
+footer p { margin: 3px 0; }
+
+@media (max-width: 900px) {
+  .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .flow { grid-template-columns: minmax(0, 1fr); }
+  .decisions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .title h1 { font-size: 1.5rem; }
+}
+@media print {
+  @page { size: A4 landscape; margin: 8mm; }
+  body { background: #FFFFFF; font-size: 9pt; }
+  .page { max-width: none; padding: 0; }
+  .sheet { columns: 2; }
+  button.print { display: none; }
+  pre { font-size: 7.5pt; }
+  .card, .step { border-color: #BBBBBB; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+  svg: { fontCache: "global" }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <div class="title">
+    <h1>BayesianQDM cheat sheet</h1>
+    <p>Bayesian quantitative decision-making for proof-of-concept clinical trials, with Go, NoGo and Gray decisions, for one or two binary or continuous endpoints and one time-to-event endpoint.</p>
+    <div class="strip" aria-hidden="true"><div></div><div></div><div></div></div>
+  </div>
+  <div class="links">
+    <span class="version">BayesianQDM 1.1.0</span>
+    <a href="../index.html">Website</a>
+    <a href="../reference/index.html">Reference</a>
+    <a href="../articles/overview.html">Overview</a>
+    <a href="https://github.com/gosukehommaEX/BayesianQDM">GitHub</a>
+    <button class="print" type="button" onclick="window.print()">Print / PDF</button>
+  </div>
+</header>
+
+<div class="flow" role="group" aria-label="Workflow">
+  <div class="step"><h3>1. Specify</h3><p>Endpoint, sample sizes, priors, criterion, external data and control: <code>qdm_endpoint()</code> and the steps, or <code>design_*()</code>.</p></div>
+  <div class="step plan"><h3>2. Scenarios</h3><p>True parameters to evaluate: <code>qdm_scenarios()</code> or a data frame.</p></div>
+  <div class="step plan"><h3>3. Plan</h3><p>Operating characteristics, comparison of designs, calibration of the thresholds, search for the sample size, decision boundary.</p></div>
+  <div class="step decide"><h3>4. Decide</h3><p>Go, NoGo or Gray for the observed data: <code>qdm_decide()</code> and <code>plot()</code>.</p></div>
+  <div class="step decide"><h3>5. Report</h3><p>Protocol text with <code>show_report()</code>, R code with <code>show_code()</code>, one-row tables with <code>as.data.frame()</code>.</p></div>
+</div>
+
+<main class="sheet">
+
+<section class="card full">
+  <h2>Endpoints at a glance</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Endpoint</th><th><code>qdm_endpoint()</code></th><th>Design</th><th>Priors</th><th>Data of a group</th><th>Columns of the scenarios</th></tr></thead>
+      <tbody>
+        <tr><td>One binary</td><td><code>"binary"</code></td><td><a href="../reference/design_binary.html"><code>design_binary()</code></a></td><td><a href="../reference/prior_beta.html"><code>prior_beta(a, b)</code></a></td><td><a href="../reference/data_binary.html"><code>data_binary(n, y)</code></a></td><td><code>pi_t</code>, <code>pi_c</code></td></tr>
+        <tr><td>One continuous</td><td><code>"continuous"</code></td><td><a href="../reference/design_continuous.html"><code>design_continuous()</code></a></td><td><a href="../reference/prior_nix.html"><code>prior_nix()</code></a>, <a href="../reference/prior_vague.html"><code>prior_vague()</code></a></td><td><a href="../reference/data_continuous.html"><code>data_continuous(n, mean, sd)</code></a></td><td><code>mu_t</code>, <code>sd_t</code>, <code>mu_c</code>, <code>sd_c</code></td></tr>
+        <tr><td>Two binary</td><td><code>"binary2"</code></td><td><a href="../reference/design_binary2.html"><code>design_binary2()</code></a></td><td><a href="../reference/prior_dirichlet.html"><code>prior_dirichlet(alpha)</code></a></td><td><a href="../reference/data_binary2.html"><code>data_binary2(counts)</code></a></td><td><code>pi_t1</code>, <code>pi_t2</code>, <code>rho_t</code>, and the same with <code>_c</code></td></tr>
+        <tr><td>Two continuous</td><td><code>"continuous2"</code></td><td><a href="../reference/design_continuous2.html"><code>design_continuous2()</code></a></td><td><a href="../reference/prior_niw.html"><code>prior_niw()</code></a>, <a href="../reference/prior_vague.html"><code>prior_vague()</code></a></td><td><a href="../reference/data_continuous2.html"><code>data_continuous2(n, mean, cov)</code></a></td><td><code>mu_t1</code>, <code>mu_t2</code>, <code>sd_t1</code>, <code>sd_t2</code>, <code>rho_t</code>, and the same with <code>_c</code></td></tr>
+        <tr><td>Time to event</td><td><code>"tte"</code></td><td><a href="../reference/design_tte.html"><code>design_tte()</code></a></td><td><a href="../reference/prior_gamma.html"><code>prior_gamma(shape, rate)</code></a></td><td><a href="../reference/data_tte.html"><code>data_tte(events, exposure)</code></a></td><td><code>median_t</code>, <code>median_c</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">The columns of the control group (<code>_c</code>) are needed only with a concurrent control group. The cells of two binary endpoints are the responses 00, 01, 10 and 11.</p>
+</section>
+
+<section class="card">
+  <h2>Build a design <span class="lead">step by step with the native pipe</span></h2>
+  <table>
+    <tbody>
+      <tr><td><a href="../reference/qdm_endpoint.html"><code>qdm_endpoint()</code></a></td><td>Start a specification for an endpoint</td></tr>
+      <tr><td><a href="../reference/qdm_sample_size.html"><code>qdm_sample_size()</code></a></td><td><code>n_t</code>, <code>n_c</code></td></tr>
+      <tr><td><a href="../reference/qdm_prior.html"><code>qdm_prior()</code></a></td><td><code>prior_t</code>, <code>prior_c</code></td></tr>
+      <tr><td><a href="../reference/qdm_criterion.html"><code>qdm_criterion()</code></a></td><td>The decision criterion</td></tr>
+      <tr><td><a href="../reference/qdm_external.html"><code>qdm_external()</code></a></td><td><code>external_t</code>, <code>external_c</code></td></tr>
+      <tr><td><a href="../reference/qdm_control.html"><code>qdm_control()</code></a></td><td><code>hypothetical_c</code>, <code>fixed_c</code></td></tr>
+      <tr><td><a href="../reference/qdm_tte.html"><code>qdm_tte()</code></a></td><td><code>milestone</code>, <code>effect</code>, <code>conduct</code>, <code>conduct_future</code></td></tr>
+      <tr><td><a href="../reference/qdm_computation.html"><code>qdm_computation()</code></a></td><td><code>method</code>, <code>nMC</code>, <code>enumerate</code></td></tr>
+      <tr><td><a href="../reference/qdm_build.html"><code>qdm_build()</code></a></td><td>Create the design with its <code>design_*()</code> function</td></tr>
+    </tbody>
+  </table>
+<pre><code class="language-r">library(BayesianQDM)
+
+spec &lt;- qdm_endpoint("binary") |&gt;
+  qdm_sample_size(n_t = 12, n_c = 12) |&gt;
+  qdm_prior(prior_t = prior_beta(0.5, 0.5),
+            prior_c = prior_beta(0.5, 0.5)) |&gt;
+  qdm_criterion(criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                    gamma_go = 0.5, gamma_nogo = 0.8))
+des &lt;- qdm_build(spec)
+
+# The same design in one call
+des2 &lt;- design_binary(
+  n_t = 12, n_c = 12,
+  prior_t = prior_beta(0.5, 0.5), prior_c = prior_beta(0.5, 0.5),
+  criterion = criterion_posterior(theta_tv = 0.2, theta_mav = 0.1,
+                                  gamma_go = 0.5, gamma_nogo = 0.8)
+)
+identical(des, des2)</code></pre>
+  <p class="note">A step sets all its arguments anew: an argument that is not given returns to its default, also when the step is applied to a design made by <code>design_*()</code>. The analyses accept a specification in place of a design.</p>
+<pre><code class="language-r"># Change one part: the sample sizes
+spec |&gt;
+  qdm_sample_size(n_t = 20, n_c = 20) |&gt;
+  qdm_build()</code></pre>
+</section>
+
+<section class="card">
+  <h2>Decision criteria</h2>
+  <div class="formula">
+    <p>Go criterion: \(\Pr(\theta > \theta_{TV} \mid D) \ge \gamma_{go}\)</p>
+    <p>NoGo criterion: \(\Pr(\theta \le \theta_{MAV} \mid D) \ge \gamma_{nogo}\)</p>
+  </div>
+  <div class="decisions">
+    <div class="dec go"><b>Go</b>only the Go criterion is met</div>
+    <div class="dec nogo"><b>NoGo</b>only the NoGo criterion is met</div>
+    <div class="dec gray"><b>Gray</b>neither is met</div>
+    <div class="dec miss"><b>Miss</b>both are met</div>
+  </div>
+  <table>
+    <tbody>
+      <tr><td><a href="../reference/criterion_posterior.html"><code>criterion_posterior()</code></a></td><td>Posterior probability of the effect \(\theta\), with the target value <code>theta_tv</code>, the minimum acceptable value <code>theta_mav</code> and the thresholds <code>gamma_go</code>, <code>gamma_nogo</code></td></tr>
+      <tr><td><a href="../reference/criterion_predictive.html"><code>criterion_predictive()</code></a></td><td>Posterior predictive probability of the effect \(\tilde\theta\) that a future study with <code>m_t</code> and <code>m_c</code> subjects would observe, compared with <code>theta_null</code></td></tr>
+      <tr><td><a href="../reference/qdm_regions.html"><code>qdm_regions()</code></a></td><td>Numbering of the regions of two endpoints (9 regions for the posterior criterion, 4 for the predictive one)</td></tr>
+    </tbody>
+  </table>
+  <ul class="note">
+    <li>The effect is the difference of the response rates or means, or for a time-to-event endpoint the difference of the milestone survival probabilities or the hazard ratio.</li>
+    <li><code>direction = "less"</code>: smaller effects are favorable (for example a hazard ratio), with <code>theta_tv</code> below <code>theta_mav</code>.</li>
+    <li>Two endpoints: <code>theta_tv</code> and <code>theta_mav</code> have two values; <code>go_regions</code> and <code>nogo_regions</code> choose the regions, and <code>rule = "joint"</code> (default), <code>"and"</code> or <code>"or"</code> combines the endpoints.</li>
+    <li>A Miss is impossible when \(\gamma_{go} + \gamma_{nogo} > 1\) for one endpoint.</li>
+  </ul>
+<pre><code class="language-r">criterion_predictive(theta_null = 0.1, m_t = 50, m_c = 50,
+                     gamma_go = 0.8, gamma_nogo = 0.8)
+# Smaller effects are favorable, for example a hazard ratio
+criterion_posterior(theta_tv = 0.67, theta_mav = 0.8,
+                    gamma_go = 0.5, gamma_nogo = 0.6, direction = "less")
+qdm_regions("posterior")</code></pre>
+</section>
+
+<section class="card">
+  <h2>Priors, data and controls</h2>
+  <table>
+    <tbody>
+      <tr><td><a href="../reference/prior_beta.html"><code>prior_beta()</code></a>, <a href="../reference/prior_dirichlet.html"><code>prior_dirichlet()</code></a></td><td>Beta prior of a rate; Dirichlet prior of the four cells of two binary endpoints</td></tr>
+      <tr><td><a href="../reference/prior_nix.html"><code>prior_nix()</code></a>, <a href="../reference/prior_niw.html"><code>prior_niw()</code></a></td><td>Normal-Inverse-chi-squared and Normal-Inverse-Wishart priors</td></tr>
+      <tr><td><a href="../reference/prior_vague.html"><code>prior_vague()</code></a></td><td>Vague prior for continuous endpoints</td></tr>
+      <tr><td><a href="../reference/prior_gamma.html"><code>prior_gamma()</code></a></td><td>Gamma prior of a hazard rate</td></tr>
+      <tr><td><a href="../reference/borrow.html"><code>borrow(data, a0)</code></a></td><td>External data through a power prior with weight <code>a0</code> from 0 to 1</td></tr>
+      <tr><td><a href="../reference/hypothetical.html"><code>hypothetical()</code></a></td><td>Hypothetical control: <code>data</code> (binary, time to event) or <code>mean</code> and <code>r</code> (continuous)</td></tr>
+      <tr><td><a href="../reference/conduct_tte.html"><code>conduct_tte()</code></a></td><td>Enrollment, dropout and time of the analysis of a time-to-event study</td></tr>
+    </tbody>
+  </table>
+  <h3>Control group</h3>
+  <ul>
+    <li><strong>Concurrent</strong>: <code>n_c</code> greater than 0.</li>
+    <li><strong>External only</strong>: <code>n_c = 0</code> with <code>external_c</code>.</li>
+    <li><strong>Hypothetical</strong>: <code>n_c = 0</code> with <code>hypothetical_c</code>.</li>
+    <li><strong>Fixed value</strong>: <code>n_c = 0</code> with <code>fixed_c</code>, for example the response rate of the standard of care.</li>
+  </ul>
+<pre><code class="language-r"># External control data borrowed with weight a0 = 0.5
+ext &lt;- spec |&gt;
+  qdm_external(external_c = borrow(data_binary(n = 40, y = 8), a0 = 0.5)) |&gt;
+  qdm_build()
+
+# No concurrent control: a fixed control value ...
+fix &lt;- spec |&gt;
+  qdm_sample_size(n_t = 20, n_c = 0) |&gt;
+  qdm_prior(prior_t = prior_beta(0.5, 0.5)) |&gt;
+  qdm_control(fixed_c = 0.2) |&gt;
+  qdm_build()
+
+# ... or a hypothetical control
+hyp &lt;- spec |&gt;
+  qdm_sample_size(n_t = 12, n_c = 0) |&gt;
+  qdm_control(hypothetical_c = hypothetical(data = data_binary(12, 3))) |&gt;
+  qdm_build()</code></pre>
+</section>
+
+<section class="card decide">
+  <h2>Decide with the observed data</h2>
+  <table>
+    <tbody>
+      <tr><td><a href="../reference/qdm_decide.html"><code>qdm_decide()</code></a></td><td>Probabilities of the Go and NoGo regions, the criteria met and the decision; <code>seed</code> for Monte Carlo methods</td></tr>
+      <tr><td><a href="../reference/plot.qdm_decision.html"><code>plot()</code></a></td><td>Posterior density with the Go and NoGo regions, predictive probabilities with their thresholds, or probabilities of the regions of two endpoints</td></tr>
+    </tbody>
+  </table>
+<pre><code class="language-r" data-figure="decision">dec &lt;- qdm_decide(des, data_t = data_binary(12, 9),
+                  data_c = data_binary(12, 4))
+dec
+plot(dec)</code></pre>
+  <figure>
+    <img src="figures/decision.png" alt="Posterior density of the difference in response rates with the Go region above the target value shaded green and the NoGo region below the minimum acceptable value shaded red." loading="lazy">
+    <figcaption>The decision of <code>dec</code>: the shaded areas are the probabilities of the Go and NoGo regions.</figcaption>
+  </figure>
+</section>
+
+<section class="card plan">
+  <h2>Scenarios and operating characteristics</h2>
+  <table>
+    <tbody>
+      <tr><td><a href="../reference/qdm_scenarios.html"><code>qdm_scenarios()</code></a></td><td>Data frame of scenarios from the values of the columns or from the effects <code>theta</code>; <code>theta = "thresholds"</code> gives no effect, the MAV and the TV</td></tr>
+      <tr><td><a href="../reference/qdm_oc.html"><code>qdm_oc()</code></a></td><td>Probabilities of Go, NoGo, Gray and Miss under each scenario: exact for one binary endpoint and, by default, for two binary endpoints; simulated with <code>nsim</code> and <code>seed</code> otherwise</td></tr>
+      <tr><td><a href="../reference/qdm_compare.html"><code>qdm_compare()</code></a></td><td>Operating characteristics of several designs under the same scenarios</td></tr>
+    </tbody>
+  </table>
+<pre><code class="language-r" data-figure="oc">scen &lt;- qdm_scenarios(des, theta = seq(0, 0.4, by = 0.05), pi_c = 0.3)
+oc &lt;- qdm_oc(des, scen)
+oc
+plot(oc)</code></pre>
+  <figure>
+    <img src="figures/oc.png" alt="Probabilities of Go, NoGo and Gray decisions against the true difference in response rates." loading="lazy">
+    <figcaption>Probabilities of the decisions against the true effect; the dotted lines are the MAV and the TV.</figcaption>
+  </figure>
+<pre><code class="language-r">designs &lt;- lapply(c(12, 18, 24), function(k) {
+  qdm_sample_size(des, n_t = k, n_c = k)
+})
+names(designs) &lt;- paste(c(12, 18, 24), "per group")
+cmp &lt;- qdm_compare(designs, scen)
+plot(cmp)</code></pre>
+</section>
+
+<section class="card plan">
+  <h2>Calibrate the thresholds</h2>
+  <p><a href="../reference/qdm_calibrate.html"><code>qdm_calibrate()</code></a> chooses the smallest \(\gamma_{go}\) and \(\gamma_{nogo}\) of a grid for which the probability of a false Go (the Go criterion is met under <code>scenario_go</code>, where a Go decision would be wrong) and that of a false NoGo (the NoGo criterion is met under <code>scenario_nogo</code>) are at most <code>target_go</code> and <code>target_nogo</code>.</p>
+<pre><code class="language-r" data-figure="calibration">cal &lt;- qdm_calibrate(des,
+                     scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
+                     scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
+                     target_go = 0.05, target_nogo = 0.2)
+cal
+cal$design   # the design with the calibrated thresholds
+plot(cal)</code></pre>
+  <figure>
+    <img src="figures/calibration.png" alt="Probabilities of a false Go and a false NoGo against the threshold, with the targets as dashed horizontal lines and the chosen thresholds as dotted vertical lines." loading="lazy">
+    <figcaption>Dashed horizontal lines: the targets; dotted vertical lines: the chosen thresholds, in the colors of the criteria.</figcaption>
+  </figure>
+</section>
+
+<section class="card plan">
+  <h2>Search for the sample size</h2>
+  <p><a href="../reference/qdm_find_n.html"><code>qdm_find_n()</code></a> keeps the thresholds fixed and gives the smallest candidate sample size that meets the same two targets. Because the probabilities of a binary endpoint are not monotone in the sample size, <code>n_t_stable</code> is the smallest candidate from which every larger candidate meets the targets. <code>n_c</code> sets the control group sizes of the candidates (by default as many as <code>n_t</code> with a concurrent control group, and 0 without one).</p>
+<pre><code class="language-r" data-figure="find_n">res &lt;- qdm_find_n(des,
+                  scenario_go = data.frame(pi_t = 0.3, pi_c = 0.3),
+                  scenario_nogo = data.frame(pi_t = 0.6, pi_c = 0.3),
+                  target_go = 0.1, target_nogo = 0.1,
+                  n_t = seq(6, 30, by = 2))
+res
+res$design   # the design with the smallest candidate found
+plot(res)</code></pre>
+  <figure>
+    <img src="figures/find_n.png" alt="Probabilities of a false Go and a false NoGo against the number of subjects per group, with the targets as a dashed line and the smallest candidate that meets them as a dotted line." loading="lazy">
+    <figcaption>Dashed line: the targets (one gray line when they are equal); dotted line: the smallest candidate that meets them.</figcaption>
+  </figure>
+</section>
+
+<section class="card plan">
+  <h2>Decision boundary</h2>
+  <p><a href="../reference/qdm_boundary.html"><code>qdm_boundary()</code></a> gives the observed data that lead to Go, NoGo and Gray decisions, whatever the true parameters: the numbers of treatment responders for each number of control responders (one binary endpoint), the observed treatment mean (continuous) or the number of events (time to event). It is not available for two binary endpoints.</p>
+<pre><code class="language-r" data-figure="boundary" data-height="4.5">b &lt;- qdm_boundary(des)
+b
+plot(b)</code></pre>
+  <figure>
+    <img src="figures/boundary.png" alt="Regions of the decisions by the numbers of responders of the treatment and control groups, with the boundary values written on the regions." loading="lazy">
+    <figcaption>The numbers written on the regions are the boundary values.</figcaption>
+  </figure>
+</section>
+
+<section class="card decide">
+  <h2>Reports, R code and tables</h2>
+  <table>
+    <tbody>
+      <tr><td><a href="../reference/show_report.html"><code>show_report()</code></a></td><td>Draft of the sections of a study protocol (design, model and priors, criteria with formulas, computation, result) as HTML or text, for a design, a specification or a result of <code>qdm_oc()</code>, <code>qdm_calibrate()</code>, <code>qdm_find_n()</code>, <code>qdm_boundary()</code> or <code>qdm_decide()</code></td></tr>
+      <tr><td><a href="../reference/show_code.html"><code>show_code()</code></a></td><td>R code that creates a design: the pipe of the steps or one call of <code>design_*()</code></td></tr>
+      <tr><td><a href="../reference/as.data.frame.qdm_decision.html"><code>as.data.frame()</code></a></td><td>One-row data frame of a decision, a calibration or a search for the sample size, to combine with <code>rbind()</code></td></tr>
+    </tbody>
+  </table>
+<pre><code class="language-r">show_code(des)                     # the pipe of the design steps
+show_code(des, style = "design")   # one call of design_binary()
+as.data.frame(dec)
+report &lt;- show_report(cal, open = FALSE)   # file name of the HTML report</code></pre>
+</section>
+
+<section class="card">
+  <h2>Other endpoints</h2>
+<pre><code class="language-r"># One continuous endpoint, moment-matching approximation
+qdm_endpoint("continuous") |&gt;
+  qdm_sample_size(n_t = 15, n_c = 15) |&gt;
+  qdm_prior(prior_t = prior_vague(), prior_c = prior_vague()) |&gt;
+  qdm_criterion(criterion_posterior(theta_tv = 30, theta_mav = 15,
+                                    gamma_go = 0.6, gamma_nogo = 0.7)) |&gt;
+  qdm_computation(method = "MM") |&gt;
+  qdm_oc(data.frame(mu_t = c(0, 20, 40), sd_t = 25, mu_c = 0, sd_c = 25),
+         nsim = 2000, seed = 1)
+
+# Time to event, hazard ratio (smaller is favorable)
+qdm_endpoint("tte") |&gt;
+  qdm_sample_size(n_t = 30, n_c = 30) |&gt;
+  qdm_prior(prior_t = prior_gamma(0.1, 1), prior_c = prior_gamma(0.1, 1)) |&gt;
+  qdm_criterion(criterion_posterior(theta_tv = 0.67, theta_mav = 0.8,
+                                    gamma_go = 0.5, gamma_nogo = 0.6,
+                                    direction = "less")) |&gt;
+  qdm_tte(effect = "hazard_ratio") |&gt;
+  qdm_decide(data_t = data_tte(events = 12, exposure = 300),
+             data_c = data_tte(events = 20, exposure = 260))
+
+# Two binary endpoints: cells 00, 01, 10 and 11
+prior &lt;- prior_dirichlet(rep(0.25, 4))
+des_b2 &lt;- design_binary2(
+  n_t = 10, n_c = 10, prior_t = prior, prior_c = prior,
+  criterion = criterion_posterior(theta_tv = c(0.15, 0.15),
+                                  theta_mav = c(0.10, 0.10),
+                                  gamma_go = 0.6, gamma_nogo = 0.6),
+  nMC = 2000
+)
+qdm_decide(des_b2, data_t = data_binary2(c(3, 2, 2, 3)),
+           data_c = data_binary2(c(6, 2, 1, 1)), seed = 1)</code></pre>
+  <p class="note">Methods of the probabilities: <code>"NI"</code> (numerical integration), <code>"MM"</code> (moment matching, fast for operating characteristics) and <code>"MC"</code> (Monte Carlo) for continuous endpoints; exact enumeration (<code>enumerate = TRUE</code>, default) or simulation for two binary endpoints.</p>
+</section>
+
+<section class="card">
+  <h2>Distribution functions</h2>
+  <table>
+    <tbody>
+      <tr><td><a href="../reference/pbetadiff.html"><code>pbetadiff()</code></a></td><td>Difference of two Beta variables</td></tr>
+      <tr><td><a href="../reference/pbetabinomdiff.html"><code>pbetabinomdiff()</code></a></td><td>Difference of two Beta-binomial proportions</td></tr>
+      <tr><td><a href="../reference/ptdiff.html"><code>ptdiff()</code></a></td><td>Difference of two t variables (<code>method</code> NI, MM or MC)</td></tr>
+      <tr><td><a href="../reference/psurvdiff.html"><code>psurvdiff()</code></a></td><td>Difference of two milestone survival probabilities</td></tr>
+      <tr><td><a href="../reference/phazardratio.html"><code>phazardratio()</code></a></td><td>Ratio of two hazards</td></tr>
+      <tr><td><a href="../reference/cellprob_binary2.html"><code>cellprob_binary2()</code></a></td><td>Cell probabilities of two correlated binary endpoints</td></tr>
+      <tr><td><a href="../reference/rdirichlet.html"><code>rdirichlet()</code></a></td><td>Random generation from the Dirichlet distribution</td></tr>
+    </tbody>
+  </table>
+<pre><code class="language-r"># Posterior probability that pi_t - pi_c &gt; 0.2 for the data of dec
+# (Jeffreys priors, 9 of 12 and 4 of 12 responders)
+pbetadiff(0.2, a_t = 9.5, b_t = 3.5, a_c = 4.5, b_c = 8.5,
+          lower.tail = FALSE)</code></pre>
+</section>
+
+<section class="card">
+  <h2>Plots</h2>
+  <p>The results of the analyses have <code>plot()</code> methods that return ggplot objects: <a href="../reference/plot.qdm_oc.html">operating characteristics</a>, <a href="../reference/plot.qdm_comparison.html">comparison</a>, <a href="../reference/plot.qdm_calibration.html">calibration</a>, <a href="../reference/plot.qdm_n_search.html">search for the sample size</a>, <a href="../reference/plot.qdm_boundary.html">boundary</a> and <a href="../reference/plot.qdm_decision.html">decision</a>. Arguments include <code>col_go</code>, <code>col_nogo</code>, <code>col_gray</code>, <code>base_size</code> and <code>legend_position</code>; for two endpoints, heat maps with <code>overlay</code> and <code>cell_values</code>.</p>
+<pre><code class="language-r">plot(oc, col_go = "darkgreen", col_nogo = "firebrick",
+     base_size = 13, legend_position = "right") +
+  ggplot2::labs(title = "Operating characteristics")</code></pre>
+</section>
+
+<section class="card">
+  <h2>Typical workflow</h2>
+  <ol>
+    <li>Specify the design with <code>qdm_endpoint()</code> and the steps, or with <code>design_*()</code>.</li>
+    <li>Make the scenarios of the true parameters with <code>qdm_scenarios()</code>.</li>
+    <li>Evaluate the operating characteristics with <code>qdm_oc()</code>, and compare designs with <code>qdm_compare()</code>.</li>
+    <li>Control the probabilities of a false Go and a false NoGo: calibrate the thresholds with <code>qdm_calibrate()</code> or search for the sample size with <code>qdm_find_n()</code>. Confirm a design chosen by simulation with a larger <code>nsim</code>.</li>
+    <li>Check which observed data lead to each decision with <code>qdm_boundary()</code>.</li>
+    <li>Write the protocol text with <code>show_report()</code> and the R code with <code>show_code()</code>.</li>
+    <li>After the study, decide with <code>qdm_decide()</code> and show the decision with <code>plot()</code>.</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2>Install and documentation</h2>
+<pre><code class="language-r" data-run="false">install.packages("BayesianQDM")                       # CRAN release
+remotes::install_github("gosukehommaEX/BayesianQDM")  # development version
+vignette("overview", package = "BayesianQDM")</code></pre>
+  <ul>
+    <li>Guides: <a href="../articles/overview.html">Overview</a>, <a href="../articles/pipe.html">Working with the pipe</a>, <a href="../articles/planning.html">Planning a study</a>, <a href="../articles/single-binary.html">single binary</a>, <a href="../articles/single-continuous.html">single continuous</a>, <a href="../articles/time-to-event.html">time to event</a>, <a href="../articles/two-binary.html">two binary</a> and <a href="../articles/two-continuous.html">two continuous</a> endpoints, <a href="../articles/migration.html">migrating from version 0.1.0</a>.</li>
+    <li><a href="../reference/index.html">Reference</a> of all functions and <a href="../news/index.html">changelog</a>.</li>
+    <li>Source and issues: <a href="https://github.com/gosukehommaEX/BayesianQDM">github.com/gosukehommaEX/BayesianQDM</a>.</li>
+  </ul>
+  <p class="note">This sheet describes version 1.1.0. The design steps, <code>qdm_scenarios()</code>, <code>qdm_compare()</code>, <code>qdm_find_n()</code>, <code>show_report()</code>, <code>show_code()</code> and the <code>plot()</code> of a decision are new in 1.1.0.</p>
+</section>
+
+</main>
+
+<footer>
+  <p>BayesianQDM 1.1.0, GPL (&gt;= 2). Authors: Gosuke Homma and Yusuke Yamaguchi. Methodological framework: Kang, R., Yamaguchi, Y. and Han, C. (2026), Bayesian quantitative decision-making framework in cell and gene therapy development for rare diseases, <em>Journal of Biopharmaceutical Statistics</em>, <a href="https://doi.org/10.1080/10543406.2026.2655410">doi:10.1080/10543406.2026.2655410</a>.</p>
+  <p>The code on this sheet is run, and its figures are drawn, by a script of the package development before each update of the sheet.</p>
+</footer>
+
+</div>
+<script>
+// Light highlighting of the R code: comments, strings, function calls and
+// the pipe. The code itself is left as written.
+document.querySelectorAll("pre > code.language-r").forEach(function (el) {
+  var src = el.textContent;
+  var re = /(#[^\n]*)|("(?:[^"\\]|\\.)*")|([A-Za-z_.][A-Za-z0-9_.]*)(?=\()|(\|>)/g;
+  var esc = function (s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  };
+  var out = "", last = 0, m;
+  while ((m = re.exec(src)) !== null) {
+    out += esc(src.slice(last, m.index));
+    if (m[1]) { out += '<span class="cm">' + esc(m[1]) + "</span>"; }
+    else if (m[2]) { out += '<span class="st">' + esc(m[2]) + "</span>"; }
+    else if (m[3]) { out += '<span class="fn">' + esc(m[3]) + "</span>"; }
+    else { out += '<span class="op">' + esc(m[4]) + "</span>"; }
+    last = re.lastIndex;
+  }
+  el.innerHTML = out + esc(src.slice(last));
+});
+</script>
+</body>
+</html>
