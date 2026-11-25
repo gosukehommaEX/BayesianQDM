@@ -1,30 +1,27 @@
 ## Submission
 
-This is a patch release of BayesianQDM 1.0.0. It fixes the installation
-warning on r-devel-linux-x86_64-fedora-gcc (-Warray-bounds with GCC 16 in
-src/regions_continuous2.cpp), which the CRAN team asked us to correct before
-2026-11-20. The warning came from std::sort() on a fixed-size array in which
-at most two elements are sorted; the call is replaced by a comparison and a
-swap, so the results are unchanged. We do not have access to GCC 16; with
-the compilers used in the test environments below, the package installs
-without warnings.
+This is a minor release, version 1.1.0. It adds functions that build a
+design step by step with the native pipe, reports of a design and its
+results, the R code of a design, the comparison of designs, the search for
+the smallest sample size and two vignettes, and the package now depends on
+R (>= 4.1.0) for the native pipe. Apart from the default grid of
+qdm_calibrate() and the legends of the plots of its results, the functions
+of version 1.0.1 give the same results. The changes are listed in NEWS.md.
+
+Version 1.0.1 (2026-10-31) came one day after version 1.0.0 because the
+CRAN team asked us to fix a compiler warning with GCC 16; this is the first
+planned update after version 1.0.0.
 
 ## Test environments
 
 * Local: Windows 11, R 4.6.1
-* win-builder: R-devel (2026-10-30 r90805) and R-release (4.6.2)
+* win-builder: R-devel (2026-11-17 r90926)
 * GitHub Actions: ubuntu-latest (R-devel, R-release and R-oldrel-1),
   windows-latest (R-release) and macos-latest (R-release)
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-* checking CRAN incoming feasibility ... NOTE
-  Days since last update: 1
-
-  This update follows the CRAN team's request to fix the warning above, so
-  it comes one day after version 1.0.0.
+0 errors | 0 warnings | 0 notes
 
 ## Reverse dependencies
 
